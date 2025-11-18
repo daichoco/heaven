@@ -47,17 +47,22 @@ while True:
 # 最下部までスクロール後のHTMLを取得
 
 # %%
+from tqdm import tqdm
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from urllib.parse import urljoin
 
 data = {}
-
 blocks = driver.find_elements(By.CSS_SELECTOR, "div.recommend-block")
 
-for block in blocks:
+for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
     try:
         # 名前の取得
         name_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-name")
         name = name_tag.text.strip() if name_tag else "不明"
-        shop_tag = block.find_element(By.CSS_SELECTOR,".recommend-block-top-shop")
+
+        shop_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-shop")
         shop = shop_tag.text.strip() if shop_tag else "不明"
 
         # スケジュールの取得
@@ -87,11 +92,9 @@ for block in blocks:
         img_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-img img")
         img_url = urljoin("https://www.cityheaven.net", img_tag.get_attribute("src"))
 
-
-
         # 情報保存
         data[name] = {
-            "shop":shop,
+            "shop": shop,
             "url": girl_url,
             "schedule": schedule,
             "image": img_url
@@ -137,7 +140,10 @@ from generate_html import generate_html
 # HTML生成
 html = generate_html(data, sorted_labels, today_label)
 
-output_path = os.path.join("G:/マイドライブ/heaven","cityheaven_profiles.html")
+base_dir = os.path.dirname(os.path.abspath(__file__))
+output_dir = os.path.join(base_dir, "..", "docs")
+output_path = os.path.join(output_dir, "cityheaven_profiles.html")
+
 with open(output_path, "w", encoding="utf-8") as f:
     f.write(html)
 # %%

@@ -18,7 +18,7 @@ th.sunday { color: red; }
     let show = false;
 
     if (selected === "today") {
-      const cell = row.querySelector('[data-label="11/17(月)"]');
+      const cell = row.querySelector('[data-label="11/18(火)"]');
       const text = cell ? cell.textContent.trim() : "";
       show = /^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$/.test(text);
     } else if (selected === "weekend") {
@@ -101,9 +101,6 @@ function applyDateFilter() {
       画像
      </th>
      <th>
-      11/17(月)
-     </th>
-     <th>
       11/18(火)
      </th>
      <th>
@@ -121,6 +118,9 @@ function applyDateFilter() {
      <th class="sunday">
       11/23(日)
      </th>
+     <th>
+      11/24(月)
+     </th>
     </tr>
    </thead>
    <tbody>
@@ -136,9 +136,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044866959_0000000000pc.jpg?cache02=1761470164"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       明日出勤！ご予約受付中！
      </td>
@@ -156,6 +153,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 20:30
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -170,9 +170,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0050476855_0000000000pc.jpg?cache02=1740655921"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -180,7 +177,7 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/20(木)">
-      -
+      次回出勤調整中
      </td>
      <td data-label="11/21(金)">
       -
@@ -189,6 +186,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -204,9 +204,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0062738481_0000000000pc.jpg?cache02=1762411225"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -223,6 +220,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -236,10 +236,7 @@ function applyDateFilter() {
       愛特急２００６　Ｖｅｎｕｓ
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1763322344"/>
-     </td>
-     <td data-label="11/17(月)">
-      ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1763475349"/>
      </td>
      <td data-label="11/18(火)">
       ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
@@ -251,12 +248,15 @@ function applyDateFilter() {
       ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
      </td>
      <td data-label="11/21(金)">
-      ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
+      10:00 ~ 21:00
      </td>
      <td data-label="11/22(土)">
       ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
      </td>
      <td data-label="11/23(日)">
+      ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
+     </td>
+     <td data-label="11/24(月)">
       ⭐ご新規様割引＋Fポイント会員登録で更にお得⭐
      </td>
     </tr>
@@ -270,13 +270,10 @@ function applyDateFilter() {
       愛ＡＮＧＥＬ
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0031185227_0000000000pc.jpg?cache02=1763307309"/>
-     </td>
-     <td data-label="11/17(月)">
-      20:00 ~ 4:00
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0031185227_0000000000pc.jpg?cache02=1763393765"/>
      </td>
      <td data-label="11/18(火)">
-      20:00 ~ 4:00
+      休み
      </td>
      <td data-label="11/19(水)">
       🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
@@ -292,6 +289,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
+     </td>
+     <td data-label="11/24(月)">
+      20:00 ~ 4:00
      </td>
     </tr>
     <tr>
@@ -306,9 +306,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0055993045_0000000000pc.jpg?cache02=1756699556"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -325,6 +322,9 @@ function applyDateFilter() {
       休み
      </td>
      <td data-label="11/23(日)">
+      休み
+     </td>
+     <td data-label="11/24(月)">
       休み
      </td>
     </tr>
@@ -340,9 +340,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0051861344_0000000000pc.jpg?cache02=1749194029"/>
      </td>
-     <td data-label="11/17(月)">
-      16:00 ~ 20:00
-     </td>
      <td data-label="11/18(火)">
       16:00 ~ 20:00
      </td>
@@ -361,6 +358,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       休み
      </td>
+     <td data-label="11/24(月)">
+      16:00 ~ 20:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -373,9 +373,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/celb_palace/grpb0039299676_0000000000pc.jpg?cache02=1762953795"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -395,6 +392,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       14:00 ~ 16:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -408,11 +408,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0033401214_0000000000pc.jpg?cache02=1739106103"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
-      -
+      23:00 ~ 5:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -427,6 +424,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -442,9 +442,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0036052280_0000000000pc.jpg?cache02=1748018436"/>
      </td>
-     <td data-label="11/17(月)">
-      17:00 ~ 0:00
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -463,6 +460,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -475,9 +475,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/pocha_mermaid/grpb0019497229_0000000000pc.jpg?cache02=1760758793"/>
-     </td>
-     <td data-label="11/17(月)">
-      次回21日(金)19時から！
      </td>
      <td data-label="11/18(火)">
       次回21日(金)19時から！
@@ -497,6 +494,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       19:00 ~ 0:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -509,9 +509,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sm_mmarket/grpb0040589239_0000000000pc.jpeg?cache02=1761122123"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
      </td>
      <td data-label="11/18(火)">
       -
@@ -529,6 +526,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -544,11 +544,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0022383335_0000000000pc.jpg?cache02=1762491913"/>
      </td>
-     <td data-label="11/17(月)">
-      20:00 ~ 3:00
-     </td>
      <td data-label="11/18(火)">
-      19:00 ~ 3:00
+      20:00 ~ 3:00
      </td>
      <td data-label="11/19(水)">
       19:00 ~ 3:00
@@ -563,6 +560,9 @@ function applyDateFilter() {
       19:00 ~ 3:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -578,9 +578,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0041098449_0000000000pc.jpg?cache02=1761926122"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -588,16 +585,19 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/20(木)">
-      -
+      18:00 ~ 2:00
      </td>
      <td data-label="11/21(金)">
-      -
+      14:00 ~ 2:00
      </td>
      <td data-label="11/22(土)">
-      -
+      14:00 ~ 2:00
      </td>
      <td data-label="11/23(日)">
-      -
+      14:00 ~ 2:00
+     </td>
+     <td data-label="11/24(月)">
+      14:00 ~ 2:00
      </td>
     </tr>
     <tr>
@@ -612,9 +612,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/grandstage/grpb0060232530_0000000000pc.jpg?cache02=1760206689"/>
      </td>
-     <td data-label="11/17(月)">
-      22:30 ~ 5:00
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -631,6 +628,9 @@ function applyDateFilter() {
       休み
      </td>
      <td data-label="11/23(日)">
+      休み
+     </td>
+     <td data-label="11/24(月)">
       休み
      </td>
     </tr>
@@ -646,9 +646,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/opera/grpb0042736346_0000000000pc.jpg?cache02=1756003692"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -667,6 +664,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       休み
      </td>
+     <td data-label="11/24(月)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -680,11 +680,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0048193857_0000000000pc.jpg?cache02=1762764127"/>
      </td>
-     <td data-label="11/17(月)">
-      15:00 ~ 0:00
-     </td>
      <td data-label="11/18(火)">
-      15:00 ~ 0:00
+      15:00 ~ 0:30
      </td>
      <td data-label="11/19(水)">
       10:00 ~ 17:00
@@ -701,6 +698,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      15:00 ~ 0:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -713,9 +713,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/iris_g/grpb0013672853_0000000000pc.jpg?cache02=1759321080"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -733,6 +730,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -748,9 +748,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0053733537_0000000000pc.jpeg?cache02=1726319798"/>
      </td>
-     <td data-label="11/17(月)">
-      💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
-     </td>
      <td data-label="11/18(火)">
       💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
      </td>
@@ -764,10 +761,13 @@ function applyDateFilter() {
       💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
      </td>
      <td data-label="11/22(土)">
-      💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
+      17:00 ~ 0:00
      </td>
      <td data-label="11/23(日)">
-      -
+      18:00 ~ 0:00
+     </td>
+     <td data-label="11/24(月)">
+      💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
      </td>
     </tr>
     <tr>
@@ -782,9 +782,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048477036_0000000000pc.jpg?cache02=1763041102"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -795,12 +792,15 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      19:00 ~ 6:00
      </td>
      <td data-label="11/22(土)">
-      -
+      16:00 ~ 6:00
      </td>
      <td data-label="11/23(日)">
+      16:00 ~ 6:00
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -816,11 +816,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0051804079_0000000000pc.jpeg?cache02=1708962818"/>
      </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 15:00
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 19:00
+      14:00 ~ 19:00
      </td>
      <td data-label="11/19(水)">
       🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
@@ -837,6 +834,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -849,9 +849,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0014422236_0000000000pc.jpeg?cache02=1698312907"/>
-     </td>
-     <td data-label="11/17(月)">
-      🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
      </td>
      <td data-label="11/18(火)">
       🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
@@ -869,6 +866,9 @@ function applyDateFilter() {
       🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -884,9 +884,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0054725915_0000000000pc.jpg?cache02=1761166861"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -903,6 +900,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -918,9 +918,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0060472467_0000000000pc.jpg?cache02=1762171657"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -937,6 +934,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -952,14 +952,11 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0039234659_0000000000pc.jpg?cache02=1760320043"/>
      </td>
-     <td data-label="11/17(月)">
-      ご予約完売
-     </td>
      <td data-label="11/18(火)">
-      ご予約完売
+      休み
      </td>
      <td data-label="11/19(水)">
-      10:00 ~ 20:00
+      ご予約完売
      </td>
      <td data-label="11/20(木)">
       -
@@ -971,6 +968,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      ご予約完売
+     </td>
+     <td data-label="11/24(月)">
       ご予約完売
      </td>
     </tr>
@@ -986,14 +986,11 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0041820359_0000000000pc.jpg?cache02=1744691531"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
      <td data-label="11/19(水)">
-      10:00 ~ 20:00
+      -
      </td>
      <td data-label="11/20(木)">
       -
@@ -1006,6 +1003,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 20:00
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -1020,9 +1020,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0040530997_0000000000pc.jpg?cache02=1749120616"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1040,6 +1037,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       ご予約完売
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -1054,9 +1054,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0032125094_0000000000pc.jpg?cache02=1751535186"/>
      </td>
-     <td data-label="11/17(月)">
-      次回11/25出勤
-     </td>
      <td data-label="11/18(火)">
       次回11/25出勤
      </td>
@@ -1075,6 +1072,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       次回11/25出勤
      </td>
+     <td data-label="11/24(月)">
+      明日出勤！
+     </td>
     </tr>
     <tr>
      <td>
@@ -1087,9 +1087,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yatubosi/grpb0050772353_0000000000pc.jpg?cache02=1761652547"/>
-     </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 20:30
      </td>
      <td data-label="11/18(火)">
       -
@@ -1109,6 +1106,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 20:30
      </td>
+     <td data-label="11/24(月)">
+      明日出勤！ご予約受付中！
+     </td>
     </tr>
     <tr>
      <td>
@@ -1121,9 +1121,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060485369_0000000000pc.jpg?cache02=1760513271"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1143,6 +1140,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -1155,9 +1155,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0025858126_0000000000pc.jpg?cache02=1753936424"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1177,6 +1174,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       12:00 ~ 17:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1189,9 +1189,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0008132035_0000000000pc.jpg?cache02=1763117573"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1210,6 +1207,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 23:59
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -1224,9 +1224,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0025374159_0000000000pc.jpg?cache02=1763117480"/>
      </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 23:59
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1243,6 +1240,9 @@ function applyDateFilter() {
       10:00 ~ 23:59
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 23:59
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 23:59
      </td>
     </tr>
@@ -1258,9 +1258,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0056487977_0000000000pc.jpg?cache02=1758717533"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       10:00 ~ 23:59
      </td>
@@ -1278,6 +1275,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 23:59
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -1292,9 +1292,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0037028915_0000000000pc.jpg?cache02=1763117316"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       10:00 ~ 23:59
      </td>
@@ -1312,6 +1309,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:59
      </td>
     </tr>
     <tr>
@@ -1326,9 +1326,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0050270337_0000000000pc.jpg?cache02=1757204745"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1345,6 +1342,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 23:59
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 23:59
      </td>
     </tr>
@@ -1360,9 +1360,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0035197090_0000000000pc.jpg?cache02=1763117394"/>
      </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 23:59
-     </td>
      <td data-label="11/18(火)">
       10:00 ~ 23:59
      </td>
@@ -1381,6 +1378,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:59
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1393,9 +1393,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027126701_0000000000pc.jpg?cache02=1763097443"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       完売御礼
@@ -1413,6 +1410,9 @@ function applyDateFilter() {
       11:00 ~ 19:00
      </td>
      <td data-label="11/23(日)">
+      11:00 ~ 19:00
+     </td>
+     <td data-label="11/24(月)">
       11:00 ~ 19:00
      </td>
     </tr>
@@ -1428,9 +1428,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0002722567_0000000000pc.jpg?cache02=1761103732"/>
      </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 19:00
-     </td>
      <td data-label="11/18(火)">
       12:00 ~ 19:00
      </td>
@@ -1447,6 +1444,9 @@ function applyDateFilter() {
       12:00 ~ 20:00
      </td>
      <td data-label="11/23(日)">
+      12:00 ~ 20:00
+     </td>
+     <td data-label="11/24(月)">
       12:00 ~ 20:00
      </td>
     </tr>
@@ -1462,11 +1462,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0024050685_0000000000pc.jpg?cache02=1761436266"/>
      </td>
-     <td data-label="11/17(月)">
-      明日出勤！ご予約受付中！
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 20:30
+      9:00 ~ 20:30
      </td>
      <td data-label="11/19(水)">
       -
@@ -1483,6 +1480,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 20:30
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 20:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -1495,9 +1495,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044867133_0000000000pc.jpg?cache02=1741482718"/>
-     </td>
-     <td data-label="11/17(月)">
-      完売御礼
      </td>
      <td data-label="11/18(火)">
       9:30 ~ 16:00
@@ -1517,6 +1514,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1529,9 +1529,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0038262520_0000000000pc.jpg?cache02=1763033823"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 23:59
      </td>
      <td data-label="11/18(火)">
       次回11/22出勤
@@ -1551,6 +1548,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:30
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -1564,9 +1564,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0036754755_0000000000pc.jpg?cache02=1761882649"/>
      </td>
-     <td data-label="11/17(月)">
-      10:30 ~ 19:00
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1577,13 +1574,16 @@ function applyDateFilter() {
       10:30 ~ 16:30
      </td>
      <td data-label="11/21(金)">
-      -
+      次回出勤11/26
      </td>
      <td data-label="11/22(土)">
-      -
+      次回出勤11/26
      </td>
      <td data-label="11/23(日)">
-      -
+      次回出勤11/26
+     </td>
+     <td data-label="11/24(月)">
+      次回出勤11/26
      </td>
     </tr>
     <tr>
@@ -1598,9 +1598,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0030609884_0000000000pc.jpg?cache02=1761089958"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1611,13 +1608,16 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      12:00 ~ 20:30
      </td>
      <td data-label="11/22(土)">
-      -
+      11:00 ~ 19:30
      </td>
      <td data-label="11/23(日)">
-      -
+      11:00 ~ 19:30
+     </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 19:30
      </td>
     </tr>
     <tr>
@@ -1630,10 +1630,7 @@ function applyDateFilter() {
       スチュアーデス
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0040953772_0000000000pc.jpg?cache02=1763324711"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 20:00
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0040953772_0000000000pc.jpg?cache02=1763411109"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -1652,6 +1649,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 20:00
      </td>
     </tr>
     <tr>
@@ -1665,9 +1665,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0050696333_0000000000pc.jpg?cache02=1761089521"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1687,6 +1684,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1700,9 +1700,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051980333_0000000000pc.jpg?cache02=1755937579"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1713,12 +1710,15 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      11:00 ~ 15:30
      </td>
      <td data-label="11/22(土)">
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -1734,9 +1734,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051097662_0000000000pc.jpg?cache02=1763215124"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1750,10 +1747,13 @@ function applyDateFilter() {
       10:00 ~ 14:30
      </td>
      <td data-label="11/22(土)">
-      10:00 ~ 17:00
+      10:00 ~ 19:00
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 19:00
      </td>
     </tr>
     <tr>
@@ -1766,10 +1766,7 @@ function applyDateFilter() {
       シルクロード
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/silkroad/grpb0035780066_0000000000pc.jpg?cache02=1763368544"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 23:59
+      <img src="https://img.cityheaven.net/img/girls/t/silkroad/grpb0035780066_0000000000pc.jpg?cache02=1763454939"/>
      </td>
      <td data-label="11/18(火)">
       次回11/22出勤！
@@ -1789,6 +1786,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:30
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -1801,9 +1801,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0041706468_0000000000pc.jpg?cache02=1762903367"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       9:00 ~ 18:00
@@ -1823,6 +1820,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 18:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1835,9 +1835,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0054451741_0000000000pc.jpg?cache02=1746008440"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1857,6 +1854,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      9:00 ~ 16:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -1869,9 +1869,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0039989987_0000000000pc.jpg?cache02=1746008282"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -1889,6 +1886,9 @@ function applyDateFilter() {
       9:00 ~ 21:00
      </td>
      <td data-label="11/23(日)">
+      9:00 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
       9:00 ~ 21:00
      </td>
     </tr>
@@ -1904,9 +1904,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0059189602_0000000000pc.jpg?cache02=1750204302"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       9:00 ~ 19:00
      </td>
@@ -1923,6 +1920,9 @@ function applyDateFilter() {
       9:00 ~ 21:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -1938,9 +1938,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0041423458_0000000000pc.jpg?cache02=1762592584"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1957,6 +1954,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -1972,9 +1972,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0050833887_0000000000pc.jpg?cache02=1759357638"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -1991,6 +1988,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2006,9 +2006,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0048942563_0000000000pc.jpg?cache02=1759369325"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2025,6 +2022,9 @@ function applyDateFilter() {
       10:30 ~ 23:00
      </td>
      <td data-label="11/23(日)">
+      10:30 ~ 23:00
+     </td>
+     <td data-label="11/24(月)">
       10:30 ~ 23:00
      </td>
     </tr>
@@ -2040,9 +2040,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0047401818_0000000000pc.jpg?cache02=1762082429"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       10:30 ~ 19:00
      </td>
@@ -2059,6 +2056,9 @@ function applyDateFilter() {
       10:30 ~ 21:00
      </td>
      <td data-label="11/23(日)">
+      10:30 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
       10:30 ~ 21:00
      </td>
     </tr>
@@ -2074,9 +2074,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0041805133_0000000000pc.jpg?cache02=1741512668"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       12:00 ~ 23:00
      </td>
@@ -2093,6 +2090,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2108,9 +2108,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0055800634_0000000000pc.jpeg?cache02=1760007856"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2129,6 +2126,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2141,9 +2141,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059023491_0000000000pc.jpeg?cache02=1762130836"/>
-     </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 18:00
      </td>
      <td data-label="11/18(火)">
       -
@@ -2163,6 +2160,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       14:00 ~ 23:59
      </td>
+     <td data-label="11/24(月)">
+      9:00 ~ 23:59
+     </td>
     </tr>
     <tr>
      <td>
@@ -2174,10 +2174,7 @@ function applyDateFilter() {
       MGM COLLECTION
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/mgm_collection/grpb0046530956_0000000000pc.jpg?cache02=1763324723"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
+      <img src="https://img.cityheaven.net/img/girls/t/mgm_collection/grpb0046530956_0000000000pc.jpg?cache02=1763411122"/>
      </td>
      <td data-label="11/18(火)">
       11:00 ~ 20:00
@@ -2197,6 +2194,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 20:00
      </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 20:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2208,10 +2208,7 @@ function applyDateFilter() {
       GG
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0039351432_0000000000pc.jpg?cache02=1763359278"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0039351432_0000000000pc.jpg?cache02=1763445732"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -2229,6 +2226,9 @@ function applyDateFilter() {
       10:00 ~ 22:00
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 22:00
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 22:00
      </td>
     </tr>
@@ -2244,9 +2244,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0042166606_0000000000pc.jpg?cache02=1758548160"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2265,6 +2262,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2277,9 +2277,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/selavi/grpb0040362133_0000000000pc.jpeg?cache02=1760099937"/>
-     </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 22:00
      </td>
      <td data-label="11/18(火)">
       明日出勤です♪
@@ -2299,6 +2296,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:30 ~ 22:00
      </td>
+     <td data-label="11/24(月)">
+      10:30 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2311,9 +2311,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0041286094_0000000000pc.jpg?cache02=1761995969"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
      </td>
      <td data-label="11/18(火)">
       休み
@@ -2333,6 +2330,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       12:00 ~ 23:59
      </td>
+     <td data-label="11/24(月)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -2345,9 +2345,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/loveboat-t/grpb0040758592_0000000000pc.jpg?cache02=1747758881"/>
-     </td>
-     <td data-label="11/17(月)">
-      次回11/22(土)出勤
      </td>
      <td data-label="11/18(火)">
       次回11/22(土)出勤
@@ -2367,6 +2364,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2380,11 +2380,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0052668212_0000000000pc.jpg?cache02=1747182983"/>
      </td>
-     <td data-label="11/17(月)">
-      明日出勤
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 23:30
+      10:00 ~ 23:59
      </td>
      <td data-label="11/19(水)">
       次回11/24出勤
@@ -2400,6 +2397,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       明日出勤
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:30
      </td>
     </tr>
     <tr>
@@ -2414,9 +2414,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0046278440_0000000000pc.jpg?cache02=1763205444"/>
      </td>
-     <td data-label="11/17(月)">
-      9:30 ~ 20:30
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2427,12 +2424,15 @@ function applyDateFilter() {
       11:00 ~ 20:30
      </td>
      <td data-label="11/21(金)">
-      -
+      11:00 ~ 18:00
      </td>
      <td data-label="11/22(土)">
-      -
+      11:00 ~ 20:30
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2446,10 +2446,7 @@ function applyDateFilter() {
       愛ＡＮＧＥＬ
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1763322933"/>
-     </td>
-     <td data-label="11/17(月)">
-      🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1763475936"/>
      </td>
      <td data-label="11/18(火)">
       🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
@@ -2469,6 +2466,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       19:00 ~ 3:30
      </td>
+     <td data-label="11/24(月)">
+      🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
+     </td>
     </tr>
     <tr>
      <td>
@@ -2480,10 +2480,7 @@ function applyDateFilter() {
       Secret Service本店
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0036985163_0000000000pc.jpg?cache02=1763323000"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 18:00
+      <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0036985163_0000000000pc.jpg?cache02=1763474204"/>
      </td>
      <td data-label="11/18(火)">
       明日10時半出勤！予約受付中☆
@@ -2503,6 +2500,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11/25㈫10時出勤！予約受付中☆
      </td>
+     <td data-label="11/24(月)">
+      明日10時出勤！予約受付中☆
+     </td>
     </tr>
     <tr>
      <td>
@@ -2516,25 +2516,25 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newreijo/grpb0050554655_0000000000pc.jpg?cache02=1726741461"/>
      </td>
-     <td data-label="11/17(月)">
-      明日出勤♪
-     </td>
      <td data-label="11/18(火)">
       17:00 ~ 23:59
      </td>
      <td data-label="11/19(水)">
-      17:00 ~ 23:59
+      -
      </td>
      <td data-label="11/20(木)">
-      明日出勤♪
+      明後日出勤♪
      </td>
      <td data-label="11/21(金)">
-      17:00 ~ 23:59
+      明日出勤♪
      </td>
      <td data-label="11/22(土)">
       18:00 ~ 23:59
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2549,9 +2549,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/g-opera/grpb0011319463_0000000000pc.jpg?cache02=1762940972"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
      </td>
      <td data-label="11/18(火)">
       19:00 ~ 2:00
@@ -2571,6 +2568,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       休み
      </td>
+     <td data-label="11/24(月)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -2583,9 +2583,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0042044650_0000000000pc.jpg?cache02=1763118662"/>
-     </td>
-     <td data-label="11/17(月)">
-      11/18 出勤決定♪
      </td>
      <td data-label="11/18(火)">
       18:00 ~ 0:00
@@ -2605,6 +2602,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2617,9 +2617,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0040261185_0000000000pc.jpg?cache02=1762776146"/>
-     </td>
-     <td data-label="11/17(月)">
-      17:00 ~ 2:00
      </td>
      <td data-label="11/18(火)">
       17:00 ~ 2:00
@@ -2639,6 +2636,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2651,9 +2651,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0030694068_0000000000pc.jpg?cache02=1762762370"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       18:00 ~ 22:00
@@ -2673,6 +2670,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2684,10 +2684,7 @@ function applyDateFilter() {
       美ＳＴＹＬＥ
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0037545000_0000000000pc.jpg?cache02=1763354998"/>
-     </td>
-     <td data-label="11/17(月)">
-      💋次回出勤◇調整中💋
+      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0037545000_0000000000pc.jpg?cache02=1763439449"/>
      </td>
      <td data-label="11/18(火)">
       💋次回出勤◇調整中💋
@@ -2705,6 +2702,9 @@ function applyDateFilter() {
       💋次回出勤◇調整中💋
      </td>
      <td data-label="11/23(日)">
+      💋次回出勤◇調整中💋
+     </td>
+     <td data-label="11/24(月)">
       💋次回出勤◇調整中💋
      </td>
     </tr>
@@ -2720,9 +2720,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0061548909_0000000000pc.jpg?cache02=1760175005"/>
      </td>
-     <td data-label="11/17(月)">
-      ご予約完売
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2730,7 +2727,7 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/20(木)">
-      10:00 ~ 20:00
+      ご予約完売
      </td>
      <td data-label="11/21(金)">
       ご予約完売
@@ -2739,6 +2736,9 @@ function applyDateFilter() {
       ご予約完売
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2754,9 +2754,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060728637_0000000000pc.jpg?cache02=1760513846"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2775,6 +2772,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2786,10 +2786,7 @@ function applyDateFilter() {
       Premier
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/premier/grpb0055408564_0000000000pc.jpg?cache02=1762085216"/>
-     </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 21:00
+      <img src="https://img.cityheaven.net/img/girls/t/premier/grpb0055408564_0000000000pc.jpg?cache02=1763434846"/>
      </td>
      <td data-label="11/18(火)">
       11:00 ~ 21:00
@@ -2809,6 +2806,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 21:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2820,10 +2820,7 @@ function applyDateFilter() {
       美ＳＴＹＬＥ
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0043952936_0000000000pc.jpg?cache02=1763366818"/>
-     </td>
-     <td data-label="11/17(月)">
-      💋28日出勤◇ご予約受付💋
+      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0043952936_0000000000pc.jpg?cache02=1763453222"/>
      </td>
      <td data-label="11/18(火)">
       💋28日出勤◇ご予約受付💋
@@ -2841,6 +2838,9 @@ function applyDateFilter() {
       💋28日出勤◇ご予約受付💋
      </td>
      <td data-label="11/23(日)">
+      💋28日出勤◇ご予約受付💋
+     </td>
+     <td data-label="11/24(月)">
       💋28日出勤◇ご予約受付💋
      </td>
     </tr>
@@ -2854,10 +2854,7 @@ function applyDateFilter() {
       でりどす
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/deridos/grpb0051980872_0000000000pc.jpg?cache02=1763335019"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/deridos/grpb0051980872_0000000000pc.jpg?cache02=1763421390"/>
      </td>
      <td data-label="11/18(火)">
       17:00 ~ 23:00
@@ -2875,6 +2872,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2890,9 +2890,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027289671_0000000000pc.JPG?cache02=1736039999"/>
      </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 20:00
-     </td>
      <td data-label="11/18(火)">
       11:00 ~ 20:00
      </td>
@@ -2910,6 +2907,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       11:00 ~ 20:00
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -2924,9 +2924,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0051960716_0000000000pc.jpg?cache02=1763034707"/>
      </td>
-     <td data-label="11/17(月)">
-      次回11/26出勤
-     </td>
      <td data-label="11/18(火)">
       次回11/26出勤
      </td>
@@ -2943,6 +2940,9 @@ function applyDateFilter() {
       次回11/26出勤
      </td>
      <td data-label="11/23(日)">
+      次回11/26出勤
+     </td>
+     <td data-label="11/24(月)">
       次回11/26出勤
      </td>
     </tr>
@@ -2958,9 +2958,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0038220954_0000000000pc.jpg?cache02=1762918054"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -2977,6 +2974,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -2992,9 +2992,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056944635_0000000000pc.jpg?cache02=1758869242"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3011,6 +3008,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3026,11 +3026,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0037401180_0000000000pc.jpg?cache02=1762917453"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 22:00
+      9:00 ~ 23:59
      </td>
      <td data-label="11/19(水)">
       10:00 ~ 22:00
@@ -3039,12 +3036,15 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      10:00 ~ 22:00
      </td>
      <td data-label="11/22(土)">
       10:00 ~ 22:00
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 22:00
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 22:00
      </td>
     </tr>
@@ -3060,9 +3060,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0049169298_0000000000pc.jpg?cache02=1758002789"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3081,6 +3078,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3092,13 +3092,10 @@ function applyDateFilter() {
       スチュアーデス
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0048566511_0000000000pc.jpg?cache02=1763324711"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0048566511_0000000000pc.jpg?cache02=1763411109"/>
      </td>
      <td data-label="11/18(火)">
-      休み
+      あす出勤
      </td>
      <td data-label="11/19(水)">
       9:00 ~ 15:00
@@ -3115,6 +3112,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 22:30
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3127,9 +3127,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0047749941_0000000000pc.jpg?cache02=1763003318"/>
-     </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 23:00
      </td>
      <td data-label="11/18(火)">
       -
@@ -3149,6 +3146,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3161,9 +3161,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0046872663_0000000000pc.jpg?cache02=1761088783"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3183,6 +3180,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 19:00
      </td>
+     <td data-label="11/24(月)">
+      9:00 ~ 19:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3194,16 +3194,13 @@ function applyDateFilter() {
       リメイク
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/wife_ichinomiya/grpb0032690596_0000000000pc.jpg?cache02=1763365246"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:00 ~ 17:00
+      <img src="https://img.cityheaven.net/img/girls/t/wife_ichinomiya/grpb0032690596_0000000000pc.jpg?cache02=1763473248"/>
      </td>
      <td data-label="11/18(火)">
-      -
+      次回11/23(日)9時-17時📱事前予約受付中💻
      </td>
      <td data-label="11/19(水)">
-      -
+      次回11/23(日)9時-17時📱事前予約受付中💻
      </td>
      <td data-label="11/20(木)">
       -
@@ -3215,6 +3212,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      9:00 ~ 17:00
+     </td>
+     <td data-label="11/24(月)">
       9:00 ~ 17:00
      </td>
     </tr>
@@ -3229,9 +3229,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0039419174_0000000000pc.jpg?cache02=1751374316"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
      </td>
      <td data-label="11/18(火)">
       休み
@@ -3251,6 +3248,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:30 ~ 15:30
      </td>
+     <td data-label="11/24(月)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -3263,9 +3263,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0044532412_0000000000pc.jpg?cache02=1763059449"/>
-     </td>
-     <td data-label="11/17(月)">
-      18日～24日出勤決定♪
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 5:00
@@ -3284,6 +3281,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       12:00 ~ 3:00
+     </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 0:00
      </td>
     </tr>
     <tr>
@@ -3298,11 +3298,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0046452464_0000000000pc.jpg?cache02=1744691591"/>
      </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 20:00
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 20:00
+      休み
      </td>
      <td data-label="11/19(水)">
       -
@@ -3319,6 +3316,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 20:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3331,9 +3331,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0041173984_0000000000pc.jpg?cache02=1738684664"/>
-     </td>
-     <td data-label="11/17(月)">
-      18日14:00～出勤❤️
      </td>
      <td data-label="11/18(火)">
       14:00 ~ 23:00
@@ -3353,6 +3350,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3364,10 +3364,7 @@ function applyDateFilter() {
       ヘルスクラブ巴里
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/paris/grpb0041463180_0000000000pc.jpg?cache02=1759541585"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/paris/grpb0041463180_0000000000pc.jpg?cache02=1763374208"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -3385,6 +3382,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3400,9 +3400,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0038898929_0000000000pc.jpg?cache02=1756512408"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3419,6 +3416,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3434,9 +3434,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0032022294_0000000000pc.jpg?cache02=1762154643"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3455,6 +3452,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 17:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3467,9 +3467,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0037411552_0000000000pc.jpg?cache02=1751534052"/>
-     </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 22:00
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 22:00
@@ -3489,6 +3486,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       12:00 ~ 22:00
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3501,9 +3501,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aventure/grpb0027877529_0000000000pc.jpg?cache02=1762169428"/>
-     </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 18:00
      </td>
      <td data-label="11/18(火)">
       -
@@ -3523,6 +3520,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3535,9 +3535,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027126160_0000000000pc.jpg?cache02=1759223501"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3557,6 +3554,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 21:30
      </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 21:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -3570,11 +3570,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0062051546_0000000000pc.jpg?cache02=1762837729"/>
      </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 22:00
+      9:00 ~ 23:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -3591,6 +3588,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 22:00
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3603,9 +3603,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0021031329_0000000000pc.jpg?cache02=1757401737"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3625,6 +3622,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 18:30
      </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3638,11 +3638,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0015100863_0000000000pc.jpg?cache02=1753081154"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 20:00
+      14:00 ~ 20:00
      </td>
      <td data-label="11/19(水)">
       12:00 ~ 20:00
@@ -3659,6 +3656,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3671,9 +3671,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0055819558_0000000000pc.jpg?cache02=1746503994"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3693,6 +3690,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3705,9 +3705,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0058830871_0000000000pc.jpg?cache02=1760094163"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3727,6 +3724,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:59
      </td>
+     <td data-label="11/24(月)">
+      16:00 ~ 21:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -3739,9 +3739,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0057814696_0000000000pc.jpg?cache02=1760090981"/>
-     </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 22:00
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 22:00
@@ -3761,6 +3758,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       12:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 21:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3773,9 +3773,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cb/reddiamond-n/grpb0057817454_0000000000pc.jpg?cache02=1756380470"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -3793,6 +3790,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3808,9 +3808,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_again_a/grpb0051943206_0000000000pc.jpg?cache02=1762921735"/>
      </td>
-     <td data-label="11/17(月)">
-      次回11／26出勤です♪
-     </td>
      <td data-label="11/18(火)">
       次回11／26出勤です♪
      </td>
@@ -3827,6 +3824,9 @@ function applyDateFilter() {
       次回11／26出勤です♪事前予約受付中！！
      </td>
      <td data-label="11/23(日)">
+      次回11／26出勤です♪事前予約受付中！！
+     </td>
+     <td data-label="11/24(月)">
       次回11／26出勤です♪事前予約受付中！！
      </td>
     </tr>
@@ -3842,11 +3842,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059921311_0000000000pc.JPG?cache02=1759985712"/>
      </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 20:00
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 23:00
+      14:00 ~ 23:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -3862,6 +3859,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 23:00
+     </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 23:00
      </td>
     </tr>
     <tr>
@@ -3876,9 +3876,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051533030_0000000000pc.jpeg?cache02=1734066793"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3895,6 +3892,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3910,9 +3910,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0061504415_0000000000pc.jpeg?cache02=1761106393"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3929,6 +3926,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -3944,9 +3944,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/y/luxury/grpb0052424239_0000000000pc.jpg?cache02=1758259239"/>
      </td>
-     <td data-label="11/17(月)">
-      8:30 ~ 15:00
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -3964,6 +3961,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       休み
+     </td>
+     <td data-label="11/24(月)">
+      15:00 ~ 22:00
      </td>
     </tr>
     <tr>
@@ -3978,9 +3978,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fujiko-gifu/grpb0041035848_0000000000pc.jpg?cache02=1758473450"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -3997,6 +3994,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4012,9 +4012,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/k/valentine_osaka/grpb0053251922_0000000000pc.jpg?cache02=1751890213"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4031,6 +4028,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4046,9 +4046,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0032189084_0000000000pc.jpg?cache02=1760843528"/>
      </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 16:00
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4056,7 +4053,7 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/20(木)">
-      -
+      次回出勤23日～決定！！
      </td>
      <td data-label="11/21(金)">
       -
@@ -4065,6 +4062,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      11:00 ~ 20:00
+     </td>
+     <td data-label="11/24(月)">
       11:00 ~ 20:00
      </td>
     </tr>
@@ -4078,10 +4078,7 @@ function applyDateFilter() {
       ROYALCLUB姫
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0029694933_0000000000pc.jpg?cache02=1763324709"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0029694933_0000000000pc.jpg?cache02=1763411109"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -4100,6 +4097,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       11:00 ~ 20:00
+     </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 16:00
      </td>
     </tr>
     <tr>
@@ -4114,9 +4114,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0055283498_0000000000pc.jpg?cache02=1729474023"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4135,6 +4132,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4147,9 +4147,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0060747371_0000000000pc.jpg?cache02=1762926032"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -4169,6 +4166,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4181,9 +4181,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/idol_lab/grpb0061265665_0000000000pc.jpg?cache02=1760503597"/>
-     </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 23:59
      </td>
      <td data-label="11/18(火)">
       11:00 ~ 23:59
@@ -4203,6 +4200,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       次回11/25(火)出勤予定♡
      </td>
+     <td data-label="11/24(月)">
+      次回11/25(火)出勤予定♡
+     </td>
     </tr>
     <tr>
      <td>
@@ -4215,9 +4215,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0042513856_0000000000pc.jpg?cache02=1760094213"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -4235,6 +4232,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4250,9 +4250,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0051439444_0000000000pc.jpg?cache02=1763054235"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4263,12 +4260,15 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      15:00 ~ 23:00
      </td>
      <td data-label="11/22(土)">
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4284,9 +4284,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0054793954_0000000000pc.jpg?cache02=1760722750"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4303,6 +4300,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4318,9 +4318,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0051731503_0000000000pc.jpg?cache02=1762485131"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4337,6 +4334,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4352,9 +4352,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0049410986_0000000000pc.jpg?cache02=1762230660"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4373,6 +4370,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4386,11 +4386,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0054344206_0000000000pc.jpg?cache02=1761919190"/>
      </td>
-     <td data-label="11/17(月)">
-      次回11/18(火)12時出勤★事前予約受付中♪
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 1:00
+      次回11/19(水)18時出勤★事前予約受付中♪
      </td>
      <td data-label="11/19(水)">
       18:00 ~ 3:00
@@ -4407,6 +4404,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4419,9 +4419,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0035310599_0000000000pc.jpg?cache02=1756645651"/>
-     </td>
-     <td data-label="11/17(月)">
-      17:00 ~ 1:00
      </td>
      <td data-label="11/18(火)">
       次回11/19(水)18時出勤★事前予約受付中♪
@@ -4441,6 +4438,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       次回11/28(金)18時出勤★事前予約受付中♪
      </td>
+     <td data-label="11/24(月)">
+      次回11/28(金)18時出勤★事前予約受付中♪
+     </td>
     </tr>
     <tr>
      <td>
@@ -4453,9 +4453,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0051547841_0000000000pc.jpg?cache02=1759422159"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -4473,6 +4470,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4488,9 +4488,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0034492013_0000000000pc.jpg?cache02=1749265716"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4507,6 +4504,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4522,9 +4522,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0049458461_0000000000pc.jpg?cache02=1762841351"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4541,6 +4538,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4556,9 +4556,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0046211426_0000000000pc.jpg?cache02=1756780667"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4575,6 +4572,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4590,9 +4590,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0045881066_0000000000pc.jpg?cache02=1763025982"/>
      </td>
-     <td data-label="11/17(月)">
-      11/25㈫18時出勤！予約受付中☆
-     </td>
      <td data-label="11/18(火)">
       11/25㈫18時出勤！予約受付中☆
      </td>
@@ -4610,6 +4607,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       11/25㈫18時出勤！予約受付中☆
+     </td>
+     <td data-label="11/24(月)">
+      明日18時出勤！予約受付中☆
      </td>
     </tr>
     <tr>
@@ -4624,9 +4624,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0035166947_0000000000pc.jpg?cache02=1749837504"/>
      </td>
-     <td data-label="11/17(月)">
-      ☆出勤確認中☆
-     </td>
      <td data-label="11/18(火)">
       ☆出勤確認中☆
      </td>
@@ -4643,6 +4640,9 @@ function applyDateFilter() {
       ☆出勤確認中☆
      </td>
      <td data-label="11/23(日)">
+      ☆出勤確認中☆
+     </td>
+     <td data-label="11/24(月)">
       ☆出勤確認中☆
      </td>
     </tr>
@@ -4658,9 +4658,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/so/final_stage/grpb0043816275_0000000000pc.jpg?cache02=1763133290"/>
      </td>
-     <td data-label="11/17(月)">
-      11/18出勤！ご予約受付中☆
-     </td>
      <td data-label="11/18(火)">
       10:00 ~ 3:00
      </td>
@@ -4677,6 +4674,9 @@ function applyDateFilter() {
       10:00 ~ 3:00
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 3:00
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 3:00
      </td>
     </tr>
@@ -4692,9 +4692,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0051364491_0000000000pc.jpg?cache02=1743047464"/>
      </td>
-     <td data-label="11/17(月)">
-      10:30 ~ 22:00
-     </td>
      <td data-label="11/18(火)">
       10:30 ~ 22:00
      </td>
@@ -4713,6 +4710,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4725,9 +4725,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0037754672_0000000000pc.jpg?cache02=1760955332"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       11:00 ~ 16:00
@@ -4747,6 +4744,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4759,9 +4759,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0042649199_0000000000pc.jpeg?cache02=1662026856"/>
-     </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 23:00
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 23:00
@@ -4781,6 +4778,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -4793,9 +4793,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0058575520_0000000000pc.jpg?cache02=1757506356"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -4815,6 +4812,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       13:30 ~ 20:30
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4827,9 +4827,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051014532_0000000000pc.JPG?cache02=1760002789"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       21:30 ~ 23:00
@@ -4849,6 +4846,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4861,9 +4861,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0032764202_0000000000pc.jpg?cache02=1753960808"/>
-     </td>
-     <td data-label="11/17(月)">
-      SOLD OUT
      </td>
      <td data-label="11/18(火)">
       SOLD OUT
@@ -4881,6 +4878,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4896,9 +4896,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0058573248_0000000000pc.jpg?cache02=1762927752"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4915,6 +4912,9 @@ function applyDateFilter() {
       11:00 ~ 23:30
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -4930,9 +4930,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0042902925_0000000000pc.jpg?cache02=1759028283"/>
      </td>
-     <td data-label="11/17(月)">
-      SOLD OUT
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -4949,6 +4946,9 @@ function applyDateFilter() {
       SOLD OUT
      </td>
      <td data-label="11/23(日)">
+      SOLD OUT
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 21:00
      </td>
     </tr>
@@ -4962,10 +4962,7 @@ function applyDateFilter() {
       GG
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0053248326_0000000000pc.jpg?cache02=1763370088"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0053248326_0000000000pc.jpg?cache02=1763456475"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -4984,6 +4981,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -4998,14 +4998,11 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0056368008_0000000000pc.jpg?cache02=1762530310"/>
      </td>
-     <td data-label="11/17(月)">
-      12:00 ~ 3:00
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 21:00
+      休み
      </td>
      <td data-label="11/19(水)">
-      -
+      12:00 ~ 3:00
      </td>
      <td data-label="11/20(木)">
       -
@@ -5014,9 +5011,12 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/22(土)">
-      -
+      12:00 ~ 5:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5031,9 +5031,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0056598064_0000000000pc.jpg?cache02=1738309113"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5053,6 +5050,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 17:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5065,9 +5065,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0057050617_0000000000pc.jpg?cache02=1739693963"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5087,6 +5084,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5100,17 +5100,14 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newdeli/grpb0054236854_0000000000pc.jpg?cache02=1763128657"/>
      </td>
-     <td data-label="11/17(月)">
-      次回21日14時～出勤　事前予約受付中!!
-     </td>
      <td data-label="11/18(火)">
-      次回21日14時～出勤　事前予約受付中!!
+      明日出勤です　事前予約受付中
      </td>
      <td data-label="11/19(水)">
-      次回21日14時～出勤　事前予約受付中!!
+      15:00 ~ 5:00
      </td>
      <td data-label="11/20(木)">
-      明日出勤です　事前予約受付中!!
+      15:00 ~ 5:00
      </td>
      <td data-label="11/21(金)">
       14:00 ~ 5:00
@@ -5120,6 +5117,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       15:00 ~ 0:30
+     </td>
+     <td data-label="11/24(月)">
+      15:00 ~ 5:00
      </td>
     </tr>
     <tr>
@@ -5134,25 +5134,25 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051645111_0000000000pc.jpg?cache02=1762154274"/>
      </td>
-     <td data-label="11/17(月)">
-      15:00 ~ 22:00
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
      <td data-label="11/19(水)">
-      -
+      14:00 ~ 23:00
      </td>
      <td data-label="11/20(木)">
-      -
+      12:00 ~ 23:00
      </td>
      <td data-label="11/21(金)">
       -
      </td>
      <td data-label="11/22(土)">
-      -
+      14:00 ~ 23:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5168,14 +5168,11 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056811637_0000000000pc.jpg?cache02=1763009865"/>
      </td>
-     <td data-label="11/17(月)">
-      18:00 ~ 23:00
-     </td>
      <td data-label="11/18(火)">
       10:00 ~ 17:00
      </td>
      <td data-label="11/19(水)">
-      -
+      19:00 ~ 23:00
      </td>
      <td data-label="11/20(木)">
       18:00 ~ 23:00
@@ -5187,6 +5184,9 @@ function applyDateFilter() {
       10:00 ~ 17:00
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 17:00
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 17:00
      </td>
     </tr>
@@ -5201,9 +5201,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0057031614_0000000000pc.jpg?cache02=1763215075"/>
-     </td>
-     <td data-label="11/17(月)">
-      13:30 ~ 23:00
      </td>
      <td data-label="11/18(火)">
       -
@@ -5223,6 +5220,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       16:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5235,9 +5235,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0032044155_0000000000pc.jpg?cache02=1763351832"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5255,6 +5252,9 @@ function applyDateFilter() {
       10:00 ~ 23:30
      </td>
      <td data-label="11/23(日)">
+      10:00 ~ 23:30
+     </td>
+     <td data-label="11/24(月)">
       10:00 ~ 23:30
      </td>
     </tr>
@@ -5270,9 +5270,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048684468_0000000000pc.jpg?cache02=1763040964"/>
      </td>
-     <td data-label="11/17(月)">
-      20:00 ~ 4:00
-     </td>
      <td data-label="11/18(火)">
       19:00 ~ 4:00
      </td>
@@ -5289,6 +5286,9 @@ function applyDateFilter() {
       19:00 ~ 4:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5304,11 +5304,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0052650438_0000000000pc.jpg?cache02=1762154195"/>
      </td>
-     <td data-label="11/17(月)">
-      19:00 ~ 23:59
-     </td>
      <td data-label="11/18(火)">
-      -
+      9:00 ~ 23:59
      </td>
      <td data-label="11/19(水)">
       -
@@ -5323,6 +5320,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5338,9 +5338,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056755297_0000000000pc.jpg?cache02=1749041325"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -5358,6 +5355,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 17:00
      </td>
     </tr>
     <tr>
@@ -5370,10 +5370,7 @@ function applyDateFilter() {
       ViVi
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0028086198_0000000000pc.jpg?cache02=1763336978"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0028086198_0000000000pc.jpg?cache02=1763459380"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -5391,6 +5388,9 @@ function applyDateFilter() {
       10:00 ~ 21:00
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5406,9 +5406,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0046338369_0000000000pc.jpg?cache02=1740272892"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -5426,6 +5423,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       休み
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -5440,26 +5440,26 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032594038_0000000000pc.jpg?cache02=1724056851"/>
      </td>
-     <td data-label="11/17(月)">
-      13:00 ~ 17:00
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
      <td data-label="11/19(水)">
-      12:00 ~ 17:00
+      休み
      </td>
      <td data-label="11/20(木)">
       休み
      </td>
      <td data-label="11/21(金)">
-      12:00 ~ 17:00
+      休み
      </td>
      <td data-label="11/22(土)">
       休み
      </td>
      <td data-label="11/23(日)">
       休み
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -5474,11 +5474,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0038228220_0000000000pc.jpg?cache02=1724057578"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
-      12:00 ~ 20:00
+      13:00 ~ 20:00
      </td>
      <td data-label="11/19(水)">
       休み
@@ -5490,10 +5487,13 @@ function applyDateFilter() {
       12:00 ~ 20:00
      </td>
      <td data-label="11/22(土)">
-      -
+      12:00 ~ 20:00
      </td>
      <td data-label="11/23(日)">
       休み
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -5508,9 +5508,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032889460_0000000000pc.jpg?cache02=1758576678"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -5527,6 +5524,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5542,9 +5542,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0050455022_0000000000pc.jpg?cache02=1759838671"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -5561,6 +5558,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5576,11 +5576,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0040516083_0000000000pc.jpg?cache02=1722382062"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
-      18:00 ~ 3:00
+      20:00 ~ 3:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -5595,6 +5592,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5610,9 +5610,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0025820986_0000000000pc.jpg?cache02=1724057293"/>
      </td>
-     <td data-label="11/17(月)">
-      15:30 ~ 20:30
-     </td>
      <td data-label="11/18(火)">
       休み
      </td>
@@ -5631,6 +5628,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       休み
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5642,10 +5642,7 @@ function applyDateFilter() {
       GG
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0011631416_0000000000pc.jpg?cache02=1763362888"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0011631416_0000000000pc.jpg?cache02=1763449261"/>
      </td>
      <td data-label="11/18(火)">
       17:00 ~ 23:00
@@ -5665,6 +5662,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5678,11 +5678,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0051199787_0000000000pc.jpg?cache02=1759065812"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 17:00
+      休み
      </td>
      <td data-label="11/19(水)">
       10:00 ~ 18:00
@@ -5691,12 +5688,15 @@ function applyDateFilter() {
       10:00 ~ 17:00
      </td>
      <td data-label="11/21(金)">
-      -
+      10:00 ~ 17:00
      </td>
      <td data-label="11/22(土)">
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -5712,11 +5712,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0033762261_0000000000pc.jpg?cache02=1760760566"/>
      </td>
-     <td data-label="11/17(月)">
-      休み
-     </td>
      <td data-label="11/18(火)">
-      9:00 ~ 21:30
+      15:00 ~ 23:00
      </td>
      <td data-label="11/19(水)">
       9:00 ~ 21:30
@@ -5725,13 +5722,16 @@ function applyDateFilter() {
       9:00 ~ 21:30
      </td>
      <td data-label="11/21(金)">
-      -
+      9:00 ~ 21:30
      </td>
      <td data-label="11/22(土)">
       -
      </td>
      <td data-label="11/23(日)">
       休み
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -5744,10 +5744,7 @@ function applyDateFilter() {
       青いりんご
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753096_0000000000pc.jpeg?cache02=1763324702"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753096_0000000000pc.jpeg?cache02=1763411103"/>
      </td>
      <td data-label="11/18(火)">
       -
@@ -5767,6 +5764,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 18:30
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5779,9 +5779,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052751055_0000000000pc.jpeg?cache02=1762345786"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5801,6 +5798,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5813,9 +5813,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0055120757_0000000000pc.jpg?cache02=1756380171"/>
-     </td>
-     <td data-label="11/17(月)">
-      10:30 ~ 16:00
      </td>
      <td data-label="11/18(火)">
       明日出勤！
@@ -5835,6 +5832,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       明日出勤！
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 17:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5847,9 +5847,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0044140541_0000000000pc.jpg?cache02=1763214956"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5869,6 +5866,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       13:30 ~ 18:30
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5881,9 +5881,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753121_0000000000pc.jpeg?cache02=1763014294"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -5903,6 +5900,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5916,11 +5916,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056201878_0000000000pc.jpg?cache02=1762917501"/>
      </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 16:30
+      9:00 ~ 23:59
      </td>
      <td data-label="11/19(水)">
       -
@@ -5937,6 +5934,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5949,9 +5949,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0053156362_0000000000pc.jpg?cache02=1761206648"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 21:00
@@ -5971,6 +5968,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5983,9 +5983,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0031675356_0000000000pc.jpg?cache02=1763084776"/>
-     </td>
-     <td data-label="11/17(月)">
-      ☆出勤確認中☆
      </td>
      <td data-label="11/18(火)">
       ☆出勤確認中☆
@@ -6003,6 +6000,9 @@ function applyDateFilter() {
       ☆出勤確認中☆
      </td>
      <td data-label="11/23(日)">
+      ☆出勤確認中☆
+     </td>
+     <td data-label="11/24(月)">
       ☆出勤確認中☆
      </td>
     </tr>
@@ -6018,9 +6018,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0043706363_0000000000pc.jpg?cache02=1758291266"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6034,10 +6031,13 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/22(土)">
-      10:00 ~ 16:00
+      SOLD OUT
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 16:00
      </td>
     </tr>
     <tr>
@@ -6051,9 +6051,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753088_0000000000pc.jpeg?cache02=1762953022"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -6073,6 +6070,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       11:00 ~ 23:00
      </td>
+     <td data-label="11/24(月)">
+      11:00 ~ 19:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6085,9 +6085,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0047888999_0000000000pc.jpg?cache02=1761207500"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       12:00 ~ 18:30
@@ -6105,6 +6102,9 @@ function applyDateFilter() {
       12:00 ~ 21:00
      </td>
      <td data-label="11/23(日)">
+      12:00 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
       12:00 ~ 21:00
      </td>
     </tr>
@@ -6120,9 +6120,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0055157842_0000000000pc.jpg?cache02=1760966309"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6139,6 +6136,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6154,9 +6154,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0054952702_0000000000pc.jpg?cache02=1752243363"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6173,6 +6170,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6188,9 +6188,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0053575639_0000000000pc.jpg?cache02=1760489193"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6207,6 +6204,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6220,13 +6220,10 @@ function applyDateFilter() {
       スチュアーデス
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0039534775_0000000000pc.jpg?cache02=1763324710"/>
-     </td>
-     <td data-label="11/17(月)">
-      休み
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0039534775_0000000000pc.jpg?cache02=1763411109"/>
      </td>
      <td data-label="11/18(火)">
-      9:00 ~ 19:30
+      休み
      </td>
      <td data-label="11/19(水)">
       9:00 ~ 19:30
@@ -6243,6 +6240,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 19:30
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6255,9 +6255,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0049653095_0000000000pc.jpg?cache02=1761633034"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -6277,6 +6274,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       【完売御礼】
      </td>
+     <td data-label="11/24(月)">
+      9:00 ~ 23:59
+     </td>
     </tr>
     <tr>
      <td>
@@ -6289,9 +6289,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0052931528_0000000000pc.jpg?cache02=1744206952"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -6309,6 +6306,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6324,9 +6324,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0045232591_0000000000pc.jpg?cache02=1762155038"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6343,6 +6340,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6358,9 +6358,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0041531297_0000000000pc.jpg?cache02=1757727168"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6377,6 +6374,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6392,11 +6392,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0025733003_0000000000pc.jpg?cache02=1735111762"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 21:00
+      SOLD OUT
      </td>
      <td data-label="11/19(水)">
       -
@@ -6412,6 +6409,9 @@ function applyDateFilter() {
      </td>
      <td data-label="11/23(日)">
       10:00 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
+      -
      </td>
     </tr>
     <tr>
@@ -6426,9 +6426,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0045015787_0000000000pc.jpg?cache02=1750058268"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6445,6 +6442,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6460,9 +6460,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0029123660_0000000000pc.jpg?cache02=1761206585"/>
      </td>
-     <td data-label="11/17(月)">
-      11:00 ~ 23:00
-     </td>
      <td data-label="11/18(火)">
       11:00 ~ 23:00
      </td>
@@ -6479,6 +6476,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6494,9 +6494,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0053034569_0000000000pc.jpg?cache02=1762758978"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6513,6 +6510,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6526,27 +6526,27 @@ function applyDateFilter() {
       HARVESTMOON（ハーベストムーン）
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037269210_0000000000pc.jpg?cache02=1762931141"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037269210_0000000000pc.jpg?cache02=1763470747"/>
      </td>
      <td data-label="11/18(火)">
       -
      </td>
      <td data-label="11/19(水)">
-      -
+      10:00 ~ 22:00
      </td>
      <td data-label="11/20(木)">
       -
      </td>
      <td data-label="11/21(金)">
-      -
+      18:00 ~ 23:59
      </td>
      <td data-label="11/22(土)">
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6561,9 +6561,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037364266_0000000000pc.jpg?cache02=1722921578"/>
-     </td>
-     <td data-label="11/17(月)">
-      17:00 ~ 23:59
      </td>
      <td data-label="11/18(火)">
       14:00 ~ 23:59
@@ -6583,6 +6580,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6595,9 +6595,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0051020157_0000000000pc.jpg?cache02=1759246925"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       SOLD OUT
@@ -6612,10 +6609,13 @@ function applyDateFilter() {
       SOLD OUT
      </td>
      <td data-label="11/22(土)">
-      12:00 ~ 22:00
+      SOLD OUT
      </td>
      <td data-label="11/23(日)">
       -
+     </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 22:00
      </td>
     </tr>
     <tr>
@@ -6630,26 +6630,26 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0010227608_0000000000pc.jpg?cache02=1759570894"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
      <td data-label="11/19(水)">
-      12:00 ~ 23:00
+      16:30 ~ 23:00
      </td>
      <td data-label="11/20(木)">
       12:00 ~ 23:00
      </td>
      <td data-label="11/21(金)">
-      15:00 ~ 23:00
+      12:00 ~ 23:00
      </td>
      <td data-label="11/22(土)">
       12:00 ~ 23:00
      </td>
      <td data-label="11/23(日)">
       12:00 ~ 21:00
+     </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 20:00
      </td>
     </tr>
     <tr>
@@ -6664,9 +6664,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0014231717_0000000000pc.jpg?cache02=1753081064"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6685,6 +6682,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6698,11 +6698,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0049107541_0000000000pc.jpg?cache02=1758890112"/>
      </td>
-     <td data-label="11/17(月)">
-      13:30 ~ 18:30
-     </td>
      <td data-label="11/18(火)">
-      13:00 ~ 20:00
+      14:00 ~ 20:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -6719,6 +6716,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       13:00 ~ 22:00
      </td>
+     <td data-label="11/24(月)">
+      15:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6732,11 +6732,8 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0040084635_0000000000pc.jpg?cache02=1761205676"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
-      10:00 ~ 21:00
+      11:00 ~ 21:00
      </td>
      <td data-label="11/19(水)">
       -
@@ -6753,6 +6750,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       10:00 ~ 21:00
      </td>
+     <td data-label="11/24(月)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6765,9 +6765,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051435201_0000000000pc.jpg?cache02=1762154713"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -6787,6 +6784,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      10:00 ~ 15:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -6799,9 +6799,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0041709102_0000000000pc.jpg?cache02=1761205093"/>
-     </td>
-     <td data-label="11/17(月)">
-      9:00 ~ 23:59
      </td>
      <td data-label="11/18(火)">
       9:00 ~ 23:59
@@ -6821,6 +6818,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       -
      </td>
+     <td data-label="11/24(月)">
+      12:00 ~ 23:59
+     </td>
     </tr>
     <tr>
      <td>
@@ -6833,9 +6833,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/blue_moon/grpb0050743665_0000000000pc.jpg?cache02=1751537677"/>
-     </td>
-     <td data-label="11/17(月)">
-      次回　11/20　13:00出勤‼
      </td>
      <td data-label="11/18(火)">
       次回　11/20　13:00出勤‼
@@ -6855,6 +6852,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       次回　11/25　18:00出勤‼
      </td>
+     <td data-label="11/24(月)">
+      次回　11/25　18:00出勤‼
+     </td>
     </tr>
     <tr>
      <td>
@@ -6867,9 +6867,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/eight/grpb0048967681_0000000000pc.jpg?cache02=1761316908"/>
-     </td>
-     <td data-label="11/17(月)">
-      -
      </td>
      <td data-label="11/18(火)">
       -
@@ -6887,6 +6884,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6902,9 +6902,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/eight/grpb0043729590_0000000000pc.jpg?cache02=1757943352"/>
      </td>
-     <td data-label="11/17(月)">
-      -
-     </td>
      <td data-label="11/18(火)">
       -
      </td>
@@ -6921,6 +6918,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>
@@ -6936,9 +6936,6 @@ function applyDateFilter() {
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/eight/grpb0046701341_0000000000pc.jpg?cache02=1761316828"/>
      </td>
-     <td data-label="11/17(月)">
-      11/18 09:00～出勤予定♪
-     </td>
      <td data-label="11/18(火)">
       9:00 ~ 23:59
      </td>
@@ -6957,6 +6954,9 @@ function applyDateFilter() {
      <td data-label="11/23(日)">
       9:00 ~ 23:59
      </td>
+     <td data-label="11/24(月)">
+      9:00 ~ 23:59
+     </td>
     </tr>
     <tr>
      <td>
@@ -6969,9 +6969,6 @@ function applyDateFilter() {
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/eight/grpb0038185882_0000000000pc.jpg?cache02=1761316770"/>
-     </td>
-     <td data-label="11/17(月)">
-      11/19 12:00～出勤予定♪
      </td>
      <td data-label="11/18(火)">
       11/19 12:00～出勤予定♪
@@ -6989,6 +6986,9 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="11/23(日)">
+      -
+     </td>
+     <td data-label="11/24(月)">
       -
      </td>
     </tr>

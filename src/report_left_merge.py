@@ -2,7 +2,7 @@
 from bs4 import BeautifulSoup
 import pandas as pd
 #%%
-url = "G:/マイドライブ/heaven/report_final.html"
+url = "../docs/report_final.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")
@@ -67,7 +67,7 @@ print(df1[["girl_name","shop_name"]])
 df1.loc[df1["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df1["girl_url"]
 # print(df1.columns)
 # %%
-url = "G:/マイドライブ/heaven/cityheaven_profiles.html"
+url = "../docs/cityheaven_profiles.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, 'html.parser')
@@ -95,8 +95,6 @@ for row in rows:
 # DataFrame化
 columns = ['名前', 'URL', '店名', '画像URL'] + date_headers
 df2 = pd.DataFrame(data, columns=columns)
-
-print(df2[["名前","店名"]])
 
 # %%
 import pandas as pd
@@ -159,7 +157,7 @@ df1 = enrich_with_cityheaven_urls(df1,source="yahoo")
 
 
 # %%
-df1 = pd.read_csv("df1 - df1.csv.csv")
+df1 = pd.read_csv("../data/df1 - df1.csv.csv")
 
 import re
 
@@ -390,7 +388,7 @@ html += "</tbody></table></body></html>"  # ← フッター部分を修正
 
 
 
-with open("G:\マイドライブ\heaven\calendar_report.html", "w", encoding="utf-8") as f:
+with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
     f.write(html)
 
 # %%
