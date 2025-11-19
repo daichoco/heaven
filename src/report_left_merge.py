@@ -396,7 +396,9 @@ for idx, row in merged.iterrows():
             html += f"<tr id='{row_id}' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗</td></tr>"
 
 html += "</tbody></table></div></body></html>"  # ← フッター部分を修正
-
+soup = BeautifulSoup(html, "html.parser")
+formatted_html = soup.prettify()
+html = formatted_html
 
 
 with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
