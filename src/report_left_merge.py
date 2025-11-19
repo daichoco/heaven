@@ -192,7 +192,7 @@ weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 today = datetime.now()
 
 # ラベル形式に変換（例: 11/16(日)）
-today_label = f"{today.month}/{today.day}({weekdays[today.weekday()]})"
+today_label = f"{today.month}/{str(today.day).zfill(2)}({weekdays[today.weekday()]})"
 
 
 html = f"""
@@ -202,11 +202,22 @@ html = f"""
   <meta charset="UTF-8">
   <title>出勤カレンダー一覧</title>
   <style>
+  thead th {{
+  position: sticky;
+  top: 0;
+  background: #f9f9f9;
+  z-index: 1;
+  }}
   th.saturday {{ color: blue; }}
-th.sunday {{color: red; }}
+    th.sunday {{color: red; }}
     body {{ font-family: sans-serif; }}
     table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }}
+    th, td {{ border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }}td:first-child, th:first-child {{
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 2;
+  }}
     img {{ max-height: 80px; border-radius: 4px; }}
     details {{ text-align: left; margin-top: 5px; }}
     summary {{ cursor: pointer; font-weight: bold; }}
@@ -319,7 +330,7 @@ th.sunday {{color: red; }}
     <label><input type="radio" name="reportFilter" value="has" onchange="applyCombinedFilter()"> レポートありのみ</label>
     <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
   </div>
-
+  <div style="overflow-x: auto;">
   <table>
     <thead><tr>
       <th>名前＋レビュー</th>
@@ -377,14 +388,14 @@ for idx, row in merged.iterrows():
         try:
             eval_dict = ast.literal_eval(evaluations)
             html += f"<tr id='{row_id}' style='display:none; background-color:#f9f9f9;'>"
-            html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'>"
+            html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'><ul>"
             for k, v in eval_dict.items():
                 html += f"<li><strong>{k}:</strong> {v}</li>"
             html += "</ul></td></tr>"
         except Exception:
             html += f"<tr id='{row_id}' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗</td></tr>"
 
-html += "</tbody></table></body></html>"  # ← フッター部分を修正
+html += "</tbody></table></div></body></html>"  # ← フッター部分を修正
 
 
 
