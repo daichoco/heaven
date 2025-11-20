@@ -330,7 +330,7 @@ html = f"""
     <label><input type="radio" name="reportFilter" value="has" onchange="applyCombinedFilter()"> レポートありのみ</label>
     <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
   </div>
-  <div style="max-height: 600px;style="overflow-x: auto;">
+  <div style="max-height: 600px;overflow-x: auto;">
   <table>
     <thead><tr>
       <th>名前＋レビュー</th>
