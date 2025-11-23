@@ -120,73 +120,124 @@ html = """
   <meta charset="UTF-8">
   <title>メンバー一覧</title>
   <style>
-  body {
-    font-family: sans-serif;
-    background-color: #f9f9f9;
-    padding: 20px;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 30px;
-  }
-  ul {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 16px;
-  }
-  li {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
-  li img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 4px;
-  margin-bottom: 8px;
-}
+    /* 共通 */
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      max-width: 960px;
+      margin: auto;
+    }
 
-  li a {
-    display: block;
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-  }
-  li a:hover {
-    color: #007acc;
-  }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
 
-</style>
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    /* レポート一覧 */
+    .reports {
+      list-style: none;
+      padding: 0;
+    }
+
+    .reports li {
+      margin-bottom: 10px;
+    }
+
+    .reports a {
+      text-decoration: none;
+      color: #007acc;
+      font-weight: bold;
+    }
+
+    .reports a:hover {
+      text-decoration: underline;
+    }
+
+    /* メンバー一覧 */
+    .members {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .members li {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .members li img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .members li a {
+      display: block;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .members li a:hover {
+      color: #007acc;
+    }
+  </style>
 </head>
 <body>
-  <h1>メンバー一覧</h1>
-  <ul>
-"""
-for _, row in calendar_df.iterrows():
+  <h1>公開ページ</h1>
+  <section class="report-list">
+    <h2>📄 レポート一覧</h2>
+    <ul class="reports">
+      <li><a href="calendar_report.html" target="_blank">カレンダー形式レポート</a></li>
+      <li><a href="cityheaven_profiles.html" target="_blank">プロフィール一覧</a></li>
+      <li><a href="report_final.html" target="_blank">最終レポート</a></li>
+      <li><a href="okinilove_remove_unknown.html" target="_blank">オキニラブレポート</a></li>
+    </ul>
+  </section>
 
+  <section class="member-list">
+    <h2>👤 メンバー一覧</h2>
+    <ul class="members">
+"""
+
+for _, row in calendar_df.iterrows():
     html += f"""
-    <li>
-      <a href="{row['url']}" target="_blank" rel="noopener noreferrer">
-        <img src="{row['image']}" alt="{row['name']}">
-      </a>
-      <a href="calendar.html?name={row['name']}">
-        {row['name']}
-      </a>
-      {row['shop']}
-    </li>
+      <li>
+        <a href="{row['url']}" target="_blank" rel="noopener noreferrer">
+          <img src="{row['image']}" alt="{row['name']}">
+        </a>
+        <a href="calendar.html?name={row['name']}">
+          {row['name']}
+        </a>
+        {row['shop']}
+      </li>
     """
+
 html += """
-  </ul>
+    </ul>
+  </section>
 </body>
 </html>
 """
-with open("G:\マイドライブ\heaven\calender\index.html", "w", encoding="utf-8") as f:
+
+with open("../docs/index.html", "w", encoding="utf-8") as f:
     f.write(html)
 
 import json
@@ -310,6 +361,6 @@ html = f"""
 """
 
 
-with open("G:\マイドライブ\heaven\calender\calendar.html", "w", encoding="utf-8") as f:
+with open("../docs/calendar.html", "w", encoding="utf-8") as f:
     f.write(html)
 # %%
