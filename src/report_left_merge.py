@@ -152,8 +152,8 @@ def enrich_with_cityheaven_urls(df1, source="yahoo"):
         time.sleep(random.uniform(1.5, 3.0))  # bot対策
     return df1
 
-df1 = enrich_with_cityheaven_urls(df1,source="yahoo")
-
+# df1 = enrich_with_cityheaven_urls(df1,source="yahoo")
+driver.quit()
 
 
 # %%
@@ -182,7 +182,7 @@ import pandas as pd
 import ast
 
 # 出勤日カラムを抽出
-calendar_cols = [col for col in merged.columns if col.startswith("11/")]
+calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
 from datetime import datetime
 
 # 日本語の曜日リスト
