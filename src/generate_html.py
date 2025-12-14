@@ -1,6 +1,18 @@
+import re
 from bs4 import BeautifulSoup
 
 def generate_html(data, sorted_labels, today_label):
+    # --- yyy をユニーク抽出 ---
+    yyy_set = set()
+    for info in data.values():
+        shop = info["shop"]
+        matches = re.findall(r"\(([^()]*?/[^()]*)\)", shop)
+        for inside in matches:
+            yyy = inside.split("/")[0]
+            yyy_set.add(yyy)
+    yyy_list = sorted(yyy_set)
+
+    # --- HTML生成 ---
     html = f"""<html><head><meta charset='utf-8'>
 <style>
 table {{ border-collapse: collapse; }}
@@ -63,6 +75,23 @@ function applyDateFilter() {{
     row.style.display = show ? "" : "none";
   }});
 }}
+
+function applyPlaceFilter() {{
+  const checked = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
+                       .map(cb => cb.value);
+
+  const rows = document.querySelectorAll('tbody tr');
+  rows.forEach(row => {{
+    if (checked.includes("all")) {{
+      row.style.display = "";
+    }} else {{
+      const shopCell = row.querySelector("td.shop-cell");
+      const text = shopCell ? shopCell.textContent : "";
+      const match = checked.some(val => text.includes("(" + val + "/"));
+      row.style.display = match ? "" : "none";
+    }}
+  }});
+}}
 </script>
 </head><body>
 <h2>1週間のスケジュール一覧</h2>
@@ -74,6 +103,14 @@ function applyDateFilter() {{
 <div class="date-filter">
   <label>日付で絞り込み: <input type="date" id="dateInput" onchange="applyDateFilter()"></label>
 </div>
+<div class="place-filter">
+  <label>地域で絞り込み:</label><br>
+  <input type="checkbox" name="placeFilter" value="all" checked onchange="applyPlaceFilter()"> 全地域<br>"""
+
+    for y in yyy_list:
+        html += f"<input type='checkbox' name='placeFilter' value='{y}' onchange='applyPlaceFilter()'> {y}<br>"
+
+    html += """</div>
 <table id='scheduleTable'>
 <thead><tr>
 <th>店</th><th>名前とURL</th><th>画像</th>"""
@@ -92,7 +129,7 @@ function applyDateFilter() {{
         shop = info["shop"]
         html += "<tr>"
         html += f"<td><a href='{info['url']}' target='_blank'>{name}</a></td>"
-        html += f"<td>{shop}</td>"
+        html += f"<td class='shop-cell'>{shop}</td>"
         html += f"<td><img src='{img_path}'></td>"
         for label in sorted_labels:
             val = info["schedule"].get(label, "-")

@@ -62,6 +62,23 @@ function applyDateFilter() {
     row.style.display = show ? "" : "none";
   });
 }
+
+function applyPlaceFilter() {
+  const checked = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
+                       .map(cb => cb.value);
+
+  const rows = document.querySelectorAll('tbody tr');
+  rows.forEach(row => {
+    if (checked.includes("all")) {
+      row.style.display = "";
+    } else {
+      const shopCell = row.querySelector("td.shop-cell");
+      const text = shopCell ? shopCell.textContent : "";
+      const match = checked.some(val => text.includes("(" + val + "/"));
+      row.style.display = match ? "" : "none";
+    }
+  });
+}
   </script>
  </head>
  <body>
@@ -87,6 +104,39 @@ function applyDateFilter() {
     日付で絞り込み:
     <input id="dateInput" onchange="applyDateFilter()" type="date"/>
    </label>
+  </div>
+  <div class="place-filter">
+   <label>
+    地域で絞り込み:
+   </label>
+   <br/>
+   <input checked="" name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="all"/>
+   全地域
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="ぽっちゃり"/>
+   ぽっちゃり
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="スタンダード"/>
+   スタンダード
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="マット"/>
+   マット
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="人妻"/>
+   人妻
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="人妻待ち合わせ"/>
+   人妻待ち合わせ
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="大衆"/>
+   大衆
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="激安"/>
+   激安
+   <br/>
+   <input name="placeFilter" onchange="applyPlaceFilter()" type="checkbox" value="高級"/>
+   高級
+   <br/>
   </div>
   <table id="scheduleTable">
    <thead>
@@ -130,8 +180,9 @@ function applyDateFilter() {
        YUZUKI（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GRAND STAGE 本店
+デリヘル(スタンダード/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/grandstage/grpb0058119522_0000000000pc.jpg?cache02=1759335167"/>
@@ -164,8 +215,9 @@ function applyDateFilter() {
        みさ『プレミアキャスト』...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       CANDY
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0046855582_0000000000pc.jpg?cache02=1757596977"/>
@@ -198,8 +250,9 @@ function applyDateFilter() {
        らむ◆愛嬌抜群!皆の愛さ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0050569297_0000000000pc.jpg?cache02=1752150465"/>
@@ -232,8 +285,9 @@ function applyDateFilter() {
        みらい（25歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0036988568_0000000000pc.jpg?cache02=1763803646"/>
@@ -266,8 +320,9 @@ function applyDateFilter() {
        はる/羽桜（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       M
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044866959_0000000000pc.jpg?cache02=1764587989"/>
@@ -300,8 +355,9 @@ function applyDateFilter() {
        素人ゆき☆即即高級サービ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ROYALCLUB姫
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0050476855_0000000000pc.jpg?cache02=1740655921"/>
@@ -334,8 +390,9 @@ function applyDateFilter() {
        らむ🐈【ロリ×巨乳×癒し...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ロマネ
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0062738481_0000000000pc.jpg?cache02=1762411225"/>
@@ -368,11 +425,12 @@ function applyDateFilter() {
        うみか（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       愛特急２００６　Ｖｅｎｕｓ
+デリヘル(人妻/新栄・東新町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1765710936"/>
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1765712736"/>
      </td>
      <td data-label="12/14(日)">
       👑人妻熟女ランキング1位記念祭💛開催中👑
@@ -402,8 +460,9 @@ function applyDateFilter() {
        ゆめみてん（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       愛ＡＮＧＥＬ
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0031185227_0000000000pc.jpg?cache02=1765380382"/>
@@ -436,8 +495,9 @@ function applyDateFilter() {
        のえる（28歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       奥鉄オクテツ東海店（デリヘル市場グループ）
+デリヘル(人妻待ち合わせ/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0055993045_0000000000pc.jpg?cache02=1756699556"/>
@@ -470,8 +530,9 @@ function applyDateFilter() {
        しろ（28歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       奥鉄オクテツ東海店（デリヘル市場グループ）
+デリヘル(人妻待ち合わせ/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0051861344_0000000000pc.jpg?cache02=1749194029"/>
@@ -504,8 +565,9 @@ function applyDateFilter() {
        琴葉 茜（25歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       人妻セレブ宮殿 名古屋
+デリヘル(人妻/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/celb_palace/grpb0039299676_0000000000pc.jpg?cache02=1765105480"/>
@@ -538,8 +600,9 @@ function applyDateFilter() {
        霧島かえで(60分15千...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ラブココ名古屋本店
+デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0033401214_0000000000pc.jpg?cache02=1739106103"/>
@@ -572,8 +635,9 @@ function applyDateFilter() {
        雛形ひなた(60分16千...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ラブココ名古屋本店
+デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0036052280_0000000000pc.jpg?cache02=1765125951"/>
@@ -606,8 +670,9 @@ function applyDateFilter() {
        すみれ★清純派キラキラ娘...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       激安！巨乳＆ぽちゃカワ専門マーメイドin一宮
+デリヘル(スタンダード/一宮・稲沢)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/pocha_mermaid/grpb0019497229_0000000000pc.jpg?cache02=1760758793"/>
@@ -640,8 +705,9 @@ function applyDateFilter() {
        なみ（18歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       〜ソフトSM専門店〜ドM女マーケット
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sm_mmarket/grpb0040589239_0000000000pc.jpeg?cache02=1761122123"/>
@@ -674,8 +740,9 @@ function applyDateFilter() {
        せいら☆溢れ出る愛情（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャブール　名古屋店
+デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0022383335_0000000000pc.jpg?cache02=1762491913"/>
@@ -708,8 +775,9 @@ function applyDateFilter() {
        ましろ☆禁断の女教師（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャブール　名古屋店
+デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0041098449_0000000000pc.jpg?cache02=1765016010"/>
@@ -742,8 +810,9 @@ function applyDateFilter() {
        TSUKASA（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GRAND STAGE 本店
+デリヘル(スタンダード/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/grandstage/grpb0060232530_0000000000pc.jpg?cache02=1760206689"/>
@@ -776,8 +845,9 @@ function applyDateFilter() {
        ゆあ（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       OPERA(オペラ)
+ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/opera/grpb0042736346_0000000000pc.jpg?cache02=1765512154"/>
@@ -810,8 +880,9 @@ function applyDateFilter() {
        なみ（28歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       AVANCE
+デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0048193857_0000000000pc.jpg?cache02=1762764127"/>
@@ -844,8 +915,9 @@ function applyDateFilter() {
        あみ（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       IRIS
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/iris_g/grpb0013672853_0000000000pc.jpg?cache02=1759321080"/>
@@ -878,8 +950,9 @@ function applyDateFilter() {
        あいり💓現役キャンギャル...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       VIP DOLL
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0053733537_0000000000pc.jpeg?cache02=1726319798"/>
@@ -912,8 +985,9 @@ function applyDateFilter() {
        パインアメ◆積極的なほし...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048477036_0000000000pc.jpg?cache02=1764757899"/>
@@ -946,8 +1020,9 @@ function applyDateFilter() {
        ちおり🌈完全復活‼️伝説...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       VIP DOLL
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0051804079_0000000000pc.jpeg?cache02=1708962818"/>
@@ -980,8 +1055,9 @@ function applyDateFilter() {
        もえ🌟超濃厚エロ美乳ドＭ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       VIP DOLL
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0014422236_0000000000pc.jpeg?cache02=1698312907"/>
@@ -1014,8 +1090,9 @@ function applyDateFilter() {
        まな❤ ≪楽園≫（21歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       男の楽園　eden.
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0054725915_0000000000pc.jpg?cache02=1761166862"/>
@@ -1048,8 +1125,9 @@ function applyDateFilter() {
        のの❤ ≪楽園≫（20歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       男の楽園　eden.
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0060472467_0000000000pc.jpg?cache02=1762171657"/>
@@ -1082,8 +1160,9 @@ function applyDateFilter() {
        イク/Iku（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       英國屋
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0039234659_0000000000pc.jpg?cache02=1764401744"/>
@@ -1116,8 +1195,9 @@ function applyDateFilter() {
        メノウ/Meno（20歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       英國屋
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0041820359_0000000000pc.jpg?cache02=1744691531"/>
@@ -1150,8 +1230,9 @@ function applyDateFilter() {
        アリス/Alice（20...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       英國屋
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0040530997_0000000000pc.jpg?cache02=1749120616"/>
@@ -1184,8 +1265,9 @@ function applyDateFilter() {
        うる（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       時計台
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0032125094_0000000000pc.jpg?cache02=1751535186"/>
@@ -1218,8 +1300,9 @@ function applyDateFilter() {
        ことり☆プレミアムコース...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       八星
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yatubosi/grpb0050772353_0000000000pc.jpg?cache02=1764541702"/>
@@ -1252,8 +1335,9 @@ function applyDateFilter() {
        あみな🐈【完璧×巨乳×満...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ロマネ
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060485369_0000000000pc.jpg?cache02=1760513271"/>
@@ -1286,8 +1370,9 @@ function applyDateFilter() {
        まなみ☆即即高級サービス...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ROYALCLUB姫
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0025858126_0000000000pc.jpg?cache02=1753936424"/>
@@ -1320,8 +1405,9 @@ function applyDateFilter() {
        橘　真央（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0008132035_0000000000pc.jpg?cache02=1764942438"/>
@@ -1354,8 +1440,9 @@ function applyDateFilter() {
        吉乃 加恋（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0025374159_0000000000pc.jpg?cache02=1764942413"/>
@@ -1388,8 +1475,9 @@ function applyDateFilter() {
        める（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0056487977_0000000000pc.jpg?cache02=1758717533"/>
@@ -1422,8 +1510,9 @@ function applyDateFilter() {
        紗栄子（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0037028915_0000000000pc.jpg?cache02=1763117316"/>
@@ -1456,8 +1545,9 @@ function applyDateFilter() {
        野菊（のぎく）（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0050270337_0000000000pc.jpg?cache02=1757204745"/>
@@ -1490,8 +1580,9 @@ function applyDateFilter() {
        白雪（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リージェントクラブ貴公子
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0035197090_0000000000pc.jpg?cache02=1763117394"/>
@@ -1524,8 +1615,9 @@ function applyDateFilter() {
        彩芽(マーベラスコース)...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ムーンライト
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027126701_0000000000pc.jpg?cache02=1764736764"/>
@@ -1558,8 +1650,9 @@ function applyDateFilter() {
        板野　椛(フルムーンコー...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ムーンライト
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0002722567_0000000000pc.jpg?cache02=1764555477"/>
@@ -1592,8 +1685,9 @@ function applyDateFilter() {
        さゆり/沙友莉（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       M
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0024050685_0000000000pc.jpg?cache02=1764586999"/>
@@ -1602,7 +1696,7 @@ function applyDateFilter() {
       明日出勤！ご予約受付中！
      </td>
      <td data-label="12/15(月)">
-      10:00 ~ 20:30
+      9:00 ~ 20:30
      </td>
      <td data-label="12/16(火)">
       10:00 ~ 20:30
@@ -1626,8 +1720,9 @@ function applyDateFilter() {
        すずらん☆Suzuran...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       M
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044867133_0000000000pc.jpg?cache02=1764588381"/>
@@ -1636,7 +1731,7 @@ function applyDateFilter() {
       -
      </td>
      <td data-label="12/15(月)">
-      9:30 ~ 14:00
+      9:00 ~ 14:00
      </td>
      <td data-label="12/16(火)">
       9:30 ~ 16:00
@@ -1660,8 +1755,9 @@ function applyDateFilter() {
        藍乃 まりあ（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ドルチェビィタ恵里亜
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0038262520_0000000000pc.jpg?cache02=1764736048"/>
@@ -1694,8 +1790,9 @@ function applyDateFilter() {
        カレン/加恋（アイドルコ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0036754755_0000000000pc.jpg?cache02=1761882650"/>
@@ -1728,8 +1825,9 @@ function applyDateFilter() {
        りか/梨華（高級店サービ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0030609884_0000000000pc.jpg?cache02=1761089958"/>
@@ -1762,8 +1860,9 @@ function applyDateFilter() {
        まろん/愛夢（高級店サー...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0040953772_0000000000pc.jpg?cache02=1765657511"/>
@@ -1796,8 +1895,9 @@ function applyDateFilter() {
        ゆり/百合（高級店サービ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0050696333_0000000000pc.jpg?cache02=1761089521"/>
@@ -1830,8 +1930,9 @@ function applyDateFilter() {
        純花Sumika♡刺激的...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051980333_0000000000pc.jpg?cache02=1755937579"/>
@@ -1864,8 +1965,9 @@ function applyDateFilter() {
        莉久/Riku♡本気で惚...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051097662_0000000000pc.jpg?cache02=1764769717"/>
@@ -1898,8 +2000,9 @@ function applyDateFilter() {
        みさき（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シルクロード
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/silkroad/grpb0035780066_0000000000pc.jpg?cache02=1765701331"/>
@@ -1932,8 +2035,9 @@ function applyDateFilter() {
        紅　もみじ（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャトールーブル
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0041706468_0000000000pc.jpg?cache02=1764502698"/>
@@ -1966,8 +2070,9 @@ function applyDateFilter() {
        天　あまね（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャトールーブル
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0054451741_0000000000pc.jpg?cache02=1764502918"/>
@@ -2000,8 +2105,9 @@ function applyDateFilter() {
        菫　すみれ（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャトールーブル
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0039989987_0000000000pc.jpg?cache02=1765520512"/>
@@ -2034,8 +2140,9 @@ function applyDateFilter() {
        猫　まお（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャトールーブル
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0059189602_0000000000pc.jpg?cache02=1764503112"/>
@@ -2068,8 +2175,9 @@ function applyDateFilter() {
        ゆき『プレミアキャスト』...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       CANDY
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0041423458_0000000000pc.jpg?cache02=1765438579"/>
@@ -2102,8 +2210,9 @@ function applyDateFilter() {
        もえ（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       コスプレアカデミー
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0050833887_0000000000pc.jpg?cache02=1764538820"/>
@@ -2136,8 +2245,9 @@ function applyDateFilter() {
        のあ~百花~（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       KA-NAAAZ 岐阜本店
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0048942563_0000000000pc.jpg?cache02=1759369325"/>
@@ -2170,8 +2280,9 @@ function applyDateFilter() {
        アイノ~百花~（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       KA-NAAAZ 岐阜本店
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0047401818_0000000000pc.jpg?cache02=1762082429"/>
@@ -2204,8 +2315,9 @@ function applyDateFilter() {
        えれな　☆高級プレミア☆...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       イビサ&amp;パートナー
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0041805133_0000000000pc.jpg?cache02=1741512668"/>
@@ -2238,8 +2350,9 @@ function applyDateFilter() {
        のの👑〔VIP〕対応（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0055800634_0000000000pc.jpeg?cache02=1764560343"/>
@@ -2272,8 +2385,9 @@ function applyDateFilter() {
        こと👑〔VIP〕対応（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059023491_0000000000pc.jpeg?cache02=1765464130"/>
@@ -2306,8 +2420,9 @@ function applyDateFilter() {
        りさ/梨沙（27歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       MGM COLLECTION
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/mgm_collection/grpb0046530956_0000000000pc.jpg?cache02=1765657523"/>
@@ -2340,8 +2455,9 @@ function applyDateFilter() {
        HINANO『ヒナノ』（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0039351432_0000000000pc.jpg?cache02=1765692084"/>
@@ -2374,8 +2490,9 @@ function applyDateFilter() {
        きょう『プレミアキャスト...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       CANDY
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0042166606_0000000000pc.jpg?cache02=1758548160"/>
@@ -2408,8 +2525,9 @@ function applyDateFilter() {
        【柚/Yuzu】（20歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       C´est裸美
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/selavi/grpb0040362133_0000000000pc.jpeg?cache02=1765357846"/>
@@ -2442,8 +2560,9 @@ function applyDateFilter() {
        かんな【抱き心地NO.１...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ヘルスクラブ　長者町　巴里
+ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0041286094_0000000000pc.jpg?cache02=1764496285"/>
@@ -2476,8 +2595,9 @@ function applyDateFilter() {
        みさき◆問答無用の可愛さ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ラブボート東新町
+ヘルス(スタンダード/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/loveboat-t/grpb0040758592_0000000000pc.jpg?cache02=1747758881"/>
@@ -2510,8 +2630,9 @@ function applyDateFilter() {
        七瀬 ひびき （21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ドルチェビィタ恵里亜
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0052668212_0000000000pc.jpg?cache02=1747182983"/>
@@ -2544,8 +2665,9 @@ function applyDateFilter() {
        恵美/Emi（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       レジーナ
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0046278440_0000000000pc.jpg?cache02=1765586801"/>
@@ -2578,11 +2700,12 @@ function applyDateFilter() {
        せりーぬ（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       愛ＡＮＧＥＬ
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1765711534"/>
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1765713336"/>
      </td>
      <td data-label="12/14(日)">
       19:00 ~ 3:30
@@ -2612,8 +2735,9 @@ function applyDateFilter() {
        ひまり☆（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Secret Service本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0036985163_0000000000pc.jpg?cache02=1765691803"/>
@@ -2646,8 +2770,9 @@ function applyDateFilter() {
        りあ（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ニュー令女
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newreijo/grpb0050554655_0000000000pc.jpg?cache02=1726741461"/>
@@ -2680,8 +2805,9 @@ function applyDateFilter() {
        優子(ユウコ)（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       グランドオペラ名古屋
+デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/g-opera/grpb0011319463_0000000000pc.jpg?cache02=1765199075"/>
@@ -2714,8 +2840,9 @@ function applyDateFilter() {
        せしる（19歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       愛らぶ名古屋本店
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0042044650_0000000000pc.jpg?cache02=1764849923"/>
@@ -2748,8 +2875,9 @@ function applyDateFilter() {
        あい（26歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       AVANCE
+デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0040261185_0000000000pc.jpg?cache02=1762776146"/>
@@ -2782,8 +2910,9 @@ function applyDateFilter() {
        みお（30歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       AVANCE
+デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0030694068_0000000000pc.jpg?cache02=1765247106"/>
@@ -2816,8 +2945,9 @@ function applyDateFilter() {
        ゆずる◆最高です！！（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       美ＳＴＹＬＥ
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0037545000_0000000000pc.jpg?cache02=1765532617"/>
@@ -2850,8 +2980,9 @@ function applyDateFilter() {
        アイリ/Airi（20歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       英國屋
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0061548909_0000000000pc.jpg?cache02=1760175005"/>
@@ -2884,8 +3015,9 @@ function applyDateFilter() {
        かえで🐾【至高×美脚×人...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ロマネ
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060728637_0000000000pc.jpg?cache02=1760513846"/>
@@ -2918,8 +3050,9 @@ function applyDateFilter() {
        あめ（25歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Premier
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/premier/grpb0055408564_0000000000pc.jpg?cache02=1765439769"/>
@@ -2952,8 +3085,9 @@ function applyDateFilter() {
        メロ◆ギャップ溢れる極上...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       美ＳＴＹＬＥ
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0043952936_0000000000pc.jpg?cache02=1765699623"/>
@@ -2986,8 +3120,9 @@ function applyDateFilter() {
        りおん（28歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deridos/grpb0051980872_0000000000pc.jpg?cache02=1765408804"/>
@@ -3020,8 +3155,9 @@ function applyDateFilter() {
        まいみ(マーベラスコース...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ムーンライト
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027289671_0000000000pc.jpg?cache02=1764555972"/>
@@ -3054,8 +3190,9 @@ function applyDateFilter() {
        美月 まいな （21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ドルチェビィタ恵里亜
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0051960716_0000000000pc.jpg?cache02=1765368941"/>
@@ -3088,8 +3225,9 @@ function applyDateFilter() {
        千晃/ちあき　centu...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0038220954_0000000000pc.jpg?cache02=1764123528"/>
@@ -3122,8 +3260,9 @@ function applyDateFilter() {
        ERENA/エレナ　ce...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056944635_0000000000pc.jpg?cache02=1758869242"/>
@@ -3156,8 +3295,9 @@ function applyDateFilter() {
        Berry/ベリー　ce...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0037401180_0000000000pc.jpg?cache02=1764148661"/>
@@ -3190,8 +3330,9 @@ function applyDateFilter() {
        茉白Mashiro♡輝く...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0049169298_0000000000pc.jpg?cache02=1758002789"/>
@@ -3224,8 +3365,9 @@ function applyDateFilter() {
        りみ/里実（高級店サービ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0048566511_0000000000pc.jpg?cache02=1765657511"/>
@@ -3258,8 +3400,9 @@ function applyDateFilter() {
        らら（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0047749941_0000000000pc.jpg?cache02=1765442514"/>
@@ -3292,8 +3435,9 @@ function applyDateFilter() {
        まみ/愛実（高級店サービ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0046872663_0000000000pc.jpg?cache02=1761088783"/>
@@ -3326,8 +3470,9 @@ function applyDateFilter() {
        柚月(Ｆカップの完璧ボデ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       リメイク
+デリヘル(人妻/一宮・稲沢)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/wife_ichinomiya/grpb0032690596_0000000000pc.jpg?cache02=1765406439"/>
@@ -3360,8 +3505,9 @@ function applyDateFilter() {
        みな【とろける甘い時間】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ヘルスクラブ　長者町　巴里
+ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0039419174_0000000000pc.jpg?cache02=1764496841"/>
@@ -3394,8 +3540,9 @@ function applyDateFilter() {
        めいぷる（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       愛らぶ名古屋本店
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0044532412_0000000000pc.jpg?cache02=1764755468"/>
@@ -3428,8 +3575,9 @@ function applyDateFilter() {
        咲希(さき)❤ ≪ede...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       男の楽園　eden.
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0041173984_0000000000pc.jpg?cache02=1738684664"/>
@@ -3462,8 +3610,9 @@ function applyDateFilter() {
        みかん☆ふんわりキュート...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ヘルスクラブ巴里
+ヘルス(マット/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/paris/grpb0041463180_0000000000pc.jpg?cache02=1763516624"/>
@@ -3496,8 +3645,9 @@ function applyDateFilter() {
        なつ(マーベラスコース)...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ムーンライト
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0038898929_0000000000pc.jpg?cache02=1756512408"/>
@@ -3530,8 +3680,9 @@ function applyDateFilter() {
        りり（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0032022294_0000000000pc.jpg?cache02=1762154644"/>
@@ -3564,8 +3715,9 @@ function applyDateFilter() {
        あいか（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       時計台
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0037411552_0000000000pc.jpg?cache02=1751534052"/>
@@ -3598,8 +3750,9 @@ function applyDateFilter() {
        【りおな】魅惑のFカップ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アバンチュール
+ヘルス(人妻/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aventure/grpb0027877529_0000000000pc.jpg?cache02=1764514911"/>
@@ -3632,8 +3785,9 @@ function applyDateFilter() {
        蘭/らん　centu（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0062051546_0000000000pc.jpg?cache02=1765249669"/>
@@ -3666,8 +3820,9 @@ function applyDateFilter() {
        優希/Yuuki魅惑のG...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0021031329_0000000000pc.jpg?cache02=1763557139"/>
@@ -3700,8 +3855,9 @@ function applyDateFilter() {
        れん（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0015100863_0000000000pc.jpg?cache02=1753081154"/>
@@ -3734,8 +3890,9 @@ function applyDateFilter() {
        あゆ『プレミアキャスト』...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       CANDY
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0055819558_0000000000pc.jpg?cache02=1746503994"/>
@@ -3768,8 +3925,9 @@ function applyDateFilter() {
        なの（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0058830871_0000000000pc.jpg?cache02=1760094163"/>
@@ -3802,8 +3960,9 @@ function applyDateFilter() {
        るな【PLATINUM】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0057814696_0000000000pc.jpg?cache02=1764312359"/>
@@ -3836,8 +3995,9 @@ function applyDateFilter() {
        りお【S級激カワ究極美少...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GOLD again 安城店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_again_a/grpb0051943206_0000000000pc.jpg?cache02=1764734684"/>
@@ -3870,8 +4030,9 @@ function applyDateFilter() {
        まりん👑〔VIP〕対応（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059921311_0000000000pc.jpeg?cache02=1765547836"/>
@@ -3904,8 +4065,9 @@ function applyDateFilter() {
        望叶/みかな🤍〔VIP〕...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051533030_0000000000pc.jpeg?cache02=1734066793"/>
@@ -3938,8 +4100,9 @@ function applyDateFilter() {
        ひなた👑〔VIP〕対応（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0061504415_0000000000pc.jpeg?cache02=1764560082"/>
@@ -3972,8 +4135,9 @@ function applyDateFilter() {
        Nozomi（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ラグジュアリー
+ソープ(高級/川崎堀之内南町・川崎駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/y/luxury/grpb0052424239_0000000000pc.jpg?cache02=1758259239"/>
@@ -4006,8 +4170,9 @@ function applyDateFilter() {
        市原玲（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       不二子chan岐阜店
+デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fujiko-gifu/grpb0041035848_0000000000pc.jpg?cache02=1765539645"/>
@@ -4040,8 +4205,9 @@ function applyDateFilter() {
        もも☆即即高級サービス（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ROYALCLUB姫
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0032189084_0000000000pc.jpg?cache02=1760843528"/>
@@ -4074,8 +4240,9 @@ function applyDateFilter() {
        さよ☆即即高級サービス（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ROYALCLUB姫
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0029694933_0000000000pc.jpg?cache02=1765657510"/>
@@ -4108,8 +4275,9 @@ function applyDateFilter() {
        マオ【高級】（25歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ヴィーナス
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0055283498_0000000000pc.jpg?cache02=1729474023"/>
@@ -4142,8 +4310,9 @@ function applyDateFilter() {
        絢/Ayaka（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       レジーナ
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0060747371_0000000000pc.jpg?cache02=1765030851"/>
@@ -4176,8 +4345,9 @@ function applyDateFilter() {
        みかん（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アイドルラボ
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/idol_lab/grpb0061265665_0000000000pc.jpg?cache02=1763739367"/>
@@ -4210,8 +4380,9 @@ function applyDateFilter() {
        ひなの　（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0042513856_0000000000pc.jpg?cache02=1760094213"/>
@@ -4244,8 +4415,9 @@ function applyDateFilter() {
        えりか☆ミラクルガール（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       シャブール　名古屋店
+デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0051439444_0000000000pc.jpg?cache02=1765110859"/>
@@ -4278,8 +4450,9 @@ function applyDateFilter() {
        けい★19才ロリカワ美少...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ギャルズパラダイス安城本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0054793954_0000000000pc.jpg?cache02=1760722750"/>
@@ -4312,8 +4485,9 @@ function applyDateFilter() {
        るら★反則級の可愛さ潮吹...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ギャルズパラダイス安城本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0051731503_0000000000pc.jpg?cache02=1764310886"/>
@@ -4346,8 +4520,9 @@ function applyDateFilter() {
        くみあ★極嬢19才ロリギ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ギャルズパラダイス安城本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0049410986_0000000000pc.jpg?cache02=1764275896"/>
@@ -4380,8 +4555,9 @@ function applyDateFilter() {
        れみ【国民的可愛さの象徴...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Color
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0054344206_0000000000pc.jpg?cache02=1761919190"/>
@@ -4414,8 +4590,9 @@ function applyDateFilter() {
        みなみ【一撃惚れ注意報】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Color
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0035310599_0000000000pc.jpg?cache02=1756645651"/>
@@ -4448,8 +4625,9 @@ function applyDateFilter() {
        みらん【S級ギャル性格は...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Color
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0051547841_0000000000pc.jpg?cache02=1765547054"/>
@@ -4482,8 +4660,9 @@ function applyDateFilter() {
        おんぷ【超有名Hカップ爆...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Color
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0034492013_0000000000pc.jpg?cache02=1749265716"/>
@@ -4516,8 +4695,9 @@ function applyDateFilter() {
        りの【三河のエロテロリス...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Color
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0049458461_0000000000pc.jpg?cache02=1765528646"/>
@@ -4550,8 +4730,9 @@ function applyDateFilter() {
        みや（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Secret Service本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0045881066_0000000000pc.jpg?cache02=1765368056"/>
@@ -4584,8 +4765,9 @@ function applyDateFilter() {
        さき☆（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Secret Service本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0035166947_0000000000pc.jpg?cache02=1749837504"/>
@@ -4618,8 +4800,9 @@ function applyDateFilter() {
        れあ（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       静岡FINAL STAGE～選ばれし者の最後のステージ～
+デリヘル(スタンダード/静岡市)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/so/final_stage/grpb0043816275_0000000000pc.jpg?cache02=1765626567"/>
@@ -4652,8 +4835,9 @@ function applyDateFilter() {
        マドカ~百花~（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       KA-NAAAZ 岐阜本店
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0051364491_0000000000pc.jpg?cache02=1743047464"/>
@@ -4686,8 +4870,9 @@ function applyDateFilter() {
        姫香/Himek♡ハイク...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0037754672_0000000000pc.jpg?cache02=1760955333"/>
@@ -4720,8 +4905,9 @@ function applyDateFilter() {
        ゆき　☆素人プレミア☆（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       イビサ&amp;パートナー
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0042649199_0000000000pc.jpeg?cache02=1662026856"/>
@@ -4754,8 +4940,9 @@ function applyDateFilter() {
        桔梗/Kikyo💖永遠の...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0058575520_0000000000pc.jpg?cache02=1757506356"/>
@@ -4788,8 +4975,9 @@ function applyDateFilter() {
        リアナ👑〔VIP〕対応（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       aQua
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051014532_0000000000pc.JPG?cache02=1765272024"/>
@@ -4822,8 +5010,9 @@ function applyDateFilter() {
        KAORU【カオル】（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0032764202_0000000000pc.jpg?cache02=1753960808"/>
@@ -4856,8 +5045,9 @@ function applyDateFilter() {
        愛来(マーベラスコース)...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ムーンライト
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0058573248_0000000000pc.jpg?cache02=1765160145"/>
@@ -4890,8 +5080,9 @@ function applyDateFilter() {
        SEINA【せいな】（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0042902925_0000000000pc.jpg?cache02=1759028283"/>
@@ -4924,8 +5115,9 @@ function applyDateFilter() {
        ELENA『エレナ』（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0053248326_0000000000pc.jpg?cache02=1765702950"/>
@@ -4958,8 +5150,9 @@ function applyDateFilter() {
        咲野くるみ(60分15千...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ラブココ名古屋本店
+デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0056368008_0000000000pc.jpg?cache02=1762530310"/>
@@ -4992,8 +5185,9 @@ function applyDateFilter() {
        愛美華Amika💖無敵の...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0056598064_0000000000pc.jpg?cache02=1738309113"/>
@@ -5026,8 +5220,9 @@ function applyDateFilter() {
        SEIKA『セイカ』（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0057050617_0000000000pc.jpg?cache02=1739693963"/>
@@ -5060,8 +5255,9 @@ function applyDateFilter() {
        ここあ☆正真正銘の18歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ニューデリー
+デリヘル(ぽっちゃり/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newdeli/grpb0054236854_0000000000pc.jpg?cache02=1765247971"/>
@@ -5094,8 +5290,9 @@ function applyDateFilter() {
        みゆう（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051645111_0000000000pc.jpg?cache02=1762154274"/>
@@ -5128,8 +5325,9 @@ function applyDateFilter() {
        ITO『イト』（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056811637_0000000000pc.jpg?cache02=1765443104"/>
@@ -5162,8 +5360,9 @@ function applyDateFilter() {
        蛍/Hotaru💖絶品G...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0057031614_0000000000pc.jpg?cache02=1764769649"/>
@@ -5196,8 +5395,9 @@ function applyDateFilter() {
        YUN/ゆん　centu...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0032044155_0000000000pc.jpg?cache02=1763351832"/>
@@ -5230,8 +5430,9 @@ function applyDateFilter() {
        森永精菓◆Ｓ級ロリカワ美...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
+デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048684468_0000000000pc.jpg?cache02=1764861880"/>
@@ -5264,8 +5465,9 @@ function applyDateFilter() {
        うらん（23歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0052650438_0000000000pc.jpg?cache02=1762154195"/>
@@ -5298,8 +5500,9 @@ function applyDateFilter() {
        NAGI『ナギ』（22歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056755297_0000000000pc.jpg?cache02=1749041325"/>
@@ -5332,8 +5535,9 @@ function applyDateFilter() {
        RUKA【るか】（20歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0028086198_0000000000pc.jpg?cache02=1765684179"/>
@@ -5366,8 +5570,9 @@ function applyDateFilter() {
        せりな♡S級未経験でオス...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0046338369_0000000000pc.jpg?cache02=1740272892"/>
@@ -5400,8 +5605,9 @@ function applyDateFilter() {
        れな【プレミア★】（24...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032594038_0000000000pc.jpg?cache02=1724056851"/>
@@ -5434,8 +5640,9 @@ function applyDateFilter() {
        まき♡童顔deカワイイ（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0038228220_0000000000pc.jpg?cache02=1724057578"/>
@@ -5468,8 +5675,9 @@ function applyDateFilter() {
        りさ♡超希少!未経験18...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032889460_0000000000pc.jpg?cache02=1758576678"/>
@@ -5502,8 +5710,9 @@ function applyDateFilter() {
        あや♡潮吹き美乳Ｆ悩殺B...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0050455022_0000000000pc.jpg?cache02=1759838671"/>
@@ -5536,8 +5745,9 @@ function applyDateFilter() {
        めぐ♡S級素人系美少女（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0025820986_0000000000pc.jpg?cache02=1724057293"/>
@@ -5570,8 +5780,9 @@ function applyDateFilter() {
        HOTARU『ホタル』（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       GG
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0011631416_0000000000pc.jpg?cache02=1765695726"/>
@@ -5604,8 +5815,9 @@ function applyDateFilter() {
        あずさ♡S級未経験黒髪清...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       でりどす岡崎
+デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0033762261_0000000000pc.jpg?cache02=1764754071"/>
@@ -5638,8 +5850,9 @@ function applyDateFilter() {
        かりん♡愛らしい綺麗な女...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       青いりんご
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753096_0000000000pc.jpeg?cache02=1765657502"/>
@@ -5672,8 +5885,9 @@ function applyDateFilter() {
        のぞみ👑スペシャルCAS...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       青いりんご
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052751055_0000000000pc.jpeg?cache02=1762345786"/>
@@ -5706,8 +5920,9 @@ function applyDateFilter() {
        のあ（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       時計台
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0055120757_0000000000pc.jpg?cache02=1756380171"/>
@@ -5740,8 +5955,9 @@ function applyDateFilter() {
        日向/Hinata♡可愛...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ジュリエット
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0044140541_0000000000pc.jpg?cache02=1765359628"/>
@@ -5774,8 +5990,9 @@ function applyDateFilter() {
        まなみ♡綺麗…可愛い♡そ...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       青いりんご
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753121_0000000000pc.jpg?cache02=1764299970"/>
@@ -5808,8 +6025,9 @@ function applyDateFilter() {
        葵/あおい centu（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056201878_0000000000pc.jpg?cache02=1764123705"/>
@@ -5842,8 +6060,9 @@ function applyDateFilter() {
        ルナ☆☆（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Secret Service本店
+デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0031675356_0000000000pc.jpg?cache02=1765245722"/>
@@ -5876,8 +6095,9 @@ function applyDateFilter() {
        MIRIA【みりあ】（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0043706363_0000000000pc.jpg?cache02=1758291266"/>
@@ -5910,8 +6130,9 @@ function applyDateFilter() {
        ゆりな♡大当たり確定美女...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       青いりんご
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753088_0000000000pc.jpeg?cache02=1762953022"/>
@@ -5944,8 +6165,9 @@ function applyDateFilter() {
        めめ【PLATINUM】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0047888999_0000000000pc.jpg?cache02=1764559515"/>
@@ -5978,8 +6200,9 @@ function applyDateFilter() {
        ゆゆ【GOLD】（21歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0055157842_0000000000pc.jpg?cache02=1760966309"/>
@@ -6012,8 +6235,9 @@ function applyDateFilter() {
        いちか（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       コスプレアカデミー
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0054952702_0000000000pc.jpg?cache02=1752243363"/>
@@ -6046,8 +6270,9 @@ function applyDateFilter() {
        かのん/圭音（高級店サー...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       スチュアーデス
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0039534775_0000000000pc.jpg?cache02=1765657511"/>
@@ -6080,8 +6305,9 @@ function applyDateFilter() {
        いちご【PREMIUM】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0049653095_0000000000pc.jpg?cache02=1765535642"/>
@@ -6114,8 +6340,9 @@ function applyDateFilter() {
        たきな（21歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       コスプレアカデミー
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0052931528_0000000000pc.jpg?cache02=1744206952"/>
@@ -6148,8 +6375,9 @@ function applyDateFilter() {
        あんり（24歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0045232591_0000000000pc.jpg?cache02=1762155039"/>
@@ -6182,8 +6410,9 @@ function applyDateFilter() {
        ユキ（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ヴィーナス
+ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0041531297_0000000000pc.jpg?cache02=1757727168"/>
@@ -6216,8 +6445,9 @@ function applyDateFilter() {
        SAYA【さや】（21歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0025733003_0000000000pc.jpg?cache02=1735111762"/>
@@ -6250,8 +6480,9 @@ function applyDateFilter() {
        みりあ（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       コスプレアカデミー
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0045015787_0000000000pc.jpg?cache02=1750058268"/>
@@ -6284,8 +6515,9 @@ function applyDateFilter() {
        あいり【RAINBOW】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0029123660_0000000000pc.jpg?cache02=1761206585"/>
@@ -6318,8 +6550,9 @@ function applyDateFilter() {
        あかり【特別枠、特別料金...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0053034569_0000000000pc.jpg?cache02=1762758978"/>
@@ -6352,8 +6585,9 @@ function applyDateFilter() {
        もも☆乃木坂にいそう（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       HARVESTMOON（ハーベストムーン）
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037269210_0000000000pc.jpg?cache02=1765617343"/>
@@ -6386,8 +6620,9 @@ function applyDateFilter() {
        ゆうあ☆おっとり優しい（...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       HARVESTMOON（ハーベストムーン）
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037364266_0000000000pc.jpg?cache02=1722921578"/>
@@ -6420,8 +6655,9 @@ function applyDateFilter() {
        RUMI【るみ】（21歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ViVi
+ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0051020157_0000000000pc.jpg?cache02=1759246925"/>
@@ -6454,8 +6690,9 @@ function applyDateFilter() {
        ここ【１位】（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0014231717_0000000000pc.jpg?cache02=1753081064"/>
@@ -6488,8 +6725,9 @@ function applyDateFilter() {
        らら（20歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       LOVE MISSILE
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0049107541_0000000000pc.jpg?cache02=1763946220"/>
@@ -6522,8 +6760,9 @@ function applyDateFilter() {
        あゆみ【RAINBOW】...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0040084635_0000000000pc.jpg?cache02=1761205676"/>
@@ -6556,8 +6795,9 @@ function applyDateFilter() {
        あくあ（22歳）
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       アラモード
+ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051435201_0000000000pc.jpg?cache02=1762154713"/>
@@ -6590,8 +6830,9 @@ function applyDateFilter() {
        ゆら【GOLD】（21歳...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       Sabbat
+ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0041709102_0000000000pc.jpg?cache02=1761205093"/>
@@ -6624,8 +6865,9 @@ function applyDateFilter() {
        もも♦PREMIUM（2...
       </a>
      </td>
-     <td>
+     <td class="shop-cell">
       ブルームーン（Blue Moon）
+ソープ(スタンダード/中区)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/blue_moon/grpb0050743665_0000000000pc.jpg?cache02=1751537677"/>

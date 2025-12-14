@@ -108,6 +108,9 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
 
         shop_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-shop")
         shop = shop_tag.text.strip() if shop_tag else "不明"
+        place_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-place")
+        place = place_tag.text.strip() if place_tag else ""
+
 
         key = (name, shop)
 
@@ -144,7 +147,7 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
 
         # 情報保存
         data[name] = {
-            "shop": shop,
+            "shop": shop + ("\n" + place if place else ""),
             "url": girl_url,
             "schedule": schedule,
             "image": img_url,
