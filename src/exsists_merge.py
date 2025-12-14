@@ -34,16 +34,24 @@ driver.get("https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1")
 # スクロール処理（最下部まで）
 last_height = driver.execute_script("return document.body.scrollHeight")
 
-while True:
-    # 一番下までスクロール
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(2)  # 読み込み待ち
+# while True:
+#     # 一番下までスクロール
+#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+#     time.sleep(2)  # 読み込み待ち
 
-    # 新しい高さを取得
+#     # 新しい高さを取得
+#     new_height = driver.execute_script("return document.body.scrollHeight")
+#     if new_height == last_height:
+#         break  # 高さが変わらなければ終了
+#     last_height = new_height
+
+while True:
+    prev_height = driver.execute_script("return document.body.scrollHeight")
+    driver.execute_script("$.autopager.load();")
+    time.sleep(2)
     new_height = driver.execute_script("return document.body.scrollHeight")
-    if new_height == last_height:
-        break  # 高さが変わらなければ終了
-    last_height = new_height
+    if new_height == prev_height:
+        break
 #%%
 def load_existing_data(calendar_path):
     """calendar_report.htmlを読み込み、(名前, 店名)をキーに既存データを返す"""
@@ -123,7 +131,7 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
         # URLは既存データから引用、なければタブを開いて取得
         if key in existing_data:
             girl_url = existing_data[key]["url"]
-            img_url = existing_data[key]["image"] or img_url
+            # img_url = existing_data[key]["image"] or img_url
         else:
             link_tag = block.find_element(By.CSS_SELECTOR, "a.recommend-block-top-link")
             href = link_tag.get_attribute("href")
