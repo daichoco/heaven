@@ -180,21 +180,31 @@ merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2")
 # %%
 import pandas as pd
 import ast
+import re
+from bs4 import BeautifulSoup
+from datetime import datetime
 
+# merged は DataFrame と仮定
 # 出勤日カラムを抽出
 calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
-from datetime import datetime
 
 # 日本語の曜日リスト
 weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
 # 今日の日付を取得
 today = datetime.now()
-
-# ラベル形式に変換（例: 11/16(日)）
 today_label = f"{today.month}/{str(today.day).zfill(2)}({weekdays[today.weekday()]})"
 
+# ★ 店名からユニーク地域抽出 ★
+yyy_set = set()
+for shop in merged["店名"]:
+    matches = re.findall(r"\(([^()]*?/[^()]*)\)", str(shop))
+    for inside in matches:
+        yyy = inside.split("/")[0]
+        yyy_set.add(yyy)
+yyy_list = sorted(yyy_set)
 
+# HTML組み立て開始
 html = f"""
 <!DOCTYPE html>
 <html lang="ja">
@@ -202,22 +212,23 @@ html = f"""
   <meta charset="UTF-8">
   <title>出勤カレンダー一覧</title>
   <style>
-  thead th {{
-  position: sticky;
-  top: 0;
-  background: #f9f9f9;
-  z-index: 1;
-  }}
-  th.saturday {{ color: blue; }}
-    th.sunday {{color: red; }}
+    thead th {{
+      position: sticky;
+      top: 0;
+      background: #f9f9f9;
+      z-index: 1;
+    }}
+    th.saturday {{ color: blue; }}
+    th.sunday {{ color: red; }}
     body {{ font-family: sans-serif; }}
     table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }}td:first-child, th:first-child {{
-  position: sticky;
-  left: 0;
-  background: #fff;
-  z-index: 2;
-  }}
+    th, td {{ border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }}
+    td:first-child, th:first-child {{
+      position: sticky;
+      left: 0;
+      background: #fff;
+      z-index: 2;
+    }}
     img {{ max-height: 80px; border-radius: 4px; }}
     details {{ text-align: left; margin-top: 5px; }}
     summary {{ cursor: pointer; font-weight: bold; }}
@@ -233,18 +244,14 @@ html = f"""
       const mm = today.getMonth() + 1;
       const dd = today.getDate();
       const dayOfWeek = weekdays[today.getDay()];
-
-      // ゼロ埋めが必要なら padStart を使う
-      const label = `${{mm}}/${{dd}}(${{dayOfWeek}})`;
-
-      // 例: "11/16(日)"
-      const todayLabel = label;
+      const todayLabel = `${{mm}}/${{dd}}(${{dayOfWeek}})`;
 
       const rows = document.querySelectorAll('tbody tr');
 
       rows.forEach(row => {{
         let showByDate = false;
         let showByReport = false;
+        let showByPlace = false;
 
         // 日付フィルタ
         if (dateSelected === "all") {{
@@ -263,10 +270,9 @@ html = f"""
               }}
             }}
           }});
-        }} else if (dateSelected === "date")  {{
+        }} else if (dateSelected === "date") {{
           if (inputDate) {{
             const date = new Date(inputDate);
-            const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
             const label = `${{date.getMonth() + 1}}/${{date.getDate()}}(${{weekdays[date.getDay()]}})`;
             row.querySelectorAll('td[data-label]').forEach(cell => {{
               const cellLabel = cell.getAttribute('data-label');
@@ -292,8 +298,19 @@ html = f"""
           showByReport = hasReport === "false";
         }}
 
+        // 地域フィルタ
+        const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
+                                   .map(cb => cb.value);
+        if (checkedPlaces.includes("all")) {{
+          showByPlace = true;
+        }} else {{
+          const shopCell = row.querySelector("td.shop-cell");
+          const text = shopCell ? shopCell.textContent : "";
+          showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
+        }}
+
         // AND条件で表示制御
-        row.style.display = (showByDate && showByReport) ? "" : "none";
+        row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
       }});
     }}
 
@@ -301,18 +318,18 @@ html = f"""
       document.querySelector('input[name="filter"][value="date"]').checked = true;
       applyCombinedFilter();
     }}
-    function toggleReviewRow(id) {{
-  const row = document.getElementById(id);
-  if (row.style.display === "none") {{
-    row.style.display = "table-row";
-  }} else {{
-    row.style.display = "none";
-  }}
-}}
 
+    function toggleReviewRow(id) {{
+      const row = document.getElementById(id);
+      if (row.style.display === "none") {{
+        row.style.display = "table-row";
+      }} else {{
+        row.style.display = "none";
+      }}
+    }}
   </script>
 </head>
-<body>
+<body onload="applyCombinedFilter()">
   <h1>出勤カレンダーとレビュー一覧</h1>
 
   <div class="filter-group">
@@ -330,13 +347,18 @@ html = f"""
     <label><input type="radio" name="reportFilter" value="has" onchange="applyCombinedFilter()"> レポートありのみ</label>
     <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
   </div>
-  <div style="height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;">
-  <table>
-    <thead><tr>
-      <th>名前＋レビュー</th>
-      <th>店名</th>
-      <th>画像</th>
+
+  <div class="filter-group">
+    <strong>地域条件：</strong><br>
+    <label><input type="checkbox" name="placeFilter" value="all" checked onchange="applyCombinedFilter()"> 全地域</label><br>
 """
+
+for y in yyy_list:
+    html += f"<label><input type='checkbox' name='placeFilter' value='{y}' onchange='applyCombinedFilter()'> {y}</label><br>"
+html += "</div>"
+
+html += "<div style='height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;'>"
+html += "<table><thead><tr><th>名前＋レビュー</th><th>店名</th><th>画像</th>"
 
 
 
@@ -373,7 +395,7 @@ for idx, row in merged.iterrows():
     html += "</td>"
 
     # 店名・画像
-    html += f"<td>{shop}</td>"
+    html += f"<td class='shop-cell'>{shop}</td>"
     html += f"<td><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日

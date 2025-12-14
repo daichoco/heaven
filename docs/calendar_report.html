@@ -7,21 +7,22 @@
   </title>
   <style>
    thead th {
-  position: sticky;
-  top: 0;
-  background: #f9f9f9;
-  z-index: 1;
-  }
-  th.saturday { color: blue; }
-    th.sunday {color: red; }
+      position: sticky;
+      top: 0;
+      background: #f9f9f9;
+      z-index: 1;
+    }
+    th.saturday { color: blue; }
+    th.sunday { color: red; }
     body { font-family: sans-serif; }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }td:first-child, th:first-child {
-  position: sticky;
-  left: 0;
-  background: #fff;
-  z-index: 2;
-  }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
+    td:first-child, th:first-child {
+      position: sticky;
+      left: 0;
+      background: #fff;
+      z-index: 2;
+    }
     img { max-height: 80px; border-radius: 4px; }
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
@@ -37,18 +38,14 @@
       const mm = today.getMonth() + 1;
       const dd = today.getDate();
       const dayOfWeek = weekdays[today.getDay()];
-
-      // ゼロ埋めが必要なら padStart を使う
-      const label = `${mm}/${dd}(${dayOfWeek})`;
-
-      // 例: "11/16(日)"
-      const todayLabel = label;
+      const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
 
       const rows = document.querySelectorAll('tbody tr');
 
       rows.forEach(row => {
         let showByDate = false;
         let showByReport = false;
+        let showByPlace = false;
 
         // 日付フィルタ
         if (dateSelected === "all") {
@@ -67,10 +64,9 @@
               }
             }
           });
-        } else if (dateSelected === "date")  {
+        } else if (dateSelected === "date") {
           if (inputDate) {
             const date = new Date(inputDate);
-            const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
             const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
             row.querySelectorAll('td[data-label]').forEach(cell => {
               const cellLabel = cell.getAttribute('data-label');
@@ -96,8 +92,19 @@
           showByReport = hasReport === "false";
         }
 
+        // 地域フィルタ
+        const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
+                                   .map(cb => cb.value);
+        if (checkedPlaces.includes("all")) {
+          showByPlace = true;
+        } else {
+          const shopCell = row.querySelector("td.shop-cell");
+          const text = shopCell ? shopCell.textContent : "";
+          showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
+        }
+
         // AND条件で表示制御
-        row.style.display = (showByDate && showByReport) ? "" : "none";
+        row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
       });
     }
 
@@ -105,17 +112,18 @@
       document.querySelector('input[name="filter"][value="date"]').checked = true;
       applyCombinedFilter();
     }
+
     function toggleReviewRow(id) {
-  const row = document.getElementById(id);
-  if (row.style.display === "none") {
-    row.style.display = "table-row";
-  } else {
-    row.style.display = "none";
-  }
-}
+      const row = document.getElementById(id);
+      if (row.style.display === "none") {
+        row.style.display = "table-row";
+      } else {
+        row.style.display = "none";
+      }
+    }
   </script>
  </head>
- <body>
+ <body onload="applyCombinedFilter()">
   <h1>
    出勤カレンダーとレビュー一覧
   </h1>
@@ -163,6 +171,57 @@
     レポートなしのみ
    </label>
   </div>
+  <div class="filter-group">
+   <strong>
+    地域条件：
+   </strong>
+   <br/>
+   <label>
+    <input checked="" name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="all"/>
+    全地域
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="ぽっちゃり"/>
+    ぽっちゃり
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="スタンダード"/>
+    スタンダード
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="マット"/>
+    マット
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="人妻"/>
+    人妻
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="人妻待ち合わせ"/>
+    人妻待ち合わせ
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="大衆"/>
+    大衆
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="激安"/>
+    激安
+   </label>
+   <br/>
+   <label>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="高級"/>
+    高級
+   </label>
+   <br/>
+  </div>
   <div style="height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;">
    <table>
     <thead>
@@ -206,7 +265,7 @@
         YUZUKI（23歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        GRAND STAGE 本店
 デリヘル(スタンダード/名古屋駅周辺)
       </td>
@@ -241,7 +300,7 @@
         みさ『プレミアキャスト』...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        CANDY
 ソープ(大衆/金津園)
       </td>
@@ -276,7 +335,7 @@
         らむ◆愛嬌抜群!皆の愛さ...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        名古屋しろうと革命～愛らぶgroup～
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -311,7 +370,7 @@
         みらい（25歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -350,7 +409,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        M
 ソープ(スタンダード/金津園)
       </td>
@@ -435,7 +494,7 @@
         素人ゆき☆即即高級サービ...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ROYALCLUB姫
 ソープ(スタンダード/金津園)
       </td>
@@ -470,7 +529,7 @@
         らむ🐈【ロリ×巨乳×癒し...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ロマネ
 ソープ(高級/金津園)
       </td>
@@ -509,7 +568,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        愛特急２００６　Ｖｅｎｕｓ
 デリヘル(人妻/新栄・東新町)
       </td>
@@ -600,7 +659,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        愛ＡＮＧＥＬ
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -691,7 +750,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        奥鉄オクテツ東海店（デリヘル市場グループ）
 デリヘル(人妻待ち合わせ/名古屋駅周辺)
       </td>
@@ -778,7 +837,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        奥鉄オクテツ東海店（デリヘル市場グループ）
 デリヘル(人妻待ち合わせ/名古屋駅周辺)
       </td>
@@ -865,7 +924,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        人妻セレブ宮殿 名古屋
 デリヘル(人妻/名古屋駅周辺)
       </td>
@@ -952,7 +1011,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ラブココ名古屋本店
 デリヘル(スタンダード/大須・金山・鶴舞)
       </td>
@@ -1043,7 +1102,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ラブココ名古屋本店
 デリヘル(スタンダード/大須・金山・鶴舞)
       </td>
@@ -1134,7 +1193,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        激安！巨乳＆ぽちゃカワ専門マーメイドin一宮
 デリヘル(スタンダード/一宮・稲沢)
       </td>
@@ -1221,7 +1280,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        〜ソフトSM専門店〜ドM女マーケット
 デリヘル(スタンダード/岐阜)
       </td>
@@ -1308,7 +1367,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャブール　名古屋店
 デリヘル(高級/新栄・東新町)
       </td>
@@ -1397,7 +1456,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャブール　名古屋店
 デリヘル(高級/新栄・東新町)
       </td>
@@ -1488,7 +1547,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GRAND STAGE 本店
 デリヘル(スタンダード/名古屋駅周辺)
       </td>
@@ -1577,7 +1636,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        OPERA(オペラ)
 ヘルス(スタンダード/錦・栄・矢場町)
       </td>
@@ -1666,7 +1725,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        AVANCE
 デリヘル(人妻/錦・栄・矢場町)
       </td>
@@ -1753,7 +1812,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        IRIS
 デリヘル(スタンダード/岐阜)
       </td>
@@ -1842,7 +1901,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        VIP DOLL
 デリヘル(スタンダード/岐阜)
       </td>
@@ -1929,7 +1988,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        名古屋しろうと革命～愛らぶgroup～
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -2016,7 +2075,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        VIP DOLL
 デリヘル(スタンダード/岐阜)
       </td>
@@ -2105,7 +2164,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        VIP DOLL
 デリヘル(スタンダード/岐阜)
       </td>
@@ -2192,7 +2251,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        男の楽園　eden.
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -2279,7 +2338,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        男の楽園　eden.
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -2366,7 +2425,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        英國屋
 ソープ(高級/金津園)
       </td>
@@ -2453,7 +2512,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        英國屋
 ソープ(高級/金津園)
       </td>
@@ -2540,7 +2599,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        英國屋
 ソープ(高級/金津園)
       </td>
@@ -2627,7 +2686,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        時計台
 ソープ(高級/金津園)
       </td>
@@ -2718,7 +2777,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        八星
 ソープ(大衆/金津園)
       </td>
@@ -2805,7 +2864,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ロマネ
 ソープ(高級/金津園)
       </td>
@@ -2892,7 +2951,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ROYALCLUB姫
 ソープ(スタンダード/金津園)
       </td>
@@ -2981,7 +3040,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3068,7 +3127,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3157,7 +3216,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3244,7 +3303,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3331,7 +3390,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3420,7 +3479,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リージェントクラブ貴公子
 ソープ(高級/金津園)
       </td>
@@ -3507,7 +3566,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -3596,7 +3655,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -3685,7 +3744,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -3772,7 +3831,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -3859,7 +3918,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        M
 ソープ(スタンダード/金津園)
       </td>
@@ -3950,7 +4009,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        M
 ソープ(スタンダード/金津園)
       </td>
@@ -4037,7 +4096,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ドルチェビィタ恵里亜
 ソープ(高級/金津園)
       </td>
@@ -4126,7 +4185,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -4215,7 +4274,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -4302,7 +4361,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -4391,7 +4450,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -4478,7 +4537,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -4565,7 +4624,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -4656,7 +4715,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シルクロード
 ソープ(高級/金津園)
       </td>
@@ -4743,7 +4802,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャトールーブル
 ソープ(高級/金津園)
       </td>
@@ -4826,7 +4885,7 @@
         天　あまね（21歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        シャトールーブル
 ソープ(高級/金津園)
       </td>
@@ -4865,7 +4924,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャトールーブル
 ソープ(高級/金津園)
       </td>
@@ -4956,7 +5015,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャトールーブル
 ソープ(高級/金津園)
       </td>
@@ -5039,7 +5098,7 @@
         ゆき『プレミアキャスト』...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        CANDY
 ソープ(大衆/金津園)
       </td>
@@ -5078,7 +5137,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        コスプレアカデミー
 ソープ(スタンダード/金津園)
       </td>
@@ -5171,7 +5230,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        KA-NAAAZ 岐阜本店
 ソープ(大衆/金津園)
       </td>
@@ -5260,7 +5319,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        KA-NAAAZ 岐阜本店
 ソープ(大衆/金津園)
       </td>
@@ -5347,7 +5406,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        イビサ&amp;パートナー
 ソープ(大衆/金津園)
       </td>
@@ -5434,7 +5493,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -5521,7 +5580,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -5610,7 +5669,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        MGM COLLECTION
 ソープ(スタンダード/金津園)
       </td>
@@ -5699,7 +5758,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -5788,7 +5847,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        CANDY
 ソープ(大衆/金津園)
       </td>
@@ -5875,7 +5934,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        C´est裸美
 ソープ(高級/金津園)
       </td>
@@ -5962,7 +6021,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ヘルスクラブ　長者町　巴里
 ヘルス(スタンダード/錦・栄・矢場町)
       </td>
@@ -6049,7 +6108,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ラブボート東新町
 ヘルス(スタンダード/新栄・東新町)
       </td>
@@ -6136,7 +6195,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ドルチェビィタ恵里亜
 ソープ(高級/金津園)
       </td>
@@ -6225,7 +6284,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        レジーナ
 ソープ(高級/金津園)
       </td>
@@ -6312,7 +6371,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        愛ＡＮＧＥＬ
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -6401,7 +6460,7 @@
         ひまり☆（24歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Secret Service本店
 デリヘル(スタンダード/安城)
       </td>
@@ -6436,7 +6495,7 @@
         りあ（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ニュー令女
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -6475,7 +6534,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        グランドオペラ名古屋
 デリヘル(高級/新栄・東新町)
       </td>
@@ -6564,7 +6623,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        愛らぶ名古屋本店
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -6651,7 +6710,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        AVANCE
 デリヘル(人妻/錦・栄・矢場町)
       </td>
@@ -6738,7 +6797,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        AVANCE
 デリヘル(人妻/錦・栄・矢場町)
       </td>
@@ -6825,7 +6884,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        美ＳＴＹＬＥ
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -6912,7 +6971,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        英國屋
 ソープ(高級/金津園)
       </td>
@@ -6999,7 +7058,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ロマネ
 ソープ(高級/金津園)
       </td>
@@ -7086,7 +7145,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        Premier
 ソープ(大衆/金津園)
       </td>
@@ -7173,7 +7232,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        美ＳＴＹＬＥ
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -7262,7 +7321,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -7349,7 +7408,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -7436,7 +7495,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ドルチェビィタ恵里亜
 ソープ(高級/金津園)
       </td>
@@ -7523,7 +7582,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -7610,7 +7669,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -7703,7 +7762,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -7792,7 +7851,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -7879,7 +7938,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -7966,7 +8025,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -8053,7 +8112,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -8142,7 +8201,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -8229,7 +8288,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -8318,7 +8377,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        リメイク
 デリヘル(人妻/一宮・稲沢)
       </td>
@@ -8405,7 +8464,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ヘルスクラブ　長者町　巴里
 ヘルス(スタンダード/錦・栄・矢場町)
       </td>
@@ -8492,7 +8551,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        愛らぶ名古屋本店
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -8579,7 +8638,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        男の楽園　eden.
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -8666,7 +8725,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ヘルスクラブ巴里
 ヘルス(マット/錦・栄・矢場町)
       </td>
@@ -8753,7 +8812,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -8840,7 +8899,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -8927,7 +8986,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        時計台
 ソープ(高級/金津園)
       </td>
@@ -9014,7 +9073,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        アバンチュール
 ヘルス(人妻/大須・金山・鶴舞)
       </td>
@@ -9097,7 +9156,7 @@
         蘭/らん　centu（2...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -9136,7 +9195,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -9223,7 +9282,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -9306,7 +9365,7 @@
         あゆ『プレミアキャスト』...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        CANDY
 ソープ(大衆/金津園)
       </td>
@@ -9341,7 +9400,7 @@
         なの（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -9376,7 +9435,7 @@
         るな【PLATINUM】...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -9411,7 +9470,7 @@
         りお【S級激カワ究極美少...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        GOLD again 安城店
 デリヘル(スタンダード/安城)
       </td>
@@ -9446,7 +9505,7 @@
         まりん👑〔VIP〕対応（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -9485,7 +9544,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -9572,7 +9631,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -9655,7 +9714,7 @@
         Nozomi（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ラグジュアリー
 ソープ(高級/川崎堀之内南町・川崎駅周辺)
       </td>
@@ -9690,7 +9749,7 @@
         市原玲（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        不二子chan岐阜店
 デリヘル(スタンダード/岐阜)
       </td>
@@ -9729,7 +9788,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ROYALCLUB姫
 ソープ(スタンダード/金津園)
       </td>
@@ -9812,7 +9871,7 @@
         さよ☆即即高級サービス（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ROYALCLUB姫
 ソープ(スタンダード/金津園)
       </td>
@@ -9847,7 +9906,7 @@
         マオ【高級】（25歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ヴィーナス
 ソープ(高級/金津園)
       </td>
@@ -9882,7 +9941,7 @@
         絢/Ayaka（24歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        レジーナ
 ソープ(高級/金津園)
       </td>
@@ -9917,7 +9976,7 @@
         みかん（22歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アイドルラボ
 ソープ(大衆/金津園)
       </td>
@@ -9956,7 +10015,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -10045,7 +10104,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        シャブール　名古屋店
 デリヘル(高級/新栄・東新町)
       </td>
@@ -10132,7 +10191,7 @@
         けい★19才ロリカワ美少...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ギャルズパラダイス安城本店
 デリヘル(スタンダード/安城)
       </td>
@@ -10167,7 +10226,7 @@
         るら★反則級の可愛さ潮吹...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ギャルズパラダイス安城本店
 デリヘル(スタンダード/安城)
       </td>
@@ -10202,7 +10261,7 @@
         くみあ★極嬢19才ロリギ...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ギャルズパラダイス安城本店
 デリヘル(スタンダード/安城)
       </td>
@@ -10237,7 +10296,7 @@
         れみ【国民的可愛さの象徴...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Color
 デリヘル(スタンダード/安城)
       </td>
@@ -10272,7 +10331,7 @@
         みなみ【一撃惚れ注意報】...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Color
 デリヘル(スタンダード/安城)
       </td>
@@ -10307,7 +10366,7 @@
         みらん【S級ギャル性格は...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Color
 デリヘル(スタンダード/安城)
       </td>
@@ -10342,7 +10401,7 @@
         おんぷ【超有名Hカップ爆...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Color
 デリヘル(スタンダード/安城)
       </td>
@@ -10377,7 +10436,7 @@
         りの【三河のエロテロリス...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Color
 デリヘル(スタンダード/安城)
       </td>
@@ -10412,7 +10471,7 @@
         みや（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Secret Service本店
 デリヘル(スタンダード/安城)
       </td>
@@ -10447,7 +10506,7 @@
         さき☆（23歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Secret Service本店
 デリヘル(スタンダード/安城)
       </td>
@@ -10482,7 +10541,7 @@
         れあ（21歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        静岡FINAL STAGE～選ばれし者の最後のステージ～
 デリヘル(スタンダード/静岡市)
       </td>
@@ -10517,7 +10576,7 @@
         マドカ~百花~（21歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        KA-NAAAZ 岐阜本店
 ソープ(大衆/金津園)
       </td>
@@ -10556,7 +10615,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -10643,7 +10702,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        イビサ&amp;パートナー
 ソープ(大衆/金津園)
       </td>
@@ -10732,7 +10791,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -10815,7 +10874,7 @@
         リアナ👑〔VIP〕対応（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        aQua
 ソープ(スタンダード/金津園)
       </td>
@@ -10854,7 +10913,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -10941,7 +11000,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -11028,7 +11087,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ムーンライト
 ソープ(高級/金津園)
       </td>
@@ -11115,7 +11174,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -11202,7 +11261,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -11293,7 +11352,7 @@
         咲野くるみ(60分15千...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ラブココ名古屋本店
 デリヘル(スタンダード/大須・金山・鶴舞)
       </td>
@@ -11328,7 +11387,7 @@
         愛美華Amika💖無敵の...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -11367,7 +11426,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -11454,7 +11513,7 @@
         ここあ☆正真正銘の18歳...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ニューデリー
 デリヘル(ぽっちゃり/錦・栄・矢場町)
       </td>
@@ -11489,7 +11548,7 @@
         みゆう（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -11528,7 +11587,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -11621,7 +11680,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -11704,7 +11763,7 @@
         YUN/ゆん　centu...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -11739,7 +11798,7 @@
         森永精菓◆Ｓ級ロリカワ美...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        名古屋しろうと革命～愛らぶgroup～
 デリヘル(スタンダード/錦・栄・矢場町)
       </td>
@@ -11774,7 +11833,7 @@
         うらん（23歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -11813,7 +11872,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -11902,7 +11961,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -11985,7 +12044,7 @@
         せりな♡S級未経験でオス...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12024,7 +12083,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12107,7 +12166,7 @@
         まき♡童顔deカワイイ（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12142,7 +12201,7 @@
         りさ♡超希少!未経験18...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12177,7 +12236,7 @@
         あや♡潮吹き美乳Ｆ悩殺B...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12212,7 +12271,7 @@
         めぐ♡S級素人系美少女（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12251,7 +12310,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        GG
 ソープ(スタンダード/金津園)
       </td>
@@ -12340,7 +12399,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        でりどす岡崎
 デリヘル(スタンダード/岡崎)
       </td>
@@ -12423,7 +12482,7 @@
         かりん♡愛らしい綺麗な女...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        青いりんご
 ソープ(スタンダード/金津園)
       </td>
@@ -12458,7 +12517,7 @@
         のぞみ👑スペシャルCAS...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        青いりんご
 ソープ(スタンダード/金津園)
       </td>
@@ -12497,7 +12556,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        時計台
 ソープ(高級/金津園)
       </td>
@@ -12584,7 +12643,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ジュリエット
 ソープ(高級/金津園)
       </td>
@@ -12667,7 +12726,7 @@
         まなみ♡綺麗…可愛い♡そ...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        青いりんご
 ソープ(スタンダード/金津園)
       </td>
@@ -12706,7 +12765,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -12793,7 +12852,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        STYLISH BACH（スタイリッシュ バッハ）
 ソープ(高級/金津園)
       </td>
@@ -12880,7 +12939,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        Secret Service本店
 デリヘル(スタンダード/安城)
       </td>
@@ -12971,7 +13030,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -13058,7 +13117,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        青いりんご
 ソープ(スタンダード/金津園)
       </td>
@@ -13141,7 +13200,7 @@
         めめ【PLATINUM】...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -13176,7 +13235,7 @@
         ゆゆ【GOLD】（21歳...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -13211,7 +13270,7 @@
         いちか（21歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        コスプレアカデミー
 ソープ(スタンダード/金津園)
       </td>
@@ -13246,7 +13305,7 @@
         かのん/圭音（高級店サー...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        スチュアーデス
 ソープ(スタンダード/金津園)
       </td>
@@ -13281,7 +13340,7 @@
         いちご【PREMIUM】...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -13316,7 +13375,7 @@
         たきな（21歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        コスプレアカデミー
 ソープ(スタンダード/金津園)
       </td>
@@ -13351,7 +13410,7 @@
         あんり（24歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -13390,7 +13449,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ヴィーナス
 ソープ(高級/金津園)
       </td>
@@ -13477,7 +13536,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -13564,7 +13623,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -13647,7 +13706,7 @@
         みりあ（22歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        コスプレアカデミー
 ソープ(スタンダード/金津園)
       </td>
@@ -13686,7 +13745,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -13769,7 +13828,7 @@
         あかり【特別枠、特別料金...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -13808,7 +13867,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        HARVESTMOON（ハーベストムーン）
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -13893,7 +13952,7 @@
         ゆうあ☆おっとり優しい（...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        HARVESTMOON（ハーベストムーン）
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -13928,7 +13987,7 @@
         RUMI【るみ】（21歳...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ViVi
 ソープ(スタンダード/金津園)
       </td>
@@ -13967,7 +14026,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -14050,7 +14109,7 @@
         らら（20歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        LOVE MISSILE
 ソープ(大衆/金津園)
       </td>
@@ -14089,7 +14148,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -14172,7 +14231,7 @@
         あくあ（22歳）
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        アラモード
 ソープ(激安/名古屋駅周辺)
       </td>
@@ -14211,7 +14270,7 @@
         レビューを表示
        </button>
       </td>
-      <td>
+      <td class="shop-cell">
        Sabbat
 ソープ(大衆/金津園)
       </td>
@@ -14294,7 +14353,7 @@
         もも♦PREMIUM（2...
        </a>
       </td>
-      <td>
+      <td class="shop-cell">
        ブルームーン（Blue Moon）
 ソープ(スタンダード/中区)
       </td>
