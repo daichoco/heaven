@@ -18,7 +18,7 @@ th.sunday { color: red; }
     let show = false;
 
     if (selected === "today") {
-      const cell = row.querySelector('[data-label="12/14(日)"]');
+      const cell = row.querySelector('[data-label="12/15(月)"]');
       const text = cell ? cell.textContent.trim() : "";
       show = /^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$/.test(text);
     } else if (selected === "weekend") {
@@ -150,9 +150,6 @@ function applyPlaceFilter() {
      <th>
       画像
      </th>
-     <th class="sunday">
-      12/14(日)
-     </th>
      <th>
       12/15(月)
      </th>
@@ -171,6 +168,9 @@ function applyPlaceFilter() {
      <th class="saturday">
       12/20(土)
      </th>
+     <th class="sunday">
+      12/21(日)
+     </th>
     </tr>
    </thead>
    <tbody>
@@ -182,13 +182,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GRAND STAGE 本店
-デリヘル(スタンダード/名古屋駅周辺)
+      <br/>
+      デリヘル(スタンダード/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/grandstage/grpb0058119522_0000000000pc.jpg?cache02=1759335167"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -206,6 +204,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -217,13 +218,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       CANDY
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0046855582_0000000000pc.jpg?cache02=1757596977"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       -
@@ -241,6 +240,9 @@ function applyPlaceFilter() {
       9:00 ~ 23:59
      </td>
      <td data-label="12/20(土)">
+      9:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       9:00 ~ 23:59
      </td>
     </tr>
@@ -252,13 +254,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0050569297_0000000000pc.jpg?cache02=1752150465"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -276,6 +276,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -287,13 +290,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0036988568_0000000000pc.jpg?cache02=1763803646"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       -
@@ -311,6 +312,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -322,19 +326,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       M
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044866959_0000000000pc.jpg?cache02=1764587989"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 20:30
      </td>
      <td data-label="12/15(月)">
       明日出勤！ご予約受付中！
      </td>
      <td data-label="12/16(火)">
-      10:00 ~ 20:30
+      9:00 ~ 20:30
      </td>
      <td data-label="12/17(水)">
       10:00 ~ 20:30
@@ -347,6 +349,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       10:00 ~ 20:30
+     </td>
+     <td data-label="12/21(日)">
+      完売御礼
      </td>
     </tr>
     <tr>
@@ -357,13 +362,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ROYALCLUB姫
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0050476855_0000000000pc.jpg?cache02=1740655921"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 16:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -381,6 +384,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -392,13 +398,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ロマネ
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0062738481_0000000000pc.jpg?cache02=1762411225"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -418,6 +422,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -427,13 +434,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       愛特急２００６　Ｖｅｎｕｓ
-デリヘル(人妻/新栄・東新町)
+      <br/>
+      デリヘル(人妻/新栄・東新町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1765712736"/>
-     </td>
-     <td data-label="12/14(日)">
-      👑人妻熟女ランキング1位記念祭💛開催中👑
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel/grpb0047642864_0000000000pc.jpg?cache02=1765809960"/>
      </td>
      <td data-label="12/15(月)">
       👑人妻熟女ランキング1位記念祭💛開催中👑
@@ -453,6 +458,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       👑人妻熟女ランキング1位記念祭💛開催中👑
      </td>
+     <td data-label="12/21(日)">
+      👑人妻熟女ランキング1位記念祭💛開催中👑
+     </td>
     </tr>
     <tr>
      <td>
@@ -462,13 +470,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       愛ＡＮＧＥＬ
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0031185227_0000000000pc.jpg?cache02=1765380382"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       20:00 ~ 4:00
@@ -487,6 +493,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       20:00 ~ 4:00
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -497,13 +506,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       奥鉄オクテツ東海店（デリヘル市場グループ）
-デリヘル(人妻待ち合わせ/名古屋駅周辺)
+      <br/>
+      デリヘル(人妻待ち合わせ/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0055993045_0000000000pc.jpg?cache02=1756699556"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -521,6 +528,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -532,13 +542,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       奥鉄オクテツ東海店（デリヘル市場グループ）
-デリヘル(人妻待ち合わせ/名古屋駅周辺)
+      <br/>
+      デリヘル(人妻待ち合わせ/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/ot69/grpb0051861344_0000000000pc.jpg?cache02=1749194029"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       16:00 ~ 22:00
@@ -558,6 +566,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       休み
      </td>
+     <td data-label="12/21(日)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -567,13 +578,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       人妻セレブ宮殿 名古屋
-デリヘル(人妻/名古屋駅周辺)
+      <br/>
+      デリヘル(人妻/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/celb_palace/grpb0039299676_0000000000pc.jpg?cache02=1765105480"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 20:00
@@ -593,6 +602,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 17:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -602,13 +614,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ラブココ名古屋本店
-デリヘル(スタンダード/大須・金山・鶴舞)
+      <br/>
+      デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0033401214_0000000000pc.jpg?cache02=1739106103"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -626,6 +636,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -637,16 +650,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ラブココ名古屋本店
-デリヘル(スタンダード/大須・金山・鶴舞)
+      <br/>
+      デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0036052280_0000000000pc.jpg?cache02=1765125951"/>
      </td>
-     <td data-label="12/14(日)">
-      13:30 ~ 0:00
-     </td>
      <td data-label="12/15(月)">
-      -
+      14:00 ~ 0:00
      </td>
      <td data-label="12/16(火)">
       -
@@ -661,6 +672,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -672,22 +686,20 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       激安！巨乳＆ぽちゃカワ専門マーメイドin一宮
-デリヘル(スタンダード/一宮・稲沢)
+      <br/>
+      デリヘル(スタンダード/一宮・稲沢)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/pocha_mermaid/grpb0019497229_0000000000pc.jpg?cache02=1760758793"/>
      </td>
-     <td data-label="12/14(日)">
-      19:00 ~ 3:00
-     </td>
      <td data-label="12/15(月)">
-      次回19日(金)19時から！
+      次回17日(水)18時から！
      </td>
      <td data-label="12/16(火)">
-      次回19日(金)19時から！
+      明日17日(水)18時から！
      </td>
      <td data-label="12/17(水)">
-      次回19日(金)19時から！
+      18:00 ~ 23:00
      </td>
      <td data-label="12/18(木)">
       明日19日(金)19時から！
@@ -698,6 +710,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       19:00 ~ 0:00
      </td>
+     <td data-label="12/21(日)">
+      次回25日(木)19時から！
+     </td>
     </tr>
     <tr>
      <td>
@@ -707,13 +722,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       〜ソフトSM専門店〜ドM女マーケット
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sm_mmarket/grpb0040589239_0000000000pc.jpeg?cache02=1761122123"/>
-     </td>
-     <td data-label="12/14(日)">
-      14:00 ~ 0:00
      </td>
      <td data-label="12/15(月)">
       14:00 ~ 0:00
@@ -731,6 +744,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -742,13 +758,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャブール　名古屋店
-デリヘル(高級/新栄・東新町)
+      <br/>
+      デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0022383335_0000000000pc.jpg?cache02=1762491913"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -766,6 +780,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -777,13 +794,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャブール　名古屋店
-デリヘル(高級/新栄・東新町)
+      <br/>
+      デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0041098449_0000000000pc.jpg?cache02=1765016010"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -792,16 +807,19 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/17(水)">
-      -
+      18:00 ~ 2:00
      </td>
      <td data-label="12/18(木)">
-      -
+      14:00 ~ 2:00
      </td>
      <td data-label="12/19(金)">
-      -
+      14:00 ~ 2:00
      </td>
      <td data-label="12/20(土)">
-      -
+      14:00 ~ 2:00
+     </td>
+     <td data-label="12/21(日)">
+      14:00 ~ 2:00
      </td>
     </tr>
     <tr>
@@ -812,13 +830,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GRAND STAGE 本店
-デリヘル(スタンダード/名古屋駅周辺)
+      <br/>
+      デリヘル(スタンダード/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/grandstage/grpb0060232530_0000000000pc.jpg?cache02=1760206689"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回19日出勤！ご予約受付中！
      </td>
      <td data-label="12/15(月)">
       次回19日出勤！ご予約受付中！
@@ -838,6 +854,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 18:00
      </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 5:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -847,13 +866,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       OPERA(オペラ)
-ヘルス(スタンダード/錦・栄・矢場町)
+      <br/>
+      ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/opera/grpb0042736346_0000000000pc.jpg?cache02=1765512154"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -871,6 +888,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -882,13 +902,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       AVANCE
-デリヘル(人妻/錦・栄・矢場町)
+      <br/>
+      デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0048193857_0000000000pc.jpg?cache02=1762764127"/>
-     </td>
-     <td data-label="12/14(日)">
-      15:00 ~ 0:00
      </td>
      <td data-label="12/15(月)">
       15:00 ~ 0:00
@@ -903,9 +921,12 @@ function applyPlaceFilter() {
       15:00 ~ 0:00
      </td>
      <td data-label="12/19(金)">
-      15:00 ~ 0:00
+      -
      </td>
      <td data-label="12/20(土)">
+      15:00 ~ 0:00
+     </td>
+     <td data-label="12/21(日)">
       15:00 ~ 0:00
      </td>
     </tr>
@@ -917,13 +938,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       IRIS
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/iris_g/grpb0013672853_0000000000pc.jpg?cache02=1759321080"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -941,6 +960,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -952,13 +974,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       VIP DOLL
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0053733537_0000000000pc.jpeg?cache02=1726319798"/>
-     </td>
-     <td data-label="12/14(日)">
-      💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
      </td>
      <td data-label="12/15(月)">
       💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
@@ -977,6 +997,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -987,13 +1010,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048477036_0000000000pc.jpg?cache02=1764757899"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1008,10 +1029,13 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/19(金)">
-      -
+      21:30 ~ 6:00
      </td>
      <td data-label="12/20(土)">
-      -
+      16:00 ~ 6:00
+     </td>
+     <td data-label="12/21(日)">
+      14:00 ~ 22:00
      </td>
     </tr>
     <tr>
@@ -1022,31 +1046,32 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       VIP DOLL
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0051804079_0000000000pc.jpeg?cache02=1708962818"/>
-     </td>
-     <td data-label="12/14(日)">
-      🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
      </td>
      <td data-label="12/15(月)">
       🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
      </td>
      <td data-label="12/16(火)">
-      🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
+      19:00 ~ 2:00
      </td>
      <td data-label="12/17(水)">
       🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
      </td>
      <td data-label="12/18(木)">
-      🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
+      12:00 ~ 16:00
      </td>
      <td data-label="12/19(金)">
-      🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
+      12:00 ~ 16:00
      </td>
      <td data-label="12/20(土)">
       🍀🍀完全予約の岐阜超人気嬢‼️次回出勤情報更新中🍀🍀
+     </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 16:00
      </td>
     </tr>
     <tr>
@@ -1057,13 +1082,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       VIP DOLL
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fetidoll/grpb0014422236_0000000000pc.jpeg?cache02=1698312907"/>
-     </td>
-     <td data-label="12/14(日)">
-      🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
      </td>
      <td data-label="12/15(月)">
       🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
@@ -1082,6 +1105,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -1092,13 +1118,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       男の楽園　eden.
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0054725915_0000000000pc.jpg?cache02=1761166862"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1116,6 +1140,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -1127,13 +1154,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       男の楽園　eden.
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0060472467_0000000000pc.jpg?cache02=1762171657"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1151,6 +1176,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -1162,16 +1190,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       英國屋
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0039234659_0000000000pc.jpg?cache02=1764401744"/>
      </td>
-     <td data-label="12/14(日)">
-      お休みになりました。
-     </td>
      <td data-label="12/15(月)">
-      ご予約完売
+      お休みになりました。
      </td>
      <td data-label="12/16(火)">
       -
@@ -1186,6 +1212,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      ご予約完売
+     </td>
+     <td data-label="12/21(日)">
       ご予約完売
      </td>
     </tr>
@@ -1197,16 +1226,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       英國屋
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0041820359_0000000000pc.jpg?cache02=1744691531"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 20:00
+      -
      </td>
      <td data-label="12/16(火)">
       -
@@ -1221,6 +1248,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 20:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 20:00
      </td>
     </tr>
@@ -1232,13 +1262,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       英國屋
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0040530997_0000000000pc.jpg?cache02=1749120616"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1257,6 +1285,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       ご予約完売
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -1267,13 +1298,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       時計台
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0032125094_0000000000pc.jpg?cache02=1751535186"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1291,6 +1320,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -1302,13 +1334,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       八星
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yatubosi/grpb0050772353_0000000000pc.jpg?cache02=1764541702"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 20:30
      </td>
      <td data-label="12/15(月)">
       9:00 ~ 20:30
@@ -1328,6 +1358,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       明日出勤！ご予約受付中！
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 20:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -1337,13 +1370,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ロマネ
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060485369_0000000000pc.jpg?cache02=1760513271"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1361,6 +1392,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      12:00 ~ 22:00
+     </td>
+     <td data-label="12/21(日)">
       12:00 ~ 22:00
      </td>
     </tr>
@@ -1372,13 +1406,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ROYALCLUB姫
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0025858126_0000000000pc.jpg?cache02=1753936424"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 17:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -1398,6 +1430,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1407,13 +1442,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0008132035_0000000000pc.jpg?cache02=1764942438"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       -
@@ -1432,6 +1465,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       10:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -1442,13 +1478,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0025374159_0000000000pc.jpg?cache02=1764942413"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       10:00 ~ 23:59
@@ -1466,6 +1500,9 @@ function applyPlaceFilter() {
       10:00 ~ 23:59
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:59
      </td>
     </tr>
@@ -1477,13 +1514,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0056487977_0000000000pc.jpg?cache02=1758717533"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       -
@@ -1501,6 +1536,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:59
      </td>
     </tr>
@@ -1512,13 +1550,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0037028915_0000000000pc.jpg?cache02=1763117316"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1536,6 +1572,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -1547,13 +1586,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0050270337_0000000000pc.jpg?cache02=1757204745"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       10:00 ~ 23:59
@@ -1572,6 +1609,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 23:59
      </td>
     </tr>
     <tr>
@@ -1582,13 +1622,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リージェントクラブ貴公子
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/kikoushi/grpb0035197090_0000000000pc.jpg?cache02=1763117394"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1606,6 +1644,9 @@ function applyPlaceFilter() {
       10:00 ~ 23:59
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:59
      </td>
     </tr>
@@ -1617,13 +1658,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ムーンライト
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027126701_0000000000pc.jpg?cache02=1764736764"/>
-     </td>
-     <td data-label="12/14(日)">
-      完売御礼
+      <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027126701_0000000000pc.jpg?cache02=1765794086"/>
      </td>
      <td data-label="12/15(月)">
       完売御礼
@@ -1643,6 +1682,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       完売御礼
      </td>
+     <td data-label="12/21(日)">
+      完売御礼
+     </td>
     </tr>
     <tr>
      <td>
@@ -1652,13 +1694,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ムーンライト
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0002722567_0000000000pc.jpg?cache02=1764555477"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 20:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -1678,6 +1718,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 15:00
      </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 20:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -1687,19 +1730,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       M
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0024050685_0000000000pc.jpg?cache02=1764586999"/>
-     </td>
-     <td data-label="12/14(日)">
-      明日出勤！ご予約受付中！
      </td>
      <td data-label="12/15(月)">
       9:00 ~ 20:30
      </td>
      <td data-label="12/16(火)">
-      10:00 ~ 20:30
+      9:00 ~ 20:30
      </td>
      <td data-label="12/17(水)">
       -
@@ -1711,6 +1752,9 @@ function applyPlaceFilter() {
       明日出勤！ご予約受付中！
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 20:30
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 20:30
      </td>
     </tr>
@@ -1722,16 +1766,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       M
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/en/grpb0044867133_0000000000pc.jpg?cache02=1764588381"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      9:00 ~ 14:00
+      明日出勤！ご予約受付中！
      </td>
      <td data-label="12/16(火)">
       9:30 ~ 16:00
@@ -1748,6 +1790,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1757,16 +1802,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ドルチェビィタ恵里亜
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0038262520_0000000000pc.jpg?cache02=1764736048"/>
      </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 23:30
+      10:00 ~ 23:59
      </td>
      <td data-label="12/16(火)">
       次回12/20出勤
@@ -1783,6 +1826,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 23:30
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 23:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -1792,13 +1838,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0036754755_0000000000pc.jpg?cache02=1761882650"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1818,6 +1862,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:30 ~ 17:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1827,31 +1874,32 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0030609884_0000000000pc.jpg?cache02=1761089958"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       -
      </td>
      <td data-label="12/16(火)">
-      -
+      12:00 ~ 20:30
      </td>
      <td data-label="12/17(水)">
-      -
+      12:00 ~ 20:30
      </td>
      <td data-label="12/18(木)">
-      -
+      12:00 ~ 19:30
      </td>
      <td data-label="12/19(金)">
       -
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 19:30
      </td>
     </tr>
     <tr>
@@ -1862,13 +1910,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0040953772_0000000000pc.jpg?cache02=1765657511"/>
-     </td>
-     <td data-label="12/14(日)">
-      あす出勤
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0040953772_0000000000pc.jpg?cache02=1765743909"/>
      </td>
      <td data-label="12/15(月)">
       10:00 ~ 20:00
@@ -1888,6 +1934,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 20:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1897,13 +1946,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0050696333_0000000000pc.jpg?cache02=1761089521"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -1923,6 +1970,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 21:00
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 21:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -1932,13 +1982,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051980333_0000000000pc.jpg?cache02=1755937579"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1958,6 +2006,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -1967,13 +2018,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0051097662_0000000000pc.jpg?cache02=1764769717"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -1993,6 +2042,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 17:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2002,16 +2054,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シルクロード
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/silkroad/grpb0035780066_0000000000pc.jpg?cache02=1765701331"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 23:59
+      <img src="https://img.cityheaven.net/img/girls/t/silkroad/grpb0035780066_0000000000pc.jpg?cache02=1765809328"/>
      </td>
      <td data-label="12/15(月)">
-      10:00 ~ 23:30
+      10:00 ~ 23:59
      </td>
      <td data-label="12/16(火)">
       次回12/20出勤！
@@ -2028,6 +2078,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 23:30
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 23:30
+     </td>
     </tr>
     <tr>
      <td>
@@ -2037,13 +2090,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャトールーブル
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0041706468_0000000000pc.jpg?cache02=1764502698"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2063,6 +2114,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 18:00
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 18:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2072,13 +2126,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャトールーブル
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0054451741_0000000000pc.jpg?cache02=1764502918"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2096,6 +2148,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -2107,13 +2162,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャトールーブル
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0039989987_0000000000pc.jpg?cache02=1765520512"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -2133,6 +2186,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2142,13 +2198,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャトールーブル
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/rubul/grpb0059189602_0000000000pc.jpg?cache02=1764503112"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2168,6 +2222,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 21:00
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 19:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2177,13 +2234,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       CANDY
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0041423458_0000000000pc.jpg?cache02=1765438579"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       9:00 ~ 23:59
@@ -2201,6 +2256,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -2212,13 +2270,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       コスプレアカデミー
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0050833887_0000000000pc.jpg?cache02=1764538820"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2238,6 +2294,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2247,13 +2306,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       KA-NAAAZ 岐阜本店
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0048942563_0000000000pc.jpg?cache02=1759369325"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:30 ~ 23:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -2273,6 +2330,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:30 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      10:30 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2282,13 +2342,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       KA-NAAAZ 岐阜本店
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0047401818_0000000000pc.jpg?cache02=1762082429"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:30 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -2308,6 +2366,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      10:30 ~ 21:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2317,13 +2378,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       イビサ&amp;パートナー
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0041805133_0000000000pc.jpg?cache02=1741512668"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2341,6 +2400,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -2352,13 +2414,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0055800634_0000000000pc.jpeg?cache02=1764560343"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2378,6 +2438,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2387,13 +2450,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059023491_0000000000pc.jpeg?cache02=1765464130"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2413,6 +2474,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       14:00 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2422,13 +2486,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       MGM COLLECTION
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/mgm_collection/grpb0046530956_0000000000pc.jpg?cache02=1765657523"/>
-     </td>
-     <td data-label="12/14(日)">
-      13:00 ~ 20:00
+      <img src="https://img.cityheaven.net/img/girls/t/mgm_collection/grpb0046530956_0000000000pc.jpg?cache02=1765743923"/>
      </td>
      <td data-label="12/15(月)">
       休み
@@ -2448,6 +2510,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       11:00 ~ 20:00
      </td>
+     <td data-label="12/21(日)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -2457,16 +2522,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0039351432_0000000000pc.jpg?cache02=1765692084"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 22:00
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0039351432_0000000000pc.jpg?cache02=1765778463"/>
      </td>
      <td data-label="12/15(月)">
-      10:00 ~ 22:00
+      SOLD OUT
      </td>
      <td data-label="12/16(火)">
       -
@@ -2481,6 +2544,9 @@ function applyPlaceFilter() {
       10:00 ~ 22:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 22:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 22:00
      </td>
     </tr>
@@ -2492,13 +2558,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       CANDY
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0042166606_0000000000pc.jpg?cache02=1758548160"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2518,6 +2582,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 18:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2527,16 +2594,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       C´est裸美
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/selavi/grpb0040362133_0000000000pc.jpeg?cache02=1765357846"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 22:00
+      <img src="https://img.cityheaven.net/img/girls/t/selavi/grpb0040362133_0000000000pc.jpeg?cache02=1765804321"/>
      </td>
      <td data-label="12/15(月)">
-      10:30 ~ 22:00
+      明日出勤です♪
      </td>
      <td data-label="12/16(火)">
       10:30 ~ 22:00
@@ -2553,6 +2618,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:30 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      10:30 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2562,13 +2630,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ヘルスクラブ　長者町　巴里
-ヘルス(スタンダード/錦・栄・矢場町)
+      <br/>
+      ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0041286094_0000000000pc.jpg?cache02=1764496285"/>
-     </td>
-     <td data-label="12/14(日)">
-      18:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 23:59
@@ -2577,7 +2643,7 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/17(水)">
-      12:00 ~ 23:59
+      休み
      </td>
      <td data-label="12/18(木)">
       12:00 ~ 23:59
@@ -2586,6 +2652,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      12:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       12:00 ~ 23:59
      </td>
     </tr>
@@ -2597,13 +2666,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ラブボート東新町
-ヘルス(スタンダード/新栄・東新町)
+      <br/>
+      ヘルス(スタンダード/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/loveboat-t/grpb0040758592_0000000000pc.jpg?cache02=1747758881"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/20 (土)ネット御予約受付中
      </td>
      <td data-label="12/15(月)">
       次回12/20 (土)ネット御予約受付中
@@ -2623,6 +2690,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       13:00 ~ 20:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2632,13 +2702,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ドルチェビィタ恵里亜
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/area/grpb0052668212_0000000000pc.jpg?cache02=1747182983"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/16出勤
+      <img src="https://img.cityheaven.net/img/girls/t/area/grpb0052668212_0000000000pc.jpg?cache02=1765808168"/>
      </td>
      <td data-label="12/15(月)">
       明日出勤
@@ -2658,6 +2726,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 23:30
      </td>
+     <td data-label="12/21(日)">
+      次回12/23出勤
+     </td>
     </tr>
     <tr>
      <td>
@@ -2667,16 +2738,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       レジーナ
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0046278440_0000000000pc.jpg?cache02=1765586801"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 19:00
+      <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0046278440_0000000000pc.jpg?cache02=1765804298"/>
      </td>
      <td data-label="12/15(月)">
-      12:00 ~ 21:30
+      9:30 ~ 21:30
      </td>
      <td data-label="12/16(火)">
       -
@@ -2688,10 +2757,13 @@ function applyPlaceFilter() {
       11:00 ~ 20:30
      </td>
      <td data-label="12/19(金)">
-      11:00 ~ 20:30
+      11:00 ~ 18:00
      </td>
      <td data-label="12/20(土)">
       11:00 ~ 20:30
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -2702,13 +2774,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       愛ＡＮＧＥＬ
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1765713336"/>
-     </td>
-     <td data-label="12/14(日)">
-      19:00 ~ 3:30
+      <img src="https://img.cityheaven.net/img/girls/t/ai-angel-s/grpb0047388111_0000000000pc.jpg?cache02=1765808734"/>
      </td>
      <td data-label="12/15(月)">
       🎅ご新規様割引✚🎁Fポイント会員登録で更にお得
@@ -2726,6 +2796,9 @@ function applyPlaceFilter() {
       19:00 ~ 3:30
      </td>
      <td data-label="12/20(土)">
+      19:00 ~ 3:30
+     </td>
+     <td data-label="12/21(日)">
       19:00 ~ 3:30
      </td>
     </tr>
@@ -2737,31 +2810,32 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Secret Service本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0036985163_0000000000pc.jpg?cache02=1765691803"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 18:00
+      <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0036985163_0000000000pc.jpg?cache02=1765792606"/>
      </td>
      <td data-label="12/15(月)">
       10:00 ~ 18:00
      </td>
      <td data-label="12/16(火)">
-      10/20㈯10時出勤！予約受付中☆
+      12/18㈭10時出勤！予約受付中☆
      </td>
      <td data-label="12/17(水)">
-      10/20㈯10時出勤！予約受付中☆
+      明日10時出勤！予約受付中☆
      </td>
      <td data-label="12/18(木)">
-      10/20㈯10時出勤！予約受付中☆
+      10:00 ~ 13:00
      </td>
      <td data-label="12/19(金)">
       明日10時出勤！予約受付中☆
      </td>
      <td data-label="12/20(土)">
       10:00 ~ 16:30
+     </td>
+     <td data-label="12/21(日)">
+      12/28㈰11時出勤！予約受付中☆
      </td>
     </tr>
     <tr>
@@ -2772,13 +2846,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ニュー令女
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newreijo/grpb0050554655_0000000000pc.jpg?cache02=1726741461"/>
-     </td>
-     <td data-label="12/14(日)">
-      来週出勤予定♪
      </td>
      <td data-label="12/15(月)">
       -
@@ -2798,6 +2870,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       18:00 ~ 23:59
      </td>
+     <td data-label="12/21(日)">
+      来週出勤予定♪
+     </td>
     </tr>
     <tr>
      <td>
@@ -2807,16 +2882,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       グランドオペラ名古屋
-デリヘル(高級/新栄・東新町)
+      <br/>
+      デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/g-opera/grpb0011319463_0000000000pc.jpg?cache02=1765199075"/>
      </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 0:00
-     </td>
      <td data-label="12/15(月)">
-      19:00 ~ 2:00
+      休み
      </td>
      <td data-label="12/16(火)">
       19:00 ~ 2:00
@@ -2833,6 +2906,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       休み
      </td>
+     <td data-label="12/21(日)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -2842,16 +2918,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       愛らぶ名古屋本店
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0042044650_0000000000pc.jpg?cache02=1764849923"/>
      </td>
-     <td data-label="12/14(日)">
-      19:00 ~ 2:00
-     </td>
      <td data-label="12/15(月)">
-      19:00 ~ 2:00
+      20:00 ~ 2:00
      </td>
      <td data-label="12/16(火)">
       19:00 ~ 2:00
@@ -2868,6 +2942,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2877,13 +2954,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       AVANCE
-デリヘル(人妻/錦・栄・矢場町)
+      <br/>
+      デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0040261185_0000000000pc.jpg?cache02=1762776146"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2901,6 +2976,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -2912,13 +2990,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       AVANCE
-デリヘル(人妻/錦・栄・矢場町)
+      <br/>
+      デリヘル(人妻/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/avance/grpb0030694068_0000000000pc.jpg?cache02=1765247106"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -2938,6 +3014,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -2947,13 +3026,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       美ＳＴＹＬＥ
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0037545000_0000000000pc.jpg?cache02=1765532617"/>
-     </td>
-     <td data-label="12/14(日)">
-      15:00 ~ 3:00
+      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0037545000_0000000000pc.jpg?cache02=1765779109"/>
      </td>
      <td data-label="12/15(月)">
       15:00 ~ 3:00
@@ -2973,6 +3050,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       15:00 ~ 3:00
      </td>
+     <td data-label="12/21(日)">
+      15:00 ~ 3:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -2982,13 +3062,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       英國屋
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eikokuya/grpb0061548909_0000000000pc.jpg?cache02=1760175005"/>
-     </td>
-     <td data-label="12/14(日)">
-      お休みになりました。
      </td>
      <td data-label="12/15(月)">
       ご予約完売
@@ -3007,6 +3085,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      ご予約完売
      </td>
     </tr>
     <tr>
@@ -3017,13 +3098,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ロマネ
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/romane/grpb0060728637_0000000000pc.jpg?cache02=1760513846"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -3041,6 +3120,9 @@ function applyPlaceFilter() {
       10:00 ~ 22:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 22:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 22:00
      </td>
     </tr>
@@ -3052,13 +3134,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Premier
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/premier/grpb0055408564_0000000000pc.jpg?cache02=1765439769"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 18:00
@@ -3078,6 +3158,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       11:00 ~ 21:00
      </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 21:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3087,13 +3170,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       美ＳＴＹＬＥ
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0043952936_0000000000pc.jpg?cache02=1765699623"/>
-     </td>
-     <td data-label="12/14(日)">
-      💋次回12/23(火)出勤◇ご予約受付中💋
+      <img src="https://img.cityheaven.net/img/girls/t/b-style/grpb0043952936_0000000000pc.jpg?cache02=1765786017"/>
      </td>
      <td data-label="12/15(月)">
       💋次回12/23(火)出勤◇ご予約受付中💋
@@ -3112,6 +3193,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       💋次回12/23(火)出勤◇ご予約受付中💋
+     </td>
+     <td data-label="12/21(日)">
+      💋明後日出勤◇ご予約受付中💋
      </td>
     </tr>
     <tr>
@@ -3122,19 +3206,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deridos/grpb0051980872_0000000000pc.jpg?cache02=1765408804"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      -
+      18:00 ~ 0:00
      </td>
      <td data-label="12/16(火)">
-      -
+      18:00 ~ 0:00
      </td>
      <td data-label="12/17(水)">
       -
@@ -3146,6 +3228,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3157,13 +3242,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ムーンライト
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0027289671_0000000000pc.jpg?cache02=1764555972"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 20:00
@@ -3182,6 +3265,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 20:00
      </td>
     </tr>
     <tr>
@@ -3192,13 +3278,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ドルチェビィタ恵里亜
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/area/grpb0051960716_0000000000pc.jpg?cache02=1765368941"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/18出勤
      </td>
      <td data-label="12/15(月)">
       次回12/18出勤
@@ -3217,6 +3301,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       10:00 ~ 23:30
+     </td>
+     <td data-label="12/21(日)">
+      次回12/23出勤
      </td>
     </tr>
     <tr>
@@ -3227,13 +3314,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0038220954_0000000000pc.jpg?cache02=1764123528"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3251,6 +3336,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 22:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 22:00
      </td>
     </tr>
@@ -3262,13 +3350,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056944635_0000000000pc.jpg?cache02=1758869242"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3286,6 +3372,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3297,16 +3386,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0037401180_0000000000pc.jpg?cache02=1764148661"/>
      </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 22:00
+      9:00 ~ 23:00
      </td>
      <td data-label="12/16(火)">
       -
@@ -3323,6 +3410,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3332,13 +3422,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0049169298_0000000000pc.jpg?cache02=1758002789"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3358,6 +3446,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3367,16 +3458,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0048566511_0000000000pc.jpg?cache02=1765657511"/>
-     </td>
-     <td data-label="12/14(日)">
-      あす出勤
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0048566511_0000000000pc.jpg?cache02=1765743910"/>
      </td>
      <td data-label="12/15(月)">
-      9:00 ~ 22:30
+      休み
      </td>
      <td data-label="12/16(火)">
       9:00 ~ 17:00
@@ -3393,6 +3482,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 22:30
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3402,16 +3494,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0047749941_0000000000pc.jpg?cache02=1765442514"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      12:00 ~ 23:00
+      -
      </td>
      <td data-label="12/16(火)">
       -
@@ -3428,6 +3518,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3437,13 +3530,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0046872663_0000000000pc.jpg?cache02=1761088783"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3463,6 +3554,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 19:00
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 19:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3472,13 +3566,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       リメイク
-デリヘル(人妻/一宮・稲沢)
+      <br/>
+      デリヘル(人妻/一宮・稲沢)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/wife_ichinomiya/grpb0032690596_0000000000pc.jpg?cache02=1765406439"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 17:00
      </td>
      <td data-label="12/15(月)">
       次回12/17(水)9時-17時📱事前予約受付中💻
@@ -3498,6 +3590,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 17:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3507,13 +3602,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ヘルスクラブ　長者町　巴里
-ヘルス(スタンダード/錦・栄・矢場町)
+      <br/>
+      ヘルス(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/c_pari/grpb0039419174_0000000000pc.jpg?cache02=1764496841"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:30 ~ 15:30
      </td>
      <td data-label="12/15(月)">
       休み
@@ -3531,6 +3624,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      10:30 ~ 15:30
+     </td>
+     <td data-label="12/21(日)">
       10:30 ~ 15:30
      </td>
     </tr>
@@ -3542,13 +3638,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       愛らぶ名古屋本店
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/airabugakuen/grpb0044532412_0000000000pc.jpg?cache02=1764755468"/>
-     </td>
-     <td data-label="12/14(日)">
-      18:00 ~ 0:00
      </td>
      <td data-label="12/15(月)">
       次回のご出勤をお楽しみに💕
@@ -3563,9 +3657,12 @@ function applyPlaceFilter() {
       次回のご出勤をお楽しみに💕
      </td>
      <td data-label="12/19(金)">
-      -
+      次回のご出勤をお楽しみに💕
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3577,16 +3674,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       男の楽園　eden.
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/eden-n/grpb0041173984_0000000000pc.jpg?cache02=1738684664"/>
      </td>
-     <td data-label="12/14(日)">
-      15日15:00～出勤❤️
-     </td>
      <td data-label="12/15(月)">
-      15:00 ~ 0:00
+      17:00 ~ 0:00
      </td>
      <td data-label="12/16(火)">
       17日14:00～出勤❤️
@@ -3603,6 +3698,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       14:00 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      23日14:00~出勤❤️
+     </td>
     </tr>
     <tr>
      <td>
@@ -3612,13 +3710,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ヘルスクラブ巴里
-ヘルス(マット/錦・栄・矢場町)
+      <br/>
+      ヘルス(マット/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/paris/grpb0041463180_0000000000pc.jpg?cache02=1763516624"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回年始出勤予定♡
      </td>
      <td data-label="12/15(月)">
       次回年始出勤予定♡
@@ -3636,6 +3732,9 @@ function applyPlaceFilter() {
       次回年始出勤予定♡
      </td>
      <td data-label="12/20(土)">
+      次回年始出勤予定♡
+     </td>
+     <td data-label="12/21(日)">
       次回年始出勤予定♡
      </td>
     </tr>
@@ -3647,13 +3746,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ムーンライト
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0038898929_0000000000pc.jpg?cache02=1756512408"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3673,6 +3770,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3682,13 +3782,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0032022294_0000000000pc.jpg?cache02=1762154644"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3708,6 +3806,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 18:00
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 18:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3717,13 +3818,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       時計台
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0037411552_0000000000pc.jpg?cache02=1751534052"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 16:00
@@ -3741,7 +3840,10 @@ function applyPlaceFilter() {
       12:00 ~ 17:30
      </td>
      <td data-label="12/20(土)">
-      次回出勤調整中です
+      明日出勤！
+     </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 22:00
      </td>
     </tr>
     <tr>
@@ -3752,13 +3854,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アバンチュール
-ヘルス(人妻/大須・金山・鶴舞)
+      <br/>
+      ヘルス(人妻/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aventure/grpb0027877529_0000000000pc.jpg?cache02=1764514911"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 18:00
@@ -3776,6 +3876,9 @@ function applyPlaceFilter() {
       11:00 ~ 18:00
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3787,13 +3890,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0062051546_0000000000pc.jpg?cache02=1765249669"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -3813,6 +3914,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -3822,13 +3926,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0021031329_0000000000pc.jpg?cache02=1763557139"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3848,6 +3950,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:30 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3857,31 +3962,32 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0015100863_0000000000pc.jpg?cache02=1753081154"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      -
+      10:00 ~ 13:00
      </td>
      <td data-label="12/16(火)">
       -
      </td>
      <td data-label="12/17(水)">
-      -
+      17:00 ~ 22:00
      </td>
      <td data-label="12/18(木)">
       -
      </td>
      <td data-label="12/19(金)">
-      -
+      10:00 ~ 17:00
      </td>
      <td data-label="12/20(土)">
-      -
+      10:00 ~ 17:00
+     </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 17:00
      </td>
     </tr>
     <tr>
@@ -3892,13 +3998,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       CANDY
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/candy/grpb0055819558_0000000000pc.jpg?cache02=1746503994"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -3916,6 +4020,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3927,19 +4034,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0058830871_0000000000pc.jpg?cache02=1760094163"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
      </td>
      <td data-label="12/16(火)">
-      -
+      11:00 ~ 23:59
      </td>
      <td data-label="12/17(水)">
       -
@@ -3951,6 +4056,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -3962,13 +4070,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0057814696_0000000000pc.jpg?cache02=1764312359"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -3988,6 +4094,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -3997,13 +4106,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GOLD again 安城店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_again_a/grpb0051943206_0000000000pc.jpg?cache02=1764734684"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12／22出勤です♪
      </td>
      <td data-label="12/15(月)">
       次回12／22出勤です♪事前予約受付中！！
@@ -4022,6 +4129,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       次回12／22出勤です♪事前予約受付中！！
+     </td>
+     <td data-label="12/21(日)">
+      明日出勤です♪事前予約受付中！！
      </td>
     </tr>
     <tr>
@@ -4032,22 +4142,20 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0059921311_0000000000pc.jpeg?cache02=1765547836"/>
      </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 23:00
+      11:00 ~ 23:00
      </td>
      <td data-label="12/16(火)">
-      9:00 ~ 17:30
+      11:00 ~ 17:30
      </td>
      <td data-label="12/17(水)">
-      12:00 ~ 20:00
+      👑全枠完売👑
      </td>
      <td data-label="12/18(木)">
       10:00 ~ 23:00
@@ -4056,6 +4164,9 @@ function applyPlaceFilter() {
       10:00 ~ 23:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:00
      </td>
     </tr>
@@ -4067,13 +4178,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051533030_0000000000pc.jpeg?cache02=1734066793"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 20:00
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 20:00
@@ -4091,6 +4200,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4102,13 +4214,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0061504415_0000000000pc.jpeg?cache02=1764560082"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4126,6 +4236,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4137,13 +4250,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ラグジュアリー
-ソープ(高級/川崎堀之内南町・川崎駅周辺)
+      <br/>
+      ソープ(高級/川崎堀之内南町・川崎駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/y/luxury/grpb0052424239_0000000000pc.jpg?cache02=1758259239"/>
-     </td>
-     <td data-label="12/14(日)">
-      15:00 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       休み
@@ -4161,6 +4272,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -4172,13 +4286,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       不二子chan岐阜店
-デリヘル(スタンダード/岐阜)
+      <br/>
+      デリヘル(スタンダード/岐阜)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/fujiko-gifu/grpb0041035848_0000000000pc.jpg?cache02=1765539645"/>
-     </td>
-     <td data-label="12/14(日)">
-      14:00 ~ 3:00
      </td>
      <td data-label="12/15(月)">
       14:00 ~ 3:00
@@ -4196,6 +4308,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4207,13 +4322,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ROYALCLUB姫
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0032189084_0000000000pc.jpg?cache02=1760843528"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 20:00
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 20:00
@@ -4233,6 +4346,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 20:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -4242,13 +4358,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ROYALCLUB姫
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0029694933_0000000000pc.jpg?cache02=1765657510"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 20:00
+      <img src="https://img.cityheaven.net/img/girls/t/hime/grpb0029694933_0000000000pc.jpg?cache02=1765743909"/>
      </td>
      <td data-label="12/15(月)">
       -
@@ -4266,6 +4380,9 @@ function applyPlaceFilter() {
       11:00 ~ 19:30
      </td>
      <td data-label="12/20(土)">
+      11:00 ~ 19:30
+     </td>
+     <td data-label="12/21(日)">
       11:00 ~ 19:30
      </td>
     </tr>
@@ -4277,13 +4394,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ヴィーナス
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0055283498_0000000000pc.jpg?cache02=1729474023"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 20:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -4301,6 +4416,9 @@ function applyPlaceFilter() {
       11:00 ~ 20:00
      </td>
      <td data-label="12/20(土)">
+      11:00 ~ 20:00
+     </td>
+     <td data-label="12/21(日)">
       11:00 ~ 20:00
      </td>
     </tr>
@@ -4312,13 +4430,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       レジーナ
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/s-romane/grpb0060747371_0000000000pc.jpg?cache02=1765030851"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4337,6 +4453,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       11:00 ~ 21:00
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -4347,13 +4466,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アイドルラボ
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/idol_lab/grpb0061265665_0000000000pc.jpg?cache02=1763739367"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/24(水)出勤予定♡
      </td>
      <td data-label="12/15(月)">
       次回12/24(水)出勤予定♡
@@ -4371,6 +4488,9 @@ function applyPlaceFilter() {
       次回12/24(水)出勤予定♡
      </td>
      <td data-label="12/20(土)">
+      次回12/24(水)出勤予定♡
+     </td>
+     <td data-label="12/21(日)">
       次回12/24(水)出勤予定♡
      </td>
     </tr>
@@ -4382,13 +4502,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0042513856_0000000000pc.jpg?cache02=1760094213"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4406,6 +4524,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4417,13 +4538,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       シャブール　名古屋店
-デリヘル(高級/新栄・東新町)
+      <br/>
+      デリヘル(高級/新栄・東新町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/shaboole/grpb0051439444_0000000000pc.jpg?cache02=1765110859"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       15:00 ~ 23:00
@@ -4442,6 +4561,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      15:00 ~ 23:00
      </td>
     </tr>
     <tr>
@@ -4452,13 +4574,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ギャルズパラダイス安城本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0054793954_0000000000pc.jpg?cache02=1760722750"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4476,6 +4596,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4487,13 +4610,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ギャルズパラダイス安城本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0051731503_0000000000pc.jpg?cache02=1764310886"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4511,6 +4632,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4522,14 +4646,12 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ギャルズパラダイス安城本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gals_paradise/grpb0049410986_0000000000pc.jpg?cache02=1764275896"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
       -
      </td>
@@ -4548,109 +4670,7 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-54344206/?lo=1" target="_blank">
-       れみ【国民的可愛さの象徴...
-      </a>
-     </td>
-     <td class="shop-cell">
-      Color
-デリヘル(スタンダード/安城)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/color/grpb0054344206_0000000000pc.jpg?cache02=1761919190"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/17(水)20時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/15(月)">
-      次回12/17(水)20時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/16(火)">
-      次回12/17(水)20時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/17(水)">
-      20:00 ~ 3:00
-     </td>
-     <td data-label="12/18(木)">
-      19:30 ~ 3:00
-     </td>
-     <td data-label="12/19(金)">
-      18:00 ~ 1:00
-     </td>
-     <td data-label="12/20(土)">
-      次回12/21(日)12時出勤★事前予約受付中♪
-     </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-35310599/?lo=1" target="_blank">
-       みなみ【一撃惚れ注意報】...
-      </a>
-     </td>
-     <td class="shop-cell">
-      Color
-デリヘル(スタンダード/安城)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/color/grpb0035310599_0000000000pc.jpg?cache02=1756645651"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回12/15(月)18時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/15(月)">
-      18:00 ~ 1:00
-     </td>
-     <td data-label="12/16(火)">
-      次回12/18(木)18時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/17(水)">
-      次回12/18(木)18時出勤★事前予約受付中♪
-     </td>
-     <td data-label="12/18(木)">
-      18:00 ~ 2:00
-     </td>
-     <td data-label="12/19(金)">
-      18:00 ~ 1:00
-     </td>
-     <td data-label="12/20(土)">
-      17:00 ~ 1:00
-     </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-51547841/?lo=1" target="_blank">
-       みらん【S級ギャル性格は...
-      </a>
-     </td>
-     <td class="shop-cell">
-      Color
-デリヘル(スタンダード/安城)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/color/grpb0051547841_0000000000pc.jpg?cache02=1765547054"/>
-     </td>
-     <td data-label="12/14(日)">
-      19:30 ~ 1:00
-     </td>
-     <td data-label="12/15(月)">
-      -
-     </td>
-     <td data-label="12/16(火)">
-      -
-     </td>
-     <td data-label="12/17(水)">
-      -
-     </td>
-     <td data-label="12/18(木)">
-      -
-     </td>
-     <td data-label="12/19(金)">
-      -
-     </td>
-     <td data-label="12/20(土)">
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4662,13 +4682,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Color
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0034492013_0000000000pc.jpg?cache02=1749265716"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -4686,6 +4704,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4697,13 +4718,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Color
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/color/grpb0049458461_0000000000pc.jpg?cache02=1765528646"/>
-     </td>
-     <td data-label="12/14(日)">
-      17:00 ~ 3:00
      </td>
      <td data-label="12/15(月)">
       次回12/20(土)18時出勤★事前予約受付中♪
@@ -4721,6 +4740,9 @@ function applyPlaceFilter() {
       次回12/20(土)18時出勤★事前予約受付中♪
      </td>
      <td data-label="12/20(土)">
+      17:00 ~ 3:00
+     </td>
+     <td data-label="12/21(日)">
       17:00 ~ 3:00
      </td>
     </tr>
@@ -4732,16 +4754,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Secret Service本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0045881066_0000000000pc.jpg?cache02=1765368056"/>
      </td>
-     <td data-label="12/14(日)">
-      18:00 ~ 3:00
-     </td>
      <td data-label="12/15(月)">
-      13:00 ~ 0:00
+      15:00 ~ 0:00
      </td>
      <td data-label="12/16(火)">
       ☆出勤確認中☆
@@ -4756,6 +4776,9 @@ function applyPlaceFilter() {
       ☆出勤確認中☆
      </td>
      <td data-label="12/20(土)">
+      ☆出勤確認中☆
+     </td>
+     <td data-label="12/21(日)">
       ☆出勤確認中☆
      </td>
     </tr>
@@ -4767,13 +4790,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Secret Service本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0035166947_0000000000pc.jpg?cache02=1749837504"/>
-     </td>
-     <td data-label="12/14(日)">
-      12:00 ~ 21:00
      </td>
      <td data-label="12/15(月)">
       ☆出勤確認中☆
@@ -4791,6 +4812,9 @@ function applyPlaceFilter() {
       ☆出勤確認中☆
      </td>
      <td data-label="12/20(土)">
+      ☆出勤確認中☆
+     </td>
+     <td data-label="12/21(日)">
       ☆出勤確認中☆
      </td>
     </tr>
@@ -4802,13 +4826,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       静岡FINAL STAGE～選ばれし者の最後のステージ～
-デリヘル(スタンダード/静岡市)
+      <br/>
+      デリヘル(スタンダード/静岡市)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/so/final_stage/grpb0043816275_0000000000pc.jpg?cache02=1765626567"/>
-     </td>
-     <td data-label="12/14(日)">
-      12/16出勤！ご予約受付中☆
      </td>
      <td data-label="12/15(月)">
       12/16出勤！ご予約受付中☆
@@ -4826,6 +4848,9 @@ function applyPlaceFilter() {
       10:00 ~ 4:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 4:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 4:00
      </td>
     </tr>
@@ -4837,13 +4862,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       KA-NAAAZ 岐阜本店
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/yakata/grpb0051364491_0000000000pc.jpg?cache02=1743047464"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:30 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       10:30 ~ 22:00
@@ -4863,6 +4886,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:30 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -4872,13 +4898,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0037754672_0000000000pc.jpg?cache02=1760955333"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 20:30
      </td>
      <td data-label="12/15(月)">
       -
@@ -4898,39 +4922,7 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/gifu/A2101/A210101/n-partner/girlid-42649199/?lo=1" target="_blank">
-       ゆき　☆素人プレミア☆（...
-      </a>
-     </td>
-     <td class="shop-cell">
-      イビサ&amp;パートナー
-ソープ(大衆/金津園)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/n-partner/grpb0042649199_0000000000pc.jpeg?cache02=1662026856"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
-     <td data-label="12/15(月)">
-      -
-     </td>
-     <td data-label="12/16(火)">
-      -
-     </td>
-     <td data-label="12/17(水)">
-      -
-     </td>
-     <td data-label="12/18(木)">
-      -
-     </td>
-     <td data-label="12/19(金)">
-      -
-     </td>
-     <td data-label="12/20(土)">
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -4942,13 +4934,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0058575520_0000000000pc.jpg?cache02=1757506356"/>
-     </td>
-     <td data-label="12/14(日)">
-      13:30 ~ 20:30
      </td>
      <td data-label="12/15(月)">
       -
@@ -4967,6 +4957,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       11:00 ~ 20:30
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -4977,13 +4970,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       aQua
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aqua/grpb0051014532_0000000000pc.JPG?cache02=1765272024"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5001,6 +4992,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5012,13 +5006,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0032764202_0000000000pc.jpg?cache02=1753960808"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5038,6 +5030,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -5047,19 +5042,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ムーンライト
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/moonlight/grpb0058573248_0000000000pc.jpg?cache02=1765160145"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       完売御礼
      </td>
      <td data-label="12/16(火)">
-      17時20分1枠空き枠有
+      完売御礼
      </td>
      <td data-label="12/17(水)">
       -
@@ -5073,6 +5066,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      完売御礼
+     </td>
     </tr>
     <tr>
      <td>
@@ -5082,13 +5078,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0042902925_0000000000pc.jpg?cache02=1759028283"/>
-     </td>
-     <td data-label="12/14(日)">
-      SOLD OUT
      </td>
      <td data-label="12/15(月)">
       SOLD OUT
@@ -5106,7 +5100,10 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
-      10:00 ~ 21:00
+      SOLD OUT
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -5117,13 +5114,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0053248326_0000000000pc.jpg?cache02=1765702950"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0053248326_0000000000pc.jpg?cache02=1765789261"/>
      </td>
      <td data-label="12/15(月)">
       -
@@ -5142,6 +5137,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       -
+     </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 21:00
      </td>
     </tr>
     <tr>
@@ -5152,19 +5150,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ラブココ名古屋本店
-デリヘル(スタンダード/大須・金山・鶴舞)
+      <br/>
+      デリヘル(スタンダード/大須・金山・鶴舞)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/love_coco/grpb0056368008_0000000000pc.jpg?cache02=1762530310"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      -
+      15:00 ~ 20:30
      </td>
      <td data-label="12/16(火)">
-      -
+      12:00 ~ 5:00
      </td>
      <td data-label="12/17(水)">
       -
@@ -5176,6 +5172,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5187,13 +5186,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0056598064_0000000000pc.jpg?cache02=1738309113"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5213,6 +5210,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       13:00 ~ 17:00
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 12:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5222,13 +5222,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0057050617_0000000000pc.jpg?cache02=1739693963"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5248,6 +5246,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5257,13 +5258,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ニューデリー
-デリヘル(ぽっちゃり/錦・栄・矢場町)
+      <br/>
+      デリヘル(ぽっちゃり/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/newdeli/grpb0054236854_0000000000pc.jpg?cache02=1765247971"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回17日15時～出勤　事前予約受付中!!
      </td>
      <td data-label="12/15(月)">
       次回17日15時～出勤　事前予約受付中!!
@@ -5283,6 +5282,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       15:00 ~ 5:00
      </td>
+     <td data-label="12/21(日)">
+      15:00 ~ 5:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5292,13 +5294,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051645111_0000000000pc.jpg?cache02=1762154274"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5316,6 +5316,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5327,13 +5330,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056811637_0000000000pc.jpg?cache02=1765443104"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5351,6 +5352,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 17:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 17:00
      </td>
     </tr>
@@ -5362,13 +5366,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0057031614_0000000000pc.jpg?cache02=1764769649"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       13:30 ~ 23:00
@@ -5388,6 +5390,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      16:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5397,16 +5402,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0032044155_0000000000pc.jpg?cache02=1763351832"/>
      </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 23:00
+      9:00 ~ 23:00
      </td>
      <td data-label="12/16(火)">
       10:00 ~ 21:00
@@ -5423,6 +5426,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      10:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5432,13 +5438,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       名古屋しろうと革命～愛らぶgroup～
-デリヘル(スタンダード/錦・栄・矢場町)
+      <br/>
+      デリヘル(スタンダード/錦・栄・矢場町)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/n_shirouto_dx/grpb0048684468_0000000000pc.jpg?cache02=1764861880"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5458,6 +5462,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       19:00 ~ 4:00
      </td>
+     <td data-label="12/21(日)">
+      19:00 ~ 4:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -5467,13 +5474,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0052650438_0000000000pc.jpg?cache02=1762154195"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5491,6 +5496,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5502,16 +5510,14 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0056755297_0000000000pc.jpg?cache02=1749041325"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 17:00
+      SOLD OUT
      </td>
      <td data-label="12/16(火)">
       10:00 ~ 17:00
@@ -5526,6 +5532,9 @@ function applyPlaceFilter() {
       10:00 ~ 17:00
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5537,13 +5546,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0028086198_0000000000pc.jpg?cache02=1765684179"/>
-     </td>
-     <td data-label="12/14(日)">
-      SOLD OUT
+      <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0028086198_0000000000pc.jpg?cache02=1765806638"/>
      </td>
      <td data-label="12/15(月)">
       -
@@ -5562,6 +5569,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       10:00 ~ 21:00
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -5572,13 +5582,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0046338369_0000000000pc.jpg?cache02=1740272892"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -5596,6 +5604,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -5607,13 +5618,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032594038_0000000000pc.jpg?cache02=1724056851"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 17:00
@@ -5631,6 +5640,9 @@ function applyPlaceFilter() {
       12:00 ~ 17:00
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -5642,13 +5654,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0038228220_0000000000pc.jpg?cache02=1724057578"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -5666,6 +5676,9 @@ function applyPlaceFilter() {
       休み
      </td>
      <td data-label="12/20(土)">
+      休み
+     </td>
+     <td data-label="12/21(日)">
       休み
      </td>
     </tr>
@@ -5677,13 +5690,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0032889460_0000000000pc.jpg?cache02=1758576678"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -5701,6 +5712,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -5712,14 +5726,12 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0050455022_0000000000pc.jpg?cache02=1759838671"/>
      </td>
-     <td data-label="12/14(日)">
-      休み
-     </td>
      <td data-label="12/15(月)">
       -
      </td>
@@ -5738,40 +5750,8 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/girlid-25820986/?lo=1" target="_blank">
-       めぐ♡S級素人系美少女（...
-      </a>
-     </td>
-     <td class="shop-cell">
-      でりどす岡崎
-デリヘル(スタンダード/岡崎)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0025820986_0000000000pc.jpg?cache02=1724057293"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
-     </td>
-     <td data-label="12/15(月)">
-      15:30 ~ 20:30
-     </td>
-     <td data-label="12/16(火)">
-      休み
-     </td>
-     <td data-label="12/17(水)">
-      15:30 ~ 20:30
-     </td>
-     <td data-label="12/18(木)">
-      休み
-     </td>
-     <td data-label="12/19(金)">
-      休み
-     </td>
-     <td data-label="12/20(土)">
-      15:30 ~ 21:00
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -5782,19 +5762,17 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       GG
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0011631416_0000000000pc.jpg?cache02=1765695726"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/gold_garden/grpb0011631416_0000000000pc.jpg?cache02=1765782064"/>
      </td>
      <td data-label="12/15(月)">
       -
      </td>
      <td data-label="12/16(火)">
-      -
+      17:00 ~ 23:00
      </td>
      <td data-label="12/17(水)">
       10:00 ~ 23:00
@@ -5806,6 +5784,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:00
      </td>
     </tr>
@@ -5817,13 +5798,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       でりどす岡崎
-デリヘル(スタンダード/岡崎)
+      <br/>
+      デリヘル(スタンダード/岡崎)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/deidos-okazaki/grpb0033762261_0000000000pc.jpg?cache02=1764754071"/>
-     </td>
-     <td data-label="12/14(日)">
-      休み
      </td>
      <td data-label="12/15(月)">
       休み
@@ -5843,6 +5822,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      休み
+     </td>
     </tr>
     <tr>
      <td>
@@ -5852,13 +5834,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       青いりんご
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753096_0000000000pc.jpeg?cache02=1765657502"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 21:00
+      <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753096_0000000000pc.jpeg?cache02=1765743902"/>
      </td>
      <td data-label="12/15(月)">
       -
@@ -5877,6 +5857,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       11:00 ~ 21:00
+     </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 18:30
      </td>
     </tr>
     <tr>
@@ -5887,13 +5870,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       青いりんご
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052751055_0000000000pc.jpeg?cache02=1762345786"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 23:59
@@ -5911,6 +5892,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      11:00 ~ 23:59
+     </td>
+     <td data-label="12/21(日)">
       11:00 ~ 23:59
      </td>
     </tr>
@@ -5922,13 +5906,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       時計台
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/tokeidai/grpb0055120757_0000000000pc.jpg?cache02=1756380171"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 17:00
      </td>
      <td data-label="12/15(月)">
       明日出勤！
@@ -5948,6 +5930,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       次回12/22出勤
      </td>
+     <td data-label="12/21(日)">
+      明日出勤！
+     </td>
     </tr>
     <tr>
      <td>
@@ -5957,13 +5942,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ジュリエット
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/juliet/grpb0044140541_0000000000pc.jpg?cache02=1765359628"/>
-     </td>
-     <td data-label="12/14(日)">
-      13:30 ~ 23:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -5983,40 +5966,8 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/gifu/A2101/A210101/aoiringo/girlid-52753121/?lo=1" target="_blank">
-       まなみ♡綺麗…可愛い♡そ...
-      </a>
-     </td>
-     <td class="shop-cell">
-      青いりんご
-ソープ(スタンダード/金津園)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753121_0000000000pc.jpg?cache02=1764299970"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 17:00
-     </td>
-     <td data-label="12/15(月)">
-      -
-     </td>
-     <td data-label="12/16(火)">
-      -
-     </td>
-     <td data-label="12/17(水)">
-      -
-     </td>
-     <td data-label="12/18(木)">
-      -
-     </td>
-     <td data-label="12/19(金)">
-      13:00 ~ 21:00
-     </td>
-     <td data-label="12/20(土)">
-      11:00 ~ 21:00
+     <td data-label="12/21(日)">
+      13:30 ~ 23:00
      </td>
     </tr>
     <tr>
@@ -6027,22 +5978,20 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       STYLISH BACH（スタイリッシュ バッハ）
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/stylish_bach/grpb0056201878_0000000000pc.jpg?cache02=1764123705"/>
      </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:00
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 23:00
+      9:00 ~ 23:00
      </td>
      <td data-label="12/16(火)">
       -
      </td>
      <td data-label="12/17(水)">
-      10:00 ~ 23:00
+      -
      </td>
      <td data-label="12/18(木)">
       -
@@ -6051,6 +6000,9 @@ function applyPlaceFilter() {
       10:00 ~ 23:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 23:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 23:00
      </td>
     </tr>
@@ -6062,13 +6014,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Secret Service本店
-デリヘル(スタンダード/安城)
+      <br/>
+      デリヘル(スタンダード/安城)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/secret_service/grpb0031675356_0000000000pc.jpg?cache02=1765245722"/>
-     </td>
-     <td data-label="12/14(日)">
-      ☆出勤確認中☆
      </td>
      <td data-label="12/15(月)">
       ☆出勤確認中☆
@@ -6086,6 +6036,9 @@ function applyPlaceFilter() {
       ☆出勤確認中☆
      </td>
      <td data-label="12/20(土)">
+      ☆出勤確認中☆
+     </td>
+     <td data-label="12/21(日)">
       ☆出勤確認中☆
      </td>
     </tr>
@@ -6097,13 +6050,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0043706363_0000000000pc.jpg?cache02=1758291266"/>
-     </td>
-     <td data-label="12/14(日)">
-      SOLD OUT
      </td>
      <td data-label="12/15(月)">
       -
@@ -6123,6 +6074,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       10:00 ~ 16:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6132,13 +6086,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       青いりんご
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/aoiringo/grpb0052753088_0000000000pc.jpeg?cache02=1762953022"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 23:00
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 19:00
@@ -6158,6 +6110,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       11:00 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6167,13 +6122,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0047888999_0000000000pc.jpg?cache02=1764559515"/>
-     </td>
-     <td data-label="12/14(日)">
-      【完売御礼】
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 20:00
@@ -6191,6 +6144,9 @@ function applyPlaceFilter() {
       12:00 ~ 21:00
      </td>
      <td data-label="12/20(土)">
+      12:00 ~ 21:00
+     </td>
+     <td data-label="12/21(日)">
       12:00 ~ 21:00
      </td>
     </tr>
@@ -6202,14 +6158,12 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0055157842_0000000000pc.jpg?cache02=1760966309"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
       -
      </td>
@@ -6228,39 +6182,7 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
-    </tr>
-    <tr>
-     <td>
-      <a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-54952702/?lo=1" target="_blank">
-       いちか（21歳）
-      </a>
-     </td>
-     <td class="shop-cell">
-      コスプレアカデミー
-ソープ(スタンダード/金津園)
-     </td>
-     <td>
-      <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0054952702_0000000000pc.jpg?cache02=1752243363"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
-     <td data-label="12/15(月)">
-      -
-     </td>
-     <td data-label="12/16(火)">
-      -
-     </td>
-     <td data-label="12/17(水)">
-      -
-     </td>
-     <td data-label="12/18(木)">
-      -
-     </td>
-     <td data-label="12/19(金)">
-      -
-     </td>
-     <td data-label="12/20(土)">
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6272,13 +6194,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       スチュアーデス
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0039534775_0000000000pc.jpg?cache02=1765657511"/>
-     </td>
-     <td data-label="12/14(日)">
-      あす出勤
+      <img src="https://img.cityheaven.net/img/girls/t/stewardess/grpb0039534775_0000000000pc.jpg?cache02=1765743909"/>
      </td>
      <td data-label="12/15(月)">
       9:00 ~ 19:30
@@ -6287,7 +6207,7 @@ function applyPlaceFilter() {
       9:00 ~ 19:30
      </td>
      <td data-label="12/17(水)">
-      9:00 ~ 16:30
+      休み
      </td>
      <td data-label="12/18(木)">
       休み
@@ -6296,6 +6216,9 @@ function applyPlaceFilter() {
       9:00 ~ 19:30
      </td>
      <td data-label="12/20(土)">
+      9:00 ~ 19:30
+     </td>
+     <td data-label="12/21(日)">
       9:00 ~ 19:30
      </td>
     </tr>
@@ -6307,13 +6230,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0049653095_0000000000pc.jpg?cache02=1765535642"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6331,6 +6252,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6342,13 +6266,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       コスプレアカデミー
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0052931528_0000000000pc.jpg?cache02=1744206952"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6368,6 +6290,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6377,13 +6302,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0045232591_0000000000pc.jpg?cache02=1762155039"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6403,6 +6326,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       8:00 ~ 13:00
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6412,13 +6338,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ヴィーナス
-ソープ(高級/金津園)
+      <br/>
+      ソープ(高級/金津園)
      </td>
      <td>
-      <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0041531297_0000000000pc.jpg?cache02=1757727168"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
+      <img src="https://img.cityheaven.net/img/girls/t/venus/grpb0041531297_0000000000pc.jpg?cache02=1765714572"/>
      </td>
      <td data-label="12/15(月)">
       -
@@ -6436,6 +6360,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6447,13 +6374,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0025733003_0000000000pc.jpg?cache02=1735111762"/>
-     </td>
-     <td data-label="12/14(日)">
-      SOLD OUT
      </td>
      <td data-label="12/15(月)">
       -
@@ -6471,7 +6396,10 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
-      10:00 ~ 21:00
+      SOLD OUT
+     </td>
+     <td data-label="12/21(日)">
+      -
      </td>
     </tr>
     <tr>
@@ -6482,13 +6410,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       コスプレアカデミー
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/cosplayacademy/grpb0045015787_0000000000pc.jpg?cache02=1750058268"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6506,6 +6432,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6517,13 +6446,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0029123660_0000000000pc.jpg?cache02=1761206585"/>
-     </td>
-     <td data-label="12/14(日)">
-      11:00 ~ 23:00
      </td>
      <td data-label="12/15(月)">
       11:00 ~ 23:00
@@ -6543,6 +6470,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       11:00 ~ 23:00
      </td>
+     <td data-label="12/21(日)">
+      11:00 ~ 23:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6552,13 +6482,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0053034569_0000000000pc.jpg?cache02=1762758978"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6576,6 +6504,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6587,22 +6518,20 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       HARVESTMOON（ハーベストムーン）
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037269210_0000000000pc.jpg?cache02=1765617343"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
      </td>
      <td data-label="12/16(火)">
-      -
+      11:00 ~ 23:00
      </td>
      <td data-label="12/17(水)">
-      -
+      11:00 ~ 23:00
      </td>
      <td data-label="12/18(木)">
       -
@@ -6611,6 +6540,9 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6622,13 +6554,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       HARVESTMOON（ハーベストムーン）
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/harvestmoon_s/grpb0037364266_0000000000pc.jpg?cache02=1722921578"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       -
@@ -6640,12 +6570,15 @@ function applyPlaceFilter() {
       -
      </td>
      <td data-label="12/18(木)">
-      -
+      9:00 ~ 19:00
      </td>
      <td data-label="12/19(金)">
       -
      </td>
      <td data-label="12/20(土)">
+      -
+     </td>
+     <td data-label="12/21(日)">
       -
      </td>
     </tr>
@@ -6657,13 +6590,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ViVi
-ソープ(スタンダード/金津園)
+      <br/>
+      ソープ(スタンダード/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/vivi_g/grpb0051020157_0000000000pc.jpg?cache02=1759246925"/>
-     </td>
-     <td data-label="12/14(日)">
-      SOLD OUT
      </td>
      <td data-label="12/15(月)">
       -
@@ -6683,6 +6614,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 22:00
      </td>
+     <td data-label="12/21(日)">
+      12:00 ~ 22:00
+     </td>
     </tr>
     <tr>
      <td>
@@ -6692,13 +6626,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0014231717_0000000000pc.jpg?cache02=1753081064"/>
-     </td>
-     <td data-label="12/14(日)">
-      -
      </td>
      <td data-label="12/15(月)">
       12:00 ~ 21:00
@@ -6718,6 +6650,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6727,13 +6662,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       LOVE MISSILE
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/lovemissile/grpb0049107541_0000000000pc.jpg?cache02=1763946220"/>
-     </td>
-     <td data-label="12/14(日)">
-      13:30 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -6753,6 +6686,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       12:00 ~ 22:30
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6762,22 +6698,20 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0040084635_0000000000pc.jpg?cache02=1761205676"/>
      </td>
-     <td data-label="12/14(日)">
-      -
-     </td>
      <td data-label="12/15(月)">
-      10:00 ~ 21:00
+      -
      </td>
      <td data-label="12/16(火)">
-      10:00 ~ 21:00
+      -
      </td>
      <td data-label="12/17(水)">
-      -
+      10:00 ~ 21:00
      </td>
      <td data-label="12/18(木)">
       10:00 ~ 21:00
@@ -6786,6 +6720,9 @@ function applyPlaceFilter() {
       10:00 ~ 21:00
      </td>
      <td data-label="12/20(土)">
+      10:00 ~ 21:00
+     </td>
+     <td data-label="12/21(日)">
       10:00 ~ 21:00
      </td>
     </tr>
@@ -6797,13 +6734,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       アラモード
-ソープ(激安/名古屋駅周辺)
+      <br/>
+      ソープ(激安/名古屋駅周辺)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/alamode/grpb0051435201_0000000000pc.jpg?cache02=1762154713"/>
-     </td>
-     <td data-label="12/14(日)">
-      10:00 ~ 22:00
      </td>
      <td data-label="12/15(月)">
       -
@@ -6823,6 +6758,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       -
      </td>
+     <td data-label="12/21(日)">
+      -
+     </td>
     </tr>
     <tr>
      <td>
@@ -6832,13 +6770,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       Sabbat
-ソープ(大衆/金津園)
+      <br/>
+      ソープ(大衆/金津園)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/t/sabbat/grpb0041709102_0000000000pc.jpg?cache02=1761205093"/>
-     </td>
-     <td data-label="12/14(日)">
-      9:00 ~ 23:59
      </td>
      <td data-label="12/15(月)">
       9:00 ~ 23:59
@@ -6858,6 +6794,9 @@ function applyPlaceFilter() {
      <td data-label="12/20(土)">
       9:00 ~ 23:59
      </td>
+     <td data-label="12/21(日)">
+      9:00 ~ 23:59
+     </td>
     </tr>
     <tr>
      <td>
@@ -6867,13 +6806,11 @@ function applyPlaceFilter() {
      </td>
      <td class="shop-cell">
       ブルームーン（Blue Moon）
-ソープ(スタンダード/中区)
+      <br/>
+      ソープ(スタンダード/中区)
      </td>
      <td>
       <img src="https://img.cityheaven.net/img/girls/cg/blue_moon/grpb0050743665_0000000000pc.jpg?cache02=1751537677"/>
-     </td>
-     <td data-label="12/14(日)">
-      次回　12/18　10:00出勤‼
      </td>
      <td data-label="12/15(月)">
       次回　12/18　10:00出勤‼
@@ -6892,6 +6829,9 @@ function applyPlaceFilter() {
      </td>
      <td data-label="12/20(土)">
       8:00 ~ 17:00
+     </td>
+     <td data-label="12/21(日)">
+      18:00 ~ 22:00
      </td>
     </tr>
    </tbody>

@@ -69,7 +69,7 @@ def load_existing_data(calendar_path):
             shop_tag = row.select("td")[1]
 
             name = name_tag.text.strip() if name_tag else "不明"
-            shop = shop_tag.text.strip() if shop_tag else "不明"
+            shop =  shop_tag.contents[0].strip() if shop_tag and shop_tag.contents else "不明"
             key = (name, shop)
 
             img_tag = row.select_one("td img")
@@ -147,7 +147,7 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
 
         # 情報保存
         data[name] = {
-            "shop": shop + ("\n" + place if place else ""),
+            "shop": shop + ("<br>" + place if place else ""),
             "url": girl_url,
             "schedule": schedule,
             "image": img_url,
