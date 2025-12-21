@@ -34,16 +34,6 @@ driver.get("https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1")
 # スクロール処理（最下部まで）
 last_height = driver.execute_script("return document.body.scrollHeight")
 
-# while True:
-#     # 一番下までスクロール
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     time.sleep(2)  # 読み込み待ち
-
-#     # 新しい高さを取得
-#     new_height = driver.execute_script("return document.body.scrollHeight")
-#     if new_height == last_height:
-#         break  # 高さが変わらなければ終了
-#     last_height = new_height
 
 while True:
     prev_height = driver.execute_script("return document.body.scrollHeight")
@@ -70,6 +60,7 @@ def load_existing_data(calendar_path):
 
             name = name_tag.text.strip() if name_tag else "不明"
             shop =  shop_tag.contents[0].strip() if shop_tag and shop_tag.contents else "不明"
+            shop = " ".join(shop.split())
             key = (name, shop)
 
             img_tag = row.select_one("td img")
@@ -111,8 +102,10 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
         place_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-place")
         place = place_tag.text.strip() if place_tag else ""
 
+        shop_place = f"{shop} {place}" if place else shop
 
-        key = (name, shop)
+
+        key = (name, shop_place)
 
         # スケジュールの取得
         schedule = {}
@@ -190,8 +183,13 @@ sorted_labels = sorted(
     key=lambda x: datetime.strptime(f"{current_year}/{x[:x.index('(')]}", "%Y/%m/%d")
 )
 from generate_html import generate_html
+from bs4 import BeautifulSoup
+
 # HTML生成
 html = generate_html(data, sorted_labels, today_label)
+
+soup = BeautifulSoup(html,"html.parser")
+html = soup.prettify()
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 output_dir = os.path.join(base_dir, "..", "docs")
