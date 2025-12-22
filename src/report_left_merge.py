@@ -168,7 +168,8 @@ def enrich_with_cityheaven_urls(df1, source="yahoo"):
     return df1
 
 # 実行例
-# df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
+df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
+# df1.to_csv("../data/df1 - df1.csv.csv")
 driver.quit()
 
 
@@ -446,7 +447,7 @@ for idx, row in merged.iterrows():
     eval_okinilove = row["evaluations_okinilove"]
     report_url_merged = row["report_url_merged"]
     report_url_okinilove = row["report_url_okinilove"]
-    report_text_okinilove = row["report_text"]
+    report_text_okinilove = row["report_text_okinilove"]
 
     has_report = "true" if (pd.notna(eval_merged) or pd.notna(eval_okinilove) or pd.notna(report_text_okinilove)) else "false"
     row_id_merged = f"review-merged-{idx}"
