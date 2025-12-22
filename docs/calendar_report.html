@@ -15,7 +15,7 @@
     th.saturday { color: blue; }
     th.sunday { color: red; }
     body { font-family: sans-serif; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 100%; min-width: 1200px;}
     th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
     td:first-child, th:first-child {
       position: sticky;
@@ -40,7 +40,7 @@
       const dayOfWeek = weekdays[today.getDay()];
       const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
 
-      const rows = document.querySelectorAll('tbody tr');
+      const rows = document.querySelectorAll('tbody tr:not(.review-row)');
 
       rows.forEach(row => {
         let showByDate = false;
@@ -182,42 +182,42 @@
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="ぽっちゃり"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="ぽっちゃり"/>
     ぽっちゃり
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="スタンダード"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="スタンダード"/>
     スタンダード
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="マット"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="マット"/>
     マット
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="人妻"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="人妻"/>
     人妻
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="人妻待ち合わせ"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="人妻待ち合わせ"/>
     人妻待ち合わせ
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="大衆"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="大衆"/>
     大衆
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="激安"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="激安"/>
     激安
    </label>
    <br/>
    <label>
-    <input name="placeFilter" type="checkbox" value="高級"/>
+    <input name="placeFilter" onchange="applyCombinedFilter()" type="checkbox" value="高級"/>
     高級
    </label>
    <br/>
@@ -335,7 +335,7 @@
        -
       </td>
      </tr>
-     <tr id="review-okinilove-1" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-1" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -397,7 +397,7 @@
        -
       </td>
      </tr>
-     <tr id="review-okinilove-2" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-2" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -511,7 +511,7 @@
        完売御礼
       </td>
      </tr>
-     <tr id="review-merged-4" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-4" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -566,7 +566,7 @@
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-4" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-4" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -621,7 +621,7 @@
        -
       </td>
      </tr>
-     <tr id="review-okinilove-5" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-5" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -724,7 +724,7 @@
        👑人妻熟女ランキング1位記念祭💛開催中👑
       </td>
      </tr>
-     <tr id="review-merged-7" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-7" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -821,7 +821,7 @@
        -
       </td>
      </tr>
-     <tr id="review-merged-8" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-8" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -918,7 +918,7 @@
        休み
       </td>
      </tr>
-     <tr id="review-merged-9" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-9" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1011,7 +1011,7 @@
        9:00 ~ 1:00
       </td>
      </tr>
-     <tr id="review-merged-10" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-10" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1104,7 +1104,7 @@
        -
       </td>
      </tr>
-     <tr id="review-merged-11" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-11" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1201,7 +1201,7 @@
        -
       </td>
      </tr>
-     <tr id="review-merged-12" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-12" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1258,7 +1258,7 @@
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-12" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-12" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -1339,7 +1339,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-13" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-13" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1396,7 +1396,7 @@ SP蟻ただ、追い銭必要です。
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-13" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-13" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -1462,7 +1462,7 @@ SP蟻ただ、追い銭必要です。
        19:00 ~ 2:00
       </td>
      </tr>
-     <tr id="review-merged-14" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-14" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1555,7 +1555,7 @@ SP蟻ただ、追い銭必要です。
        14:00 ~ 0:00
       </td>
      </tr>
-     <tr id="review-merged-15" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-15" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1648,7 +1648,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-16" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-16" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1743,7 +1743,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-17" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-17" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1840,7 +1840,7 @@ SP蟻ただ、追い銭必要です。
        次回31日出勤！ご予約受付中！
       </td>
      </tr>
-     <tr id="review-merged-18" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-18" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -1935,7 +1935,7 @@ SP蟻ただ、追い銭必要です。
        休み
       </td>
      </tr>
-     <tr id="review-merged-19" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-19" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2030,7 +2030,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-20" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-20" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2123,7 +2123,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-21" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-21" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2218,7 +2218,7 @@ SP蟻ただ、追い銭必要です。
        💓💓エロギャル好き見逃し厳禁‼️次回出勤情報更新中💓
       </td>
      </tr>
-     <tr id="review-merged-22" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-22" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2315,7 +2315,7 @@ SP蟻ただ、追い銭必要です。
        -
       </td>
      </tr>
-     <tr id="review-merged-23" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-23" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2368,7 +2368,7 @@ SP蟻ただ、追い銭必要です。
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-23" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-23" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -2454,7 +2454,7 @@ EDの僕も、おもわず元気に！
        12:00 ~ 18:00
       </td>
      </tr>
-     <tr id="review-merged-24" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-24" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2549,7 +2549,7 @@ EDの僕も、おもわず元気に！
        🌈🌈本指名炸裂中の濃厚人気美女‼️次回出勤情報更新中🌈
       </td>
      </tr>
-     <tr id="review-merged-25" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-25" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2642,7 +2642,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-26" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-26" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2735,7 +2735,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-27" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-27" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2828,7 +2828,7 @@ EDの僕も、おもわず元気に！
        ご予約完売
       </td>
      </tr>
-     <tr id="review-merged-28" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-28" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -2921,7 +2921,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-29" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-29" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3014,7 +3014,7 @@ EDの僕も、おもわず元気に！
        ご予約完売
       </td>
      </tr>
-     <tr id="review-merged-30" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-30" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3107,7 +3107,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 20:30
       </td>
      </tr>
-     <tr id="review-merged-31" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-31" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3200,7 +3200,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-32" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-32" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3297,7 +3297,7 @@ EDの僕も、おもわず元気に！
        12:00 ~ 19:00
       </td>
      </tr>
-     <tr id="review-merged-33" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-33" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3352,7 +3352,7 @@ EDの僕も、おもわず元気に！
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-33" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-33" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -3412,7 +3412,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-34" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-34" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3505,7 +3505,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-35" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-35" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3600,7 +3600,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-36" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-36" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3693,7 +3693,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-37" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-37" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3786,7 +3786,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-38" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-38" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3881,7 +3881,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-39" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-39" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -3974,7 +3974,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-40" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-40" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4069,7 +4069,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-41" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-41" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4164,7 +4164,7 @@ EDの僕も、おもわず元気に！
        12:00 ~ 14:00
       </td>
      </tr>
-     <tr id="review-merged-42" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-42" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4257,7 +4257,7 @@ EDの僕も、おもわず元気に！
        12:00 ~ 14:00
       </td>
      </tr>
-     <tr id="review-merged-43" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-43" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4354,7 +4354,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 20:30
       </td>
      </tr>
-     <tr id="review-merged-44" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-44" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4411,7 +4411,7 @@ EDの僕も、おもわず元気に！
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-44" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-44" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -4471,7 +4471,7 @@ EDの僕も、おもわず元気に！
        -
       </td>
      </tr>
-     <tr id="review-merged-45" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-45" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4564,7 +4564,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 23:30
       </td>
      </tr>
-     <tr id="review-merged-46" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-46" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4663,7 +4663,7 @@ EDの僕も、おもわず元気に！
        11:30 ~ 19:30
       </td>
      </tr>
-     <tr id="review-merged-47" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-47" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4718,7 +4718,7 @@ EDの僕も、おもわず元気に！
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-47" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-47" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -4790,7 +4790,7 @@ EDの僕も、おもわず元気に！
        11:00 ~ 19:30
       </td>
      </tr>
-     <tr id="review-merged-48" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-48" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4843,7 +4843,7 @@ EDの僕も、おもわず元気に！
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-48" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-48" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -4926,7 +4926,7 @@ EDの僕も、おもわず元気に！
        10:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-merged-49" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-49" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -4981,7 +4981,7 @@ EDの僕も、おもわず元気に！
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-49" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-49" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -5044,7 +5044,7 @@ DKに積極的で終始イチャイチャできます
        9:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-50" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-50" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5137,7 +5137,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-51" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-51" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5230,7 +5230,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-52" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-52" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5327,7 +5327,7 @@ DKに積極的で終始イチャイチャできます
        10:00 ~ 23:30
       </td>
      </tr>
-     <tr id="review-merged-53" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-53" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5420,7 +5420,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-54" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-54" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5549,7 +5549,7 @@ DKに積極的で終始イチャイチャできます
        9:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-56" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-56" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5646,7 +5646,7 @@ DKに積極的で終始イチャイチャできます
        9:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-57" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-57" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5775,7 +5775,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-59" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-59" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5878,7 +5878,7 @@ DKに積極的で終始イチャイチャできます
        10:30 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-60" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-60" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -5933,7 +5933,7 @@ DKに積極的で終始イチャイチャできます
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-60" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-60" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -5996,7 +5996,7 @@ DKに積極的で終始イチャイチャできます
        10:30 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-61" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-61" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6089,7 +6089,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-62" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-62" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6182,7 +6182,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-63" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-63" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6275,7 +6275,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-64" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-64" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6374,7 +6374,7 @@ DKに積極的で終始イチャイチャできます
        11:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-merged-65" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-65" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6429,7 +6429,7 @@ DKに積極的で終始イチャイチャできます
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-65" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-65" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -6516,7 +6516,7 @@ DKに積極的で終始イチャイチャできます
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-66" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-66" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6571,7 +6571,7 @@ DKに積極的で終始イチャイチャできます
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-66" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-66" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -6647,7 +6647,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-67" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-67" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6744,7 +6744,7 @@ DKに積極的で終始イチャイチャできます
        10:30 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-68" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-68" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6797,7 +6797,7 @@ DKに積極的で終始イチャイチャできます
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-68" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-68" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -6869,7 +6869,7 @@ DKに積極的で終始イチャイチャできます
        10:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-69" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-69" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -6962,7 +6962,7 @@ DKに積極的で終始イチャイチャできます
        13:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-merged-70" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-70" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7055,7 +7055,7 @@ DKに積極的で終始イチャイチャできます
        明日出勤
       </td>
      </tr>
-     <tr id="review-merged-71" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-71" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7150,7 +7150,7 @@ DKに積極的で終始イチャイチャできます
        -
       </td>
      </tr>
-     <tr id="review-merged-72" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-72" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7243,7 +7243,7 @@ DKに積極的で終始イチャイチャできます
        19:00 ~ 3:30
       </td>
      </tr>
-     <tr id="review-merged-73" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-73" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7342,7 +7342,7 @@ DKに積極的で終始イチャイチャできます
        明日11時出勤！予約受付中☆
       </td>
      </tr>
-     <tr id="review-okinilove-74" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-74" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -7411,7 +7411,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-okinilove-75" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-75" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -7479,7 +7479,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        休み
       </td>
      </tr>
-     <tr id="review-merged-76" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-76" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7574,7 +7574,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-77" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-77" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7667,7 +7667,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-78" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-78" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7760,7 +7760,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-79" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-79" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7853,7 +7853,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        💋次回出勤◇調整中💋
       </td>
      </tr>
-     <tr id="review-merged-80" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-80" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -7946,7 +7946,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-81" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-81" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8039,7 +8039,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-82" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-82" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8136,7 +8136,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        11:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-83" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-83" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8189,7 +8189,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-83" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-83" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -8257,7 +8257,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        14:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-84" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-84" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8352,7 +8352,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-85" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-85" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8445,7 +8445,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-86" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-86" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8538,7 +8538,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 23:30
       </td>
      </tr>
-     <tr id="review-merged-87" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-87" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8635,7 +8635,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-88" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-88" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8688,7 +8688,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-88" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-88" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -8754,7 +8754,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-89" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-89" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8813,7 +8813,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-89" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-89" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -8879,7 +8879,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-90" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-90" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -8934,7 +8934,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-90" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-90" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -9012,7 +9012,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-91" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-91" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9065,7 +9065,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-91" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-91" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -9135,7 +9135,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 22:00
       </td>
      </tr>
-     <tr id="review-merged-92" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-92" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9188,7 +9188,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-92" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-92" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -9254,7 +9254,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-93" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-93" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9351,7 +9351,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        9:00 ~ 22:30
       </td>
      </tr>
-     <tr id="review-merged-94" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-94" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9406,7 +9406,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-94" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-94" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -9474,7 +9474,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-95" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-95" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9567,7 +9567,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        9:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-96" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-96" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9662,7 +9662,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        9:00 ~ 12:00
       </td>
      </tr>
-     <tr id="review-merged-97" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-97" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9755,7 +9755,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:30 ~ 15:30
       </td>
      </tr>
-     <tr id="review-merged-98" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-98" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9848,7 +9848,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-99" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-99" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -9941,7 +9941,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        29日14:00～出勤❤️
       </td>
      </tr>
-     <tr id="review-merged-100" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-100" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10034,7 +10034,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        次回年始出勤予定♡
       </td>
      </tr>
-     <tr id="review-merged-101" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-101" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10127,7 +10127,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-102" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-102" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10220,7 +10220,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-103" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-103" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10313,7 +10313,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        次回12/29出勤
       </td>
      </tr>
-     <tr id="review-merged-104" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-104" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10406,7 +10406,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-105" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-105" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10535,7 +10535,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-107" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-107" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10628,7 +10628,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-108" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-108" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -10721,7 +10721,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-okinilove-109" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-109" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -10789,7 +10789,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        10:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-okinilove-110" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-110" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -10973,7 +10973,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        12:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-merged-114" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-114" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -11066,7 +11066,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-115" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-115" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -11235,7 +11235,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        11:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-merged-118" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-118" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -11288,7 +11288,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-118" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-118" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -11353,7 +11353,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        11:00 ~ 19:30
       </td>
      </tr>
-     <tr id="review-okinilove-119" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-119" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -11457,7 +11457,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        11:00 ~ 19:30
       </td>
      </tr>
-     <tr id="review-okinilove-120" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-120" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -11558,7 +11558,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        11:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-okinilove-121" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-121" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -11695,7 +11695,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        9:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-124" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-124" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -11750,7 +11750,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-124" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-124" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -11819,7 +11819,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-merged-125" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-125" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -11916,7 +11916,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        -
       </td>
      </tr>
-     <tr id="review-okinilove-126" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-126" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -12065,7 +12065,7 @@ SPは完全に無さそうで、絶対NOとのことです。お店的に厳し�
        13:30 ~ 0:00
       </td>
      </tr>
-     <tr id="review-okinilove-129" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-129" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -12133,7 +12133,7 @@ SPはお誘いしましたがダメでした。
        ☆出勤確認中☆
       </td>
      </tr>
-     <tr id="review-okinilove-130" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-130" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -12231,7 +12231,7 @@ SPはお誘いしましたがダメでした。
        10:30 ~ 23:00
       </td>
      </tr>
-     <tr id="review-okinilove-132" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-132" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -12318,7 +12318,7 @@ SPはお誘いしましたがダメでした。
        11:00 ~ 20:30
       </td>
      </tr>
-     <tr id="review-merged-133" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-133" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12411,7 +12411,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-merged-134" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-134" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12540,7 +12540,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-merged-136" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-136" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12633,7 +12633,7 @@ SPはお誘いしましたがダメでした。
        11:00 ~ 21:30
       </td>
      </tr>
-     <tr id="review-merged-137" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-137" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12726,7 +12726,7 @@ SPはお誘いしましたがダメでした。
        11:00 ~ 21:30
       </td>
      </tr>
-     <tr id="review-merged-138" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-138" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12819,7 +12819,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-139" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-139" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -12912,7 +12912,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-140" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-140" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13013,7 +13013,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-okinilove-141" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-141" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -13111,7 +13111,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-merged-143" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-143" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13280,7 +13280,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 17:00
       </td>
      </tr>
-     <tr id="review-merged-146" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-146" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13379,7 +13379,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-merged-147" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-147" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13472,7 +13472,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 19:00
       </td>
      </tr>
-     <tr id="review-okinilove-148" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-148" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -13535,7 +13535,7 @@ SPはお誘いしましたがダメでした。
        19:00 ~ 4:00
       </td>
      </tr>
-     <tr id="review-okinilove-149" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-149" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -13638,7 +13638,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-merged-151" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-151" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13733,7 +13733,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 16:00
       </td>
      </tr>
-     <tr id="review-merged-152" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-152" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13826,7 +13826,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-okinilove-153" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-153" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -13903,7 +13903,7 @@ SPはお誘いしましたがダメでした。
        休み
       </td>
      </tr>
-     <tr id="review-merged-154" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-154" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -13956,7 +13956,7 @@ SPはお誘いしましたがダメでした。
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-154" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-154" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14024,7 +14024,7 @@ SPはお誘いしましたがダメでした。
        12:00 ~ 20:00
       </td>
      </tr>
-     <tr id="review-okinilove-155" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-155" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14133,7 +14133,7 @@ SPはお誘いしましたがダメでした。
        -
       </td>
      </tr>
-     <tr id="review-okinilove-157" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-157" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14208,7 +14208,7 @@ SPはお誘いしましたがダメでした。
        10:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-158" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-158" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14263,7 +14263,7 @@ SPはお誘いしましたがダメでした。
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-158" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-158" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14334,7 +14334,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        9:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-159" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-159" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14387,7 +14387,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-159" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-159" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14531,7 +14531,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 17:00
       </td>
      </tr>
-     <tr id="review-merged-162" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-162" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14624,7 +14624,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-merged-163" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-163" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14721,7 +14721,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-164" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-164" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14774,7 +14774,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-164" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-164" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14839,7 +14839,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-165" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-165" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -14892,7 +14892,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-165" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-165" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -14957,7 +14957,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        ☆近日出勤予定！☆
       </td>
      </tr>
-     <tr id="review-merged-166" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-166" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15014,7 +15014,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-166" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-166" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15085,7 +15085,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 16:00
       </td>
      </tr>
-     <tr id="review-merged-167" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-167" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15178,7 +15178,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        11:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-168" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-168" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15271,7 +15271,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        12:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-okinilove-169" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-169" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15382,7 +15382,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        9:00 ~ 21:30
       </td>
      </tr>
-     <tr id="review-okinilove-171" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-171" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15465,7 +15465,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-okinilove-172" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-172" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15609,7 +15609,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-merged-175" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-175" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15662,7 +15662,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-175" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-175" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15761,7 +15761,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-176" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-176" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15814,7 +15814,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-176" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-176" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -15887,7 +15887,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-177" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-177" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -15940,7 +15940,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-177" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-177" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16045,7 +16045,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-merged-179" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-179" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16138,7 +16138,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-okinilove-180" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-180" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16205,7 +16205,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        -
       </td>
      </tr>
-     <tr id="review-merged-181" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-181" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16376,7 +16376,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        12:00 ~ 23:00
       </td>
      </tr>
-     <tr id="review-merged-184" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-184" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16429,7 +16429,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-184" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-184" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16515,7 +16515,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        13:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-okinilove-185" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-185" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16582,7 +16582,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-186" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-186" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16635,7 +16635,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-186" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-186" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16701,7 +16701,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        10:00 ~ 21:00
       </td>
      </tr>
-     <tr id="review-merged-187" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-187" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16754,7 +16754,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-187" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-187" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>
@@ -16862,7 +16862,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        9:00 ~ 23:59
       </td>
      </tr>
-     <tr id="review-merged-189" style="display:none; background-color:#f9f9f9;">
+     <tr class="review-row" id="review-merged-189" style="display:none; background-color:#f9f9f9;">
       <td colspan="10" style="text-align: left;">
        <ul>
         <li>
@@ -16915,7 +16915,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre>
        </ul>
       </td>
      </tr>
-     <tr id="review-okinilove-189" style="display:none; background-color:#f0f9ff;">
+     <tr class="review-row" id="review-okinilove-189" style="display:none; background-color:#f0f9ff;">
       <td colspan="10" style="text-align: left;">
        <p>
         <strong>

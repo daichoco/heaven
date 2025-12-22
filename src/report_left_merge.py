@@ -283,7 +283,7 @@ html = """<!DOCTYPE html>
     th.saturday { color: blue; }
     th.sunday { color: red; }
     body { font-family: sans-serif; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 100%; min-width: 1200px;}
     th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
     td:first-child, th:first-child {
       position: sticky;
@@ -308,7 +308,7 @@ html = """<!DOCTYPE html>
       const dayOfWeek = weekdays[today.getDay()];
       const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
 
-      const rows = document.querySelectorAll('tbody tr');
+      const rows = document.querySelectorAll('tbody tr:not(.review-row)');
 
       rows.forEach(row => {
         let showByDate = false;
@@ -417,7 +417,7 @@ html = """<!DOCTYPE html>
 
 # 地域フィルタチェックボックス
 for y in yyy_list:
-    html += f"<label><input type='checkbox' name='placeFilter' value='{y}'> {y}</label><br>"
+    html += f"<label><input type='checkbox' name='placeFilter' value='{y}' onchange='applyCombinedFilter()'> {y}</label><br>"
 html += "</div>"
 
 # テーブル開始
@@ -478,7 +478,7 @@ for idx, row in merged.iterrows():
     if pd.notna(eval_merged):
         try:
             eval_dict = ast.literal_eval(eval_merged)
-            html += f"<tr id='{row_id_merged}' style='display:none; background-color:#f9f9f9;'>"
+            html += f"<tr id='{row_id_merged}'  class='review-row' style='display:none; background-color:#f9f9f9;'>"
             html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'><ul>"
             for k, v in eval_dict.items():
                 html += f"<li><strong>{k}:</strong> {v}</li>"
@@ -486,11 +486,11 @@ for idx, row in merged.iterrows():
                 html += f"<li><a href='{report_url_merged}' target='_blank'>レポートリンク (merged)</a></li>"
             html += "</ul></td></tr>"
         except Exception:
-            html += f"<tr id='{row_id_merged}' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
+            html += f"<tr id='{row_id_merged}'  class='review-row' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
 
    # okiniloveレビュー行
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
-      html += f"<tr id='{row_id_okinilove}' style='display:none; background-color:#f0f9ff;'>"
+      html += f"<tr id='{row_id_okinilove}' class='review-row' style='display:none; background-color:#f0f9ff;'>"
       html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'>"
       if pd.notna(eval_okinilove):
           # 文字列としてそのまま表示
