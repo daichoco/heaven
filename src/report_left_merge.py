@@ -105,24 +105,34 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from ddgs import DDGS
 
-# Selenium設定（外部化）
-user_agent = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/119.0.6045.200 Safari/537.36"
-)
+# 複数のユーザーエージェントを用意
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Firefox/121.0",
+    "Mozilla/5.0 (Linux; Android 11; Pixel 5) Chrome/119.0 Mobile Safari/537.36",
+]
+
+# ランダムにUAを選択
+ua = random.choice(user_agents)
 options = Options()
-options.add_argument(f"user-agent={user_agent}")
-# options.add_argument("--headless")  # 必要に応じて有効化
+options.add_argument(f"user-agent={ua}")
+# options.add_argument("--headless")  # 必要なら有効化
 driver = webdriver.Chrome(options=options)
 
-# CityHeavenのURLを検索（source: "yahoo" or "duckduckgo"）
+def human_delay():
+    """人間っぽい待機を入れる"""
+    delay = random.uniform(2, 7)
+    if random.random() < 0.1:  # 10%の確率で長めに休む
+        delay += random.uniform(10, 20)
+    time.sleep(delay)
+
 def search_cityheaven_url(shop_name, girl_name, source="yahoo", max_results=5):
     query = f"{shop_name} {girl_name} site:cityheaven.net"
 
     if source == "duckduckgo":
         with DDGS() as ddgs:
-            results = ddgs.text(query, region="jp-jp", safesearch="off", timelimit=None, max_results=max_results)
+            results = ddgs.text(query, region="jp-jp", safesearch="off",
+                                timelimit=None, max_results=max_results)
             for r in results:
                 url = r["href"]
                 if "cityheaven.net" in url and "girlid" in url and "attend" not in url:
@@ -131,7 +141,13 @@ def search_cityheaven_url(shop_name, girl_name, source="yahoo", max_results=5):
     else:  # Yahoo検索
         try:
             driver.get(f"https://search.yahoo.co.jp/search?p={query}")
-            time.sleep(random.uniform(1.5, 3.0))
+            human_delay()
+
+            # 時々スクロールして人間っぽさを出す
+            if random.random() < 0.2:
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(random.uniform(2, 5))
+
             results = driver.find_elements(By.CSS_SELECTOR, "a.sw-Card__titleInner")
             for r in results:
                 url = r.get_attribute("href")
@@ -142,18 +158,19 @@ def search_cityheaven_url(shop_name, girl_name, source="yahoo", max_results=5):
             print(f"[Yahoo] 検索失敗: {shop_name} {girl_name} → {e}")
     return None
 
-# cityheaven_urlが未取得の行だけ検索して埋める
 def enrich_with_cityheaven_urls(df1, source="yahoo"):
     for idx, row in df1[df1["cityheaven_url"].isna()].iterrows():
         shop = row["shop_name"]
         girl = row["girl_name"]
         url = search_cityheaven_url(shop, girl, source=source)
         df1.loc[idx, "cityheaven_url"] = url
-        time.sleep(random.uniform(1.5, 3.0))  # bot対策
+        human_delay()  # bot対策
     return df1
 
-# df1 = enrich_with_cityheaven_urls(df1,source="yahoo")
+# 実行例
+# df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
 driver.quit()
+
 
 
 # %%
@@ -175,8 +192,54 @@ df2["url_key"] = df2["URL"].apply(normalize_url)
 
 # 左結合
 merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
+#%%
+url = "../docs/okinilove_reconstructed.html"
+with open(url, "r", encoding="utf-8") as f:
+    html = f.read()
+soup = BeautifulSoup(html, "html.parser")
+
+# %%
+reports = []
+soup = soup.find("div",class_="card-container")
+for card in soup.find_all("div",class_="card"):
+    shop_name = card.find("h3").get_text()
+    shop_name = shop_name.split("-")[0].strip()
+    name_tag = card.find("a")
+    girl_name = name_tag.get_text(strip=True) if name_tag else None
+    girl_url = name_tag["href"] if name_tag else None
+
+    detail = card.find_all("details")[0]
+
+    summary = detail.find("summary")
+
+    report_link_tag = summary.find("a")
+    report_link = report_link_tag["href"] if report_link_tag else None
+    eval = summary.get_text(strip=True)
+
+    report_text = detail.find("pre").get_text(strip=True)
 
 
+    reports.append({
+        "shop_name" :shop_name,
+        "girl_name": girl_name,
+        "girl_url":girl_url,
+        "report_url": report_link,
+        "evaluations": eval,
+        "report_text":report_text
+    })
+
+df3 = pd.DataFrame(reports)
+# print(df3[["girl_name","shop_name"]])
+df3.loc[df3["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df3["girl_url"]
+driver = webdriver.Chrome(options=options)
+df3 = enrich_with_cityheaven_urls(df3,source="yahoo")
+driver.quit()
+#%%
+# df3.to_csv("../data/okinilove_heaven.csv")
+#%%
+df3 = pd.read_csv("../data/okinilove_heaven.csv")
+df3["url_key"] = df3["cityheaven_url"].apply(normalize_url)
+merged = pd.merge(df3, merged, how="right", on="url_key", suffixes=("_okinilove", "_merged"))
 # %%
 import pandas as pd
 import ast
@@ -205,37 +268,36 @@ for shop in merged["店名"]:
 yyy_list = sorted(yyy_set)
 
 # HTML組み立て開始
-html = f"""
-<!DOCTYPE html>
+html = """<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>出勤カレンダー一覧</title>
   <style>
-    thead th {{
+    thead th {
       position: sticky;
       top: 0;
       background: #f9f9f9;
       z-index: 1;
-    }}
-    th.saturday {{ color: blue; }}
-    th.sunday {{ color: red; }}
-    body {{ font-family: sans-serif; }}
-    table {{ border-collapse: collapse; width: 100%; }}
-    th, td {{ border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }}
-    td:first-child, th:first-child {{
+    }
+    th.saturday { color: blue; }
+    th.sunday { color: red; }
+    body { font-family: sans-serif; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
+    td:first-child, th:first-child {
       position: sticky;
       left: 0;
       background: #fff;
       z-index: 2;
-    }}
-    img {{ max-height: 80px; border-radius: 4px; }}
-    details {{ text-align: left; margin-top: 5px; }}
-    summary {{ cursor: pointer; font-weight: bold; }}
-    .filter-group {{ margin-bottom: 15px; }}
+    }
+    img { max-height: 80px; border-radius: 4px; }
+    details { text-align: left; margin-top: 5px; }
+    summary { cursor: pointer; font-weight: bold; }
+    .filter-group { margin-bottom: 15px; }
   </style>
   <script>
-    function applyCombinedFilter() {{
+    function applyCombinedFilter() {
       const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
       const dateSelected = document.querySelector('input[name="filter"]:checked').value;
       const inputDate = document.getElementById("dateInput").value;
@@ -244,89 +306,89 @@ html = f"""
       const mm = today.getMonth() + 1;
       const dd = today.getDate();
       const dayOfWeek = weekdays[today.getDay()];
-      const todayLabel = `${{mm}}/${{dd}}(${{dayOfWeek}})`;
+      const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
 
       const rows = document.querySelectorAll('tbody tr');
 
-      rows.forEach(row => {{
+      rows.forEach(row => {
         let showByDate = false;
         let showByReport = false;
         let showByPlace = false;
 
         // 日付フィルタ
-        if (dateSelected === "all") {{
+        if (dateSelected === "all") {
           showByDate = true;
-        }} else if (dateSelected === "today") {{
-          const cell = row.querySelector(`[data-label="${{todayLabel}}"]`);
+        } else if (dateSelected === "today") {
+          const cell = row.querySelector(`[data-label="${todayLabel}"]`);
           const text = cell ? cell.textContent.trim() : "";
-          showByDate = /^\\d{{1,2}}:\\d{{2}}\\s*~\\s*\\d{{1,2}}:\\d{{2}}$/.test(text);
-        }} else if (dateSelected === "weekend") {{
-          row.querySelectorAll('td[data-label]').forEach(cell => {{
+          showByDate = /^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text);
+        } else if (dateSelected === "weekend") {
+          row.querySelectorAll('td[data-label]').forEach(cell => {
             const label = cell.getAttribute('data-label');
-            if (label && (label.includes("(土)") || label.includes("(日)"))) {{
+            if (label && (label.includes("(土)") || label.includes("(日)"))) {
               const text = cell.textContent.trim();
-              if (/^\\d{{1,2}}:\\d{{2}}\\s*~\\s*\\d{{1,2}}:\\d{{2}}$/.test(text)) {{
+              if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
                 showByDate = true;
-              }}
-            }}
-          }});
-        }} else if (dateSelected === "date") {{
-          if (inputDate) {{
+              }
+            }
+          });
+        } else if (dateSelected === "date") {
+          if (inputDate) {
             const date = new Date(inputDate);
-            const label = `${{date.getMonth() + 1}}/${{date.getDate()}}(${{weekdays[date.getDay()]}})`;
-            row.querySelectorAll('td[data-label]').forEach(cell => {{
+            const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
+            row.querySelectorAll('td[data-label]').forEach(cell => {
               const cellLabel = cell.getAttribute('data-label');
-              if (cellLabel === label) {{
+              if (cellLabel === label) {
                 const text = cell.textContent.trim();
-                if (/^\\d{{1,2}}:\\d{{2}}\\s*~\\s*\\d{{1,2}}:\\d{{2}}$/.test(text)) {{
+                if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
                   showByDate = true;
-                }}
-              }}
-            }});
-          }} else {{
+                }
+              }
+            });
+          } else {
             showByDate = true;
-          }}
-        }}
+          }
+        }
 
         // レポートフィルタ
         const hasReport = row.getAttribute("data-report");
-        if (reportSelected === "all") {{
+        if (reportSelected === "all") {
           showByReport = true;
-        }} else if (reportSelected === "has") {{
+        } else if (reportSelected === "has") {
           showByReport = hasReport === "true";
-        }} else if (reportSelected === "none") {{
+        } else if (reportSelected === "none") {
           showByReport = hasReport === "false";
-        }}
+        }
 
         // 地域フィルタ
         const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
                                    .map(cb => cb.value);
-        if (checkedPlaces.includes("all")) {{
+        if (checkedPlaces.includes("all")) {
           showByPlace = true;
-        }} else {{
+        } else {
           const shopCell = row.querySelector("td.shop-cell");
           const text = shopCell ? shopCell.textContent : "";
           showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
-        }}
+        }
 
         // AND条件で表示制御
         row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
-      }});
-    }}
+      });
+    }
 
-    function applyDateFilter() {{
+    function applyDateFilter() {
       document.querySelector('input[name="filter"][value="date"]').checked = true;
       applyCombinedFilter();
-    }}
+    }
 
-    function toggleReviewRow(id) {{
+    function toggleReviewRow(id) {
       const row = document.getElementById(id);
-      if (row.style.display === "none") {{
+      if (row.style.display === "none") {
         row.style.display = "table-row";
-      }} else {{
+      } else {
         row.style.display = "none";
-      }}
-    }}
+      }
+    }
   </script>
 </head>
 <body onload="applyCombinedFilter()">
@@ -353,14 +415,14 @@ html = f"""
     <label><input type="checkbox" name="placeFilter" value="all" checked onchange="applyCombinedFilter()"> 全地域</label><br>
 """
 
+# 地域フィルタチェックボックス
 for y in yyy_list:
-    html += f"<label><input type='checkbox' name='placeFilter' value='{y}' onchange='applyCombinedFilter()'> {y}</label><br>"
+    html += f"<label><input type='checkbox' name='placeFilter' value='{y}'> {y}</label><br>"
 html += "</div>"
 
+# テーブル開始
 html += "<div style='height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;'>"
 html += "<table><thead><tr><th>名前＋レビュー</th><th>店名</th><th>画像</th>"
-
-
 
 # 日付ヘッダー
 for day in calendar_cols:
@@ -371,27 +433,34 @@ for day in calendar_cols:
     else:
         html += f"<th>{day}</th>"
 
+html += "</tr></thead><tbody>"
 
-html += "</tr></thead><tbody>"  # ← ここを追加
-
-
+# 各行生成
 for idx, row in merged.iterrows():
     name = row["名前"]
     shop = row["店名"]
     image_url = row["画像URL"]
     profile_url = row["URL"]
-    evaluations = row["evaluations"]
 
-    has_report = "true" if pd.notna(evaluations) else "false"
-    row_id = f"review-{idx}"
+    eval_merged = row["evaluations_merged"]
+    eval_okinilove = row["evaluations_okinilove"]
+    report_url_merged = row["report_url_merged"]
+    report_url_okinilove = row["report_url_okinilove"]
+    report_text_okinilove = row["report_text"]
+
+    has_report = "true" if (pd.notna(eval_merged) or pd.notna(eval_okinilove) or pd.notna(report_text_okinilove)) else "false"
+    row_id_merged = f"review-merged-{idx}"
+    row_id_okinilove = f"review-okinilove-{idx}"
 
     # メイン行
     html += f"<tr data-report='{has_report}'>"
 
     # 名前＋レビュー（ボタン付き）
     html += f"<td><a href='{profile_url}' target='_blank'>{name}</a>"
-    if pd.notna(evaluations):
-        html += f"<br><button onclick=\"toggleReviewRow('{row_id}')\">レビューを表示</button>"
+    if pd.notna(eval_merged):
+        html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
+    if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
+        html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
     html += "</td>"
 
     # 店名・画像
@@ -405,25 +474,43 @@ for idx, row in merged.iterrows():
 
     html += "</tr>"
 
-    # レビュー行（別行で colspan）
-    if pd.notna(evaluations):
+    # mergedレビュー行
+    if pd.notna(eval_merged):
         try:
-            eval_dict = ast.literal_eval(evaluations)
-            html += f"<tr id='{row_id}' style='display:none; background-color:#f9f9f9;'>"
+            eval_dict = ast.literal_eval(eval_merged)
+            html += f"<tr id='{row_id_merged}' style='display:none; background-color:#f9f9f9;'>"
             html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'><ul>"
             for k, v in eval_dict.items():
                 html += f"<li><strong>{k}:</strong> {v}</li>"
+            if pd.notna(report_url_merged):
+                html += f"<li><a href='{report_url_merged}' target='_blank'>レポートリンク (merged)</a></li>"
             html += "</ul></td></tr>"
         except Exception:
-            html += f"<tr id='{row_id}' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗</td></tr>"
+            html += f"<tr id='{row_id_merged}' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
 
-html += "</tbody></table></div></body></html>"  # ← フッター部分を修正
+   # okiniloveレビュー行
+    if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
+      html += f"<tr id='{row_id_okinilove}' style='display:none; background-color:#f0f9ff;'>"
+      html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'>"
+      if pd.notna(eval_okinilove):
+          # 文字列としてそのまま表示
+          html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
+      if pd.notna(report_text_okinilove):
+          html += f"<pre>{report_text_okinilove}</pre>"
+      if pd.notna(report_url_okinilove):
+          html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
+      html += "</td></tr>"
+
+
+html += "</tbody></table></div></body></html>"
+
+# 整形
 soup = BeautifulSoup(html, "html.parser")
 formatted_html = soup.prettify()
 html = formatted_html
 
-
 with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
     f.write(html)
+
 
 # %%
