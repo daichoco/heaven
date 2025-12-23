@@ -168,7 +168,7 @@ def enrich_with_cityheaven_urls(df1, source="yahoo"):
     return df1
 
 # 実行例
-df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
+# df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
 # df1.to_csv("../data/df1 - df1.csv.csv")
 driver.quit()
 
@@ -233,7 +233,7 @@ df3 = pd.DataFrame(reports)
 # print(df3[["girl_name","shop_name"]])
 df3.loc[df3["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df3["girl_url"]
 driver = webdriver.Chrome(options=options)
-df3 = enrich_with_cityheaven_urls(df3,source="yahoo")
+# df3 = enrich_with_cityheaven_urls(df3,source="yahoo")
 driver.quit()
 #%%
 # df3.to_csv("../data/okinilove_heaven.csv")
@@ -298,6 +298,7 @@ html = """<!DOCTYPE html>
     .filter-group { margin-bottom: 15px; }
   </style>
   <script>
+
     function applyCombinedFilter() {
       const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
       const dateSelected = document.querySelector('input[name="filter"]:checked').value;
@@ -375,6 +376,59 @@ html = """<!DOCTYPE html>
         // AND条件で表示制御
         row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
       });
+      // --- 日付列の表示制御 ---
+const allHeaders = document.querySelectorAll("thead th");
+const allCells = document.querySelectorAll("tbody td[data-label]");
+
+// まず全て表示
+allHeaders.forEach(th => th.style.display = "");
+allCells.forEach(td => td.style.display = "");
+
+if (dateSelected === "today") {
+    allHeaders.forEach(th => {
+        const label = th.textContent.trim();
+        if (label !== todayLabel && label !== "名前＋レビュー" && label !== "店名" && label !== "画像") {
+            th.style.display = "none";
+        }
+    });
+    allCells.forEach(td => {
+        const label = td.getAttribute("data-label");
+        if (label !== todayLabel) td.style.display = "none";
+    });
+}
+
+if (dateSelected === "date" && inputDate) {
+    const date = new Date(inputDate);
+    const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
+
+    allHeaders.forEach(th => {
+        const text = th.textContent.trim();
+        if (text !== label && text !== "名前＋レビュー" && text !== "店名" && text !== "画像") {
+            th.style.display = "none";
+        }
+    });
+    allCells.forEach(td => {
+        const cellLabel = td.getAttribute("data-label");
+        if (cellLabel !== label) td.style.display = "none";
+    });
+}
+
+if (dateSelected === "weekend") {
+    allHeaders.forEach(th => {
+        const text = th.textContent.trim();
+        if (!(text.includes("(土)") || text.includes("(日)") ||
+              text === "名前＋レビュー" || text === "店名" || text === "画像")) {
+            th.style.display = "none";
+        }
+    });
+    allCells.forEach(td => {
+        const label = td.getAttribute("data-label");
+        if (!(label.includes("(土)") || label.includes("(日)"))) {
+            td.style.display = "none";
+        }
+    });
+}
+
     }
 
     function applyDateFilter() {
@@ -447,7 +501,7 @@ for idx, row in merged.iterrows():
     eval_okinilove = row["evaluations_okinilove"]
     report_url_merged = row["report_url_merged"]
     report_url_okinilove = row["report_url_okinilove"]
-    report_text_okinilove = row["report_text_okinilove"]
+    report_text_okinilove = row["report_text"]
 
     has_report = "true" if (pd.notna(eval_merged) or pd.notna(eval_okinilove) or pd.notna(report_text_okinilove)) else "false"
     row_id_merged = f"review-merged-{idx}"
