@@ -292,7 +292,7 @@ html = """<!DOCTYPE html>
       background: #fff;
       z-index: 2;
     }
-    img { max-height: 80px; border-radius: 4px; }
+    img { max-height: 100%; border-radius: 4px; }
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
     .filter-group { margin-bottom: 15px; }
@@ -387,7 +387,7 @@ allCells.forEach(td => td.style.display = "");
 if (dateSelected === "today") {
     allHeaders.forEach(th => {
         const label = th.textContent.trim();
-        if (label !== todayLabel && label !== "名前＋レビュー" && label !== "店名" && label !== "画像") {
+        if (label !== todayLabel && label !== "名前＋レビュー+店名" && label !== "画像") {
             th.style.display = "none";
         }
     });
@@ -403,7 +403,7 @@ if (dateSelected === "date" && inputDate) {
 
     allHeaders.forEach(th => {
         const text = th.textContent.trim();
-        if (text !== label && text !== "名前＋レビュー" && text !== "店名" && text !== "画像") {
+        if (text !== label && text !== "名前＋レビュー+店名" && text !== "画像"){
             th.style.display = "none";
         }
     });
@@ -417,7 +417,7 @@ if (dateSelected === "weekend") {
     allHeaders.forEach(th => {
         const text = th.textContent.trim();
         if (!(text.includes("(土)") || text.includes("(日)") ||
-              text === "名前＋レビュー" || text === "店名" || text === "画像")) {
+      text === "名前＋レビュー+店名" || text === "画像")) {
             th.style.display = "none";
         }
     });
@@ -477,7 +477,7 @@ html += "</div>"
 
 # テーブル開始
 html += "<div style='height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;'>"
-html += "<table><thead><tr><th>名前＋レビュー</th><th>店名</th><th>画像</th>"
+html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
 
 # 日付ヘッダー
 for day in calendar_cols:
@@ -490,7 +490,6 @@ for day in calendar_cols:
 
 html += "</tr></thead><tbody>"
 
-# 各行生成
 for idx, row in merged.iterrows():
     name = row["名前"]
     shop = row["店名"]
@@ -511,16 +510,25 @@ for idx, row in merged.iterrows():
     # メイン行
     html += f"<tr data-report='{has_report}'>"
 
-    # 名前＋レビュー（ボタン付き）
-    html += f"<td><a href='{profile_url}' target='_blank'>{name}</a>"
+    # ★ 名前＋レビュー＋店名（統合セル）
+    html += f"<td class='shop-cell'>"
+    html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
+
+    # レビューボタン
     if pd.notna(eval_merged):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
+
+    # 店名（名前の下に表示）
+    if len(shop) >= 1:
+        html += f"<br><span class='shop-info'>{shop[0]}</span>"
+    if len(shop) >= 2:
+        html += f"<br><span class='shop-info'>{shop[1]}</span>"
+
     html += "</td>"
 
-    # 店名・画像
-    html += f"<td class='shop-cell'>{shop[0]}<br/>{shop[1]}</td>"
+    # 画像セル
     html += f"<td><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日
@@ -534,28 +542,28 @@ for idx, row in merged.iterrows():
     if pd.notna(eval_merged):
         try:
             eval_dict = ast.literal_eval(eval_merged)
-            html += f"<tr id='{row_id_merged}'  class='review-row' style='display:none; background-color:#f9f9f9;'>"
-            html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'><ul>"
+            html += f"<tr id='{row_id_merged}' class='review-row' style='display:none; background-color:#f9f9f9;'>"
+            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'><ul>"
             for k, v in eval_dict.items():
                 html += f"<li><strong>{k}:</strong> {v}</li>"
             if pd.notna(report_url_merged):
                 html += f"<li><a href='{report_url_merged}' target='_blank'>レポートリンク (merged)</a></li>"
             html += "</ul></td></tr>"
         except Exception:
-            html += f"<tr id='{row_id_merged}'  class='review-row' style='display:none;'><td colspan='{3 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
+            html += f"<tr id='{row_id_merged}' class='review-row' style='display:none;'><td colspan='{2 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
 
-   # okiniloveレビュー行
+    # okiniloveレビュー行
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
-      html += f"<tr id='{row_id_okinilove}' class='review-row' style='display:none; background-color:#f0f9ff;'>"
-      html += f"<td colspan='{3 + len(calendar_cols)}' style='text-align: left;'>"
-      if pd.notna(eval_okinilove):
-          # 文字列としてそのまま表示
-          html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
-      if pd.notna(report_text_okinilove):
-          html += f"<pre>{report_text_okinilove}</pre>"
-      if pd.notna(report_url_okinilove):
-          html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
-      html += "</td></tr>"
+        html += f"<tr id='{row_id_okinilove}' class='review-row' style='display:none; background-color:#f0f9ff;'>"
+        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+        if pd.notna(eval_okinilove):
+            html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
+        if pd.notna(report_text_okinilove):
+            html += f"<pre>{report_text_okinilove}</pre>"
+        if pd.notna(report_url_okinilove):
+            html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
+        html += "</td></tr>"
+
 
 
 html += "</tbody></table></div></body></html>"
