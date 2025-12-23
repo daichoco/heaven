@@ -494,6 +494,7 @@ html += "</tr></thead><tbody>"
 for idx, row in merged.iterrows():
     name = row["名前"]
     shop = row["店名"]
+    shop = [s.strip() for s in shop.split("\n") if s.strip()]
     image_url = row["画像URL"]
     profile_url = row["URL"]
 
@@ -519,7 +520,7 @@ for idx, row in merged.iterrows():
     html += "</td>"
 
     # 店名・画像
-    html += f"<td class='shop-cell'>{shop}</td>"
+    html += f"<td class='shop-cell'>{shop[0]}<br/>{shop[1]}</td>"
     html += f"<td><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日
