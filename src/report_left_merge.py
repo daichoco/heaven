@@ -296,35 +296,6 @@ html = """<!DOCTYPE html>
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
     .filter-group { margin-bottom: 15px; }
-    @media (max-width: 768px) {
-  table, thead, tbody, th, td, tr {
-    display: block;
-  }
-
-  thead {
-    display: none;
-  }
-
-  tr {
-    margin-bottom: 1em;
-    border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 6px;
-  }
-
-  td {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-  }
-
-  td::before {
-    content: attr(data-label);
-    font-weight: bold;
-    margin-right: 10px;
-  }
-}
-
   </style>
   <script>
 
@@ -523,7 +494,6 @@ html += "</tr></thead><tbody>"
 for idx, row in merged.iterrows():
     name = row["名前"]
     shop = row["店名"]
-    shop = [s.strip() for s in shop.split("\n") if s.strip()]
     image_url = row["画像URL"]
     profile_url = row["URL"]
 
@@ -549,7 +519,7 @@ for idx, row in merged.iterrows():
     html += "</td>"
 
     # 店名・画像
-    html += f"<td class='shop-cell'>{shop[0]}<br/>{shop[1]}</td>"
+    html += f"<td class='shop-cell'>{shop}</td>"
     html += f"<td><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日
