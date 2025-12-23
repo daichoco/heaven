@@ -541,7 +541,7 @@ for idx, row in merged.iterrows():
     html += f"<tr data-report='{has_report}'>"
 
     # 名前＋レビュー（ボタン付き）
-    html += f"<td data-label='名前＋レビュー'><a href='{profile_url}' target='_blank'>{name}</a>"
+    html += f"<td><a href='{profile_url}' target='_blank'>{name}</a>"
     if pd.notna(eval_merged):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
@@ -549,8 +549,8 @@ for idx, row in merged.iterrows():
     html += "</td>"
 
     # 店名・画像
-    html += f"<td class='shop-cell' data-label='店名'>{shop[0]}<br/>{shop[1]}</td>"
-    html += f"<td data-label='画像'><img src='{image_url}' alt='{name}'></td>"
+    html += f"<td class='shop-cell'>{shop[0]}<br/>{shop[1]}</td>"
+    html += f"<td><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日
     for day in calendar_cols:
