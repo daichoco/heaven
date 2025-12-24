@@ -312,8 +312,6 @@ html = """<!DOCTYPE html>
     background-color: #e0e0e0; /* 押した時のフィードバック */
   }
 }
-
-}
   </style>
   <script>
 function adjustFontSize() {
