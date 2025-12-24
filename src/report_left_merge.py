@@ -296,10 +296,23 @@ html = """<!DOCTYPE html>
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
     .filter-group { margin-bottom: 15px; }
-   @media screen and (max-width: 600px) {
-  td, th {
-    height: 100px;
+  @media screen and (max-width: 600px) {
+  .shop-cell button {
+    font-size: 22px;        /* 文字を大きく */
+    padding: 12px 20px;     /* ボタンのタップ領域を広げる */
+    border-radius: 10px;    /* 角丸で見やすく */
+    background-color: #f0f0f0;
+    border: 2px solid #ccc;
+    width: 100%;            /* 横幅いっぱいにして押しやすく */
+    box-sizing: border-box;
+    margin: 8px 0;
   }
+
+  .shop-cell button:active {
+    background-color: #e0e0e0; /* 押した時のフィードバック */
+  }
+}
+
 }
   </style>
   <script>
