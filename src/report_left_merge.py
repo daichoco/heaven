@@ -298,16 +298,11 @@ html = """<!DOCTYPE html>
     .filter-group { margin-bottom: 15px; }
     @media screen and (max-width: 600px) {
   th, td {
-    font-size: 12px;
+     height: 100px; /* 表の高さを固定する場合 */
+  font-size: calc(100% + 0.5vw); /* 画面幅に応じて拡大 */
+  line-height: 1.2;
+
     padding: 0.3em;
-  }
-
-  body {
-    font-size: 14px;
-  }
-
-  summary {
-    font-size: 14px;
   }
 }
   </style>
