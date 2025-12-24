@@ -296,17 +296,24 @@ html = """<!DOCTYPE html>
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
     .filter-group { margin-bottom: 15px; }
-    @media screen and (max-width: 600px) {
-  th, td {
-     height: 100px; /* 表の高さを固定する場合 */
-  font-size: calc(100% + 0.5vw); /* 画面幅に応じて拡大 */
-  line-height: 1.2;
-
-    padding: 0.3em;
+   @media screen and (max-width: 600px) {
+  td, th {
+    height: 100px;
   }
 }
   </style>
   <script>
+function adjustFontSize() {
+  document.querySelectorAll("td, th").forEach(cell => {
+    const h = cell.offsetHeight;
+    const size = Math.max(14, h * 0.35); // 高さの35%を文字サイズに
+    cell.style.fontSize = size + "px";
+    cell.style.lineHeight = 1.1;
+  });
+}
+
+window.addEventListener("load", adjustFontSize);
+window.addEventListener("resize", adjustFontSize);
 
     function applyCombinedFilter() {
       const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
