@@ -306,7 +306,7 @@ html = """<!DOCTYPE html>
 function adjustFontSize() {
   document.querySelectorAll("td, th").forEach(cell => {
     const h = cell.offsetHeight;
-    const size = Math.max(14, h * 0.35); // 高さの35%を文字サイズに
+    const size = Math.max(20,20); // 高さの35%を文字サイズに
     cell.style.fontSize = size + "px";
     cell.style.lineHeight = 1.1;
   });
