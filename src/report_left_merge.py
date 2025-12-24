@@ -285,7 +285,7 @@ html = """<!DOCTYPE html>
     th.sunday { color: red; }
     body { font-family: sans-serif; }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top;font-size:16px; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
     td:first-child, th:first-child {
       position: sticky;
       left: 0;
@@ -296,6 +296,20 @@ html = """<!DOCTYPE html>
     details { text-align: left; margin-top: 5px; }
     summary { cursor: pointer; font-weight: bold; }
     .filter-group { margin-bottom: 15px; }
+    @media screen and (max-width: 600px) {
+  th, td {
+    font-size: 12px;
+    padding: 0.3em;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  summary {
+    font-size: 14px;
+  }
+}
   </style>
   <script>
 
