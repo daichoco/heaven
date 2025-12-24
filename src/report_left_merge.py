@@ -285,7 +285,7 @@ html = """<!DOCTYPE html>
     th.sunday { color: red; }
     body { font-family: sans-serif; }
     table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
+    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top;fon-size:16px; }
     td:first-child, th:first-child {
       position: sticky;
       left: 0;
