@@ -324,6 +324,7 @@ window.addEventListener("load", adjustFontSize);
 window.addEventListener("resize", adjustFontSize);
 
     function applyCombinedFilter() {
+       resetAllReviews();
       const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
       const dateSelected = document.querySelector('input[name="filter"]:checked').value;
       const inputDate = document.getElementById("dateInput").value;
@@ -468,9 +469,12 @@ if (dateSelected === "weekend") {
         row.style.display = "none";
       }
     }
+
     function resetAllReports() {
-  document.querySelectorAll('.detail').forEach(el => el.remove());
-  document.querySelectorAll('.report-btn').forEach(btn => btn.classList.remove('open'));
+   document.querySelectorAll('.review-row').forEach(row => {
+    row.style.display = "none";
+  });
+
 }
 
   </script>
