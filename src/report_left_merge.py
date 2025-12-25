@@ -271,236 +271,233 @@ yyy_list = sorted(yyy_set)
 # HTML組み立て開始
 html = """<!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>出勤カレンダー一覧</title>
-  <style>
-    thead th {
-      position: sticky;
-      top: 0;
-      background: #f9f9f9;
-      z-index: 1;
-    }
-    th.saturday { color: blue; }
-    th.sunday { color: red; }
-    body { font-family: sans-serif; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
-    td:first-child, th:first-child {
-      position: sticky;
-      left: 0;
-      background: #fff;
-      z-index: 2;
-    }
-    img { max-height: 100%; border-radius: 4px; }
-    details { text-align: left; margin-top: 5px; }
-    summary { cursor: pointer; font-weight: bold; }
-    .filter-group { margin-bottom: 15px; }
-    .shop-cell button {
-  font-size: 20px;       /* 文字を大きく */
-  padding: 10px 16px;    /* タップ領域を広げる */
-  border-radius: 8px;    /* 角丸 */
-  background-color: #f0f0f0;
-  border: 2px solid #ccc;
-  cursor: pointer;       /* マウスカーソルを「手」に */
-  width: 100%;           /* セルいっぱいに広げる */
-  box-sizing: border-box;
-}
-.shop-cell button:active {
-  background-color: #e0e0e0; /* 押した時のフィードバック */
-}
-  </style>
-  <script>
-function adjustFontSize() {
-  document.querySelectorAll("td, th").forEach(cell => {
-    const h = cell.offsetHeight;
-    const size = Math.max(20,20); // 高さの35%を文字サイズに
-    cell.style.fontSize = size + "px";
-    cell.style.lineHeight = 1.1;
-  });
-}
+  <head>
+    <meta charset="UTF-8">
+    <title>出勤カレンダー一覧</title>
+    <style>
+      thead th {
+        position: sticky;
+        top: 0;
+        background: #f9f9f9;
+        z-index: 1;
+      }
+      th.saturday { color: blue; }
+      th.sunday { color: red; }
+      body { font-family: sans-serif; }
+      table { border-collapse: collapse; width: 100%; }
+      th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
+      td:first-child, th:first-child {
+        position: sticky;
+        left: 0;
+        background: #fff;
+        z-index: 2;
+      }
+      img { max-height: 100%; border-radius: 4px; }
+      details { text-align: left; margin-top: 5px; }
+      summary { cursor: pointer; font-weight: bold; }
+      .filter-group { margin-bottom: 15px; }
+      .shop-cell button {
+        font-size: 20px;       /* 文字を大きく */
+        padding: 10px 16px;    /* タップ領域を広げる */
+        border-radius: 8px;    /* 角丸 */
+        background-color: #f0f0f0;
+        border: 2px solid #ccc;
+        cursor: pointer;       /* マウスカーソルを「手」に */
+        width: 100%;           /* セルいっぱいに広げる */
+        box-sizing: border-box;
+      }
+      .shop-cell button:active {
+        background-color: #e0e0e0; /* 押した時のフィードバック */
+      }
+    </style>
+    <script>
+      function adjustFontSize() {
+        document.querySelectorAll("td, th").forEach(cell => {
+          const h = cell.offsetHeight;
+          const size = Math.max(20,20); // 高さの35%を文字サイズに
+          cell.style.fontSize = size + "px";
+          cell.style.lineHeight = 1.1;
+        });
+      }
 
-window.addEventListener("load", adjustFontSize);
-window.addEventListener("resize", adjustFontSize);
+      window.addEventListener("load", adjustFontSize);
+      window.addEventListener("resize", adjustFontSize);
 
-    function applyCombinedFilter() {
-       resetAllReviews();
-      const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
-      const dateSelected = document.querySelector('input[name="filter"]:checked').value;
-      const inputDate = document.getElementById("dateInput").value;
-      const today = new Date();
-      const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-      const mm = today.getMonth() + 1;
-      const dd = today.getDate();
-      const dayOfWeek = weekdays[today.getDay()];
-      const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
+      function applyCombinedFilter() {
+        resetAllReviews();
+        const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
+        const dateSelected = document.querySelector('input[name="filter"]:checked').value;
+        const inputDate = document.getElementById("dateInput").value;
+        const today = new Date();
+        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+        const mm = today.getMonth() + 1;
+        const dd = today.getDate();
+        const dayOfWeek = weekdays[today.getDay()];
+        const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
 
-      const rows = document.querySelectorAll('tbody tr:not(.review-row)');
+        const rows = document.querySelectorAll('tbody tr:not(.review-row)');
 
-      rows.forEach(row => {
-        let showByDate = false;
-        let showByReport = false;
-        let showByPlace = false;
+        rows.forEach(row => {
+          let showByDate = false;
+          let showByReport = false;
+          let showByPlace = false;
 
-        // 日付フィルタ
-        if (dateSelected === "all") {
-          showByDate = true;
-        } else if (dateSelected === "today") {
-          const cell = row.querySelector(`[data-label="${todayLabel}"]`);
-          const text = cell ? cell.textContent.trim() : "";
-          showByDate = /^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text);
-        } else if (dateSelected === "weekend") {
-          row.querySelectorAll('td[data-label]').forEach(cell => {
-            const label = cell.getAttribute('data-label');
-            if (label && (label.includes("(土)") || label.includes("(日)"))) {
-              const text = cell.textContent.trim();
-              if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
-                showByDate = true;
-              }
-            }
-          });
-        } else if (dateSelected === "date") {
-          if (inputDate) {
-            const date = new Date(inputDate);
-            const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
+          // 日付フィルタ
+          if (dateSelected === "all") {
+            showByDate = true;
+          } else if (dateSelected === "today") {
+            const cell = row.querySelector(`[data-label="${todayLabel}"]`);
+            const text = cell ? cell.textContent.trim() : "";
+            showByDate = /^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text);
+          } else if (dateSelected === "weekend") {
             row.querySelectorAll('td[data-label]').forEach(cell => {
-              const cellLabel = cell.getAttribute('data-label');
-              if (cellLabel === label) {
+              const label = cell.getAttribute('data-label');
+              if (label && (label.includes("(土)") || label.includes("(日)"))) {
                 const text = cell.textContent.trim();
                 if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
                   showByDate = true;
                 }
               }
             });
-          } else {
-            showByDate = true;
+          } else if (dateSelected === "date") {
+            if (inputDate) {
+              const date = new Date(inputDate);
+              const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
+              row.querySelectorAll('td[data-label]').forEach(cell => {
+                const cellLabel = cell.getAttribute('data-label');
+                if (cellLabel === label) {
+                  const text = cell.textContent.trim();
+                  if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
+                    showByDate = true;
+                  }
+                }
+              });
+            } else {
+              showByDate = true;
+            }
           }
+
+          // レポートフィルタ
+          const hasReport = row.getAttribute("data-report");
+          if (reportSelected === "all") {
+            showByReport = true;
+          } else if (reportSelected === "has") {
+            showByReport = hasReport === "true";
+          } else if (reportSelected === "none") {
+            showByReport = hasReport === "false";
+          }
+
+          // 地域フィルタ
+          const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
+                                     .map(cb => cb.value);
+          if (checkedPlaces.includes("all")) {
+            showByPlace = true;
+          } else {
+            const shopCell = row.querySelector("td.shop-cell");
+            const text = shopCell ? shopCell.textContent : "";
+            showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
+          }
+
+          // AND条件で表示制御
+          row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
+        });
+        // --- 日付列の表示制御 ---
+        const allHeaders = document.querySelectorAll("thead th");
+        const allCells = document.querySelectorAll("tbody td[data-label]");
+
+        // まず全て表示
+        allHeaders.forEach(th => th.style.display = "");
+        allCells.forEach(td => td.style.display = "");
+
+        if (dateSelected === "today") {
+          allHeaders.forEach(th => {
+            const label = th.textContent.trim();
+            if (label !== todayLabel && label !== "名前＋レビュー+店名" && label !== "画像") {
+              th.style.display = "none";
+            }
+          });
+          allCells.forEach(td => {
+            const label = td.getAttribute("data-label");
+            if (label !== todayLabel) td.style.display = "none";
+          });
         }
 
-        // レポートフィルタ
-        const hasReport = row.getAttribute("data-report");
-        if (reportSelected === "all") {
-          showByReport = true;
-        } else if (reportSelected === "has") {
-          showByReport = hasReport === "true";
-        } else if (reportSelected === "none") {
-          showByReport = hasReport === "false";
+        if (dateSelected === "date" && inputDate) {
+          const date = new Date(inputDate);
+          const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
+
+          allHeaders.forEach(th => {
+            const text = th.textContent.trim();
+            if (text !== label && text !== "名前＋レビュー+店名" && text !== "画像") {
+              th.style.display = "none";
+            }
+          });
+          allCells.forEach(td => {
+            const cellLabel = td.getAttribute("data-label");
+            if (cellLabel !== label) td.style.display = "none";
+          });
         }
 
-        // 地域フィルタ
-        const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
-                                   .map(cb => cb.value);
-        if (checkedPlaces.includes("all")) {
-          showByPlace = true;
-        } else {
-          const shopCell = row.querySelector("td.shop-cell");
-          const text = shopCell ? shopCell.textContent : "";
-          showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
+        if (dateSelected === "weekend") {
+          allHeaders.forEach(th => {
+            const text = th.textContent.trim();
+            if (!(text.includes("(土)") || text.includes("(日)") ||
+                  text === "名前＋レビュー+店名" || text === "画像")) {
+              th.style.display = "none";
+            }
+          });
+          allCells.forEach(td => {
+            const label = td.getAttribute("data-label");
+            if (!(label.includes("(土)") || label.includes("(日)"))) {
+              td.style.display = "none";
+            }
+          });
         }
-
-        // AND条件で表示制御
-        row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
-      });
-      // --- 日付列の表示制御 ---
-const allHeaders = document.querySelectorAll("thead th");
-const allCells = document.querySelectorAll("tbody td[data-label]");
-
-// まず全て表示
-allHeaders.forEach(th => th.style.display = "");
-allCells.forEach(td => td.style.display = "");
-
-if (dateSelected === "today") {
-    allHeaders.forEach(th => {
-        const label = th.textContent.trim();
-        if (label !== todayLabel && label !== "名前＋レビュー+店名" && label !== "画像") {
-            th.style.display = "none";
-        }
-    });
-    allCells.forEach(td => {
-        const label = td.getAttribute("data-label");
-        if (label !== todayLabel) td.style.display = "none";
-    });
-}
-
-if (dateSelected === "date" && inputDate) {
-    const date = new Date(inputDate);
-    const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
-
-    allHeaders.forEach(th => {
-        const text = th.textContent.trim();
-        if (text !== label && text !== "名前＋レビュー+店名" && text !== "画像"){
-            th.style.display = "none";
-        }
-    });
-    allCells.forEach(td => {
-        const cellLabel = td.getAttribute("data-label");
-        if (cellLabel !== label) td.style.display = "none";
-    });
-}
-
-if (dateSelected === "weekend") {
-    allHeaders.forEach(th => {
-        const text = th.textContent.trim();
-        if (!(text.includes("(土)") || text.includes("(日)") ||
-      text === "名前＋レビュー+店名" || text === "画像")) {
-            th.style.display = "none";
-        }
-    });
-    allCells.forEach(td => {
-        const label = td.getAttribute("data-label");
-        if (!(label.includes("(土)") || label.includes("(日)"))) {
-            td.style.display = "none";
-        }
-    });
-}
-
-    }
-
-    function applyDateFilter() {
-      document.querySelector('input[name="filter"][value="date"]').checked = true;
-      applyCombinedFilter();
-    }
-
-    function toggleReviewRow(id) {
-      const row = document.getElementById(id);
-      if (row.style.display === "none") {
-        row.style.display = "table-row";
-      } else {
-        row.style.display = "none";
       }
-    }
 
-    function resetAllReports() {
-   document.querySelectorAll('.review-row').forEach(row => {
-    row.style.display = "none";
-  });
+      function applyDateFilter() {
+        document.querySelector('input[name="filter"][value="date"]').checked = true;
+        applyCombinedFilter();
+      }
 
-}
+      function toggleReviewRow(id) {
+        const row = document.getElementById(id);
+        if (row.style.display === "none") {
+          row.style.display = "table-row";
+        } else {
+          row.style.display = "none";
+        }
+      }
 
-  </script>
-</head>
-<body onload="applyCombinedFilter()">
-  <h1>出勤カレンダーとレビュー一覧</h1>
+      function resetAllReviews() {
+        document.querySelectorAll('.review-row').forEach(row => {
+          row.style.display = "none";
+        });
+      }
+    </script>
+  </head>
+  <body onload="applyCombinedFilter()">
+    <h1>出勤カレンダーとレビュー一覧</h1>
 
-  <div class="filter-group">
-    <strong>日付条件：</strong><br>
-    <label><input type="radio" name="filter" value="all" checked onchange="applyCombinedFilter()"> 全表示</label>
-    <label><input type="radio" name="filter" value="today" onchange="applyCombinedFilter()"> 本日出勤のみ</label>
-    <label><input type="radio" name="filter" value="weekend" onchange="applyCombinedFilter()"> 土日出勤のみ</label>
-    <label><input type="radio" name="filter" value="date" onchange="applyCombinedFilter()"> 日付指定</label>
-    <label>日付で絞り込み: <input type="date" id="dateInput" onchange="applyDateFilter()"></label>
-  </div>
+    <div class="filter-group">
+      <strong>日付条件：</strong><br>
+      <label><input type="radio" name="filter" value="all" checked onchange="applyCombinedFilter()"> 全表示</label>
+      <label><input type="radio" name="filter" value="today" onchange="applyCombinedFilter()"> 本日出勤のみ</label>
+      <label><input type="radio" name="filter" value="weekend" onchange="applyCombinedFilter()"> 土日出勤のみ</label>
+      <label><input type="radio" name="filter" value="date" onchange="applyCombinedFilter()"> 日付指定</label>
+      <label>日付で絞り込み: <input type="date" id="dateInput" onchange="applyDateFilter()"></label>
+    </div>
 
-  <div class="filter-group">
-    <strong>レビュー条件：</strong><br>
-    <label><input type="radio" name="reportFilter" value="all" checked onchange="applyCombinedFilter()"> 全表示</label>
-    <label><input type="radio" name="reportFilter" value="has" onchange="applyCombinedFilter()"> レポートありのみ</label>
-    <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
-  </div>
+    <div class="filter-group">
+      <strong>レビュー条件：</strong><br>
+      <label><input type="radio" name="reportFilter" value="all" checked onchange="applyCombinedFilter()"> 全表示</label>
+      <label><input type="radio" name="reportFilter" value="has" onchange="applyCombinedFilter()"> レポートありのみ</label>
+      <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
+    </div>
 
-  <div class="filter-group">
-    <strong>地域条件：</strong><br>
-    <label><input type="checkbox" name="placeFilter" value="all" checked onchange="applyCombinedFilter()"> 全地域</label><br>
+    <div class="filter-group">
+      <strong>地域条件：</strong><br>
+      <label><input type="checkbox" name="placeFilter" value="all" checked onchange="applyCombinedFilter()"> 全地域</label><br>
 """
 
 # 地域フィルタチェックボックス
