@@ -55,16 +55,22 @@ def load_existing_data(calendar_path):
 
         rows = soup.select("tr[data-report]")
         for row in rows:
-            name_tag = row.select_one("td a")
-            shop_tag = row.select("td")[1]
-
+            # 名前
+            name_tag = row.select_one("td.shop-cell a")
             name = name_tag.text.strip() if name_tag else "不明"
-            shop =  shop_tag.contents[0].strip() if shop_tag and shop_tag.contents else "不明"
-            shop = " ".join(shop.split())
+
+            # 店名（shop-info の最初の要素）
+            shop_info_tags = row.select("td.shop-cell .shop-info")
+            shop = shop_info_tags[0].text.strip() if shop_info_tags else "不明"
+            shop = " ".join(shop.split())  # 余分な空白除去
+
             key = (name, shop)
 
+            # 画像
             img_tag = row.select_one("td img")
             img_url = img_tag["src"] if img_tag else None
+
+            # URL
             url = name_tag["href"] if name_tag else None
 
             existing_data[key] = {
@@ -72,7 +78,9 @@ def load_existing_data(calendar_path):
                 "image": img_url,
                 "has_review": row.get("data-report") == "true"
             }
+
     return existing_data
+
 
 #%%
 # 最下部までスクロール後のHTMLを取得
@@ -102,10 +110,7 @@ for block in tqdm(blocks, desc="スクレイピング中", unit="人"):
         place_tag = block.find_element(By.CSS_SELECTOR, ".recommend-block-top-place")
         place = place_tag.text.strip() if place_tag else ""
 
-        shop_place = f"{shop} {place}" if place else shop
-
-
-        key = (name, shop_place)
+        key = (name, shop)
 
         # スケジュールの取得
         schedule = {}
