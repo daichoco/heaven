@@ -605,6 +605,3 @@ html = formatted_html
 
 with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
     f.write(html)
-
-
-# %%
