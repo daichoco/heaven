@@ -468,6 +468,11 @@ if (dateSelected === "weekend") {
         row.style.display = "none";
       }
     }
+    function resetAllReports() {
+  document.querySelectorAll('.detail').forEach(el => el.remove());
+  document.querySelectorAll('.report-btn').forEach(btn => btn.classList.remove('open'));
+}
+
   </script>
 </head>
 <body onload="applyCombinedFilter()">
