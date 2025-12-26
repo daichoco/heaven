@@ -113,6 +113,55 @@ calendar_df = calendar_df.rename(columns={"index": "name"})
 #%%
 driver.quit()
 # %%
+import re
+from datetime import datetime
+
+# 時間帯の正規表現（例: "10:30 - 22:00"）
+time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
+
+def count_work_days_all(cal_dict):
+    """
+    カレンダー辞書（"MM/DD(曜)" → ステータス）から
+    年越しを考慮しつつ、全期間の出勤日数を返す。
+
+    出勤日数の定義:
+    - 時間帯表記（例: "10:30 - 22:00"）のみを出勤扱い
+    - 「明日出勤です♪」「休み」「-」などはカウントしない
+    """
+
+    # 1. 月日だけでソート（年はまだ付けない）
+    def md_key(date_str):
+        md = date_str.split("(")[0]
+        m, d = map(int, md.split("/"))
+        return (m, d)
+
+    items = sorted(cal_dict.items(), key=lambda x: md_key(x[0]))
+
+    # 2. 年を推定しながら datetime を生成
+    current_year = datetime.now().year
+    last_month = None
+    dated_items = []
+
+    for date_str, status in items:
+        md = date_str.split("(")[0]
+        m, d = map(int, md.split("/"))
+
+        # 月が小さくなったら年越しと判断
+        if last_month is not None and m < last_month:
+            current_year += 1
+
+        last_month = m
+        dated_items.append((datetime(current_year, m, d), status))
+
+    # 3. 全期間の出勤日数をカウント
+    count = 0
+    for dt, status in dated_items:
+        if isinstance(status, str) and time_pattern.match(status.strip()):
+            count += 1
+
+    return count
+
+
 html = """
 <!DOCTYPE html>
 <html lang="ja">
@@ -217,18 +266,162 @@ html = """
     <h2>👤 メンバー一覧</h2>
     <ul class="members">
 """
+import ast
+import re
+import json
+import pandas as pd
+from datetime import datetime
+
+# -------------------------
+# 1. calendar_dict を最初に作る
+# -------------------------
+calendar_df["calendar_dict"] = calendar_df["calendar"].apply(
+    lambda x: ast.literal_eval(x) if isinstance(x, str) else x
+)
+
+# -------------------------
+# 2. 時間帯の正規表現
+# -------------------------
+time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
+
+# -------------------------
+# 3. 全期間の出勤日数カウント（年越し対応）
+# -------------------------
+def count_work_days_all(cal_dict):
+    # 月日だけでソート
+    def md_tuple(date_str):
+        md = date_str.split("(")[0]
+        m, d = map(int, md.split("/"))
+        return m, d
+
+    items = sorted(cal_dict.items(), key=lambda x: md_tuple(x[0]))
+
+    # 年推定
+    current_year = datetime.now().year
+    last_month = None
+    dated_items = []
+
+    for date_str, status in items:
+        m, d = md_tuple(date_str)
+        if last_month is not None and m < last_month:
+            current_year += 1
+        last_month = m
+        dated_items.append((datetime(current_year, m, d), status))
+
+    # 出勤日数カウント（時間帯のみ）
+    count = 0
+    for dt, status in dated_items:
+        if isinstance(status, str) and time_pattern.match(status.strip()):
+            count += 1
+
+    return count
+
+# 出勤日数列を追加
+calendar_df["work_days"] = calendar_df["calendar_dict"].apply(count_work_days_all)
+
+# -------------------------
+# 4. ソート（0 は最後）
+# -------------------------
+df_positive = calendar_df[calendar_df["work_days"] > 0].sort_values("work_days", ascending=True)
+df_zero = calendar_df[calendar_df["work_days"] == 0]
+calendar_df = pd.concat([df_positive, df_zero], ignore_index=True)
+
+# -------------------------
+# 5. index.html を生成
+# -------------------------
+html = """
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>メンバー一覧</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+      padding: 20px;
+      max-width: 960px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+
+    .members {
+      list-style: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 16px;
+    }
+
+    .members li {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .members li img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+
+    .member-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .name-link {
+      margin-top: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .name-link:hover {
+      color: #007acc;
+    }
+  </style>
+</head>
+<body>
+  <h1>公開ページ</h1>
+
+  <section class="member-list">
+    <h2>👤 メンバー一覧（出勤日数順）</h2>
+    <ul class="members">
+"""
 
 for _, row in calendar_df.iterrows():
     html += f"""
-      <li>
-        <a href="{row['url']}" target="_blank" rel="noopener noreferrer">
-          <img src="{row['image']}" alt="{row['name']}">
-        </a>
-        <a href="calendar.html?name={row['name']}">
-          {row['name']}
-        </a>
-        {row['shop']}
-      </li>
+            <li>
+              <div class="member-card">
+                <a href="{row['url']}" target="_blank" rel="noopener noreferrer">
+                  <img src="{row['image']}" alt="{row['name']}">
+                </a>
+                <a href="calendar.html?name={row['name']}" class="name-link">
+                  {row['name']}
+                </a>
+                <div>出勤日数: {row['work_days']}</div>
+                <div>{row['shop']}</div>
+              </div>
+            </li>
     """
 
 html += """
@@ -240,72 +433,76 @@ html += """
 
 with open("../docs/index.html", "w", encoding="utf-8") as f:
     f.write(html)
+# 全日付を抽出（まずリストにする）
+all_dates_raw = []
+for cal in calendar_df["calendar_dict"]:
+    all_dates_raw.extend(cal.keys())
 
-import json
+# 月ごとにグループ化
+month_groups = {}
+for date_str in all_dates_raw:
+    md = date_str.split("(")[0]
+    m, d = map(int, md.split("/"))
+    month_groups.setdefault(m, set()).add(date_str)
 
-calendar_df["calendar_dict"] = calendar_df["calendar"].apply(
-    lambda x: ast.literal_eval(x) if isinstance(x, str) else x
-)
-# JSON化（日本語保持）
+# 月ごとにまとめた all_dates
+all_dates = []
+for m in sorted(month_groups.keys()):
+    all_dates.extend(sorted(
+        month_groups[m],
+        key=lambda s: int(s.split("(")[0].split("/")[1])
+    ))
+def sort_dates_with_year(date_keys):
+    def md_tuple(date_str):
+        md = date_str.split("(")[0]
+        m, d = map(int, md.split("/"))
+        return m, d
+
+    items = sorted(date_keys, key=lambda x: md_tuple(x))
+
+    current_year = datetime.now().year
+    last_month = None
+    dated_items = []
+
+    for date_str in items:
+        m, d = md_tuple(date_str)
+        if last_month is not None and m < last_month:
+            current_year += 1
+        last_month = m
+        dated_items.append((datetime(current_year, m, d), date_str))
+
+    dated_items.sort(key=lambda x: x[0])
+    return [x[1] for x in dated_items]
+
+date_labels = sort_dates_with_year(all_dates)
+date_labels_json = json.dumps(date_labels, ensure_ascii=False, indent=2)
 calendars = {row["name"]: row["calendar_dict"] for _, row in calendar_df.iterrows()}
 calendars_json = json.dumps(calendars, ensure_ascii=False, indent=2)
-import ast
-from datetime import datetime
 
-
-# 時間形式の正規表現（例：12:00 - 14:00）
-time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
-
-# calendar列を辞書に変換（必要に応じて）
-
-# 全日付を抽出
-all_dates = set()
-for cal in calendar_df["calendar_dict"]:
-    all_dates.update(cal.keys())
-
-# 日付を datetime に変換して昇順に並べる
-def parse_date(d):
-    try:
-        md = d.split("(")[0]
-        m, day = map(int, md.split("/"))
-        return datetime(datetime.now().year, m, day)
-    except:
-        return None
-
-sorted_dates = sorted([d for d in all_dates if parse_date(d)], key=parse_date)
-date_labels = [d for d in sorted_dates]  # 元の文字列形式（例：11/16(日)）
-
-# 日付ラベル（取得済みのものを使用）
-date_labels_json = json.dumps(date_labels, ensure_ascii=False, indent=2)
-
-html = f"""
+html = """
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>出勤カレンダー</title>
   <style>
-    body {{ font-family: sans-serif; }}
-    .calendar-container {{
+    body { font-family: sans-serif; }
+    .calendar-container {
       display: grid;
-      grid-template-columns: repeat(7, 1fr); /* 横7列（日〜土） */
+      grid-template-columns: repeat(7, 1fr);
       gap: 8px;
-    }}
-    .date-card {{
+    }
+    .date-card {
       border: 1px solid #ccc;
       border-radius: 6px;
       padding: 6px;
       text-align: center;
       background-color: #fafafa;
       min-height: 90px;
-    }}
-    .date-card h2 {{
-      margin: 0 0 4px;
-      font-size: 0.9em;
-    }}
-    .saturday {{ background-color: #e6f0ff; }}
-    .sunday {{ background-color: #ffe6e6; }}
-    .today {{ border: 2px solid orange; }}
+    }
+    .saturday { background-color: #e6f0ff; }
+    .sunday { background-color: #ffe6e6; }
+    .today { border: 2px solid orange; }
   </style>
 </head>
 <body>
@@ -313,20 +510,19 @@ html = f"""
   <div id="calendar-container" class="calendar-container"></div>
 
   <script>
-    const calendars = {calendars_json};
-    const dateLabels = {date_labels_json};
+    const calendars = {CAL};
+    const dateLabels = {DATES};
 
     const params = new URLSearchParams(window.location.search);
     const selectedName = params.get("name");
 
-    function pad(n) {{ return n < 10 ? "0" + n : "" + n; }}
-
-    function stripParen(dateStr) {{
+    function pad(n) { return n < 10 ? "0" + n : "" + n; }
+    function stripParen(dateStr) {
       const idx = dateStr.indexOf("(");
       return idx >= 0 ? dateStr.slice(0, idx) : dateStr;
-    }}
+    }
 
-    if (selectedName && calendars[selectedName]) {{
+    if (selectedName && calendars[selectedName]) {
       document.getElementById("title").innerText = selectedName + "の出勤カレンダー";
       const container = document.getElementById("calendar-container");
       const cal = calendars[selectedName];
@@ -335,7 +531,7 @@ html = f"""
       const todayStr = (today.getMonth() + 1) + "/" + today.getDate();
       const todayStrPadded = pad(today.getMonth() + 1) + "/" + pad(today.getDate());
 
-      for (let i = 0; i < dateLabels.length; i++) {{
+      for (let i = 0; i < dateLabels.length; i++) {
         const date = dateLabels[i];
         const status = cal[date] ? cal[date] : "-";
 
@@ -347,21 +543,24 @@ html = f"""
         const isToday = (dateOnly === todayStr) || (dateOnly === todayStrPadded);
 
         container.innerHTML += `
-          <div class="date-card ${{weekdayClass}} ${{isToday ? "today" : ""}}">
-            <h2>${{date}}</h2>
-            <p>${{status}}</p>
+          <div class="date-card ${weekdayClass} ${isToday ? "today" : ""}">
+            <h2>${date}</h2>
+            <p>${status}</p>
           </div>
         `;
-      }}
-    }} else {{
+      }
+    } else {
       document.getElementById("calendar-container").innerHTML = "<p>該当するメンバーが見つかりません</p>";
-    }}
+    }
   </script>
 </body>
 </html>
 """
 
+html = (
+    html.replace("{CAL}", calendars_json)
+        .replace("{DATES}", date_labels_json)
+)
 
 with open("../docs/calendar.html", "w", encoding="utf-8") as f:
     f.write(html)
-# %%
