@@ -1,13 +1,11 @@
 #%%
 from bs4 import BeautifulSoup
 import pandas as pd
-#%%
 url = "../docs/report_final.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")
 
-# %%
 reports = []
 
 for detail in soup.find_all("details"):
@@ -63,10 +61,8 @@ for detail in soup.find_all("details"):
     })
 
 df1 = pd.DataFrame(reports)
-print(df1[["girl_name","shop_name"]])
 df1.loc[df1["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df1["girl_url"]
-# print(df1.columns)
-# %%
+df1_current = df1.copy()  # 新しく抽出したdf1
 url = "../docs/cityheaven_profiles.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
@@ -116,8 +112,6 @@ user_agents = [
 ua = random.choice(user_agents)
 options = Options()
 options.add_argument(f"user-agent={ua}")
-# options.add_argument("--headless")  # 必要なら有効化
-driver = webdriver.Chrome(options=options)
 
 def human_delay():
     """人間っぽい待機を入れる"""
@@ -168,9 +162,6 @@ def enrich_with_cityheaven_urls(df1, source="yahoo"):
     return df1
 
 # 実行例
-# df1 = enrich_with_cityheaven_urls(df1, source="yahoo")
-# df1.to_csv("../data/df1 - df1.csv.csv")
-driver.quit()
 
 
 
@@ -188,8 +179,27 @@ def normalize_url(url):
 
 
 # 正規化キー列を追加
+df1_current["url_key"] = df1_current["cityheaven_url"].apply(normalize_url)
 df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
 df2["url_key"] = df2["URL"].apply(normalize_url)
+
+# report_final.htmlからの新規データを特定
+new_from_report_final = df1_current[~df1_current["url_key"].isin(df1["url_key"])]
+
+if not new_from_report_final.empty:
+    # driver起動
+    driver = webdriver.Chrome(options=options)
+
+    # enrich実行
+    new_from_report_final = enrich_with_cityheaven_urls(new_from_report_final, source="yahoo")
+
+    driver.quit()
+
+    # df1に追加
+    df1 = pd.concat([df1, new_from_report_final], ignore_index=True)
+
+    # CSV更新
+    df1.to_csv("../data/df1 - df1.csv.csv", index=False)
 
 # 左結合
 merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
@@ -199,7 +209,6 @@ with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")
 
-# %%
 reports = []
 soup = soup.find("div",class_="card-container")
 for card in soup.find_all("div",class_="card"):
@@ -230,17 +239,45 @@ for card in soup.find_all("div",class_="card"):
     })
 
 df3 = pd.DataFrame(reports)
-# print(df3[["girl_name","shop_name"]])
+
+# cityheaven_url を埋める（cityheaven.net を含むものだけ）
 df3.loc[df3["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df3["girl_url"]
-driver = webdriver.Chrome(options=options)
-# df3 = enrich_with_cityheaven_urls(df3,source="yahoo")
-driver.quit()
-#%%
-# df3.to_csv("../data/okinilove_heaven.csv")
-#%%
-df3 = pd.read_csv("../data/okinilove_heaven.csv")
-df3["url_key"] = df3["cityheaven_url"].apply(normalize_url)
-merged = pd.merge(df3, merged, how="right", on="url_key", suffixes=("_okinilove", "_merged"))
+
+df3_new = df3.copy()
+
+# 既存 CSV 読み込み
+df3_existing = pd.read_csv("../data/okinilove_heaven.csv")
+
+# --- ★ ここが重要：名前＋店で突き合わせ ---
+key_cols = ["shop_name", "girl_name"]
+
+# 新規データ抽出（名前＋店の組み合わせが存在しないもの）
+merged_keys = df3_existing[key_cols].drop_duplicates()
+new_from_okinilove = df3_new.merge(
+    merged_keys,
+    on=key_cols,
+    how="left",
+    indicator=True
+)
+new_from_okinilove = new_from_okinilove[new_from_okinilove["_merge"] == "left_only"]
+new_from_okinilove = new_from_okinilove.drop(columns=["_merge"])
+
+# --- enrich は新規データだけに実行 ---
+if not new_from_okinilove.empty:
+    driver = webdriver.Chrome(options=options)
+    enriched_new = enrich_with_cityheaven_urls(new_from_okinilove, source="yahoo")
+    driver.quit()
+
+    # 既存 CSV に追加
+    df3_existing = pd.concat([df3_existing, enriched_new], ignore_index=True)
+    df3_existing.to_csv("../data/okinilove_heaven.csv", index=False)
+
+# --- 最終マージ処理 ---
+df3_existing["url_key"] = df3_existing["cityheaven_url"].apply(normalize_url)
+merged = pd.merge(df3_existing, merged, how="right", on="url_key",
+                  suffixes=("_okinilove", "_merged"))
+
+
 # %%
 import pandas as pd
 import ast
@@ -605,3 +642,4 @@ html = formatted_html
 
 with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
     f.write(html)
+# %%
