@@ -110,9 +110,17 @@ for block in tqdm(blocks, desc="進捗", unit="人"):
 
 calendar_df = pd.DataFrame.from_dict(data, orient="index").reset_index()
 calendar_df = calendar_df.rename(columns={"index": "name"})
-#%%
+
 driver.quit()
 # %%
+# 出勤日数を計算
+time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
+calendar_df["working_days"] = calendar_df["calendar"].apply(
+    lambda cal: sum(1 for status in cal.values() if time_pattern.match(status))
+)
+
+# 出勤日数が多い順にソート
+calendar_df = calendar_df.sort_values(by="working_days", ascending=False)
 html = """
 <!DOCTYPE html>
 <html lang="ja">
@@ -228,6 +236,7 @@ for _, row in calendar_df.iterrows():
           {row['name']}
         </a>
         {row['shop']}
+        <br>出勤日数: {row['working_days']}日
       </li>
     """
 
