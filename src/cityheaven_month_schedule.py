@@ -13,7 +13,7 @@ import pandas as pd
 #%%
 chromedriver_autoinstaller.install()
 options = Options()
-# options.add_argument("--headless=new")
+options.add_argument("--headless=new")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 options.add_argument("--disable-dev-shm-usage")
@@ -369,7 +369,9 @@ html = f"""
 </body>
 </html>
 """
-
+from bs4 import BeautifulSoup
+soup = BeautifulSoup(html,"html.parser")
+html = soup.prettify(formatter="html")
 
 with open("../docs/calendar.html", "w", encoding="utf-8") as f:
     f.write(html)
