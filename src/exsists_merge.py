@@ -170,7 +170,11 @@ for name, info in data.items():
     labeled_schedule = {}
     for date_str, status in info["schedule"].items():
         try:
-            dt = datetime.strptime(f"{current_year}/{date_str}", "%Y/%m/%d")
+            month, day = map(int, date_str.split('/'))
+            year = current_year
+            if month < today.month:  # 翌年の1月などを考慮
+                year += 1
+            dt = datetime(year, month, day)
             weekday = ["月", "火", "水", "木", "金", "土", "日"][dt.weekday()]
             label = f"{date_str}({weekday})"
             labeled_schedule[label] = status.strip()
@@ -183,9 +187,16 @@ all_labels = set()
 for info in data.values():
     all_labels.update(info["schedule"].keys())
 
+def parse_date_with_year_adjustment(date_str, current_year, today_month):
+    month, day = map(int, date_str.split('/'))
+    year = current_year
+    if month < today_month:  # 翌年を考慮
+        year += 1
+    return datetime(year, month, day)
+
 sorted_labels = sorted(
     all_labels,
-    key=lambda x: datetime.strptime(f"{current_year}/{x[:x.index('(')]}", "%Y/%m/%d")
+    key=lambda x: parse_date_with_year_adjustment(x[:x.index('(')], current_year, today.month)
 )
 from generate_html import generate_html
 from bs4 import BeautifulSoup

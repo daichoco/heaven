@@ -296,6 +296,22 @@ weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 today = datetime.now()
 today_label = f"{today.month}/{str(today.day).zfill(2)}({weekdays[today.weekday()]})"
 
+# カレンダー列を翌年考慮でソート
+def parse_date_with_year_adjustment(date_str, current_year, today_month):
+    # date_str は "1/1(月)" の形式
+    date_part = date_str.split('(')[0]  # "1/1"
+    month, day = map(int, date_part.split('/'))
+    year = current_year
+    if month < today_month:  # 翌年を考慮
+        year += 1
+    return datetime(year, month, day)
+
+current_year = today.year
+calendar_cols = sorted(
+    calendar_cols,
+    key=lambda x: parse_date_with_year_adjustment(x, current_year, today.month)
+)
+
 # ★ 店名からユニーク地域抽出 ★
 yyy_set = set()
 for shop in merged["店名"]:
