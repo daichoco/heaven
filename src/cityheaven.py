@@ -11,6 +11,7 @@ import chromedriver_autoinstaller
 import os
 from urllib.parse import urljoin
 from selenium.webdriver.chrome.service import Service
+from selenium.common.exceptions import TimeoutException  # 追加インポート
 
 #%%
 driver_path = chromedriver_autoinstaller.install()
@@ -34,25 +35,31 @@ WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "js-conte
 driver.get("https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1")
 
 # スクロール処理（最下部まで）
-last_height = driver.execute_script("return document.body.scrollHeight")
+max_attempts = 50  # 最大試行回数（必要に応じて調整）
+attempts = 0
 
-# while True:
-#     # 一番下までスクロール
-#     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-#     time.sleep(2)  # 読み込み待ち
+def wait_for_height_change(driver, initial_height, timeout=10):
+    """ページの高さが変わるまで待機"""
+    try:
+        WebDriverWait(driver, timeout).until(
+            lambda d: d.execute_script("return document.body.scrollHeight") > initial_height
+        )
+        return True
+    except TimeoutException:
+        return False
 
-#     # 新しい高さを取得
-#     new_height = driver.execute_script("return document.body.scrollHeight")
-#     if new_height == last_height:
-#         break  # 高さが変わらなければ終了
-#     last_height = new_height
-while True:
+while attempts < max_attempts:
     prev_height = driver.execute_script("return document.body.scrollHeight")
     driver.execute_script("$.autopager.load();")
-    time.sleep(2)
+
+    # 動的待機: 高さが変わるまで待つ（最大10秒）
+    if not wait_for_height_change(driver, prev_height, timeout=10):
+        break  # タイムアウトしたら終了
+
     new_height = driver.execute_script("return document.body.scrollHeight")
     if new_height == prev_height:
-        break
+        break  # 高さが変わらなければ終了
+    attempts += 1
 
 # 最下部までスクロール後のHTMLを取得
 
