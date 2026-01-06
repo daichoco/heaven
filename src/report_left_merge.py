@@ -340,9 +340,7 @@ html = """<!DOCTYPE html>
       table { border-collapse: collapse; width: 100%; }
       th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
       td:first-child, th:first-child {
-        position: sticky;
         left: 0;
-        background: #fff;
         z-index: 2;
       }
       img { max-height: 100%; border-radius: 4px; }
