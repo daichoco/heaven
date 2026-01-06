@@ -366,6 +366,7 @@ html = f"""
       document.getElementById("calendar-container").innerHTML = "<p>該当するメンバーが見つかりません</p>";
     }}
   </script>
+  <p><a href="index.html">index.htmlに戻る</a></p>
 </body>
 </html>
 """

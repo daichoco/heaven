@@ -649,7 +649,7 @@ for idx, row in merged.iterrows():
 
 
 
-html += "</tbody></table></div></body></html>"
+html += "</tbody></table></div><p><a href=\"index.html\">index.htmlに戻る</a></p></body></html>"
 
 # 整形
 soup = BeautifulSoup(html, "html.parser")

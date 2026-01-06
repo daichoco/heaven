@@ -136,5 +136,5 @@ function applyPlaceFilter() {{
             html += f"<td data-label='{label}'>{val}</td>"
         html += "</tr>"
 
-    html += "</tbody></table></body></html>"
+    html += "</tbody></table><p><a href=\"index.html\">index.htmlに戻る</a></p></body></html>"
     return BeautifulSoup(html, "html.parser").prettify()
