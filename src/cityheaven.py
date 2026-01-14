@@ -16,7 +16,7 @@ from selenium.common.exceptions import TimeoutException  # 追加インポート
 #%%
 driver_path = chromedriver_autoinstaller.install()
 options = Options()
-# options.add_argument("--headless=new")
+options.add_argument("--headless=new")
 options.add_argument('--window-size=1920,1080')  # 広めに固定
 options.add_argument("--disable-gpu")
 options.add_argument("--no-sandbox")
