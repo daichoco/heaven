@@ -39,7 +39,8 @@ jobs:
           CITYHEAVEN_USER: ${{ secrets.CITYHEAVEN_USER }}
           CITYHEAVEN_PASS: ${{ secrets.CITYHEAVEN_PASS }}
         run: |
-          python src/exsits_merge.py
+          cd src
+          python exsits_merge.py
 
       - name: Commit and push updated HTML
         run: |
