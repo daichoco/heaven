@@ -21,15 +21,74 @@ options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-blink-features=AutomationControlled")
 options.add_argument("user-agent=Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1")
 
-driver = webdriver.Chrome(options=options)
-driver.get("https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1")
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "user")))
 
-driver.find_element(By.NAME, "user").send_keys(os.environ["CITYHEAVEN_USER"])
-driver.find_element(By.NAME, "pass").send_keys(os.environ["CITYHEAVEN_PASS"])
-driver.find_element(By.NAME, "login").click()
-WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "js-contentsWrap")))
-driver.get("https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1")
+def find_first_matching_element(driver, selectors):
+    for by, selector in selectors:
+        elems = driver.find_elements(by, selector)
+        if elems:
+            return elems[0]
+    return None
+
+
+def save_debug_assets(driver, prefix="debug"):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    debug_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "docs")
+    os.makedirs(debug_dir, exist_ok=True)
+    screenshot = os.path.join(debug_dir, f"{prefix}_{timestamp}.png")
+    html_file = os.path.join(debug_dir, f"{prefix}_{timestamp}.html")
+    try:
+        driver.save_screenshot(screenshot)
+        with open(html_file, "w", encoding="utf-8") as f:
+            f.write(driver.page_source)
+    except Exception as err:
+        print(f"[warning] debug asset save failed: {err}")
+    return screenshot, html_file
+
+
+def get_login_fields(driver):
+    user_candidate = find_first_matching_element(driver, [
+        (By.NAME, "user"),
+        (By.NAME, "login_id"),
+        (By.NAME, "username"),
+        (By.CSS_SELECTOR, "input[type='text']"),
+        (By.CSS_SELECTOR, "input[type='email']"),
+    ])
+    pass_candidate = find_first_matching_element(driver, [
+        (By.NAME, "pass"),
+        (By.NAME, "password"),
+        (By.ID, "password"),
+        (By.CSS_SELECTOR, "input[type='password']"),
+    ])
+    return user_candidate, pass_candidate
+
+
+driver = webdriver.Chrome(options=options)
+start_url = "https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1"
+driver.get(start_url)
+
+try:
+    WebDriverWait(driver, 20).until(lambda d: get_login_fields(d)[0] is not None and get_login_fields(d)[1] is not None)
+    user_input, pass_input = get_login_fields(driver)
+    if user_input is None or pass_input is None:
+        raise RuntimeError("ログイン入力欄が見つかりませんでした。")
+
+    user_input.send_keys(os.environ.get("CITYHEAVEN_USER", ""))
+    pass_input.send_keys(os.environ.get("CITYHEAVEN_PASS", ""))
+
+    login_button = find_first_matching_element(driver, [
+        (By.NAME, "login"),
+        (By.CSS_SELECTOR, "button[type='submit']"),
+        (By.CSS_SELECTOR, "input[type='submit']"),
+    ])
+    if not login_button:
+        raise RuntimeError("ログインボタンが見つかりませんでした。")
+
+    login_button.click()
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "js-contentsWrap")))
+    driver.get(start_url)
+except Exception as exc:
+    ss, html = save_debug_assets(driver, "login_failure")
+    raise RuntimeError(f"ログイン処理失敗: {exc} (screenshot={ss}, html={html})") from exc
 
 # スクロール処理（最下部まで）
 last_height = driver.execute_script("return document.body.scrollHeight")
