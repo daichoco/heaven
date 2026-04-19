@@ -1,7 +1,8 @@
 #%%
 from bs4 import BeautifulSoup
+from pathlib import Path
 import pandas as pd
-url = "../docs/report_final.html"
+url =  Path(__file__).resolve().parent.parent / "docs" / "report_final.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")
@@ -63,7 +64,7 @@ for detail in soup.find_all("details"):
 df1 = pd.DataFrame(reports)
 df1.loc[df1["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df1["girl_url"]
 df1_current = df1.copy()  # 新しく抽出したdf1
-url = "../docs/cityheaven_profiles.html"
+url =  Path(__file__).resolve().parent.parent / "docs" / "cityheaven_profiles.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, 'html.parser')
@@ -166,7 +167,9 @@ def enrich_with_cityheaven_urls(df1, source="yahoo"):
 
 
 # %%
-df1 = pd.read_csv("../data/df1 - df1.csv.csv")
+csvpath =  Path(__file__).resolve().parent.parent / "data" / "df1 - df1.csv.csv"
+
+df1 = pd.read_csv(csvpath)
 
 import re
 
@@ -204,7 +207,7 @@ if not new_from_report_final.empty:
 # 左結合
 merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
 #%%
-url = "../docs/okinilove_reconstructed.html"
+url =  Path(__file__).resolve().parent.parent / "docs" / "okinilove_reconstructed.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")
@@ -246,7 +249,8 @@ df3.loc[df3["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_ur
 df3_new = df3.copy()
 
 # 既存 CSV 読み込み
-df3_existing = pd.read_csv("../data/okinilove_heaven.csv")
+csvpath =  Path(__file__).resolve().parent.parent / "data" / "okinilove_heaven.csv"
+df3_existing = pd.read_csv(csvpath)
 
 # --- ★ ここが重要：名前＋店で突き合わせ ---
 key_cols = ["shop_name", "girl_name"]
@@ -653,7 +657,7 @@ html += "</tbody></table></div><p><a href=\"index.html\">index.htmlに戻る</a>
 soup = BeautifulSoup(html, "html.parser")
 formatted_html = soup.prettify()
 html = formatted_html
-
-with open("../docs/calendar_report.html", "w", encoding="utf-8") as f:
+url =  Path(__file__).resolve().parent.parent / "docs" / "calendar_report.html"
+with open(url, "w", encoding="utf-8") as f:
     f.write(html)
 # %%
