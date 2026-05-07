@@ -202,7 +202,8 @@ if not new_from_report_final.empty:
     df1 = pd.concat([df1, new_from_report_final], ignore_index=True)
 
     # CSV更新
-    df1.to_csv("../data/df1 - df1.csv.csv", index=False)
+    url =  Path(__file__).resolve().parent.parent / "data" / "df1 - df1.csv.csv"
+    df1.to_csv(url, index=False)
 
 # 左結合
 merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
@@ -274,7 +275,8 @@ if not new_from_okinilove.empty:
 
     # 既存 CSV に追加
     df3_existing = pd.concat([df3_existing, enriched_new], ignore_index=True)
-    df3_existing.to_csv("../data/okinilove_heaven.csv", index=False)
+    url =  Path(__file__).resolve().parent.parent / "data" / "okinilove_heaven.csv"
+    df3_existing.to_csv(url, index=False)
 
 # --- 最終マージ処理 ---
 df3_existing["url_key"] = df3_existing["cityheaven_url"].apply(normalize_url)
