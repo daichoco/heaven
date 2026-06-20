@@ -127,165 +127,19 @@ calendar_df = calendar_df.rename(columns={"index": "name"})
 driver.quit()
 # %%
 # 出勤日数を計算
-time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
-calendar_df["working_days"] = calendar_df["calendar"].apply(
-    lambda cal: sum(1 for status in cal.values() if time_pattern.match(status))
-)
-
-# 出勤日数が多い順にソート
-calendar_df = calendar_df.sort_values(by="working_days", ascending=False)
-html = """
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>メンバー一覧</title>
-  <style>
-    /* 共通 */
-    body {
-      font-family: sans-serif;
-      background-color: #f9f9f9;
-      padding: 20px;
-      max-width: 960px;
-      margin: auto;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    h2 {
-      margin-top: 40px;
-      margin-bottom: 20px;
-      color: #2c3e50;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 5px;
-    }
-
-    /* レポート一覧 */
-    .reports {
-      list-style: none;
-      padding: 0;
-    }
-
-    .reports li {
-      margin-bottom: 10px;
-    }
-
-    .reports a {
-      text-decoration: none;
-      color: #007acc;
-      font-weight: bold;
-    }
-
-    .reports a:hover {
-      text-decoration: underline;
-    }
-
-    /* メンバー一覧 */
-    .members {
-      list-style: none;
-      padding: 0;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 16px;
-    }
-
-    .members li {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .members li img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 4px;
-      margin-bottom: 8px;
-    }
-
-    .members li a {
-      display: block;
-      text-decoration: none;
-      color: #333;
-      font-weight: bold;
-    }
-
-    .members li a:hover {
-      color: #007acc;
-    }
-  </style>
-</head>
-<body>
-  <h1>公開ページ</h1>
-  <section class="report-list">
-    <h2>📄 レポート一覧</h2>
-    <ul class="reports">
-      <li><a href="calendar_report.html" target="_blank">カレンダー形式レポート</a></li>
-      <li><a href="cityheaven_profiles.html" target="_blank">プロフィール一覧</a></li>
-      <li><a href="report_final.html" target="_blank">最終レポート</a></li>
-      <li><a href="okinilove_remove_unknown.html" target="_blank">オキニラブレポート</a></li>
-      <li><a href="okinilove_reconstructed.html" target="_blank">オキニラブレポート再構成</a></li>
-    </ul>
-  </section>
-
-  <section class="member-list">
-    <h2>👤 メンバー一覧</h2>
-    <ul class="members">
-"""
-
-for _, row in calendar_df.iterrows():
-    html += f"""
-      <li>
-        <a href="{row['url']}" target="_blank" rel="noopener noreferrer">
-          <img src="{row['image']}" alt="{row['name']}">
-        </a>
-        <a href="calendar.html?name={row['name']}">
-          {row['name']}
-        </a>
-        {row['shop']}
-        <br>出勤日数: {row['working_days']}日
-      </li>
-    """
-
-html += """
-    </ul>
-  </section>
-</body>
-</html>
-"""
-
-with open("../docs/index.html", "w", encoding="utf-8") as f:
-    f.write(html)
-
-import json
-
-calendar_df["calendar_dict"] = calendar_df["calendar"].apply(
-    lambda x: ast.literal_eval(x) if isinstance(x, str) else x
-)
-# JSON化（日本語保持）
-calendars = {row["name"]: row["calendar_dict"] for _, row in calendar_df.iterrows()}
-calendars_json = json.dumps(calendars, ensure_ascii=False, indent=2)
+# 1. calendar_dict 整形
 import ast
+calendar_df["calendar_dict"] = calendar_df["calendar"].apply(
+    lambda x: x if isinstance(x, dict) else ast.literal_eval(x)
+)
 from datetime import datetime
 
-
-# 時間形式の正規表現（例：12:00 - 14:00）
-time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
-
-# calendar列を辞書に変換（必要に応じて）
-
-# 全日付を抽出
+# 全日付を集める
 all_dates = set()
 for cal in calendar_df["calendar_dict"]:
     all_dates.update(cal.keys())
 
-# 日付を datetime に変換して昇順に並べる
+# "11/16(日)" → datetime に変換
 def parse_date(d):
     try:
         md = d.split("(")[0]
@@ -294,99 +148,154 @@ def parse_date(d):
     except:
         return None
 
-sorted_dates = sorted([d for d in all_dates if parse_date(d)], key=parse_date)
-date_labels = [d for d in sorted_dates]  # 元の文字列形式（例：11/16(日)）
+# 土日判定
+def is_weekend(date_str):
+    dt = parse_date(date_str)
+    if not dt:
+        return False
+    return dt.weekday() >= 5  # 5=土, 6=日
 
-# 日付ラベル（取得済みのものを使用）
-date_labels_json = json.dumps(date_labels, ensure_ascii=False, indent=2)
+# 土日だけ抽出
+weekend_dates = sorted([d for d in all_dates if is_weekend(d)], key=parse_date)
+weekend_map = {d: [] for d in weekend_dates}
 
-html = f"""
+time_pattern = re.compile(r"^\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}$")
+
+for _, row in calendar_df.iterrows():
+    name = row["name"]
+    shop = row["shop"]
+    image = row["image"]
+    cal = row["calendar_dict"]
+
+    for date in weekend_dates:
+
+        # その日付にデータがない場合はスキップ
+        if date not in cal:
+            continue
+
+        status = cal[date]
+
+        # ★ 時刻形式でなければ弾く（ここが重要）
+        if not time_pattern.match(status):
+            continue
+
+        # ★ 時刻形式だけ weekend_map に追加
+        weekend_map[date].append({
+            "name": name,
+            "shop": shop,
+            "image": image,
+            "status": status,
+            "url": row["url"]
+        })
+html = """
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>出勤カレンダー</title>
-  <style>
-    body {{ font-family: sans-serif; }}
-    .calendar-container {{
-      display: grid;
-      grid-template-columns: repeat(7, 1fr); /* 横7列（日〜土） */
-      gap: 8px;
-    }}
-    .date-card {{
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      padding: 6px;
-      text-align: center;
-      background-color: #fafafa;
-      min-height: 90px;
-    }}
-    .date-card h2 {{
-      margin: 0 0 4px;
-      font-size: 0.9em;
-    }}
-    .saturday {{ background-color: #e6f0ff; }}
-    .sunday {{ background-color: #ffe6e6; }}
-    .today {{ border: 2px solid orange; }}
-  </style>
+<meta charset="UTF-8">
+<title>土日出勤カレンダー</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #f9f9f9;      padding: 20px;
+      max-width: 960px;
+      margin: auto; }
+  h1 { text-align: center; margin-bottom: 30px; }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 土・日 */
+    gap: 16px;
+  }
+
+  .day-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .day-card h2 {
+    margin: 0 0 10px;
+    font-size: 1.1em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
+  }
+
+  .member {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .member img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+
+  .member-name {
+    font-weight: bold;
+  }
+
+  .status {
+    font-size: 0.9em;
+    color: #555;
+  }
+</style>
 </head>
 <body>
-  <h1 id="title"></h1>
-  <div id="calendar-container" class="calendar-container"></div>
+<h1>公開ページ</h1>
+<section class="report-list">
+  <h2>📄 レポート一覧</h2>
+  <ul class="reports">
+    <li><a href="calendar_report.html" target="_blank">カレンダー形式レポート</a></li>
+    <li><a href="cityheaven_profiles.html" target="_blank">プロフィール一覧</a></li>
+    <li><a href="report_final.html" target="_blank">最終レポート</a></li>
+    <li><a href="okinilove_remove_unknown.html" target="_blank">オキニラブレポート</a></li>
+    <li><a href="okinilove_reconstructed.html" target="_blank">オキニラブレポート再構成</a></li>
+  </ul>
+</section>
 
-  <script>
-    const calendars = {calendars_json};
-    const dateLabels = {date_labels_json};
+<section class="member-list">
+  <h2>👤 メンバー一覧</h2>
+  <ul class="members">
 
-    const params = new URLSearchParams(window.location.search);
-    const selectedName = params.get("name");
+<h1>土日出勤カレンダー</h1>
 
-    function pad(n) {{ return n < 10 ? "0" + n : "" + n; }}
+<div class="calendar-grid">
+"""
 
-    function stripParen(dateStr) {{
-      const idx = dateStr.indexOf("(");
-      return idx >= 0 ? dateStr.slice(0, idx) : dateStr;
-    }}
+for date in weekend_dates:
+    html += f'<div class="day-card">'
+    html += f'<h2>{date}</h2>'
 
-    if (selectedName && calendars[selectedName]) {{
-      document.getElementById("title").innerText = selectedName + "の出勤カレンダー";
-      const container = document.getElementById("calendar-container");
-      const cal = calendars[selectedName];
+    members = weekend_map[date]
+    if not members:
+        html += "<p>出勤なし</p>"
+    else:
+        for m in members:
+            html += f"""
+            <div class="member">
+              <img src="{m['image']}" alt="{m['name']}">
+              <div>
+                <div class="member-name">
+                  <a href="{m['url']}" target="_blank">{m['name']}</a>（{m['shop']}）
+                </div>
+                <div class="status">{m['status']}</div>
+              </div>
+            </div>
+            """
 
-      const today = new Date();
-      const todayStr = (today.getMonth() + 1) + "/" + today.getDate();
-      const todayStrPadded = pad(today.getMonth() + 1) + "/" + pad(today.getDate());
+    html += "</div>"
 
-      for (let i = 0; i < dateLabels.length; i++) {{
-        const date = dateLabels[i];
-        const status = cal[date] ? cal[date] : "-";
-
-        let weekdayClass = "";
-        if (date.indexOf("(土)") !== -1) weekdayClass = "saturday";
-        if (date.indexOf("(日)") !== -1) weekdayClass = "sunday";
-
-        const dateOnly = stripParen(date);
-        const isToday = (dateOnly === todayStr) || (dateOnly === todayStrPadded);
-
-        container.innerHTML += `
-          <div class="date-card ${{weekdayClass}} ${{isToday ? "today" : ""}}">
-            <h2>${{date}}</h2>
-            <p>${{status}}</p>
-          </div>
-        `;
-      }}
-    }} else {{
-      document.getElementById("calendar-container").innerHTML = "<p>該当するメンバーが見つかりません</p>";
-    }}
-  </script>
-  <p><a href="index.html">index.htmlに戻る</a></p>
+html += """
+</div>
+<p><a href="index.html">index.htmlに戻る</a></p>
 </body>
 </html>
 """
-from bs4 import BeautifulSoup
-soup = BeautifulSoup(html,"html.parser")
-html = soup.prettify(formatter="html")
 
-with open("../docs/calendar.html", "w", encoding="utf-8") as f:
+with open("../docs/index.html", "w", encoding="utf-8") as f:
     f.write(html)
+
 # %%
