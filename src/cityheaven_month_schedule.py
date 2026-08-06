@@ -31,7 +31,7 @@ async def scrape_cityheaven():
         await page.fill("input[name='user']", os.environ["CITYHEAVEN_USER"])
         await page.fill("input[name='pass']", os.environ["CITYHEAVEN_PASS"])
         await form.evaluate("form => form.submit()")
-        await page.wait_for_load_state("networkidle")
+        await page.wait_for_load_state("domcontentloaded")
 
         # --- 無限スクロール ---
         while True:

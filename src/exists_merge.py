@@ -76,21 +76,32 @@ async def main():
         await form.evaluate("form => form.submit()")
 
         # ログイン完了待ち
-        await page.wait_for_load_state("networkidle")
+        await page.wait_for_load_state("domcontentloaded")
 
         # ここから先はスマホ版で scraping 開始
 
         # -------------------------
-        # autopager 無限スクロール
+        # autopager 無限スクロール（堅牢版）
         # -------------------------
+        async def safe_evaluate(page, script):
+            for _ in range(5):
+                try:
+                    return await page.evaluate(script)
+                except Exception:
+                    # コンテキスト破壊 → ページが再ロードされた可能性
+                    await page.wait_for_load_state("domcontentloaded")
+                    await asyncio.sleep(0.5)
+            raise RuntimeError("evaluate failed after retries")
+
         while True:
-            prev_height = await page.evaluate("document.body.scrollHeight")
+            prev_height = await safe_evaluate(page, "document.body.scrollHeight")
 
             # スマホ版は autopager が無いので、手動スクロール
             await page.mouse.wheel(0, 20000)
 
             await asyncio.sleep(2)
-            new_height = await page.evaluate("document.body.scrollHeight")
+
+            new_height = await safe_evaluate(page, "document.body.scrollHeight")
 
             if new_height == prev_height:
                 break
