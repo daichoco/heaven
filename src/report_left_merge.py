@@ -657,8 +657,8 @@ html += "</tbody></table></div><p><a href=\"index.html\">index.htmlに戻る</a>
 
 # 整形
 soup = BeautifulSoup(html, "html.parser")
-formatted_html = soup.prettify()
-html = formatted_html
+# formatted_html = soup.prettify()
+# html = formatted_html
 url =  Path(__file__).resolve().parent.parent / "docs" / "calendar_report.html"
 with open(url, "w", encoding="utf-8") as f:
     f.write(html)
