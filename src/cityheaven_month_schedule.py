@@ -7,6 +7,19 @@ from datetime import datetime
 from urllib.parse import urljoin
 from playwright.async_api import async_playwright
 
+
+async def safe_evaluate(page, script):
+    for _ in range(5):
+        try:
+            return await page.evaluate(script)
+        except Exception as e:
+            if "Execution context was destroyed" not in str(e):
+                raise
+            await page.wait_for_load_state("domcontentloaded")
+            await asyncio.sleep(0.5)
+    raise RuntimeError("evaluate failed after retries")
+
+
 async def scrape_cityheaven():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
@@ -24,7 +37,7 @@ async def scrape_cityheaven():
 
         page = await context.new_page()
         start_url = "https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1"
-        await page.goto(start_url)
+        await page.goto(start_url, wait_until="domcontentloaded")
 
         # --- ログイン ---
         form = await page.query_selector("form[name='login_form']")
@@ -32,13 +45,14 @@ async def scrape_cityheaven():
         await page.fill("input[name='pass']", os.environ["CITYHEAVEN_PASS"])
         await form.evaluate("form => form.submit()")
         await page.wait_for_load_state("domcontentloaded")
+        await asyncio.sleep(1)
 
         # --- 無限スクロール ---
         while True:
-            prev_height = await page.evaluate("document.body.scrollHeight")
+            prev_height = await safe_evaluate(page, "document.body.scrollHeight")
             await page.mouse.wheel(0, 20000)
             await asyncio.sleep(2)
-            new_height = await page.evaluate("document.body.scrollHeight")
+            new_height = await safe_evaluate(page, "document.body.scrollHeight")
             if new_height == prev_height:
                 break
 
