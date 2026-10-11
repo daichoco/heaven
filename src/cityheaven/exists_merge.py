@@ -208,10 +208,16 @@ async def main():
                     href = await link.get_attribute("href")
                     full_url = urljoin("https://www.cityheaven.net", href)
 
+                    # リダイレクト先URLが分かれば十分なので load 完了までは待たない
                     new_page = await sp_context.new_page()
-                    await new_page.goto(full_url)
-                    girl_url = new_page.url
-                    await new_page.close()
+                    girl_url = full_url
+                    try:
+                        await new_page.goto(full_url, wait_until="commit", timeout=15000)
+                        girl_url = new_page.url
+                    except Exception as e:
+                        print(f"URL解決に失敗、元URLを使用: {name} → {type(e).__name__}")
+                    finally:
+                        await new_page.close()
 
                 data[name] = {
                     # generate_html は 1列目に shop を置く → 店名をここに入れる
