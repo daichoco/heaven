@@ -311,11 +311,15 @@ html = """<!DOCTYPE html>
         body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 260px); overflow: auto; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; margin: 0 0 10px; padding: 10px; border: 1px solid #ccd2d8; background: white; }
+        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0; margin: 0 0 10px; padding: 10px; border: 1px solid #ccd2d8; background: white; }
         body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 1 / -1; min-width: 0; padding: 4px 0 8px; border: 0; }
         body > div[style*="overflow-x: auto"] td:nth-child(2) { display: none; }
-        body > div[style*="overflow-x: auto"] td[data-label] { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 6px; border: 1px solid #e0e4e7; text-align: left; overflow-wrap: anywhere; }
-        body > div[style*="overflow-x: auto"] td[data-label]::before { content: attr(data-label); color: #58636d; font-size: 0.8rem; font-weight: 600; }
+        body > div[style*="overflow-x: auto"] td[data-label] { display: flex; flex-direction: column; align-items: center; min-width: 0; padding: 0; border: 0; border-bottom: 1px solid #e0e4e7; border-right: 1px solid #e0e4e7; text-align: center; font-size: 0.75rem; line-height: 1.3; overflow-wrap: anywhere; }
+        body > div[style*="overflow-x: auto"] td[data-label]:nth-child(3) { border-left: 1px solid #e0e4e7; }
+        body > div[style*="overflow-x: auto"] td[data-label] { border-top: 1px solid #e0e4e7; }
+        body > div[style*="overflow-x: auto"] td[data-label]::before { content: attr(data-label); align-self: stretch; padding: 3px 0; background: #f3f5f7; color: #20272d; font-size: 0.7rem; font-weight: 600; white-space: pre-line; border-bottom: 1px solid #e0e4e7; }
+        body > div[style*="overflow-x: auto"] td.saturday::before { color: blue; background: #eef3ff; }
+        body > div[style*="overflow-x: auto"] td.sunday::before { color: red; background: #fff0f0; }
         body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
         body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       }
@@ -574,7 +578,8 @@ for idx, row in merged.iterrows():
     # 出勤日
     for day in calendar_cols:
         status = row[day] if pd.notna(row[day]) else "-"
-        html += f"<td data-label='{day}'>{status}</td>"
+        day_class = " class='saturday'" if "(土)" in day else (" class='sunday'" if "(日)" in day else "")
+        html += f"<td data-label='{day}'{day_class}>{status}</td>"
 
     html += "</tr>"
 
