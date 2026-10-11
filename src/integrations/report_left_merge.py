@@ -283,6 +283,7 @@ html = """<!DOCTYPE html>
       th, td { border: 1px solid #d7dde1; padding: 8px; text-align: center; vertical-align: top; }
       th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: #f9f9f9; }
       td.shop-cell { min-width: 220px; text-align: left; }
+      .m-cal { display: none; }
       img { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; }
       details { text-align: left; margin-top: 5px; }
       summary { cursor: pointer; font-weight: bold; }
@@ -311,15 +312,24 @@ html = """<!DOCTYPE html>
         body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 260px); overflow: auto; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0; margin: 0 0 10px; padding: 10px; border: 1px solid #ccd2d8; background: white; }
-        body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 1 / -1; min-width: 0; padding: 4px 0 8px; border: 0; }
-        body > div[style*="overflow-x: auto"] td:nth-child(2) { display: none; }
-        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { gap: 0 4px; }
-        body > div[style*="overflow-x: auto"] td[data-label] { display: block; min-width: 0; padding: 0; border: 0; text-align: center; color: #777; }
-        body > div[style*="overflow-x: auto"] td[data-label]::before { content: attr(data-date); display: block; margin-bottom: 2px; font-size: 12px; line-height: 18px; color: #777; }
-        body > div[style*="overflow-x: auto"] td.saturday::before { color: #0066ff; }
-        body > div[style*="overflow-x: auto"] td.sunday::before { color: #ff0000; }
-        body > div[style*="overflow-x: auto"] td[data-label] .cell { display: block; min-height: 50px; padding: 4px 1px; border-radius: 5px; box-shadow: 0 0 3px rgba(0,0,0,0.25); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: 97px minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid #f5f6f7; background: white; color: #333; font-size: 13px; }
+        body > div[style*="overflow-x: auto"] td { border: 0; padding: 0; }
+        body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 2; grid-row: 1; min-width: 0; text-align: left; }
+        body > div[style*="overflow-x: auto"] td.shop-cell > a { display: block; font-size: 16px; font-weight: 700; line-height: 1.3; color: #777; text-decoration: none; }
+        body > div[style*="overflow-x: auto"] td.shop-cell > br { display: none; }
+        body > div[style*="overflow-x: auto"] td.shop-cell .shop-info { display: block; font-size: 10px; line-height: 15px; color: #777; }
+        body > div[style*="overflow-x: auto"] td.img-cell { grid-column: 1; grid-row: 1; }
+        body > div[style*="overflow-x: auto"] td.img-cell img { display: block; width: 97px; height: 97px; border-radius: 5px; object-fit: cover; }
+        body > div[style*="overflow-x: auto"] td[data-label] { display: none; }
+        body > div[style*="overflow-x: auto"] .m-cal { display: block; margin: 5px 0 0; overflow-x: scroll; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+        body > div[style*="overflow-x: auto"] .m-cal ul { display: flex; margin: 0; padding: 0; list-style: none; width: max-content; }
+        body > div[style*="overflow-x: auto"] .m-cal li { width: 65px; margin: 4px; color: #777; }
+        body > div[style*="overflow-x: auto"] .m-date { margin: 0 0 2px; font-size: 13px; line-height: 18px; text-align: center; color: #777; }
+        body > div[style*="overflow-x: auto"] .m-date.saturday { color: #0066ff; }
+        body > div[style*="overflow-x: auto"] .m-date.sunday { color: #ff0000; }
+        body > div[style*="overflow-x: auto"] .m-box { height: 50px; border-radius: 5px; box-shadow: 0 0 4px rgba(0,0,0,0.2); overflow: hidden; text-align: center; font-size: 11px; line-height: 15.4px; padding: 3px 0 0; }
+        body > div[style*="overflow-x: auto"] .m-box.on { font-size: 13px; line-height: 13px; padding: 5px 0; }
+        body > div[style*="overflow-x: auto"] .m-box.off { background: linear-gradient(#fff calc(100% - 8px), #ccc 0); }
         body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
         body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       }
@@ -570,10 +580,23 @@ for idx, row in merged.iterrows():
     if len(shop) >= 2:
         html += f"<br><span class='shop-info'>{shop[1]}</span>"
 
+    # スマホ用の横スクロールカレンダー（デスクトップでは非表示）
+    html += "<div class='m-cal'><ul>"
+    for day in calendar_cols:
+        status = str(row[day]) if pd.notna(row[day]) else "-"
+        day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
+        is_time = re.match(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$", status.strip())
+        if is_time:
+            box = f"<div class='m-box on'>{re.sub(r'\s*~\s*', '<br>~<br>', status.strip())}</div>"
+        else:
+            box = f"<div class='m-box off'>{status}</div>"
+        html += f"<li><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
+    html += "</ul></div>"
+
     html += "</td>"
 
     # 画像セル
-    html += f"<td><img src='{image_url}' alt='{name}'></td>"
+    html += f"<td class='img-cell'><img src='{image_url}' alt='{name}'></td>"
 
     # 出勤日
     for day in calendar_cols:

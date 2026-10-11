@@ -20,7 +20,7 @@ from data_store import read_jsonl, write_jsonl_atomic
 
 DATA_DIR = ROOT_DIR / "data"
 DOCS_DIR = ROOT_DIR / "docs"
-SHOP_URLS_PATH = DATA_DIR / "okinilove_shop_urls.json"
+SHOP_INDEX_PATH = DATA_DIR / "okinilove_shop_index.json"
 RAW_HTML_PATH = DOCS_DIR / "okinilove_remove_unknown.html"
 REVIEWS_JSONL_PATH = DATA_DIR / "okinilove_reviews.jsonl"
 PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
@@ -44,15 +44,110 @@ ARTICLE_URL_RE = re.compile(r"^https?://okinilove\.com/blog-entry-\d+", re.IGNOR
 PUBLICATION_RE = re.compile(r"\[公開日\d{4}/\d{2}/\d{2}\]")
 
 
-def load_shop_urls():
-    with SHOP_URLS_PATH.open("r", encoding="utf-8") as source:
-        shop_records = json.load(source)
-    return {
-        shop: url
-        for shop_record in shop_records
-        for shop, url in shop_record.items()
-        if url
-    }
+SHOP_INDEX_TTL = timedelta(days=7)
+# 全投稿履歴の一覧カテゴリ。まずソープのみ（70=デリヘル, 71=ヘルス, 73=番外編は未対応）
+SHOP_INDEX_CATEGORIES = [72]
+HISTORY_ENTRY_RE = re.compile(
+    r'<a href="https?://okinilove\.com/(blog-entry-\d+\.html)"[^>]*>\s*([^<]*【全投稿履歴】)', re.S
+)
+
+
+def shop_names_from_title(title):
+    """`店名-エリア・業種【全投稿履歴】` から (表示名, 別名の集合) を返す。
+
+    `Sabbat（サバト）` のように英字名＋読みの店は読みを表示名にする。
+    """
+    title = re.sub(r"\s+", " ", title.replace("【全投稿履歴】", "")).strip()
+    raw, sep, _ = title.rpartition("-")
+    raw = raw.strip() if sep else title
+    aliases = {raw}
+    display = raw
+    match = re.match(r"^([A-Za-z0-9 .\-+&'!]+)（([^）]+)）(.*)$", raw)
+    if match:
+        latin, reading, rest = match.groups()
+        display = f"{reading}{rest}".strip()
+        aliases.update({latin.strip(), f"{latin.strip()}{rest}".strip(), reading, display})
+    return display, aliases
+
+
+def fetch_shop_index(session):
+    """カテゴリページを巡回して ({表示名: 全投稿履歴URL}, {別名: 表示名}) を作る。"""
+    shops = {}
+    aliases = {}
+    for category in SHOP_INDEX_CATEGORIES:
+        seen = set()
+        page = 0
+        while True:
+            suffix = f"-{page}" if page else ""
+            url = f"https://okinilove.com/blog-category-{category}{suffix}.html"
+            response = session.get(url, headers=HEADERS, timeout=20)
+            if response.status_code != 200:
+                break
+            found = {m.group(1): m.group(2) for m in HISTORY_ENTRY_RE.finditer(response.text)}
+            new = {k: v for k, v in found.items() if k not in seen}
+            if not new:
+                break
+            seen.update(new)
+            for entry, title in new.items():
+                display, names = shop_names_from_title(title)
+                shops[display] = f"https://okinilove.com/{entry}"
+                for name in names:
+                    aliases.setdefault(name, display)
+            page += 1
+            time.sleep(0.5)
+    return shops, aliases
+
+
+def load_shop_urls(session):
+    """店舗索引をキャッシュ(7日)から読み、古ければ再取得する。(shops, aliases)を返す。"""
+    if SHOP_INDEX_PATH.exists():
+        cached = json.loads(SHOP_INDEX_PATH.read_text(encoding="utf-8"))
+        try:
+            fresh = datetime.now(timezone.utc) - datetime.fromisoformat(cached["fetched_at"]) < SHOP_INDEX_TTL
+        except (KeyError, TypeError, ValueError):
+            fresh = False
+        if fresh and cached.get("categories") == SHOP_INDEX_CATEGORIES and cached.get("shops") and "aliases" in cached:
+            return cached["shops"], cached["aliases"]
+
+    shops, aliases = fetch_shop_index(session)
+    SHOP_INDEX_PATH.write_text(
+        json.dumps(
+            {
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
+                "categories": SHOP_INDEX_CATEGORIES,
+                "shops": shops,
+                "aliases": aliases,
+            },
+            ensure_ascii=False,
+            indent=1,
+        ),
+        encoding="utf-8",
+    )
+    print(f"店舗索引を更新: {len(shops)}店")
+    return shops, aliases
+
+
+def normalize_existing_shop_names(aliases):
+    """既存レビューの店名を索引の表示名に揃える（JSONLと一覧HTML）。"""
+    existing = read_jsonl(REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    renamed = existing["shop_name"].map(lambda name: aliases.get(name, name))
+    changed = int((renamed != existing["shop_name"]).sum())
+    if changed:
+        existing["shop_name"] = renamed
+        write_jsonl_atomic(existing, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+
+    soup = BeautifulSoup(RAW_HTML_PATH.read_text(encoding="utf-8"), "html.parser")
+    html_changed = 0
+    for row in soup.select("tbody tr"):
+        cell = row.find("td")
+        name = cell.get_text(strip=True) if cell else ""
+        if cell and not cell.find("a") and aliases.get(name, name) != name:
+            cell.string = aliases[name]
+            html_changed += 1
+    if html_changed:
+        RAW_HTML_PATH.write_text(str(soup), encoding="utf-8")
+    if changed or html_changed:
+        print(f"店名を統一: JSONL {changed}件、一覧HTML {html_changed}件")
 
 
 def existing_article_urls(soup):
@@ -447,8 +542,9 @@ def extract_report_detail(session, article_url):
 
 def refresh_okinilove_data():
     remove_unavailable_profiles()
-    shop_urls = load_shop_urls()
     with requests.Session() as session:
+        shop_urls, shop_aliases = load_shop_urls(session)
+        normalize_existing_shop_names(shop_aliases)
         with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
             current_soup = BeautifulSoup(source.read(), "html.parser")
         known_urls = existing_article_urls(current_soup)

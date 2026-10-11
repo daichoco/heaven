@@ -6,7 +6,7 @@ Tabular datasets use JSON Lines (`.jsonl`): one JSON object per record. Read and
 - The Tokai Fuzoku collector uses the newest `date` in this file as its cutoff and only processes articles newer than that date.
 - `tokai_fuzoku_report_history.jsonl`: extracted report history used to match reports with CityHeaven profiles. Updated by `src/integrations/report_left_merge.py`. `evaluations` is a JSON object.
 - `okinilove_reviews.jsonl`: Okinilove review records, maintained by `src/okinilove/okinilove_left_merge.py`.
-- `okinilove_shop_urls.json`: source shop/history URL configuration for the Okinilove scraper.
+- `okinilove_shop_index.json`: cached shop index (shop name -> 全投稿履歴 URL) built from Okinilove category pages (currently soap, category 72); refreshed every 7 days.
 - `okinilove_profile_status.json`: generated 24-hour profile status cache; excluded from Git.
 
 Do not add derived join keys such as `url_key` to the persisted records. Compute them at runtime.
