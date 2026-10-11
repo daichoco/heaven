@@ -9,6 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import chromedriver_autoinstaller
 import os
+from pathlib import Path
 from urllib.parse import urljoin
 from selenium.webdriver.chrome.service import Service
 from selenium.common.exceptions import TimeoutException  # 追加インポート
@@ -157,10 +158,8 @@ from generate_html import generate_html
 # HTML生成
 html = generate_html(data, sorted_labels, today_label)
 
-base_dir = os.path.dirname(os.path.abspath(__file__))
-output_dir = os.path.join(base_dir, "..", "docs")
-output_path = os.path.join(output_dir, "cityheaven_profiles.html")
+output_path = Path(__file__).resolve().parents[2] / "docs" / "cityheaven_profiles.html"
 
-with open(output_path, "w", encoding="utf-8") as f:
+with output_path.open("w", encoding="utf-8") as f:
     f.write(html)
 # %%

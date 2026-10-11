@@ -1,7 +1,9 @@
 #%%
 from bs4 import BeautifulSoup
 import pandas as pd
-url = "../docs/okinilove_reconstructed.html"
+from pathlib import Path
+
+url = Path(__file__).resolve().parents[2] / "docs" / "okinilove_reconstructed.html"
 with open(url, "r", encoding="utf-8") as f:
     html = f.read()
 soup = BeautifulSoup(html, "html.parser")

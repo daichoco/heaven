@@ -11,7 +11,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
 
@@ -187,6 +187,46 @@ def extract_cityheaven_profiles_df():
     return pd.DataFrame(data, columns=columns)
 
 
+def extract_okinilove_df():
+    html = load_html(DOCS_DIR / "okinilove_reconstructed.html")
+    soup = BeautifulSoup(html, "html.parser")
+    container = soup.find("div", class_="card-container")
+    reports = []
+
+    if container:
+        for card in container.find_all("div", class_="card"):
+            heading = card.find("h3")
+            name_tag = heading.find("a") if heading else None
+            details = card.find("details")
+            summary = details.find("summary") if details else None
+            report_link_tag = summary.find("a") if summary else None
+            report_text_tag = details.find("pre") if details else None
+
+            reports.append(
+                {
+                    "shop_name": heading.get_text(" ", strip=True).split("-", 1)[0].strip()
+                    if heading
+                    else None,
+                    "girl_name": name_tag.get_text(strip=True) if name_tag else None,
+                    "girl_url": name_tag.get("href") if name_tag else None,
+                    "report_url": report_link_tag.get("href") if report_link_tag else None,
+                    "evaluations": summary.get_text(" ", strip=True) if summary else None,
+                    "report_text": report_text_tag.get_text(strip=True)
+                    if report_text_tag
+                    else None,
+                }
+            )
+
+    df = pd.DataFrame(
+        reports,
+        columns=["shop_name", "girl_name", "girl_url", "report_url", "evaluations", "report_text"],
+    )
+    df["cityheaven_url"] = df["girl_url"].where(
+        df["girl_url"].str.contains("cityheaven.net", na=False)
+    )
+    return df
+
+
 def main():
     df1_current = extract_report_final_df()
     df2 = extract_cityheaven_profiles_df()
@@ -215,11 +255,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    merged = main()
 
 # 既存 CSV 読み込み
-csvpath =  Path(__file__).resolve().parent.parent / "data" / "okinilove_heaven.csv"
+csvpath = DATA_DIR / "okinilove_heaven.csv"
 df3_existing = pd.read_csv(csvpath)
+df3_new = extract_okinilove_df()
 
 # --- ★ ここが重要：名前＋店で突き合わせ ---
 key_cols = ["shop_name", "girl_name"]
@@ -237,14 +278,15 @@ new_from_okinilove = new_from_okinilove.drop(columns=["_merge"])
 
 # --- enrich は新規データだけに実行 ---
 if not new_from_okinilove.empty:
-    driver = webdriver.Chrome(options=options)
-    enriched_new = enrich_with_cityheaven_urls(new_from_okinilove, source="yahoo")
+  driver = build_driver()
+  try:
+    enriched_new = enrich_with_cityheaven_urls(new_from_okinilove, driver, source="yahoo")
+  finally:
     driver.quit()
 
     # 既存 CSV に追加
     df3_existing = pd.concat([df3_existing, enriched_new], ignore_index=True)
-    url =  Path(__file__).resolve().parent.parent / "data" / "okinilove_heaven.csv"
-    df3_existing.to_csv(url, index=False)
+    df3_existing.to_csv(csvpath, index=False)
 
 # --- 最終マージ処理 ---
 df3_existing["url_key"] = df3_existing["cityheaven_url"].apply(normalize_url)
@@ -627,7 +669,7 @@ html += "</tbody></table></div><p><a href=\"index.html\">index.htmlに戻る</a>
 soup = BeautifulSoup(html, "html.parser")
 # formatted_html = soup.prettify()
 # html = formatted_html
-url =  Path(__file__).resolve().parent.parent / "docs" / "calendar_report.html"
-with open(url, "w", encoding="utf-8") as f:
+output_path = DOCS_DIR / "calendar_report.html"
+with output_path.open("w", encoding="utf-8") as f:
     f.write(html)
 # %%

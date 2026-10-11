@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from html_render import generate_html
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 INPUT_CSV = ROOT_DIR / "data" / "results_2025-11-09_webdriver1.csv"
 OUTPUT_HTML = ROOT_DIR / "docs" / "report_final.html"
 LOGIN_URL = "https://m.fuzoku-tokai.com/"

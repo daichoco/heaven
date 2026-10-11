@@ -4,6 +4,7 @@ import re
 import ast
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
 from urllib.parse import urljoin
 from playwright.async_api import async_playwright
 
@@ -244,8 +245,8 @@ if __name__ == "__main__":
     </body>
     </html>
     """
-    file_path = os.path.join(os.path.dirname(__file__), "..", "docs", "index.html")
-    with open(file_path, "w", encoding="utf-8") as f:
+    file_path = Path(__file__).resolve().parents[2] / "docs" / "index.html"
+    with file_path.open("w", encoding="utf-8") as f:
         f.write(html)
 
 # %%

@@ -4,6 +4,7 @@ import time
 import re
 import os
 from datetime import datetime
+from pathlib import Path
 from urllib.parse import urljoin
 
 from playwright.async_api import async_playwright
@@ -63,10 +64,18 @@ async def main():
         page = await sp_context.new_page()
 
         start_url = "https://www.cityheaven.net/tt/community/ABMyAlbumShukkin/?lo=1"
-        await page.goto(start_url)
+        response = await page.goto(
+            start_url,
+            wait_until="domcontentloaded",
+            timeout=60000,
+        )
+        if response and response.status >= 400:
+            raise RuntimeError(f"Cityheaven page request failed: HTTP {response.status}")
 
         # 正しいログインフォーム（スマホ版は name="login_form"）
         form = await page.query_selector("form[name='login_form']")
+        if form is None:
+            raise RuntimeError("Cityheaven login form was not found")
 
         # 入力
         await page.fill("input[name='user']", os.environ["CITYHEAVEN_USER"])
@@ -109,9 +118,9 @@ async def main():
         # -------------------------
         # recommend-block の解析
         # -------------------------
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        calendar_path = os.path.join(base_dir, "..", "docs", "calendar_report.html")
-        output_path = os.path.join(base_dir, "..", "docs", "cityheaven_profiles.html")
+        docs_dir = Path(__file__).resolve().parents[2] / "docs"
+        calendar_path = docs_dir / "calendar_report.html"
+        output_path = docs_dir / "cityheaven_profiles.html"
 
         existing_data = load_existing_data(calendar_path)
 
@@ -228,7 +237,7 @@ async def main():
         soup = BeautifulSoup(html, "html.parser")
         html = soup.prettify()
 
-        with open(output_path, "w", encoding="utf-8") as f:
+        with output_path.open("w", encoding="utf-8") as f:
             f.write(html)
 
         # await browser.close()

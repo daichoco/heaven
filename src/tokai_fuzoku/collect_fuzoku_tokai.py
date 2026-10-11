@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.service import Service
 
 from wait_for_name_parts import wait_for_name_parts
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).resolve().parents[2]
 OUTPUT_CSV = ROOT_DIR / "data" / "results_2025-11-09_webdriver1.csv"
 BASE_URL = "https://m.fuzoku-tokai.com/"
 MAX_LISTING_PAGES = 75
