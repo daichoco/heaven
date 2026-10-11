@@ -259,15 +259,6 @@ calendar_cols = sorted(
     key=lambda x: parse_date_with_year_adjustment(x, current_year, today.month)
 )
 
-# ★ 店名からユニーク地域抽出 ★
-yyy_set = set()
-for shop in merged["店名"]:
-    matches = re.findall(r"\(([^()]*?/[^()]*)\)", str(shop))
-    for inside in matches:
-        yyy = inside.split("/")[0]
-        yyy_set.add(yyy)
-yyy_list = sorted(yyy_set)
-
 # HTML組み立て開始
 html = """<!DOCTYPE html>
 <html lang="ja">
@@ -347,7 +338,6 @@ html = """<!DOCTYPE html>
         rows.forEach(row => {
           let showByDate = false;
           let showByReport = false;
-          let showByPlace = false;
 
           // 日付フィルタ
           if (dateSelected === "all") {
@@ -394,19 +384,8 @@ html = """<!DOCTYPE html>
             showByReport = hasReport === "false";
           }
 
-          // 地域フィルタ
-          const checkedPlaces = Array.from(document.querySelectorAll('input[name="placeFilter"]:checked'))
-                                     .map(cb => cb.value);
-          if (checkedPlaces.includes("all")) {
-            showByPlace = true;
-          } else {
-            const shopCell = row.querySelector("td.shop-cell");
-            const text = shopCell ? shopCell.textContent : "";
-            showByPlace = checkedPlaces.some(val => text.includes("(" + val + "/"));
-          }
-
           // AND条件で表示制御
-          row.style.display = (showByDate && showByReport && showByPlace) ? "" : "none";
+          row.style.display = (showByDate && showByReport) ? "" : "none";
         });
         // --- 日付列の表示制御 ---
         const allHeaders = document.querySelectorAll("thead th");
@@ -502,15 +481,7 @@ html = """<!DOCTYPE html>
       <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
     </div>
 
-    <div class="filter-group">
-      <strong>地域条件：</strong><br>
-      <label><input type="checkbox" name="placeFilter" value="all" checked onchange="applyCombinedFilter()"> 全地域</label><br>
 """
-
-# 地域フィルタチェックボックス
-for y in yyy_list:
-    html += f"<label><input type='checkbox' name='placeFilter' value='{y}' onchange='applyCombinedFilter()'> {y}</label><br>"
-html += "</div>"
 
 # テーブル開始
 html += "<div style='height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;'>"
