@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from pathlib import Path
 from urllib.parse import parse_qs, urljoin, urlparse
 
@@ -8,10 +9,15 @@ import requests
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
+ROOT_DIR = Path(__file__).resolve().parents[2]
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from data_store import read_jsonl
 from html_render import generate_html
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
-INPUT_CSV = ROOT_DIR / "data" / "results_2025-11-09_webdriver1.csv"
+INPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
 OUTPUT_HTML = ROOT_DIR / "docs" / "report_final.html"
 LOGIN_URL = "https://m.fuzoku-tokai.com/"
 
@@ -76,12 +82,12 @@ def extract_play_time(soup, label):
 
 
 def load_input_data():
-    df = pd.read_csv(INPUT_CSV)
+    df = read_jsonl(INPUT_JSONL)
     required_columns = {"delete?", "predict_age", "url", "shop_name", "name", "girl_url"}
     missing_columns = required_columns.difference(df.columns)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))
-        raise ValueError(f"入力CSVに必要な列がありません: {missing}")
+        raise ValueError(f"入力JSONLに必要な列がありません: {missing}")
 
     df = df.loc[df["delete?"].eq(0)].copy()
     ages = pd.to_numeric(

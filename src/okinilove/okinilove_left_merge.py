@@ -1,14 +1,20 @@
 from pathlib import Path
+import sys
 
 import pandas as pd
 from bs4 import BeautifulSoup
 
+SRC_DIR = Path(__file__).resolve().parents[1]
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from data_store import read_jsonl, write_jsonl_atomic
 from okinilove.scrape_okinilove import find_unavailable_profile_urls, refresh_okinilove_data
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
-OKINILOVE_CSV = DATA_DIR / "okinilove_heaven.csv"
+OKINILOVE_JSONL = DATA_DIR / "okinilove_reviews.jsonl"
 OKINILOVE_COLUMNS = [
     "shop_name",
     "girl_name",
@@ -57,7 +63,7 @@ def extract_okinilove_data():
 
 
 def remove_unavailable_profile_rows(data, now=None):
-    """404/410 のプロフィールURLを持つ行だけCSVから除外する。"""
+    """404/410 のプロフィールURLを持つ行だけデータから除外する。"""
     if "girl_url" not in data.columns or data.empty:
         return data.copy(), 0
 
@@ -83,15 +89,13 @@ def merge_okinilove_data(
     """オキニラブ新規データを保存し、出勤データへ右結合する。"""
     refresh_okinilove_data()
 
-    if not OKINILOVE_CSV.exists():
-        raise FileNotFoundError(f"オキニラブ既存CSVがありません: {OKINILOVE_CSV}")
+    if not OKINILOVE_JSONL.exists():
+        raise FileNotFoundError(f"オキニラブ既存JSONLがありません: {OKINILOVE_JSONL}")
 
-    existing = pd.read_csv(OKINILOVE_CSV)
+    existing = read_jsonl(OKINILOVE_JSONL, columns=OKINILOVE_COLUMNS)
     existing, removed_count = remove_unavailable_profile_rows(existing)
     if removed_count:
-        temporary_csv = OKINILOVE_CSV.with_suffix(".csv.tmp")
-        existing.to_csv(temporary_csv, index=False)
-        temporary_csv.replace(OKINILOVE_CSV)
+        write_jsonl_atomic(existing, OKINILOVE_JSONL, columns=OKINILOVE_COLUMNS)
         print(f"公開終了プロフィールのデータを削除: {removed_count}件")
 
     new_data = extract_okinilove_data()
@@ -119,8 +123,7 @@ def merge_okinilove_data(
 
         existing = pd.concat([existing, new_data], ignore_index=True)
         existing = existing.drop_duplicates(subset=key_columns, keep="first")
-        OKINILOVE_CSV.parent.mkdir(parents=True, exist_ok=True)
-        existing.to_csv(OKINILOVE_CSV, index=False)
+        write_jsonl_atomic(existing, OKINILOVE_JSONL, columns=OKINILOVE_COLUMNS)
 
     existing["url_key"] = existing["cityheaven_url"].apply(normalize_url)
     return pd.merge(

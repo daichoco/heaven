@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -16,7 +17,13 @@ from selenium.webdriver.chrome.service import Service
 from wait_for_name_parts import wait_for_name_parts
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-OUTPUT_CSV = ROOT_DIR / "data" / "results_2025-11-09_webdriver1.csv"
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from data_store import read_jsonl, write_jsonl_atomic
+
+OUTPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
 BASE_URL = "https://m.fuzoku-tokai.com/"
 MAX_LISTING_PAGES = 75
 HEADERS = {
@@ -27,7 +34,7 @@ ARTICLE_URL_RE = re.compile(
     r"^https://(?:m\.)?fuzoku-tokai\.com/202\d+/\d{2}/\d{2}/post-\d+/?$"
 )
 REPEAT_RE = re.compile(r"返す（リピートする）|返さない（リピートしない）")
-CSV_COLUMNS = [
+DATA_COLUMNS = [
     "delete?",
     "date",
     "type",
@@ -194,9 +201,9 @@ def login(session, password):
 
 
 def load_existing_data():
-    if not OUTPUT_CSV.exists():
-        return pd.DataFrame(columns=CSV_COLUMNS)
-    return pd.read_csv(OUTPUT_CSV, encoding="utf-8-sig")
+    if not OUTPUT_JSONL.exists():
+        return pd.DataFrame(columns=DATA_COLUMNS)
+    return read_jsonl(OUTPUT_JSONL, columns=DATA_COLUMNS)
 
 
 def append_new_data(existing, records):
@@ -206,11 +213,8 @@ def append_new_data(existing, records):
 
     combined = pd.concat([existing, pd.DataFrame(records)], ignore_index=True)
     combined = combined.drop_duplicates(subset=["shop_name", "name"], keep="first")
-    OUTPUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = OUTPUT_CSV.with_suffix(".csv.tmp")
-    combined.to_csv(temp_path, index=False, encoding="utf-8-sig")
-    temp_path.replace(OUTPUT_CSV)
-    print(f"CSVを更新しました: {OUTPUT_CSV} ({len(records)}件追加)")
+    write_jsonl_atomic(combined, OUTPUT_JSONL, columns=DATA_COLUMNS)
+    print(f"JSONLを更新しました: {OUTPUT_JSONL} ({len(records)}件追加)")
     return combined
 
 

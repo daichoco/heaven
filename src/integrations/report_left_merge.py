@@ -19,6 +19,7 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
   sys.path.insert(0, str(SRC_DIR))
 
+from data_store import read_jsonl, write_jsonl_atomic
 from okinilove.okinilove_left_merge import merge_okinilove_data
 from cityheaven.exists_merge import (
   PROFILE_DATA_PATH,
@@ -27,6 +28,17 @@ from cityheaven.exists_merge import (
 
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
+REPORT_HISTORY_PATH = DATA_DIR / "tokai_fuzoku_report_history.jsonl"
+REPORT_HISTORY_COLUMNS = [
+  "shop_name",
+  "shop_type",
+  "girl_name",
+  "girl_url",
+  "age",
+  "report_url",
+  "evaluations",
+  "cityheaven_url",
+]
 
 
 def load_html(path: Path) -> str:
@@ -35,7 +47,7 @@ def load_html(path: Path) -> str:
 
 
 def normalize_url(url):
-    if pd.isna(url):
+    if pd.isna(url) or not str(url).strip():
         return None
 
     normalized = str(url).split("?")[0].rstrip("/")
@@ -106,6 +118,62 @@ def enrich_with_cityheaven_urls(df, driver, source="yahoo"):
         df.loc[idx, "cityheaven_url"] = url
         human_delay()
     return df
+
+
+def report_identity_key(row):
+    for column in ("cityheaven_url", "girl_url", "report_url"):
+        key = normalize_url(row.get(column))
+        if key:
+            return key
+    shop = str(row.get("shop_name", "")).strip().casefold()
+    name = str(row.get("girl_name", "")).strip().casefold()
+    return f"{shop}::{name}" if shop or name else None
+
+
+def load_report_history(path=REPORT_HISTORY_PATH):
+    if not path.exists():
+        raise FileNotFoundError(f"レポート履歴JSONLがありません: {path}")
+    return read_jsonl(path, columns=REPORT_HISTORY_COLUMNS)
+
+
+def save_report_history(history, path=REPORT_HISTORY_PATH):
+    write_jsonl_atomic(history, path, columns=REPORT_HISTORY_COLUMNS)
+
+
+def append_new_reports(history, current_reports):
+    history_keys = {
+        key for key in history.apply(report_identity_key, axis=1) if key
+    }
+    current_keys = current_reports.apply(report_identity_key, axis=1)
+    new_reports = current_reports.loc[
+        current_keys.notna() & ~current_keys.isin(history_keys)
+    ].copy()
+    if new_reports.empty:
+        return history, 0
+
+    driver = build_driver()
+    try:
+        new_reports = enrich_with_cityheaven_urls(new_reports, driver, source="yahoo")
+    finally:
+        driver.quit()
+
+    updated_history = pd.concat(
+        [history, new_reports.loc[:, REPORT_HISTORY_COLUMNS]],
+        ignore_index=True,
+    )
+    return updated_history, len(new_reports)
+
+
+def _has_value(value):
+    if isinstance(value, dict):
+        return bool(value)
+    return bool(pd.notna(value))
+
+
+def _evaluation_dict(value):
+    if isinstance(value, dict):
+        return value
+    return ast.literal_eval(value) if isinstance(value, str) else {}
 
 
 def extract_report_final_df():
@@ -195,24 +263,14 @@ def main():
     finally:
         PROFILE_DATA_PATH.unlink(missing_ok=True)
 
-    csv_path = DATA_DIR / "df1 - df1.csv.csv"
-    df1 = pd.read_csv(csv_path)
-
-    df1_current["url_key"] = df1_current["cityheaven_url"].apply(normalize_url)
-    df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
+    df1 = load_report_history()
     df2["url_key"] = df2["URL"].apply(normalize_url)
+    df1, added_count = append_new_reports(df1, df1_current)
+    save_report_history(df1)
+    if added_count:
+      print(f"レポート履歴に新規追加: {added_count}件")
 
-    new_from_report_final = df1_current[~df1_current["url_key"].isin(df1["url_key"])]
-
-    if not new_from_report_final.empty:
-        driver = build_driver()
-        try:
-            new_from_report_final = enrich_with_cityheaven_urls(new_from_report_final, driver, source="yahoo")
-        finally:
-            driver.quit()
-
-        df1 = pd.concat([df1, new_from_report_final], ignore_index=True)
-        df1.to_csv(csv_path, index=False)
+    df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
 
     merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
     return merge_okinilove_data(
@@ -533,7 +591,11 @@ for idx, row in merged.iterrows():
     report_url_okinilove = row["report_url_okinilove"]
     report_text_okinilove = row["report_text"]
 
-    has_report = "true" if (pd.notna(eval_merged) or pd.notna(eval_okinilove) or pd.notna(report_text_okinilove)) else "false"
+    has_report = "true" if (
+      _has_value(eval_merged)
+      or _has_value(eval_okinilove)
+      or _has_value(report_text_okinilove)
+    ) else "false"
     row_id_merged = f"review-merged-{idx}"
     row_id_okinilove = f"review-okinilove-{idx}"
 
@@ -545,9 +607,9 @@ for idx, row in merged.iterrows():
     html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
 
     # レビューボタン
-    if pd.notna(eval_merged):
+    if _has_value(eval_merged):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
-    if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
+    if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
 
     # 店名（名前の下に表示）
@@ -571,7 +633,7 @@ for idx, row in merged.iterrows():
     # mergedレビュー行
     if pd.notna(eval_merged):
         try:
-            eval_dict = ast.literal_eval(eval_merged)
+            eval_dict = _evaluation_dict(eval_merged)
             html += f"<tr id='{row_id_merged}' class='review-row' style='display:none; background-color:#f9f9f9;'>"
             html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'><ul>"
             for k, v in eval_dict.items():
@@ -586,9 +648,15 @@ for idx, row in merged.iterrows():
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
         html += f"<tr id='{row_id_okinilove}' class='review-row' style='display:none; background-color:#f0f9ff;'>"
         html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
-        if pd.notna(eval_okinilove):
+        if _has_value(eval_okinilove):
+          if isinstance(eval_okinilove, dict):
+            html += "<ul>"
+            for key, value in eval_okinilove.items():
+              html += f"<li><strong>{key}:</strong> {value}</li>"
+            html += "</ul>"
+          else:
             html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
-        if pd.notna(report_text_okinilove):
+        if _has_value(report_text_okinilove):
             html += f"<pre>{report_text_okinilove}</pre>"
         if pd.notna(report_url_okinilove):
             html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
