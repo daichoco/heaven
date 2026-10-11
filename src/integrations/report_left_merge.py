@@ -1,6 +1,7 @@
 #%%
 import random
 import re
+import sys
 import time
 from pathlib import Path
 
@@ -12,6 +13,12 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+  sys.path.insert(0, str(SRC_DIR))
+
+from okinilove.okinilove_left_merge import merge_okinilove_data
+
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
 
@@ -187,46 +194,6 @@ def extract_cityheaven_profiles_df():
     return pd.DataFrame(data, columns=columns)
 
 
-def extract_okinilove_df():
-    html = load_html(DOCS_DIR / "okinilove_reconstructed.html")
-    soup = BeautifulSoup(html, "html.parser")
-    container = soup.find("div", class_="card-container")
-    reports = []
-
-    if container:
-        for card in container.find_all("div", class_="card"):
-            heading = card.find("h3")
-            name_tag = heading.find("a") if heading else None
-            details = card.find("details")
-            summary = details.find("summary") if details else None
-            report_link_tag = summary.find("a") if summary else None
-            report_text_tag = details.find("pre") if details else None
-
-            reports.append(
-                {
-                    "shop_name": heading.get_text(" ", strip=True).split("-", 1)[0].strip()
-                    if heading
-                    else None,
-                    "girl_name": name_tag.get_text(strip=True) if name_tag else None,
-                    "girl_url": name_tag.get("href") if name_tag else None,
-                    "report_url": report_link_tag.get("href") if report_link_tag else None,
-                    "evaluations": summary.get_text(" ", strip=True) if summary else None,
-                    "report_text": report_text_tag.get_text(strip=True)
-                    if report_text_tag
-                    else None,
-                }
-            )
-
-    df = pd.DataFrame(
-        reports,
-        columns=["shop_name", "girl_name", "girl_url", "report_url", "evaluations", "report_text"],
-    )
-    df["cityheaven_url"] = df["girl_url"].where(
-        df["girl_url"].str.contains("cityheaven.net", na=False)
-    )
-    return df
-
-
 def main():
     df1_current = extract_report_final_df()
     df2 = extract_cityheaven_profiles_df()
@@ -251,47 +218,16 @@ def main():
         df1.to_csv(csv_path, index=False)
 
     merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
-    return merged
+    return merge_okinilove_data(
+      merged,
+      normalize_url=normalize_url,
+      build_driver=build_driver,
+      enrich_with_cityheaven_urls=enrich_with_cityheaven_urls,
+    )
 
 
 if __name__ == "__main__":
     merged = main()
-
-# 既存 CSV 読み込み
-csvpath = DATA_DIR / "okinilove_heaven.csv"
-df3_existing = pd.read_csv(csvpath)
-df3_new = extract_okinilove_df()
-
-# --- ★ ここが重要：名前＋店で突き合わせ ---
-key_cols = ["shop_name", "girl_name"]
-
-# 新規データ抽出（名前＋店の組み合わせが存在しないもの）
-merged_keys = df3_existing[key_cols].drop_duplicates()
-new_from_okinilove = df3_new.merge(
-    merged_keys,
-    on=key_cols,
-    how="left",
-    indicator=True
-)
-new_from_okinilove = new_from_okinilove[new_from_okinilove["_merge"] == "left_only"]
-new_from_okinilove = new_from_okinilove.drop(columns=["_merge"])
-
-# --- enrich は新規データだけに実行 ---
-if not new_from_okinilove.empty:
-  driver = build_driver()
-  try:
-    enriched_new = enrich_with_cityheaven_urls(new_from_okinilove, driver, source="yahoo")
-  finally:
-    driver.quit()
-
-    # 既存 CSV に追加
-    df3_existing = pd.concat([df3_existing, enriched_new], ignore_index=True)
-    df3_existing.to_csv(csvpath, index=False)
-
-# --- 最終マージ処理 ---
-df3_existing["url_key"] = df3_existing["cityheaven_url"].apply(normalize_url)
-merged = pd.merge(df3_existing, merged, how="right", on="url_key",
-                  suffixes=("_okinilove", "_merged"))
 
 
 # %%

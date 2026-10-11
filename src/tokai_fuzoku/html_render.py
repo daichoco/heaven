@@ -7,9 +7,9 @@ def render_score_accordion(score, detail, label, modal_id):
     if pd.isna(score):
         return ""
     return f'''
-        <details open style="margin-bottom: 0.5em;">
+        <details class="score-item">
             <summary>{label}: {score}</summary>
-            <div style="margin-left: 1em; margin-top: 5px;">
+            <div class="report-comment">
                 <p>{detail}</p>
             </div>
         </details>
@@ -37,6 +37,7 @@ def render_accordion_row(row, i):
         "total_point": "総合",
         "repeat": "リピート"
     }
+    overview_keys = ["face_score", "style_score", "panel_point", "play_score", "total_point"]
 
     shop = row.get("shop_name", "")
     typ = row.get("type", "")
@@ -56,7 +57,17 @@ def render_accordion_row(row, i):
     girl_link = f'<a href="{girl_url}" target="_blank" class="link-button">{name}</a>' if girl_url else ""
     summary = f'({shop_type}) {girl_link} {age_str}（{report_link}）'
 
-    html = f'<details><summary>{summary}</summary><div style="margin-left:1em; margin-top:5px;">'
+    score_overview = "".join(
+        f'<span class="score-chip">{score_labels[key]} {row[key]:g}</span>'
+        for key in overview_keys
+        if pd.notna(row.get(key)) and str(row.get(key)).replace(".", "", 1).isdigit()
+    )
+    overview_html = f'<span class="score-overview">{score_overview}</span>' if score_overview else ""
+
+    html = (
+        f'<details class="report-entry"><summary>{summary}{overview_html}</summary>'
+        f'<div class="report-details">'
+    )
     for key in modal_map:
         score = row.get(key, "")
         detail = row.get(modal_map[key], "")
@@ -72,21 +83,28 @@ def generate_html(df):
     <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        details { margin-bottom: 1em; }
+        body { font-family: sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.65; }
+        details { margin-bottom: 0.8em; }
         summary { font-weight: bold; cursor: pointer; }
         .link-button {
             color: #007BFF;
             text-decoration: underline;
         }
-        details {
-        margin-bottom: 1em;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 0.5em;
-        background-color: #f9f9f9;
-        transition: background-color 0.3s ease;
+        .report-entry {
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 0.75em;
+            background-color: #f9f9f9;
+            transition: background-color 0.2s ease;
         }
+        .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
+        .score-chip { padding: 2px 8px; border-radius: 4px; background: #e8eef4; font-size: 0.9em; }
+        .score-item { margin: 0.35em 0; }
+        .score-item summary { padding: 0.25em 0; }
+        .report-details { margin: 0.5em 0 0 0.75em; }
+        .report-comment { max-width: 72ch; line-height: 1.8; color: #333; overflow-wrap: anywhere; }
+        .report-comment p { margin: 0.35em 0 0.8em; white-space: pre-wrap; }
         button {
             margin-right: 10px;
             padding: 6px 12px;
@@ -100,7 +118,7 @@ def generate_html(df):
         button:hover {
             background-color: #0056b3;
         }
-        details[open] {
+        .report-entry[open] {
             background-color: #eef6ff;
         }
 
@@ -115,13 +133,6 @@ def generate_html(df):
             color: #007BFF;
         }
 
-        details > div {
-            margin-top: 0.5em;
-            padding-left: 1em;
-            font-size: 0.95em;
-            line-height: 1.5;
-            color: #333;
-        }
     </style>
     <script>
     function expandAll() {
