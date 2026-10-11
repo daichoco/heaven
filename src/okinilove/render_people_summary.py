@@ -337,7 +337,26 @@ tbody tr:hover {{ background: #f6f8f9; }}
 .review-gap {{ margin: 4px 0 0; color: #56616a; white-space: pre-wrap; }}
 a {{ color: #17617a; }}
 .empty {{ padding: 18px; color: #5a646d; }}
-@media (max-width: 700px) {{ body {{ padding: 12px; }} th, td {{ padding: 8px; }} .table-wrap {{ max-height: none; }} }}
+@media (max-width: 700px) {{
+body {{ padding: 12px; }}
+h1 {{ font-size: 1.25rem; }}
+.filters {{ display: grid; grid-template-columns: 1fr; gap: 8px; }}
+.filters input, .filters select {{ width: 100%; min-height: 44px; }}
+.table-wrap {{ max-height: none; overflow: visible; border: 0; background: transparent; }}
+table, tbody, tr, td {{ display: block; width: 100%; }}
+thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }}
+#reviews tbody tr {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 0 0 10px; padding: 12px; border: 1px solid #cbd2d8; background: white; }}
+#reviews tbody tr[hidden] {{ display: none !important; }}
+#reviews td {{ min-width: 0; padding: 4px 0; border: 0; overflow-wrap: anywhere; }}
+#reviews td:nth-child(1), #reviews td:nth-child(2), #reviews td:nth-child(5) {{ grid-column: 1 / -1; }}
+#reviews td:nth-child(1) {{ font-weight: 600; color: #56616a; }}
+#reviews td:nth-child(3)::before {{ content: "平均評価"; display: block; color: #68747d; font-size: 0.8rem; }}
+#reviews td:nth-child(4)::before {{ content: "評価数"; display: block; color: #68747d; font-size: 0.8rem; }}
+.average-cell {{ min-width: 0; }}
+.profile-link {{ min-width: 0; }}
+.person-reports ol {{ min-width: 0; max-width: 100%; padding-left: 20px; }}
+.review-meta {{ align-items: flex-start; flex-wrap: wrap; gap: 6px 12px; }}
+}}
 </style></head><body>
 <h1>女の子別 評価・レポート</h1>
 <div class="filters"><input id="search" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">

@@ -333,8 +333,12 @@ html = """<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>出勤カレンダー一覧</title>
     <style>
+      * { box-sizing: border-box; }
+      body { max-width: 1400px; margin: 0 auto; padding: 16px; font: 15px/1.5 sans-serif; color: #20272d; }
+      h1 { margin: 0 0 16px; font-size: 1.4rem; }
       thead th {
         position: sticky;
         top: 0;
@@ -343,44 +347,49 @@ html = """<!DOCTYPE html>
       }
       th.saturday { color: blue; }
       th.sunday { color: red; }
-      body { font-family: sans-serif; }
-      table { border-collapse: collapse; width: 100%; }
-      th, td { border: 1px solid #ccc; padding: 0.5em; text-align: center; vertical-align: top; }
-      td:first-child, th:first-child {
-        left: 0;
-        z-index: 2;
-      }
-      img { max-height: 100%; border-radius: 4px; }
+      body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 220px); overflow: auto; border: 1px solid #ccd2d8; background: white; }
+      table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 14px; }
+      th, td { border: 1px solid #d7dde1; padding: 8px; text-align: center; vertical-align: top; }
+      th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: #f9f9f9; }
+      td.shop-cell { min-width: 220px; text-align: left; }
+      img { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; }
       details { text-align: left; margin-top: 5px; }
       summary { cursor: pointer; font-weight: bold; }
-      .filter-group { margin-bottom: 15px; }
+      .filter-group { margin-bottom: 14px; line-height: 1.8; }
+      .filter-group label { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; }
+      input { min-height: 22px; }
       .shop-cell button {
-        font-size: 20px;       /* 文字を大きく */
-        padding: 10px 16px;    /* タップ領域を広げる */
-        border-radius: 8px;    /* 角丸 */
+        min-height: 40px;
+        padding: 8px 12px;
+        border-radius: 4px;
         background-color: #f0f0f0;
-        border: 2px solid #ccc;
-        cursor: pointer;       /* マウスカーソルを「手」に */
-        width: 100%;           /* セルいっぱいに広げる */
-        box-sizing: border-box;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        width: 100%;
       }
       .shop-cell button:active {
-        background-color: #e0e0e0; /* 押した時のフィードバック */
+        background-color: #e0e0e0;
+      }
+      @media (max-width: 700px) {
+        body { padding: 12px; }
+        h1 { font-size: 1.2rem; }
+        .filter-group { margin-bottom: 16px; }
+        .filter-group label { min-height: 36px; margin-right: 8px; }
+        input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; }
+        input[type="date"] { min-height: 42px; }
+        body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 260px); overflow: auto; }
+        body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
+        body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 8px; margin: 0 0 10px; padding: 10px; border: 1px solid #ccd2d8; background: white; }
+        body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 1 / -1; min-width: 0; padding: 4px 0 8px; border: 0; }
+        body > div[style*="overflow-x: auto"] td:nth-child(2) { display: none; }
+        body > div[style*="overflow-x: auto"] td[data-label] { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 6px; border: 1px solid #e0e4e7; text-align: left; overflow-wrap: anywhere; }
+        body > div[style*="overflow-x: auto"] td[data-label]::before { content: attr(data-label); color: #58636d; font-size: 0.8rem; font-weight: 600; }
+        body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
+        body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       }
     </style>
     <script>
-      function adjustFontSize() {
-        document.querySelectorAll("td, th").forEach(cell => {
-          const h = cell.offsetHeight;
-          const size = Math.max(20,20); // 高さの35%を文字サイズに
-          cell.style.fontSize = size + "px";
-          cell.style.lineHeight = 1.1;
-        });
-      }
-
-      window.addEventListener("load", adjustFontSize);
-      window.addEventListener("resize", adjustFontSize);
-
       function applyCombinedFilter() {
         resetAllReviews();
         const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
@@ -521,7 +530,7 @@ html = """<!DOCTYPE html>
       function toggleReviewRow(id) {
         const row = document.getElementById(id);
         if (row.style.display === "none") {
-          row.style.display = "table-row";
+          row.style.display = window.matchMedia("(max-width: 700px)").matches ? "block" : "table-row";
         } else {
           row.style.display = "none";
         }

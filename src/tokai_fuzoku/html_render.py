@@ -108,10 +108,12 @@ def generate_html(df):
         f'<option value="{escape(value, quote=True)}">{escape(value)}</option>' for value in types
     )
     html = """
-    <html>
+    <html lang="ja">
     <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        * { box-sizing: border-box; }
         body { font-family: sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.65; }
         .link-button {
             color: #007BFF;
@@ -155,6 +157,20 @@ def generate_html(df):
         .filter-count { margin: 0 0 10px; color: #58636d; font-size: 0.9em; }
         .no-results { padding: 16px; color: #58636d; }
         @media (max-width: 760px) { .filter-bar { grid-template-columns: 1fr 1fr; } .filter-bar input { grid-column: 1 / -1; } }
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            h1 { font-size: 1.35rem; }
+            .filter-bar { grid-template-columns: 1fr; }
+            .filter-bar input { grid-column: auto; }
+            .filter-bar input, .filter-bar select, button { min-height: 44px; }
+            .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            .entry-controls button { margin: 0; }
+            .report-entry { padding: 10px; }
+            .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+            .score-overview { flex-basis: 100%; margin: 4px 0 0; }
+            .profile-thumbnail { width: 40px; height: 40px; margin: 0; }
+            .report-details { margin-left: 0; }
+        }
 
         summary {
             font-weight: bold;

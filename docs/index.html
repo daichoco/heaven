@@ -2,17 +2,30 @@
     <html lang="ja">
     <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>土日出勤カレンダー</title>
     <style>
-    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; max-width: 960px; margin: auto; }
-    h1 { text-align: center; margin-bottom: 30px; }
-    .calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    * { box-sizing: border-box; }
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; max-width: 960px; margin: auto; color: #20272d; line-height: 1.55; }
+    h1 { text-align: center; margin: 0 0 24px; font-size: 1.5rem; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     .day-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
     .day-card h2 { margin: 0 0 10px; font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom: 4px; }
     .member { display: flex; align-items: center; margin-bottom: 10px; }
     .member img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }
     .member-name { font-weight: bold; }
     .status { font-size: 0.9em; color: #555; }
+        .report-list a { display: inline-block; padding: 8px 0; }
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            h1 { text-align: left; font-size: 1.25rem; margin-bottom: 18px; }
+            .calendar-grid { grid-template-columns: 1fr; gap: 10px; }
+            .day-card { padding: 10px; }
+            .member { align-items: flex-start; }
+            .member img { width: 44px; height: 44px; flex: none; }
+            .member-name { overflow-wrap: anywhere; }
+            .report-list a { min-height: 44px; padding: 10px 0; }
+        }
     </style>
     </head>
     <body>
