@@ -205,7 +205,6 @@ if __name__ == "__main__":
     <h2>📄 レポート一覧</h2>
     <ul class="reports">
         <li><a href="calendar_report.html" target="_blank">カレンダー形式レポート</a></li>
-        <li><a href="cityheaven_profiles.html" target="_blank">プロフィール一覧</a></li>
         <li><a href="report_final.html" target="_blank">最終レポート</a></li>
         <li><a href="okinilove_remove_unknown.html" target="_blank">オキニラブレポート</a></li>
         <li><a href="okinilove_reconstructed.html" target="_blank">オキニラブレポート再構成</a></li>

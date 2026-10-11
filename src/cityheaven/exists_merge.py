@@ -1,5 +1,6 @@
 #%%
 import asyncio
+import json
 import time
 import re
 import os
@@ -9,7 +10,31 @@ from urllib.parse import urljoin
 
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
-from generate_html import generate_html
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+PROFILE_DATA_PATH = ROOT_DIR / "data" / "cityheaven_profiles.json"
+PROFILE_COLUMNS = ["名前", "URL", "店名", "画像URL"]
+
+
+def write_profiles_json(data, date_labels, output_path=PROFILE_DATA_PATH):
+    columns = PROFILE_COLUMNS + list(date_labels)
+    records = []
+    for name, info in data.items():
+        records.append(
+            {
+                "名前": name,
+                "URL": info["url"],
+                "店名": info["shop"].replace("<br>", "\n"),
+                "画像URL": info["image"],
+                **{label: info["schedule"].get(label, "") for label in date_labels},
+            }
+        )
+
+    payload = {"columns": columns, "records": records}
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return output_path
 #%%
 # -------------------------
 # 既存データ読み込み
@@ -51,7 +76,7 @@ def load_existing_data(calendar_path):
 async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
-            headless=False,
+            headless=True,
             args=["--disable-blink-features=AutomationControlled"]
         )
 
@@ -118,9 +143,8 @@ async def main():
         # -------------------------
         # recommend-block の解析
         # -------------------------
-        docs_dir = Path(__file__).resolve().parents[2] / "docs"
+        docs_dir = ROOT_DIR / "docs"
         calendar_path = docs_dir / "calendar_report.html"
-        output_path = docs_dir / "cityheaven_profiles.html"
 
         existing_data = load_existing_data(calendar_path)
 
@@ -230,17 +254,9 @@ async def main():
 
         sorted_labels = sorted(all_labels, key=parse_date)
 
-        # -------------------------
-        # HTML 生成
-        # -------------------------
-        html = generate_html(data, sorted_labels, today_label)
-        soup = BeautifulSoup(html, "html.parser")
-        html = soup.prettify()
-
-        with output_path.open("w", encoding="utf-8") as f:
-            f.write(html)
-
-        # await browser.close()
+        output_path = write_profiles_json(data, sorted_labels)
+        print(f"プロフィール取得結果を保存: {output_path} ({len(data)}人)")
+        await browser.close()
 
 
 if __name__ == "__main__":

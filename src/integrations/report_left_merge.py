@@ -1,4 +1,6 @@
 #%%
+import asyncio
+import json
 import random
 import re
 import sys
@@ -18,6 +20,10 @@ if str(SRC_DIR) not in sys.path:
   sys.path.insert(0, str(SRC_DIR))
 
 from okinilove.okinilove_left_merge import merge_okinilove_data
+from cityheaven.exists_merge import (
+  PROFILE_DATA_PATH,
+  main as scrape_cityheaven_profiles,
+)
 
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
@@ -127,7 +133,19 @@ def extract_report_final_df():
         age = int(age_match.group(1)) if age_match else None
 
         evaluations = {}
-        inner_details = detail.find("div")
+        score_items = detail.select(".score-item")
+        for score_item in score_items:
+          label_tag = score_item.select_one(".score-label")
+          value_tag = score_item.select_one(".report-comment p")
+          key = label_tag.get_text(strip=True) if label_tag else None
+          value = value_tag.get_text(strip=True) if value_tag else None
+          if key:
+            evaluations[key] = value
+
+        if not score_items:
+          inner_details = detail.find("div")
+        else:
+          inner_details = None
         if inner_details:
             for sub_detail in inner_details.find_all("details", recursive=False):
                 sub_summary = sub_detail.find("summary")
@@ -165,38 +183,17 @@ def extract_report_final_df():
 
 
 def extract_cityheaven_profiles_df():
-    html = load_html(DOCS_DIR / "cityheaven_profiles.html")
-    soup = BeautifulSoup(html, "html.parser")
-    table = soup.find("table")
-    if table is None:
-        return pd.DataFrame()
-
-    headers = [th.text.strip() for th in table.find_all("th")]
-    date_headers = headers[3:]
-    rows = table.find_all("tr")[1:]
-    data = []
-
-    for row in rows:
-        cols = row.find_all("td")
-        if len(cols) < 3:
-            continue
-
-        name_tag = cols[0].find("a")
-        name = name_tag.text.strip() if name_tag else ""
-        url = name_tag["href"] if name_tag else None
-        shop = cols[1].text.strip()
-        img_tag = cols[2].find("img")
-        img_url = img_tag["src"] if img_tag else None
-        schedule = [col.text.strip() for col in cols[3:]]
-        data.append([name, url, shop, img_url] + schedule)
-
-    columns = ["名前", "URL", "店名", "画像URL"] + date_headers
-    return pd.DataFrame(data, columns=columns)
+    payload = json.loads(PROFILE_DATA_PATH.read_text(encoding="utf-8"))
+    return pd.DataFrame(payload["records"], columns=payload["columns"])
 
 
 def main():
-    df1_current = extract_report_final_df()
-    df2 = extract_cityheaven_profiles_df()
+    asyncio.run(scrape_cityheaven_profiles())
+    try:
+        df1_current = extract_report_final_df()
+        df2 = extract_cityheaven_profiles_df()
+    finally:
+        PROFILE_DATA_PATH.unlink(missing_ok=True)
 
     csv_path = DATA_DIR / "df1 - df1.csv.csv"
     df1 = pd.read_csv(csv_path)

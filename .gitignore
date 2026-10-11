@@ -2,3 +2,4 @@
 __pycache__/
 *.pyc
 data/okinilove_profile_status.json
+data/cityheaven_profiles.json
