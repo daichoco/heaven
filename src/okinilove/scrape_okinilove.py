@@ -25,6 +25,8 @@ RAW_HTML_PATH = DOCS_DIR / "okinilove_remove_unknown.html"
 REVIEWS_JSONL_PATH = DATA_DIR / "okinilove_reviews.jsonl"
 PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
 PROFILE_STATUS_CACHE_TTL = timedelta(hours=24)
+SKIPPED_ARTICLES_PATH = DATA_DIR / "okinilove_skipped_articles.json"
+SKIPPED_ARTICLE_RETRY = timedelta(days=30)
 REVIEW_COLUMNS = [
     "shop_name",
     "girl_name",
@@ -259,27 +261,70 @@ def fetch_article_record(session, shop_name, article_url):
     }
 
 
+def load_skipped_articles():
+    if not SKIPPED_ARTICLES_PATH.exists():
+        return {}
+    try:
+        return json.loads(SKIPPED_ARTICLES_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def save_skipped_articles(skipped):
+    SKIPPED_ARTICLES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = SKIPPED_ARTICLES_PATH.with_suffix(".json.tmp")
+    temporary_path.write_text(json.dumps(skipped, ensure_ascii=False, indent=1), encoding="utf-8")
+    temporary_path.replace(SKIPPED_ARTICLES_PATH)
+
+
+def recently_skipped_urls(skipped, now=None):
+    """取り込み対象外と判定済みで、再確認期間内の記事URL。"""
+    now = now or datetime.now(timezone.utc)
+    urls = set()
+    for url, checked_at in skipped.items():
+        # #付きでない記事は履歴・掲示板ページで、女の子のレポートにはならないため再確認しない
+        if "#" not in url:
+            urls.add(url)
+            continue
+        try:
+            if now - datetime.fromisoformat(checked_at) < SKIPPED_ARTICLE_RETRY:
+                urls.add(url)
+        except (TypeError, ValueError):
+            continue
+    return urls
+
+
 def scrape_new_records(session, shop_urls, known_article_urls):
     new_records = []
-    for shop_name, history_url in shop_urls.items():
-        try:
-            article_urls = fetch_article_urls(session, history_url)
-        except requests.RequestException as error:
-            print(f"店舗履歴を取得できません: {shop_name}: {error}")
-            continue
-
-        pending = sorted(article_urls - known_article_urls)
-        print(f"{shop_name}: 新規候補 {len(pending)}件")
-        for article_url in pending:
+    skipped = load_skipped_articles()
+    skip_urls = recently_skipped_urls(skipped)
+    try:
+        for shop_name, history_url in shop_urls.items():
             try:
-                record = fetch_article_record(session, shop_name, article_url)
+                article_urls = fetch_article_urls(session, history_url)
+            except requests.RequestException as error:
+                print(f"店舗履歴を取得できません: {shop_name}: {error}")
+                continue
+
+            pending = sorted(article_urls - known_article_urls - skip_urls)
+            print(f"{shop_name}: 新規候補 {len(pending)}件")
+            for article_url in pending:
+                try:
+                    record = fetch_article_record(session, shop_name, article_url)
+                except requests.RequestException as error:
+                    # 通信失敗は判定できていないので、次回また試す
+                    print(f"記事を取得できません: {article_url}: {error}")
+                    time.sleep(0.5)
+                    continue
                 if record:
                     new_records.append(record)
                     known_article_urls.add(article_url)
-            except requests.RequestException as error:
-                print(f"記事を取得できません: {article_url}: {error}")
+                else:
+                    skipped[article_url] = datetime.now(timezone.utc).isoformat()
+                time.sleep(0.5)
             time.sleep(0.5)
-        time.sleep(0.5)
+    finally:
+        save_skipped_articles(skipped)
     return new_records
 
 

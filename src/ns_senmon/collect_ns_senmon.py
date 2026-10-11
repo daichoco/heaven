@@ -117,6 +117,17 @@ def parse_details(content):
     return details
 
 
+TITLE_RE = re.compile(r"^金津園[\s　]+(\S+)[\s　]+(.+?)[\s　]+姫$")
+
+
+def fix_by_title(shop, girl, title):
+    # パンくずが誤っている記事（店名位置に「･姫名」が入る）は、タイトルの店名・姫名を採用する
+    if not shop.startswith(("･", "・")):
+        return shop, girl
+    match = TITLE_RE.match(title or "")
+    return (match.group(1), match.group(2)) if match else (shop, girl)
+
+
 def parse_breadcrumb(soup):
     texts = [
         item.get_text(strip=True)
@@ -140,6 +151,7 @@ def parse_report_page(soup, item):
     if not details:
         return None
     shop, girl = parse_breadcrumb(soup)
+    shop, girl = fix_by_title(shop, girl, item.get("title"))
     return {**item, "shop_name": shop, "name": girl, "details": details}
 
 

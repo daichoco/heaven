@@ -14,22 +14,26 @@ from data_store import read_jsonl
 INPUT_JSONL = ROOT_DIR / "data" / "ns_senmon_reports.jsonl"
 OUTPUT_HTML = ROOT_DIR / "docs" / "ns_senmon_report.html"
 
-SCORE_FIELDS = [
-    ("顔", "姫の顔（点数）"),
-    ("スタイル", "スタイル（点数）"),
-    ("接客", "姫の性格・接客（点数）"),
-    ("胸", "おっぱい（点数）"),
-    ("膣", "膣の具合（点数）"),
-    ("感度", "姫の感度（点数）"),
-    ("プレイ", "プレイ満足度（点数）"),
-    ("総合", "総合満足度（点数）"),
-]
-INFO_FIELDS = ["推定年齢", "推定身長", "中〇しした回数"]
+PLAY_KEY = "プレイ満足度（点数）"
+TOTAL_KEY = "総合満足度（点数）"
 REPEAT_OPTIONS = ["初めて", "2回目", "3回目", "4回以上"]
-COMMENT_FIELDS = ["プレイコメント（対面から中〇し～事後までの流れ）", "総合コメント（全体を通じて。良かった点、物足りなかった点、リピの可否、など）"]
+AGE_OPTIONS = [
+    ("10代", 0, 19),
+    ("20〜24歳", 20, 24),
+    ("25〜29歳", 25, 29),
+    ("30〜34歳", 30, 34),
+    ("35歳以上", 35, 200),
+]
+# 展開時に表示する項目（年齢・おっぱい・リピート・点数は見出しに出すため除く）
+DETAIL_PREFIXES = [
+    "推定身長",
+    "中〇しした回数",
+    "プレイコメント",
+    "総合コメント",
+]
 
 
-def score(details, key):
+def number(details, key):
     """`顔65点` や `90点` から数値を取り出す。"""
     match = re.search(r"\d+", str(details.get(key, "")))
     return int(match.group()) if match else None
@@ -42,82 +46,209 @@ def field_value(details, prefix):
     return ""
 
 
-def render_row(record):
+def render_entry(record):
     details = record["details"]
-    scores = {label: score(details, key) for label, key in SCORE_FIELDS}
-    cells = "".join(
-        f"<td class='num'>{'' if scores[label] is None else scores[label]}</td>"
-        for label, _ in SCORE_FIELDS
+    shop = record["shop_name"]
+    name = record["name"]
+    repeat = field_value(details, "姫のリピート")
+    age = number(details, "推定年齢")
+    play = number(details, PLAY_KEY)
+    total = number(details, TOTAL_KEY)
+    bust = field_value(details, "おっぱい（印象）").replace("\n", " ")
+
+    chips = []
+    if repeat:
+        chips.append(f"リピート {repeat}")
+    if bust:
+        chips.append(f"おっぱい {bust}")
+    if play is not None:
+        chips.append(f"プレイ {play}")
+    if total is not None:
+        chips.append(f"総合 {total}")
+    chips_html = "".join(f'<span class="score-chip">{html.escape(c)}</span>' for c in chips)
+
+    age_str = f"{age}才" if age is not None else ""
+    ch_url = record.get("cityheaven_url") or ""
+    if ch_url:
+        ch_link = (
+            f' <a href="{html.escape(ch_url, quote=True)}" target="_blank" rel="noopener" '
+            'class="link-button">CityHeaven</a>'
+        )
+    elif record.get("match_confidence") == "not_listed":
+        ch_link = ' <span class="score-chip">掲載終了?</span>'
+    else:
+        ch_link = ""
+    heading = (
+        f"({html.escape(shop)}) "
+        f'<a href="{html.escape(record["url"], quote=True)}" target="_blank" rel="noopener" '
+        f'class="link-button">{html.escape(name)}</a> {age_str}'
+        f'<span class="entry-date">{html.escape(str(record["date"]))}</span>'
+        f'{ch_link}'
+        f'<span class="score-overview">{chips_html}</span>'
     )
-    info = " / ".join(
-        f"{html.escape(prefix)}: {html.escape(field_value(details, prefix))}"
-        for prefix in INFO_FIELDS
-        if field_value(details, prefix)
-    )
-    comments = "".join(
-        f"<p>{html.escape(field_value(details, prefix)).replace(chr(10), '<br>')}</p>"
-        for prefix in ("プレイコメント", "総合コメント")
-        if field_value(details, prefix)
-    )
-    search_text = html.escape(f"{record['shop_name']} {record['name']} {record['title']}")
-    repeat = html.escape(field_value(details, "姫のリピート"))
+
+    items = ""
+    for prefix in DETAIL_PREFIXES:
+        value = field_value(details, prefix)
+        if not value:
+            continue
+        items += (
+            '<div class="score-item">'
+            f'<h3 class="score-label">{html.escape(prefix)}</h3>'
+            f'<div class="report-comment"><p>{html.escape(value)}</p></div></div>'
+        )
+
+    search_text = f"{shop} {name} {record['title']}".casefold()
     return (
-        f"<tr data-search='{search_text}' data-repeat='{repeat}'>"
-        f"<td>{html.escape(str(record['date']))}</td>"
-        f"<td>{html.escape(record['shop_name'])}</td>"
-        f"<td><a href='{html.escape(record['url'])}' target='_blank' rel='noopener'>"
-        f"{html.escape(record['name'])}</a></td>"
-        f"<td>{repeat}</td>"
-        f"{cells}"
-        f"<td><details><summary>{info or '詳細'}</summary>{comments}</details></td>"
-        "</tr>"
+        f'<details class="report-entry" data-shop="{html.escape(shop, quote=True)}" '
+        f'data-repeat="{html.escape(repeat, quote=True)}" data-age="{age if age is not None else ""}" '
+        f'data-play="{play if play is not None else ""}" data-total="{total if total is not None else ""}" '
+        f'data-date="{html.escape(str(record["date"]))}" '
+        f'data-search="{html.escape(search_text, quote=True)}">'
+        f'<summary class="report-heading">{heading}</summary>'
+        f'<div class="report-details">{items}</div></details>'
     )
 
 
 def build_html(records):
-    header = "".join(f"<th data-col='{4 + i}'>{label}</th>" for i, (label, _) in enumerate(SCORE_FIELDS))
-    rows = "\n".join(render_row(record) for record in records)
-    repeat_options = "".join(f"<option>{html.escape(option)}</option>" for option in REPEAT_OPTIONS)
-    return f"""<!DOCTYPE html>
-<html lang="ja"><head><meta charset="utf-8">
+    shops = sorted({r["shop_name"] for r in records if r["shop_name"]})
+    shop_options = "".join(
+        f'<option value="{html.escape(s, quote=True)}">{html.escape(s)}</option>' for s in shops
+    )
+    repeat_options = "".join(
+        f'<option value="{html.escape(o, quote=True)}">{html.escape(o)}</option>' for o in REPEAT_OPTIONS
+    )
+    age_options = "".join(
+        f'<option value="{low}-{high}">{label}</option>' for label, low, high in AGE_OPTIONS
+    )
+    entries = "\n".join(render_entry(record) for record in records)
+    return (
+        TEMPLATE.replace("SHOP_OPTIONS", shop_options)
+        .replace("REPEAT_OPTIONS", repeat_options)
+        .replace("AGE_OPTIONS", age_options)
+        .replace("ENTRIES", entries)
+    )
+
+
+TEMPLATE = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NS専門 レポート（仮）</title>
 <style>
-body{{font-family:sans-serif;margin:12px}}
-table{{border-collapse:collapse;width:100%;font-size:14px}}
-th,td{{border:1px solid #ccc;padding:4px 6px;vertical-align:top}}
-th{{background:#f0f0f0;position:sticky;top:0;cursor:pointer}}
-td.num{{text-align:right;white-space:nowrap}}
-details p{{margin:4px 0;max-width:640px}}
-input{{padding:6px;width:260px;margin-bottom:8px}}
-</style></head><body>
-<h1>NS専門 レポート（仮）</h1>
-<input id="q" type="search" placeholder="店名・姫名で絞り込み">
-<select id="repeat"><option value="">リピート: すべて</option>{repeat_options}</select>
-<span id="count">{len(records)}件</span>
-<table id="t"><thead><tr><th>日付</th><th>店名</th><th>姫</th><th>リピート</th>{header}<th>詳細</th></tr></thead>
-<tbody>
-{rows}
-</tbody></table>
+    * { box-sizing: border-box; }
+    body { font-family: sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.65; }
+    .link-button { color: #007BFF; text-decoration: underline; }
+    .report-entry { margin-bottom: 1em; border: 1px solid #ccc; border-radius: 6px; padding: 0.75em; background-color: #f9f9f9; transition: background-color 0.2s ease; }
+    .report-entry[open] { background-color: #eef6ff; }
+    .report-heading { cursor: pointer; font-weight: bold; padding: 0.3em; outline: none; margin: 0 0 0.5em; font-size: 1.05em; line-height: 1.5; }
+    .report-heading:hover { color: #007BFF; }
+    .entry-date { margin-left: 0.5em; font-weight: normal; color: #58636d; font-size: 0.85em; }
+    .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
+    .score-chip { padding: 2px 8px; border-radius: 4px; background: #e8eef4; font-size: 0.9em; font-weight: normal; }
+    .score-item { margin: 0.35em 0; }
+    .score-label { margin: 0.25em 0; font-size: 1em; }
+    .report-details { margin: 0.5em 0 0 0.75em; }
+    .report-comment { max-width: 72ch; line-height: 1.8; color: #333; overflow-wrap: anywhere; }
+    .report-comment p { margin: 0.35em 0 0.8em; white-space: pre-wrap; }
+    button { margin-right: 10px; padding: 6px 12px; font-size: 14px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    .filter-bar { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(135px, auto)); gap: 8px; margin: 0 0 14px; }
+    .filter-bar input, .filter-bar select { min-height: 38px; padding: 6px 9px; border: 1px solid #b9c2c9; border-radius: 4px; background: #fff; color: #222; }
+    .filter-count { margin: 0 0 10px; color: #58636d; font-size: 0.9em; }
+    .no-results { padding: 16px; color: #58636d; }
+    @media (max-width: 760px) { .filter-bar { grid-template-columns: 1fr 1fr; } .filter-bar input { grid-column: 1 / -1; } }
+    @media (max-width: 600px) {
+        body { padding: 12px; }
+        h1 { font-size: 1.35rem; }
+        .filter-bar { grid-template-columns: 1fr; }
+        .filter-bar input { grid-column: auto; }
+        .filter-bar input, .filter-bar select, button { min-height: 44px; }
+        .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .entry-controls button { margin: 0; }
+        .report-entry { padding: 10px; }
+        .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+        .score-overview { flex-basis: 100%; margin: 4px 0 0; }
+        .report-details { margin-left: 0; }
+    }
+</style>
 <script>
-const body=document.querySelector('#t tbody');
-function applyFilter(){{
-  const q=document.getElementById('q').value.trim().toLowerCase();
-  const rep=document.getElementById('repeat').value;let n=0;
-  for(const tr of body.rows){{
-    const hit=(!q||tr.dataset.search.toLowerCase().includes(q))&&(!rep||tr.dataset.repeat===rep);
-    tr.hidden=!hit;if(hit)n++;
-  }}
-  document.getElementById('count').textContent=n+'件';
-}}
-document.getElementById('q').addEventListener('input',applyFilter);
-document.getElementById('repeat').addEventListener('change',applyFilter);
-document.querySelectorAll('th[data-col]').forEach(th=>th.addEventListener('click',()=>{{
-  const c=+th.dataset.col;
-  const val=r=>parseFloat(r.cells[c].textContent)||-1;
-  [...body.rows].sort((a,b)=>val(b)-val(a)).forEach(r=>body.appendChild(r));
-}}));
-</script></body></html>
+    function expandAll() { document.querySelectorAll("details.report-entry").forEach(e => e.open = true); }
+    function collapseAll() { document.querySelectorAll("details.report-entry").forEach(e => e.open = false); }
+    function applyFilters() {
+        const query = document.getElementById("reportSearch").value.trim().toLocaleLowerCase();
+        const shop = document.getElementById("shopFilter").value;
+        const repeat = document.getElementById("repeatFilter").value;
+        const ageRange = document.getElementById("ageFilter").value;
+        let visible = 0;
+        document.querySelectorAll(".report-entry").forEach(entry => {
+            let ageOk = true;
+            if (ageRange) {
+                const [low, high] = ageRange.split("-").map(Number);
+                const age = entry.dataset.age === "" ? NaN : Number(entry.dataset.age);
+                ageOk = Number.isFinite(age) && age >= low && age <= high;
+            }
+            const matches = entry.dataset.search.includes(query)
+                && (!shop || entry.dataset.shop === shop)
+                && (!repeat || entry.dataset.repeat === repeat)
+                && ageOk;
+            entry.hidden = !matches;
+            if (matches) visible += 1;
+        });
+        document.getElementById("filterCount").textContent = `${visible} / ${document.querySelectorAll(".report-entry").length} 件`;
+        document.getElementById("noResults").hidden = visible !== 0;
+    }
+    function sortEntries() {
+        const key = document.getElementById("sortKey").value;
+        const container = document.getElementById("entries");
+        const value = entry => {
+            const v = entry.dataset[key];
+            return key === "date" ? v : (v === "" ? -1 : Number(v));
+        };
+        [...container.children]
+            .sort((a, b) => {
+                const va = value(a), vb = value(b);
+                return va < vb ? 1 : va > vb ? -1 : 0;
+            })
+            .forEach(entry => container.appendChild(entry));
+    }
+    function resetFilters() {
+        ["reportSearch", "shopFilter", "repeatFilter", "ageFilter"].forEach(id => document.getElementById(id).value = "");
+        document.getElementById("sortKey").value = "date";
+        sortEntries();
+        applyFilters();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".filter-bar input, .filter-bar select").forEach(control => {
+            const handler = control.id === "sortKey" ? sortEntries : applyFilters;
+            control.addEventListener(control.tagName === "INPUT" ? "input" : "change", handler);
+        });
+        applyFilters();
+    });
+</script>
+</head>
+<body>
+<h1>NS専門 レポート（仮）</h1>
+<div class="filter-bar">
+    <input id="reportSearch" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
+    <select id="shopFilter"><option value="">全店舗</option>SHOP_OPTIONS</select>
+    <select id="repeatFilter"><option value="">全リピート</option>REPEAT_OPTIONS</select>
+    <select id="ageFilter"><option value="">全年齢</option>AGE_OPTIONS</select>
+    <select id="sortKey"><option value="date">新しい順</option><option value="total">総合点が高い順</option><option value="play">プレイ点が高い順</option></select>
+    <button type="button" onclick="resetFilters()">条件をリセット</button>
+</div>
+<p id="filterCount" class="filter-count"></p>
+<p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
+<div class="entry-controls">
+    <button type="button" onclick="expandAll()">全部展開</button>
+    <button type="button" onclick="collapseAll()">全部閉じる</button>
+</div>
+<div id="entries">
+ENTRIES
+</div>
+</body>
+</html>
 """
 
 

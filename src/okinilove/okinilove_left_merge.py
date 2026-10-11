@@ -49,7 +49,6 @@ def merge_okinilove_data(
     calendar_data,
     *,
     normalize_url,
-    build_driver,
     enrich_with_cityheaven_urls,
 ):
     """オキニラブ新規データを保存し、出勤データへ右結合する。"""
@@ -81,11 +80,7 @@ def merge_okinilove_data(
     new_data = new_data.loc[new_data["_merge"] == "left_only"].drop(columns="_merge")
 
     if not new_data.empty:
-        driver = build_driver()
-        try:
-            new_data = enrich_with_cityheaven_urls(new_data, driver, source="yahoo")
-        finally:
-            driver.quit()
+        new_data = enrich_with_cityheaven_urls(new_data)
 
         existing = pd.concat([existing, new_data], ignore_index=True)
         existing = existing.drop_duplicates(subset=key_columns, keep="first")

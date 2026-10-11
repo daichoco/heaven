@@ -21,6 +21,8 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl, write_jsonl_atomic
 from okinilove.okinilove_left_merge import merge_okinilove_data
+from ns_senmon.ns_left_merge import merge_ns_reports
+from ns_senmon.match_cityheaven import resolve_urls
 from cityheaven.exists_merge import (
   PROFILE_DATA_PATH,
   main as scrape_cityheaven_profiles,
@@ -111,12 +113,14 @@ def search_cityheaven_url(driver, shop_name, girl_name, source="yahoo", max_resu
     return None
 
 
-def enrich_with_cityheaven_urls(df, driver, source="yahoo"):
-    missing = df["cityheaven_url"].isna()
-    for idx, row in df[missing].iterrows():
-        url = search_cityheaven_url(driver, row["shop_name"], row["girl_name"], source=source)
-        df.loc[idx, "cityheaven_url"] = url
-        human_delay()
+def enrich_with_cityheaven_urls(df):
+    """店名・姫名から CityHeaven URL を補完する（Yahoo検索は使わず既知データと店舗ページ検索で突合）。"""
+    missing = df["cityheaven_url"].isna() | (df["cityheaven_url"].astype("string").str.strip() == "")
+    if not missing.any():
+        return df
+    pairs = list(zip(df.loc[missing, "shop_name"].astype(str), df.loc[missing, "girl_name"].astype(str)))
+    resolved = resolve_urls(pairs)
+    df.loc[missing, "cityheaven_url"] = [resolved[pair] for pair in pairs]
     return df
 
 
@@ -152,11 +156,7 @@ def append_new_reports(history, current_reports):
     if new_reports.empty:
         return history, 0
 
-    driver = build_driver()
-    try:
-        new_reports = enrich_with_cityheaven_urls(new_reports, driver, source="yahoo")
-    finally:
-        driver.quit()
+    new_reports = enrich_with_cityheaven_urls(new_reports)
 
     updated_history = pd.concat(
         [history, new_reports.loc[:, REPORT_HISTORY_COLUMNS]],
@@ -274,12 +274,12 @@ def main():
     df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
 
     merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
-    return merge_okinilove_data(
+    merged = merge_okinilove_data(
       merged,
       normalize_url=normalize_url,
-      build_driver=build_driver,
       enrich_with_cityheaven_urls=enrich_with_cityheaven_urls,
     )
+    return merge_ns_reports(merged, normalize_url=normalize_url)
 
 
 if __name__ == "__main__":
@@ -292,6 +292,7 @@ import ast
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
+from html import escape as html_escape
 
 # merged は DataFrame と仮定
 # 出勤日カラムを抽出
@@ -601,8 +602,12 @@ for idx, row in merged.iterrows():
     report_url_okinilove = row["report_url_okinilove"]
     report_text_okinilove = row["report_text"]
 
+    ns_reports = row["ns_reports"] if isinstance(row["ns_reports"], list) else []
+    row_id_ns = f"review-ns-{idx}"
+
     has_report = "true" if (
-      _has_value(eval_merged)
+      ns_reports
+      or _has_value(eval_merged)
       or _has_value(eval_okinilove)
       or _has_value(report_text_okinilove)
     ) else "false"
@@ -621,6 +626,9 @@ for idx, row in merged.iterrows():
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
     if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
+
+    if ns_reports:
+        html += f"<br><button onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
 
     # 店名（名前の下に表示）
     if len(shop) >= 1:
@@ -653,6 +661,19 @@ for idx, row in merged.iterrows():
             html += "</ul></td></tr>"
         except Exception:
             html += f"<tr id='{row_id_merged}' class='review-row' style='display:none;'><td colspan='{2 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
+
+    # NS専門レビュー行
+    if ns_reports:
+        html += f"<tr id='{row_id_ns}' class='review-row' style='display:none; background-color:#fff8f0;'>"
+        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+        for rep in ns_reports:
+            html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
+            for k, v in rep["scores"].items():
+                html += f"<li><strong>{k}:</strong> {html_escape(str(v))}</li>"
+            html += "</ul>"
+            for k, v in rep["comments"].items():
+                html += f"<p><strong>{k}</strong></p><pre>{html_escape(str(v))}</pre>"
+        html += "</td></tr>"
 
     # okiniloveレビュー行
     if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
