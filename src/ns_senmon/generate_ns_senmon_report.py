@@ -46,16 +46,24 @@ def field_value(details, prefix):
     return ""
 
 
-def render_entry(record):
+def person_key(record):
+    return record.get("cityheaven_url") or f"{record['shop_name']}|{record['name']}"
+
+
+def group_records(records):
+    """同一人物（CityHeaven URL、なければ店舗+名前）でまとめる。日付降順を維持。"""
+    groups = {}
+    for record in records:
+        groups.setdefault(person_key(record), []).append(record)
+    return list(groups.values())
+
+
+def chips_for(record):
     details = record["details"]
-    shop = record["shop_name"]
-    name = record["name"]
     repeat = field_value(details, "姫のリピート")
-    age = number(details, "推定年齢")
+    bust = field_value(details, "おっぱい（印象）").replace("\n", " ")
     play = number(details, PLAY_KEY)
     total = number(details, TOTAL_KEY)
-    bust = field_value(details, "おっぱい（印象）").replace("\n", " ")
-
     chips = []
     if repeat:
         chips.append(f"リピート {repeat}")
@@ -65,7 +73,37 @@ def render_entry(record):
         chips.append(f"プレイ {play}")
     if total is not None:
         chips.append(f"総合 {total}")
-    chips_html = "".join(f'<span class="score-chip">{html.escape(c)}</span>' for c in chips)
+    return "".join(f'<span class="score-chip">{html.escape(c)}</span>' for c in chips)
+
+
+def detail_items(record):
+    items = ""
+    for prefix in DETAIL_PREFIXES:
+        value = field_value(record["details"], prefix)
+        if not value:
+            continue
+        items += (
+            '<div class="score-item">'
+            f'<h3 class="score-label">{html.escape(prefix)}</h3>'
+            f'<div class="report-comment"><p>{html.escape(value)}</p></div></div>'
+        )
+    return items
+
+
+def render_entry(group):
+    record = group[0]
+    details = record["details"]
+    shop = record["shop_name"]
+    name = record["name"]
+    repeat = field_value(details, "姫のリピート")
+    age = number(details, "推定年齢")
+    plays = [p for p in (number(r["details"], PLAY_KEY) for r in group) if p is not None]
+    totals = [t for t in (number(r["details"], TOTAL_KEY) for r in group) if t is not None]
+    play = max(plays) if plays else None
+    total = max(totals) if totals else None
+    chips_html = chips_for(record)
+    if len(group) > 1:
+        chips_html = f'<span class="score-chip">レポート {len(group)}件</span>' + chips_html
 
     age_str = f"{age}才" if age is not None else ""
     ch_url = record.get("cityheaven_url") or ""
@@ -87,18 +125,20 @@ def render_entry(record):
         f'<span class="score-overview">{chips_html}</span>'
     )
 
-    items = ""
-    for prefix in DETAIL_PREFIXES:
-        value = field_value(details, prefix)
-        if not value:
-            continue
-        items += (
-            '<div class="score-item">'
-            f'<h3 class="score-label">{html.escape(prefix)}</h3>'
-            f'<div class="report-comment"><p>{html.escape(value)}</p></div></div>'
-        )
+    if len(group) == 1:
+        items = detail_items(record)
+    else:
+        items = ""
+        for r in group:
+            items += (
+                '<div class="sub-report">'
+                f'<div class="sub-heading"><a href="{html.escape(r["url"], quote=True)}" target="_blank" '
+                f'rel="noopener" class="link-button">{html.escape(str(r["date"]))}</a>'
+                f'<span class="score-overview">{chips_for(r)}</span></div>'
+                f'{detail_items(r)}</div>'
+            )
 
-    search_text = f"{shop} {name} {record['title']}".casefold()
+    search_text = " ".join([shop, name] + [r["title"] for r in group]).casefold()
     return (
         f'<details class="report-entry" data-shop="{html.escape(shop, quote=True)}" '
         f'data-repeat="{html.escape(repeat, quote=True)}" data-age="{age if age is not None else ""}" '
@@ -121,7 +161,7 @@ def build_html(records):
     age_options = "".join(
         f'<option value="{low}-{high}">{label}</option>' for label, low, high in AGE_OPTIONS
     )
-    entries = "\n".join(render_entry(record) for record in records)
+    entries = "\n".join(render_entry(group) for group in group_records(records))
     return (
         TEMPLATE.replace("SHOP_OPTIONS", shop_options)
         .replace("REPEAT_OPTIONS", repeat_options)
@@ -147,6 +187,8 @@ TEMPLATE = """<!DOCTYPE html>
     .entry-date { margin-left: 0.5em; font-weight: normal; color: #58636d; font-size: 0.85em; }
     .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
     .score-chip { padding: 2px 8px; border-radius: 4px; background: #e8eef4; font-size: 0.9em; font-weight: normal; }
+    .sub-report { margin: 0.6em 0; padding: 0.5em 0.75em; border-left: 3px solid #9bbbe0; background: #fff; }
+    .sub-heading { font-weight: bold; }
     .score-item { margin: 0.35em 0; }
     .score-label { margin: 0.25em 0; font-size: 1em; }
     .report-details { margin: 0.5em 0 0 0.75em; }
