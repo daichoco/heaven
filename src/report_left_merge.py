@@ -1,144 +1,76 @@
 #%%
-from bs4 import BeautifulSoup
-from pathlib import Path
-import pandas as pd
-url =  Path(__file__).resolve().parent.parent / "docs" / "report_final.html"
-with open(url, "r", encoding="utf-8") as f:
-    html = f.read()
-soup = BeautifulSoup(html, "html.parser")
-
-reports = []
-
-for detail in soup.find_all("details"):
-    if detail.find_parent("details"):  # 子ならスキップ
-        continue
-
-    summary = detail.find("summary")
-    if not summary:
-        continue
-
-    shop_text = summary.contents[0].strip() if summary.contents else None
-    name_tag = summary.find("a")
-    girl_name = name_tag.get_text(strip=True) if name_tag else None
-    girl_url_tag = summary.find("a",string=girl_name)
-    girl_url = girl_url_tag["href"] if girl_url_tag else None
-    report_link_tag = summary.find("a", string="レポート")
-    report_link = report_link_tag["href"] if report_link_tag else None
-
-    import re
-    age_match = re.search(r"(\d{2})才", summary.get_text())
-    age = int(age_match.group(1)) if age_match else None
-
-    evaluations = {}
-    inner_details = detail.find("div")
-    if inner_details:
-        for sub_detail in inner_details.find_all("details", recursive=False):
-            sub_summary = sub_detail.find("summary")
-            key = sub_summary.get_text(strip=True) if sub_summary else None
-            value_tag = sub_detail.find("p")
-            value = value_tag.get_text(strip=True) if value_tag else None
-            if key:
-                evaluations[key] = value
-
-    match = re.search(r"\((.*?)\)", shop_text)
-    if match:
-        shop_info = match.group(1)
-        parts = re.split(r"[･・]", shop_info)
-        shop_name = parts[0].strip() if len(parts) > 0 else None
-        shop_type = parts[1].strip() if len(parts) > 1 else None
-    else:
-        shop_name = None
-        shop_type = None
-
-
-    reports.append({
-        "shop_name" :shop_name,
-        "shop_type":shop_type,
-        "girl_name": girl_name,
-        "girl_url":girl_url,
-        "age": age,
-        "report_url": report_link,
-        "evaluations": evaluations
-    })
-
-df1 = pd.DataFrame(reports)
-df1.loc[df1["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df1["girl_url"]
-df1_current = df1.copy()  # 新しく抽出したdf1
-url =  Path(__file__).resolve().parent.parent / "docs" / "cityheaven_profiles.html"
-with open(url, "r", encoding="utf-8") as f:
-    html = f.read()
-soup = BeautifulSoup(html, 'html.parser')
-table = soup.find('table')
-
-# ヘッダー取得（3列目以降は日付）
-headers = [th.text.strip() for th in table.find_all('th')]
-date_headers = headers[3:]
-
-# データ抽出
-rows = table.find_all('tr')[1:]  # skip header
-data = []
-
-for row in rows:
-    cols = row.find_all('td')
-    name_tag = cols[0].find('a')
-    name = name_tag.text.strip()
-    url = name_tag['href']
-    shop = cols[1].text.strip()
-    img_tag = cols[2].find('img')
-    img_url = img_tag['src'] if img_tag else None
-    schedule = [col.text.strip() for col in cols[3:]]
-    data.append([name, url, shop, img_url] + schedule)
-
-# DataFrame化
-columns = ['名前', 'URL', '店名', '画像URL'] + date_headers
-df2 = pd.DataFrame(data, columns=columns)
-
-# %%
-import pandas as pd
-import time
 import random
+import re
+import time
+from pathlib import Path
+
+import pandas as pd
+from bs4 import BeautifulSoup
+from ddgs import DDGS
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from ddgs import DDGS
 
-# 複数のユーザーエージェントを用意
-user_agents = [
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Firefox/121.0",
-    "Mozilla/5.0 (Linux; Android 11; Pixel 5) Chrome/119.0 Mobile Safari/537.36",
-]
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DOCS_DIR = ROOT_DIR / "docs"
+DATA_DIR = ROOT_DIR / "data"
 
-# ランダムにUAを選択
-ua = random.choice(user_agents)
-options = Options()
-options.add_argument(f"user-agent={ua}")
+
+def load_html(path: Path) -> str:
+    with path.open("r", encoding="utf-8") as f:
+        return f.read()
+
+
+def normalize_url(url):
+    if pd.isna(url):
+        return None
+
+    normalized = str(url).split("?")[0].rstrip("/")
+    match = re.search(r"(https://www\.cityheaven\.net/.+?/girlid-\d+)", normalized)
+    return match.group(1) if match else normalized
+
 
 def human_delay():
     """人間っぽい待機を入れる"""
     delay = random.uniform(2, 7)
-    if random.random() < 0.1:  # 10%の確率で長めに休む
+    if random.random() < 0.1:
         delay += random.uniform(10, 20)
     time.sleep(delay)
 
-def search_cityheaven_url(shop_name, girl_name, source="yahoo", max_results=5):
+
+def build_driver():
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Firefox/121.0",
+        "Mozilla/5.0 (Linux; Android 11; Pixel 5) Chrome/119.0 Mobile Safari/537.36",
+    ]
+    options = Options()
+    options.add_argument(f"user-agent={random.choice(user_agents)}")
+    return webdriver.Chrome(options=options)
+
+
+def search_cityheaven_url(driver, shop_name, girl_name, source="yahoo", max_results=5):
     query = f"{shop_name} {girl_name} site:cityheaven.net"
 
     if source == "duckduckgo":
         with DDGS() as ddgs:
-            results = ddgs.text(query, region="jp-jp", safesearch="off",
-                                timelimit=None, max_results=max_results)
+            results = ddgs.text(
+                query,
+                region="jp-jp",
+                safesearch="off",
+                timelimit=None,
+                max_results=max_results,
+            )
             for r in results:
                 url = r["href"]
                 if "cityheaven.net" in url and "girlid" in url and "attend" not in url:
                     print(f"[DDG] {shop_name} {girl_name}\n{url}")
                     return url
-    else:  # Yahoo検索
+    else:
         try:
             driver.get(f"https://search.yahoo.co.jp/search?p={query}")
             human_delay()
 
-            # 時々スクロールして人間っぽさを出す
             if random.random() < 0.2:
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(random.uniform(2, 5))
@@ -153,101 +85,137 @@ def search_cityheaven_url(shop_name, girl_name, source="yahoo", max_results=5):
             print(f"[Yahoo] 検索失敗: {shop_name} {girl_name} → {e}")
     return None
 
-def enrich_with_cityheaven_urls(df1, source="yahoo"):
-    for idx, row in df1[df1["cityheaven_url"].isna()].iterrows():
-        shop = row["shop_name"]
-        girl = row["girl_name"]
-        url = search_cityheaven_url(shop, girl, source=source)
-        df1.loc[idx, "cityheaven_url"] = url
-        human_delay()  # bot対策
-    return df1
 
-# 実行例
+def enrich_with_cityheaven_urls(df, driver, source="yahoo"):
+    missing = df["cityheaven_url"].isna()
+    for idx, row in df[missing].iterrows():
+        url = search_cityheaven_url(driver, row["shop_name"], row["girl_name"], source=source)
+        df.loc[idx, "cityheaven_url"] = url
+        human_delay()
+    return df
 
 
+def extract_report_final_df():
+    html = load_html(DOCS_DIR / "report_final.html")
+    soup = BeautifulSoup(html, "html.parser")
+    reports = []
 
-# %%
-csvpath =  Path(__file__).resolve().parent.parent / "data" / "df1 - df1.csv.csv"
+    for detail in soup.find_all("details"):
+        if detail.find_parent("details"):
+            continue
 
-df1 = pd.read_csv(csvpath)
+        summary = detail.find("summary")
+        if not summary:
+            continue
 
-import re
+        shop_text = summary.contents[0].strip() if summary.contents else None
+        name_tag = summary.find("a")
+        girl_name = name_tag.get_text(strip=True) if name_tag else None
+        girl_url_tag = summary.find("a", string=girl_name)
+        girl_url = girl_url_tag["href"] if girl_url_tag else None
+        report_link_tag = summary.find("a", string="レポート")
+        report_link = report_link_tag["href"] if report_link_tag else None
 
-def normalize_url(url):
-    if pd.isna(url):
-        return None
-    url = url.split("?")[0].rstrip("/")
-    match = re.search(r"(https://www\.cityheaven\.net/.+?/girlid-\d+)", url)
-    return match.group(1) if match else url
+        age_match = re.search(r"(\d{2})才", summary.get_text())
+        age = int(age_match.group(1)) if age_match else None
 
+        evaluations = {}
+        inner_details = detail.find("div")
+        if inner_details:
+            for sub_detail in inner_details.find_all("details", recursive=False):
+                sub_summary = sub_detail.find("summary")
+                key = sub_summary.get_text(strip=True) if sub_summary else None
+                value_tag = sub_detail.find("p")
+                value = value_tag.get_text(strip=True) if value_tag else None
+                if key:
+                    evaluations[key] = value
 
-# 正規化キー列を追加
-df1_current["url_key"] = df1_current["cityheaven_url"].apply(normalize_url)
-df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
-df2["url_key"] = df2["URL"].apply(normalize_url)
+        match = re.search(r"\((.*?)\)", shop_text or "")
+        if match:
+            shop_info = match.group(1)
+            parts = re.split(r"[･・]", shop_info)
+            shop_name = parts[0].strip() if len(parts) > 0 else None
+            shop_type = parts[1].strip() if len(parts) > 1 else None
+        else:
+            shop_name = None
+            shop_type = None
 
-# report_final.htmlからの新規データを特定
-new_from_report_final = df1_current[~df1_current["url_key"].isin(df1["url_key"])]
+        reports.append(
+            {
+                "shop_name": shop_name,
+                "shop_type": shop_type,
+                "girl_name": girl_name,
+                "girl_url": girl_url,
+                "age": age,
+                "report_url": report_link,
+                "evaluations": evaluations,
+            }
+        )
 
-if not new_from_report_final.empty:
-    # driver起動
-    driver = webdriver.Chrome(options=options)
-
-    # enrich実行
-    new_from_report_final = enrich_with_cityheaven_urls(new_from_report_final, source="yahoo")
-
-    driver.quit()
-
-    # df1に追加
-    df1 = pd.concat([df1, new_from_report_final], ignore_index=True)
-
-    # CSV更新
-    url =  Path(__file__).resolve().parent.parent / "data" / "df1 - df1.csv.csv"
-    df1.to_csv(url, index=False)
-
-# 左結合
-merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
-#%%
-url =  Path(__file__).resolve().parent.parent / "docs" / "okinilove_reconstructed.html"
-with open(url, "r", encoding="utf-8") as f:
-    html = f.read()
-soup = BeautifulSoup(html, "html.parser")
-
-reports = []
-soup = soup.find("div",class_="card-container")
-for card in soup.find_all("div",class_="card"):
-    shop_name = card.find("h3").get_text()
-    shop_name = shop_name.split("-")[0].strip()
-    name_tag = card.find("a")
-    girl_name = name_tag.get_text(strip=True) if name_tag else None
-    girl_url = name_tag["href"] if name_tag else None
-
-    detail = card.find_all("details")[0]
-
-    summary = detail.find("summary")
-
-    report_link_tag = summary.find("a")
-    report_link = report_link_tag["href"] if report_link_tag else None
-    eval = summary.get_text(strip=True)
-
-    report_text = detail.find("pre").get_text(strip=True)
+    df = pd.DataFrame(reports)
+    df.loc[df["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df["girl_url"]
+    return df
 
 
-    reports.append({
-        "shop_name" :shop_name,
-        "girl_name": girl_name,
-        "girl_url":girl_url,
-        "report_url": report_link,
-        "evaluations": eval,
-        "report_text":report_text
-    })
+def extract_cityheaven_profiles_df():
+    html = load_html(DOCS_DIR / "cityheaven_profiles.html")
+    soup = BeautifulSoup(html, "html.parser")
+    table = soup.find("table")
+    if table is None:
+        return pd.DataFrame()
 
-df3 = pd.DataFrame(reports)
+    headers = [th.text.strip() for th in table.find_all("th")]
+    date_headers = headers[3:]
+    rows = table.find_all("tr")[1:]
+    data = []
 
-# cityheaven_url を埋める（cityheaven.net を含むものだけ）
-df3.loc[df3["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df3["girl_url"]
+    for row in rows:
+        cols = row.find_all("td")
+        if len(cols) < 3:
+            continue
 
-df3_new = df3.copy()
+        name_tag = cols[0].find("a")
+        name = name_tag.text.strip() if name_tag else ""
+        url = name_tag["href"] if name_tag else None
+        shop = cols[1].text.strip()
+        img_tag = cols[2].find("img")
+        img_url = img_tag["src"] if img_tag else None
+        schedule = [col.text.strip() for col in cols[3:]]
+        data.append([name, url, shop, img_url] + schedule)
+
+    columns = ["名前", "URL", "店名", "画像URL"] + date_headers
+    return pd.DataFrame(data, columns=columns)
+
+
+def main():
+    df1_current = extract_report_final_df()
+    df2 = extract_cityheaven_profiles_df()
+
+    csv_path = DATA_DIR / "df1 - df1.csv.csv"
+    df1 = pd.read_csv(csv_path)
+
+    df1_current["url_key"] = df1_current["cityheaven_url"].apply(normalize_url)
+    df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
+    df2["url_key"] = df2["URL"].apply(normalize_url)
+
+    new_from_report_final = df1_current[~df1_current["url_key"].isin(df1["url_key"])]
+
+    if not new_from_report_final.empty:
+        driver = build_driver()
+        try:
+            new_from_report_final = enrich_with_cityheaven_urls(new_from_report_final, driver, source="yahoo")
+        finally:
+            driver.quit()
+
+        df1 = pd.concat([df1, new_from_report_final], ignore_index=True)
+        df1.to_csv(csv_path, index=False)
+
+    merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
+    return merged
+
+
+if __name__ == "__main__":
+    main()
 
 # 既存 CSV 読み込み
 csvpath =  Path(__file__).resolve().parent.parent / "data" / "okinilove_heaven.csv"
