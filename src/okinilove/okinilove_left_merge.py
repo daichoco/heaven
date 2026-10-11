@@ -2,7 +2,6 @@ from pathlib import Path
 import sys
 
 import pandas as pd
-from bs4 import BeautifulSoup
 
 SRC_DIR = Path(__file__).resolve().parents[1]
 if str(SRC_DIR) not in sys.path:
@@ -12,7 +11,6 @@ from data_store import read_jsonl, write_jsonl_atomic
 from okinilove.scrape_okinilove import find_unavailable_profile_urls, refresh_okinilove_data
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
 OKINILOVE_JSONL = DATA_DIR / "okinilove_reviews.jsonl"
 OKINILOVE_COLUMNS = [
@@ -27,39 +25,7 @@ OKINILOVE_COLUMNS = [
 
 
 def extract_okinilove_data():
-    html_path = DOCS_DIR / "okinilove_reconstructed.html"
-    with html_path.open("r", encoding="utf-8") as html_file:
-        soup = BeautifulSoup(html_file.read(), "html.parser")
-
-    container = soup.find("div", class_="card-container")
-    reports = []
-    if container:
-        for card in container.find_all("div", class_="card"):
-            heading = card.find("h3")
-            name_tag = heading.find("a") if heading else None
-            detail = card.find("details")
-            summary = detail.find("summary") if detail else None
-            report_link = summary.find("a") if summary else None
-            report_text = detail.find("pre") if detail else None
-            girl_url = name_tag.get("href") if name_tag else None
-
-            reports.append(
-                {
-                    "shop_name": heading.get_text(" ", strip=True).split("-", 1)[0].strip()
-                    if heading
-                    else None,
-                    "girl_name": name_tag.get_text(strip=True) if name_tag else None,
-                    "girl_url": girl_url,
-                    "report_url": report_link.get("href") if report_link else None,
-                    "evaluations": summary.get_text(" ", strip=True) if summary else None,
-                    "report_text": report_text.get_text(strip=True) if report_text else None,
-                    "cityheaven_url": girl_url
-                    if girl_url and "cityheaven.net" in girl_url
-                    else None,
-                }
-            )
-
-    return pd.DataFrame(reports, columns=OKINILOVE_COLUMNS)
+    return read_jsonl(OKINILOVE_JSONL, columns=OKINILOVE_COLUMNS)
 
 
 def remove_unavailable_profile_rows(data, now=None):

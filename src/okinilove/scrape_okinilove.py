@@ -8,16 +8,32 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from data_store import read_jsonl, write_jsonl_atomic
+
 DATA_DIR = ROOT_DIR / "data"
 DOCS_DIR = ROOT_DIR / "docs"
 SHOP_URLS_PATH = DATA_DIR / "okinilove_shop_urls.json"
 RAW_HTML_PATH = DOCS_DIR / "okinilove_remove_unknown.html"
-RECONSTRUCTED_HTML_PATH = DOCS_DIR / "okinilove_reconstructed.html"
+REVIEWS_JSONL_PATH = DATA_DIR / "okinilove_reviews.jsonl"
 PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
 PROFILE_STATUS_CACHE_TTL = timedelta(hours=24)
+REVIEW_COLUMNS = [
+    "shop_name",
+    "girl_name",
+    "girl_url",
+    "report_url",
+    "evaluations",
+    "report_text",
+    "cityheaven_url",
+]
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
     "Accept-Encoding": "identity",
@@ -125,25 +141,21 @@ def find_unavailable_profile_urls(urls, now=None):
     return {url for url, status in statuses.items() if status in {404, 410}}
 
 
-def remove_unavailable_profiles_from_html():
-    """掲載終了プロフィールを一覧HTMLと再構成HTMLの両方から削除する。"""
+def remove_unavailable_profiles():
+    """掲載終了プロフィールを人物一覧HTMLとレビューJSONLから削除する。"""
     with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
         raw_soup = BeautifulSoup(source.read(), "html.parser")
-    with RECONSTRUCTED_HTML_PATH.open("r", encoding="utf-8") as source:
-        reconstructed_soup = BeautifulSoup(source.read(), "html.parser")
 
     raw_rows = raw_soup.select("tbody tr")
-    cards = reconstructed_soup.select(".card-container > .card")
     urls = set()
     for row in raw_rows:
         profile_link = profile_link_in_row(row)
         if profile_link:
             urls.add(profile_link["href"])
-    for card in cards:
-        heading = card.find("h3")
-        profile_link = heading.find("a", href=True) if heading else None
-        if profile_link:
-            urls.add(profile_link["href"])
+
+    reviews = read_jsonl(REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    if "girl_url" in reviews:
+        urls.update(reviews["girl_url"].dropna().astype(str))
 
     unavailable_urls = find_unavailable_profile_urls(urls)
     if not unavailable_urls:
@@ -157,24 +169,20 @@ def remove_unavailable_profiles_from_html():
             row.decompose()
             removed_rows += 1
 
-    removed_cards = 0
-    for card in cards:
-        heading = card.find("h3")
-        profile_link = heading.find("a", href=True) if heading else None
-        if profile_link and profile_link["href"] in unavailable_urls:
-            card.decompose()
-            removed_cards += 1
+    keep_reviews = ~reviews["girl_url"].astype("string").isin(unavailable_urls)
+    removed_reviews = int((~keep_reviews).sum())
+    reviews = reviews.loc[keep_reviews].reset_index(drop=True)
 
     if removed_rows:
         RAW_HTML_PATH.write_text(str(raw_soup), encoding="utf-8")
-    if removed_cards:
-        RECONSTRUCTED_HTML_PATH.write_text(str(reconstructed_soup), encoding="utf-8")
+    if removed_reviews:
+        write_jsonl_atomic(reviews, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
 
     print(
         f"掲載終了プロフィールを削除: URL{len(unavailable_urls)}件、"
-        f"一覧行{removed_rows}件、再構成カード{removed_cards}件"
+        f"一覧行{removed_rows}件、レビュー{removed_reviews}件"
     )
-    return removed_rows, removed_cards
+    return removed_rows, removed_reviews
 
 
 def fetch_article_urls(session, history_url):
@@ -239,6 +247,7 @@ def fetch_article_record(session, shop_name, article_url):
         if profile.url != girl_url and urlparse(profile.url).netloc.endswith("okinilove.com"):
             return None
 
+    report_text = extract_report_detail(session, article_url) or gap or ""
     return {
         "shop": shop_name,
         "url": article_url,
@@ -246,6 +255,7 @@ def fetch_article_record(session, shop_name, article_url):
         "name": girl_name,
         "gap": gap or "",
         "star": stars,
+        "report_text": report_text,
     }
 
 
@@ -322,6 +332,37 @@ def append_records_to_raw_html(records):
     return added
 
 
+def append_records_to_jsonl(records):
+    existing = read_jsonl(REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    known_urls = set(existing["report_url"].dropna().astype(str))
+    additions = []
+    for record in records:
+        if record["url"] in known_urls:
+            continue
+        additions.append(
+            {
+                "shop_name": record["shop"],
+                "girl_name": record["name"],
+                "girl_url": record["girl_url"],
+                "report_url": record["url"],
+                "evaluations": f"評価 {record['star']} →記事リンク",
+                "report_text": record["report_text"],
+                "cityheaven_url": record["girl_url"]
+                if record["girl_url"] and "cityheaven.net" in record["girl_url"]
+                else None,
+            }
+        )
+        known_urls.add(record["url"])
+
+    if additions:
+        updated = pd.concat(
+            [existing, pd.DataFrame(additions, columns=REVIEW_COLUMNS)],
+            ignore_index=True,
+        )
+        write_jsonl_atomic(updated, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    return len(additions)
+
+
 def extract_report_detail(session, article_url):
     base_url, _, fragment = article_url.partition("#")
     response = session.get(base_url, headers=HEADERS, timeout=20)
@@ -348,94 +389,30 @@ def extract_report_detail(session, article_url):
     return ""
 
 
-def render_reconstructed_html(records, session):
-    with RECONSTRUCTED_HTML_PATH.open("r", encoding="utf-8") as source:
-        soup = BeautifulSoup(source.read(), "html.parser")
-    container = soup.find("div", class_="card-container")
-    if container is None:
-        raise ValueError(f"再構成HTMLにcard-containerがありません: {RECONSTRUCTED_HTML_PATH}")
-
-    shop_filter = soup.find("select", id="shopFilter")
-    if shop_filter is not None:
-        shops = {
-            card.get("data-shop", "")
-            for card in container.find_all("div", class_="card", recursive=False)
-        }
-        shops.update(record["shop"] for record in records)
-        shop_filter.clear()
-        all_shops = soup.new_tag("option", value="")
-        all_shops.string = "全ショップ"
-        shop_filter.append(all_shops)
-        for shop in sorted(shops):
-            option = soup.new_tag("option", value=shop)
-            option.string = shop
-            shop_filter.append(option)
-
-    seen = {
-        (card.get("data-shop"), (card.find("h3").find("a").get("href") if card.find("h3") and card.find("h3").find("a") else None), card.find("summary").get_text(" ", strip=True) if card.find("summary") else "")
-        for card in container.find_all("div", class_="card", recursive=False)
-    }
-    added = 0
-    for record in records:
-        detail = extract_report_detail(session, record["url"]) or record["gap"]
-        card = soup.new_tag("div", attrs={"class": "card", "data-maxstar": str(record["star"].count("★")), "data-shop": record["shop"]})
-        heading = soup.new_tag("h3")
-        heading.append(record["shop"] + " - ")
-        if record["girl_url"]:
-            profile_link = soup.new_tag("a", href=record["girl_url"], target="_blank")
-            profile_link.string = record["name"]
-            heading.append(profile_link)
-        else:
-            heading.append(record["name"])
-        card.append(heading)
-
-        details = soup.new_tag("details")
-        summary = soup.new_tag("summary")
-        summary.append(f"評価 {record['star']} → ")
-        report_link = soup.new_tag("a", href=record["url"], target="_blank")
-        report_link.string = "記事リンク"
-        summary.append(report_link)
-        details.append(summary)
-        pre = soup.new_tag("pre")
-        pre.string = detail
-        details.append(pre)
-        card.append(details)
-
-        summary_text = summary.get_text(" ", strip=True)
-        key = (record["shop"], record["girl_url"], summary_text)
-        if key in seen:
-            continue
-        container.append(card)
-        seen.add(key)
-        added += 1
-
-    if added:
-        RECONSTRUCTED_HTML_PATH.write_text(str(soup), encoding="utf-8")
-    return added
-
-
 def refresh_okinilove_data():
-    remove_unavailable_profiles_from_html()
+    remove_unavailable_profiles()
     shop_urls = load_shop_urls()
     with requests.Session() as session:
         with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
             current_soup = BeautifulSoup(source.read(), "html.parser")
         known_urls = existing_article_urls(current_soup)
+        known_urls.update(
+            read_jsonl(REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)["report_url"]
+            .dropna()
+            .astype(str)
+        )
         new_records = scrape_new_records(session, shop_urls, known_urls)
         raw_added = append_records_to_raw_html(new_records)
-        reconstructed_added = render_reconstructed_html(new_records, session) if new_records else 0
-        source_dir = str(ROOT_DIR / "src")
-        if source_dir not in sys.path:
-            sys.path.insert(0, source_dir)
+        jsonl_added = append_records_to_jsonl(new_records)
         from okinilove.render_people_summary import render_people_summary_file
 
         people_count = render_people_summary_file(RAW_HTML_PATH)
 
     print(
         f"Okinilove更新: 取得{len(new_records)}件、一覧追加{raw_added}件、"
-        f"再構成追加{reconstructed_added}件、人物別表示{people_count}人"
+        f"JSONL追加{jsonl_added}件、人物別表示{people_count}人"
     )
-    return raw_added, reconstructed_added
+    return raw_added, jsonl_added
 
 
 if __name__ == "__main__":
