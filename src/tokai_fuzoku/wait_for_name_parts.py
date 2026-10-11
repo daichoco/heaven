@@ -10,25 +10,20 @@ def normalize(text):
     return re.sub(r"\s+", "", text)
 
 
-def wait_for_name_parts(driver, name, expected_url=None, timeout=5):
+def name_in_text(text, name):
+    """ページ本文に名前（「名前（補足）」形式なら両方）が含まれるか。"""
+    body_text = normalize(text)
     match = re.match(r"^(.*?)\s*[（(](.*?)[）)]", name)
     if not match:
-        def name_present_and_url_ok(current_driver):
-            body_text = normalize(current_driver.find_element(By.TAG_NAME, "body").text)
-            return normalize(name) in body_text and (
-                expected_url is None or current_driver.current_url == expected_url
-            )
+        return normalize(name) in body_text
+    return normalize(match.group(1)) in body_text and normalize(match.group(2)) in body_text
 
-        return WebDriverWait(driver, timeout).until(name_present_and_url_ok)
 
-    prefix, inner = normalize(match.group(1)), normalize(match.group(2))
-
-    def both_parts_and_url_ok(current_driver):
-        body_text = normalize(current_driver.find_element(By.TAG_NAME, "body").text)
-        return (
-            prefix in body_text
-            and inner in body_text
-            and (expected_url is None or current_driver.current_url == expected_url)
+def wait_for_name_parts(driver, name, expected_url=None, timeout=5):
+    def name_present_and_url_ok(current_driver):
+        body_text = current_driver.find_element(By.TAG_NAME, "body").text
+        return name_in_text(body_text, name) and (
+            expected_url is None or current_driver.current_url == expected_url
         )
 
-    return WebDriverWait(driver, timeout).until(both_parts_and_url_ok)
+    return WebDriverWait(driver, timeout).until(name_present_and_url_ok)

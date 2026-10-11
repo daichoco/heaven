@@ -2,19 +2,23 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+import warnings
+from datetime import date, datetime
 from pathlib import Path
 
 import chromedriver_autoinstaller
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
+import urllib3
+from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
-from wait_for_name_parts import wait_for_name_parts
+from wait_for_name_parts import name_in_text, wait_for_name_parts
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT_DIR / "src"
@@ -23,15 +27,19 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl, write_jsonl_atomic
 
+warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
+
 OUTPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
 BASE_URL = "https://m.fuzoku-tokai.com/"
 MAX_LISTING_PAGES = 75
+PAGE_LOAD_TIMEOUT_SECONDS = 20
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     "Accept-Encoding": "identity",
 }
 ARTICLE_URL_RE = re.compile(
-    r"^https://(?:m\.)?fuzoku-tokai\.com/202\d+/\d{2}/\d{2}/post-\d+/?$"
+    r"^https://(?:m\.)?fuzoku-tokai\.com/"
+    r"(?P<year>202\d+)/(?P<month>\d{2})/(?P<day>\d{2})/post-\d+/?$"
 )
 REPEAT_RE = re.compile(r"返す（リピートする）|返さない（リピートしない）")
 DATA_COLUMNS = [
@@ -69,6 +77,20 @@ def extract_article_urls(soup):
     return urls
 
 
+def article_date_from_url(url):
+    match = ARTICLE_URL_RE.match(url)
+    if not match:
+        return None
+    try:
+        return date(
+            int(match.group("year")),
+            int(match.group("month")),
+            int(match.group("day")),
+        )
+    except ValueError:
+        return None
+
+
 def get_listing_page_count(session, max_pages):
     response = session.get(BASE_URL, headers=HEADERS, timeout=30)
     response.raise_for_status()
@@ -85,7 +107,7 @@ def get_listing_page_count(session, max_pages):
     return min(last_page, max_pages)
 
 
-def collect_article_urls(session, max_pages):
+def collect_article_urls(session, max_pages, latest_date=None):
     page_count = get_listing_page_count(session, max_pages)
     article_urls = set()
 
@@ -94,8 +116,19 @@ def collect_article_urls(session, max_pages):
         response = session.get(page_url, headers=HEADERS, timeout=30)
         response.raise_for_status()
         page_urls = extract_article_urls(BeautifulSoup(response.text, "lxml"))
-        article_urls.update(page_urls)
+        if latest_date is None:
+            article_urls.update(page_urls)
+        else:
+            newer_urls = {
+                url
+                for url in page_urls
+                if article_date_from_url(url) > latest_date
+            }
+            article_urls.update(newer_urls)
         print(f"一覧 {page_number}/{page_count}: {len(page_urls)}件、累計{len(article_urls)}件")
+        if latest_date is not None and page_urls and not newer_urls:
+            print(f"既存データの最新日付 {latest_date} 以前の一覧に到達しました")
+            break
         time.sleep(1)
 
     return article_urls
@@ -180,11 +213,58 @@ def build_driver():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-blink-features=AutomationControlled")
+    options.page_load_strategy = "eager"
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     )
-    return webdriver.Chrome(service=Service(driver_path), options=options)
+    driver = webdriver.Chrome(service=Service(driver_path), options=options)
+    driver.set_page_load_timeout(PAGE_LOAD_TIMEOUT_SECONDS)
+    return driver
+
+
+def safe_quit(driver):
+    try:
+        driver.quit()
+    except (WebDriverException, urllib3.exceptions.HTTPError):
+        pass
+
+
+def verify_profile(driver, record, profile_html):
+    """プロフィールに名前が掲載されているか確認する。(掲載中か, ドライバー)を返す。
+
+    取得済みHTMLに名前があればブラウザを使わない。なければJS描画の可能性があるため
+    ブラウザで確認し、失敗・タイムアウトは掲載終了扱いにしてドライバーを破棄する。
+    """
+    if name_in_text(BeautifulSoup(profile_html, "lxml").get_text(" "), record["name"]):
+        return True, driver
+
+    if driver is None:
+        driver = build_driver()
+    try:
+        driver.get(record["girl_url"])
+        wait_for_name_parts(driver, record["name"])
+        return True, driver
+    except (WebDriverException, urllib3.exceptions.HTTPError) as exc:
+        print(f"プロフィールに名前を確認できないため除外: {record['girl_url']} ({type(exc).__name__})")
+        safe_quit(driver)
+        return False, None
+
+
+def configure_retries(session):
+    retry = Retry(
+        total=3,
+        connect=3,
+        read=3,
+        status=3,
+        backoff_factor=1,
+        status_forcelist=(500, 502, 503, 504),
+        allowed_methods=frozenset({"GET"}),
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
 
 
 def login(session, password):
@@ -229,16 +309,21 @@ def main():
 
     existing = load_existing_data()
     existing_urls = set(existing.get("url", pd.Series(dtype=str)).dropna())
+    existing_dates = pd.to_datetime(existing.get("date", pd.Series(dtype=str))).dropna()
+    latest_date = existing_dates.max().date() if not existing_dates.empty else None
+    if latest_date:
+        print(f"既存データの最新日付: {latest_date}")
 
     with requests.Session() as session:
+        configure_retries(session)
         login(session, password)
-        article_urls = collect_article_urls(session, max_pages)
+        article_urls = collect_article_urls(session, max_pages, latest_date)
         pending_urls = sorted(article_urls - existing_urls)
         print(f"新規確認対象: {len(pending_urls)}件")
         if not pending_urls:
             return
 
-        driver = build_driver()
+        driver = None
         records = []
         known_girls = set(
             zip(existing.get("shop_name", []), existing.get("name", []))
@@ -257,6 +342,8 @@ def main():
                     )
                     if record is None:
                         continue
+                    if latest_date is not None and record["date"] <= latest_date:
+                        continue
                     girl_key = (record["shop_name"], record["name"])
                     if girl_key in known_girls:
                         continue
@@ -269,17 +356,25 @@ def main():
                         continue
                     profile_response.raise_for_status()
 
-                    driver.get(record["girl_url"])
-                    wait_for_name_parts(driver, record["name"])
+                    published, driver = verify_profile(
+                        driver, record, profile_response.text
+                    )
+                    if not published:
+                        continue
                     records.append(record)
                     known_girls.add(girl_key)
-                except (requests.RequestException, WebDriverException, ValueError) as exc:
+                except (
+                    requests.RequestException,
+                    WebDriverException,
+                    urllib3.exceptions.HTTPError,
+                    ValueError,
+                ) as exc:
                     print(f"取得失敗: {report_url} ({exc})")
                 time.sleep(1)
         finally:
-            driver.quit()
-
-    append_new_data(existing, records)
+            if driver is not None:
+                safe_quit(driver)
+            append_new_data(existing, records)
 
 
 if __name__ == "__main__":

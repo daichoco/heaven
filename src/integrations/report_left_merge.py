@@ -121,7 +121,8 @@ def enrich_with_cityheaven_urls(df, driver, source="yahoo"):
 
 
 def report_identity_key(row):
-    for column in ("cityheaven_url", "girl_url", "report_url"):
+    # cityheaven_url は検索で後から補完されるため、新規判定のキーには使わない
+    for column in ("girl_url", "report_url"):
         key = normalize_url(row.get(column))
         if key:
             return key
