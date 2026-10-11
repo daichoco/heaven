@@ -76,7 +76,7 @@ def load_existing_data(calendar_path):
 async def main():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
-            headless=True,
+            # headless=True,
             args=["--disable-blink-features=AutomationControlled"]
         )
 
