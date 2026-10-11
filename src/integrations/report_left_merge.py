@@ -498,7 +498,27 @@ for day in calendar_cols:
 
 html += "</tr></thead><tbody>"
 
+# 同じ姫に東海風俗レポートが複数ある場合は1行にまとめる
+merged_reports_by_key = {}
 for idx, row in merged.iterrows():
+    key = row.get("url_key")
+    if pd.isna(key):
+        continue
+    if _has_value(row["evaluations_merged"]):
+        merged_reports_by_key.setdefault(key, []).append(
+            (row["evaluations_merged"], row["report_url_merged"])
+        )
+rendered_keys = set()
+
+for idx, row in merged.iterrows():
+    key = row.get("url_key")
+    if pd.notna(key):
+        if key in rendered_keys:
+            continue
+        rendered_keys.add(key)
+    merged_reports = merged_reports_by_key.get(key, []) if pd.notna(key) else (
+        [(row["evaluations_merged"], row["report_url_merged"])] if _has_value(row["evaluations_merged"]) else []
+    )
     name = row["名前"]
     shop = row["店名"]
     shop = [s.strip() for s in shop.split("\n") if s.strip()]
@@ -516,7 +536,7 @@ for idx, row in merged.iterrows():
 
     has_report = "true" if (
       ns_reports
-      or _has_value(eval_merged)
+      or merged_reports
       or _has_value(eval_okinilove)
       or _has_value(report_text_okinilove)
     ) else "false"
@@ -531,8 +551,9 @@ for idx, row in merged.iterrows():
     html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
 
     # レビューボタン
-    if _has_value(eval_merged):
-        html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged)</button>"
+    if merged_reports:
+        count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
+        html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
     if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
         html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
 
@@ -557,19 +578,21 @@ for idx, row in merged.iterrows():
 
     html += "</tr>"
 
-    # mergedレビュー行
-    if pd.notna(eval_merged):
-        try:
-            eval_dict = _evaluation_dict(eval_merged)
-            html += f"<tr id='{row_id_merged}' class='review-row' style='display:none; background-color:#f9f9f9;'>"
-            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'><ul>"
-            for k, v in eval_dict.items():
-                html += f"<li><strong>{k}:</strong> {v}</li>"
-            if pd.notna(report_url_merged):
-                html += f"<li><a href='{report_url_merged}' target='_blank'>レポートリンク (merged)</a></li>"
-            html += "</ul></td></tr>"
-        except Exception:
-            html += f"<tr id='{row_id_merged}' class='review-row' style='display:none;'><td colspan='{2 + len(calendar_cols)}'>レビュー解析失敗 (merged)</td></tr>"
+    # mergedレビュー行（複数レポートは縦に並べる）
+    if merged_reports:
+        html += f"<tr id='{row_id_merged}' class='review-row' style='display:none; background-color:#f9f9f9;'>"
+        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+        for eval_value, report_url in merged_reports:
+            try:
+                html += "<ul>"
+                for k, v in _evaluation_dict(eval_value).items():
+                    html += f"<li><strong>{k}:</strong> {v}</li>"
+                if pd.notna(report_url):
+                    html += f"<li><a href='{report_url}' target='_blank'>レポートリンク (merged)</a></li>"
+                html += "</ul>"
+            except Exception:
+                html += "<p>レビュー解析失敗 (merged)</p>"
+        html += "</td></tr>"
 
     # NS専門レビュー行
     if ns_reports:
