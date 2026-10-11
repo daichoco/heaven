@@ -67,6 +67,14 @@ def _fetch_profile_status(url):
             stream=True,
         )
         try:
+            if response.status_code == 400 and urlparse(url).netloc.lower() == "www.yoasobi.co.jp":
+                body = next(response.iter_content(chunk_size=64 * 1024), b"")
+                page_text = BeautifulSoup(
+                    body.decode(response.encoding or "utf-8", errors="replace"),
+                    "html.parser",
+                ).get_text(" ", strip=True)
+                if "ページが見つかりません" in page_text and "ページが削除されています" in page_text:
+                    return 410
             return response.status_code
         finally:
             response.close()

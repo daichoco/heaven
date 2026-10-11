@@ -1,5 +1,7 @@
 import os
+import re
 from pathlib import Path
+from urllib.parse import parse_qs, urljoin, urlparse
 
 import pandas as pd
 import requests
@@ -17,6 +19,9 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
     "Accept-Encoding": "identity",
 }
+PROFILE_HTML_LIMIT = 512 * 1024
+AQUA_API_ROOT = "https://www.k-aqua-jpn.com/shop/api"
+AQUA_ROSTER_API = f"{AQUA_API_ROOT}/parts/pc/25/1"
 
 COMMENT_COLUMNS = {
     "style_comment": "◆姫のスタイル（コメント）：",
@@ -86,9 +91,150 @@ def load_input_data():
     return df.loc[ages.le(30)].copy().reset_index(drop=True)
 
 
+def extract_profile_image_url(page_html, page_url, girl_name=""):
+    soup = BeautifulSoup(page_html, "html.parser")
+    candidates = []
+    rejected_terms = (
+        "favicon",
+        "/icon/",
+        "logo",
+        "banner",
+        "noimage",
+        "no_image",
+        "placeholder",
+        "profile_circle",
+    )
+
+    for meta in soup.find_all("meta"):
+        if meta.get("property") == "og:image" or meta.get("name", "").lower() in {
+            "twitter:image",
+            "twitter:image:src",
+        }:
+            image_url = meta.get("content")
+            if image_url:
+                candidates.append((100, image_url, ""))
+
+    normalized_name = re.sub(r"\s+", "", girl_name).casefold()
+    for image in soup.find_all("img"):
+        if image.find_parent(id="mitayoguid") or image.find_parent(class_="mitayoimg"):
+            continue
+        image_url = image.get("src") or image.get("data-src") or image.get("data-original")
+        if not image_url and image.get("srcset"):
+            image_url = image["srcset"].split(",", 1)[0].strip().split()[0]
+        if not image_url:
+            continue
+
+        alt = image.get("alt", "")
+        source = urljoin(page_url, image_url.strip())
+        lowered = source.lower()
+        if any(term in lowered for term in rejected_terms):
+            continue
+
+        score = 0
+        if "/photos/" in lowered:
+            score += 80
+        if "/img/girls/" in lowered:
+            score += 45
+        if "grpb" in lowered:
+            score += 60
+        elif "grpe" in lowered:
+            score += 50
+        elif "grdr" in lowered:
+            score += 25
+        if any(term in lowered for term in ("cast", "profile", "girl")):
+            score += 25
+        if normalized_name and normalized_name in re.sub(r"\s+", "", alt).casefold():
+            score += 50
+        width = image.get("width")
+        height = image.get("height")
+        if width and height and width.isdigit() and height.isdigit():
+            if int(width) >= 120 and int(height) >= 120:
+                score += 10
+        candidates.append((score, source, alt))
+
+    for _, candidate, _ in sorted(candidates, key=lambda item: item[0], reverse=True):
+        resolved = urljoin(page_url, candidate.strip())
+        if urlparse(resolved).scheme in {"http", "https"}:
+            if any(term in resolved.lower() for term in rejected_terms):
+                continue
+            return resolved
+    return None
+
+
+def _api_response_markup(response):
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = response.text
+    return payload if isinstance(payload, str) else ""
+
+
+def _aqua_roster_status(session):
+    headers = {**HEADERS, "Referer": "https://www.k-aqua-jpn.com/girls"}
+    try:
+        response = session.get(AQUA_ROSTER_API, headers=headers, timeout=15)
+        if not 200 <= response.status_code < 400:
+            return False, set()
+        markup = _api_response_markup(response)
+        profile_ids = list(dict.fromkeys(re.findall(r"girls_detail\?id=(\d+)", markup)))
+        if not profile_ids:
+            return False, set()
+
+        control_response = session.get(
+            f"{AQUA_API_ROOT}/girls_detail/pc/{profile_ids[0]}",
+            headers=headers,
+            timeout=15,
+        )
+        if not 200 <= control_response.status_code < 400:
+            return False, set()
+        control_soup = BeautifulSoup(_api_response_markup(control_response), "html.parser")
+        return bool(control_soup.select_one("section.girlprofile")), set(profile_ids)
+    except requests.RequestException as exc:
+        tqdm.write(f"aQua現役プロフィール確認失敗のため終了判定を保留: {exc}")
+        return False, set()
+
+
+def is_unavailable_aqua_profile(url, session, roster_state):
+    parsed = urlparse(url)
+    if parsed.netloc.lower() != "www.k-aqua-jpn.com" or parsed.path != "/girls_detail":
+        return False
+    profile_ids = parse_qs(parsed.query).get("id", [])
+    if not profile_ids or not profile_ids[0].isdigit():
+        return False
+
+    profile_id = profile_ids[0]
+    headers = {**HEADERS, "Referer": url}
+    try:
+        response = session.get(
+            f"{AQUA_API_ROOT}/girls_detail/pc/{profile_id}",
+            headers=headers,
+            timeout=15,
+        )
+        if response.status_code in {404, 410}:
+            return True
+        if not 200 <= response.status_code < 400:
+            return False
+
+        profile_soup = BeautifulSoup(_api_response_markup(response), "html.parser")
+        if profile_soup.select_one("section.girlprofile"):
+            return False
+        message = profile_soup.select_one(".widget-area.maintenance .message")
+        if not message or "データ取得ができませんでした" not in message.get_text(" ", strip=True):
+            return False
+
+        if "status" not in roster_state:
+            roster_state["status"], roster_state["profile_ids"] = _aqua_roster_status(session)
+        return roster_state["status"] and profile_id not in roster_state["profile_ids"]
+    except requests.RequestException as exc:
+        tqdm.write(f"aQuaプロフィールAPI確認失敗のため保持: {url} ({exc})")
+        return False
+
+
 def filter_unavailable_girl_urls(df, session):
-    """404/410 のプロフィールURLを持つレコードを除外する。"""
+    """プロフィールURLを確認し、終了ページを除外して画像URLも付与する。"""
     unavailable_urls = set()
+    profile_images = {}
+    aqua_roster_state = {}
 
     for url in tqdm(df["girl_url"].dropna().unique(), desc="Checking profile URLs"):
         try:
@@ -101,15 +247,34 @@ def filter_unavailable_girl_urls(df, session):
             ) as response:
                 if response.status_code in {404, 410}:
                     unavailable_urls.add(url)
+                    continue
+                if 200 <= response.status_code < 400:
+                    chunks = []
+                    size = 0
+                    for chunk in response.iter_content(chunk_size=64 * 1024):
+                        if not chunk:
+                            continue
+                        remaining = PROFILE_HTML_LIMIT - size
+                        chunks.append(chunk[:remaining])
+                        size += min(len(chunk), remaining)
+                        if size >= PROFILE_HTML_LIMIT:
+                            break
+                    page_html = b"".join(chunks).decode(response.encoding or "utf-8", errors="replace")
+                    if is_unavailable_aqua_profile(url, session, aqua_roster_state):
+                        unavailable_urls.add(url)
+                        continue
+                    girl_name = str(df.loc[df["girl_url"].eq(url), "name"].iloc[0])
+                    profile_images[url] = extract_profile_image_url(page_html, response.url, girl_name)
         except requests.RequestException as exc:
             tqdm.write(f"URL確認失敗のため保持: {url} ({exc})")
 
+    filtered = df.copy()
     if unavailable_urls:
-        removed = df["girl_url"].isin(unavailable_urls)
+        removed = filtered["girl_url"].isin(unavailable_urls)
         tqdm.write(f"公開終了URLを持つレコードを除外: {int(removed.sum())}件")
-        return df.loc[~removed].copy().reset_index(drop=True)
-
-    return df.copy().reset_index(drop=True)
+        filtered = filtered.loc[~removed].copy()
+    filtered["profile_image_url"] = filtered["girl_url"].map(profile_images)
+    return filtered.reset_index(drop=True)
 
 
 def login(session, password):
