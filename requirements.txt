@@ -5,3 +5,4 @@ tqdm
 pandas
 requests
 lxml
+ddgs
