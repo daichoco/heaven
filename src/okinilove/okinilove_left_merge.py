@@ -8,7 +8,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl, write_jsonl_atomic
-from okinilove.scrape_okinilove import find_unavailable_profile_urls, refresh_okinilove_data
+from okinilove.scrape_okinilove import find_unavailable_profile_urls
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT_DIR / "data"
@@ -51,9 +51,7 @@ def merge_okinilove_data(
     normalize_url,
     enrich_with_cityheaven_urls,
 ):
-    """オキニラブ新規データを保存し、出勤データへ右結合する。"""
-    refresh_okinilove_data()
-
+    """既存のオキニラブデータを突合し、出勤データへ右結合する（サイトの再取得はしない）。"""
     if not OKINILOVE_JSONL.exists():
         raise FileNotFoundError(f"オキニラブ既存JSONLがありません: {OKINILOVE_JSONL}")
 

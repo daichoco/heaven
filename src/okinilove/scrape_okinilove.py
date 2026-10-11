@@ -75,7 +75,13 @@ def profile_link_in_row(row):
     )
 
 
+_UNREACHABLE_HOSTS = set()
+
+
 def _fetch_profile_status(url):
+    host = urlparse(url).netloc.lower()
+    if host in _UNREACHABLE_HOSTS:
+        return None
     try:
         response = requests.get(
             url,
@@ -97,7 +103,12 @@ def _fetch_profile_status(url):
         finally:
             response.close()
     except requests.RequestException as error:
-        print(f"プロフィール確認失敗のため保持: {url} ({error})")
+        if "NameResolutionError" in str(error):
+            # ホスト名自体が存在しない場合は、同じホストを何度も確認しない
+            _UNREACHABLE_HOSTS.add(host)
+            print(f"ホスト名を解決できないため保持（以降スキップ）: {host} 例: {url}")
+        else:
+            print(f"プロフィール確認失敗のため保持: {url} ({error})")
         return None
 
 

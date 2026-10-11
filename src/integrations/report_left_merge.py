@@ -1,18 +1,12 @@
 #%%
 import asyncio
 import json
-import random
 import re
 import sys
-import time
 from pathlib import Path
 
 import pandas as pd
 from bs4 import BeautifulSoup
-from ddgs import DDGS
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT_DIR / "src"
@@ -55,62 +49,6 @@ def normalize_url(url):
     normalized = str(url).split("?")[0].rstrip("/")
     match = re.search(r"(https://www\.cityheaven\.net/.+?/girlid-\d+)", normalized)
     return match.group(1) if match else normalized
-
-
-def human_delay():
-    """人間っぽい待機を入れる"""
-    delay = random.uniform(2, 7)
-    if random.random() < 0.1:
-        delay += random.uniform(10, 20)
-    time.sleep(delay)
-
-
-def build_driver():
-    user_agents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Firefox/121.0",
-        "Mozilla/5.0 (Linux; Android 11; Pixel 5) Chrome/119.0 Mobile Safari/537.36",
-    ]
-    options = Options()
-    options.add_argument(f"user-agent={random.choice(user_agents)}")
-    return webdriver.Chrome(options=options)
-
-
-def search_cityheaven_url(driver, shop_name, girl_name, source="yahoo", max_results=5):
-    query = f"{shop_name} {girl_name} site:cityheaven.net"
-
-    if source == "duckduckgo":
-        with DDGS() as ddgs:
-            results = ddgs.text(
-                query,
-                region="jp-jp",
-                safesearch="off",
-                timelimit=None,
-                max_results=max_results,
-            )
-            for r in results:
-                url = r["href"]
-                if "cityheaven.net" in url and "girlid" in url and "attend" not in url:
-                    print(f"[DDG] {shop_name} {girl_name}\n{url}")
-                    return url
-    else:
-        try:
-            driver.get(f"https://search.yahoo.co.jp/search?p={query}")
-            human_delay()
-
-            if random.random() < 0.2:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(random.uniform(2, 5))
-
-            results = driver.find_elements(By.CSS_SELECTOR, "a.sw-Card__titleInner")
-            for r in results:
-                url = r.get_attribute("href")
-                if url and "cityheaven.net" in url and "girlid" in url and "attend" not in url:
-                    print(f"[Yahoo] {shop_name} {girl_name}\n{url}")
-                    return url
-        except Exception as e:
-            print(f"[Yahoo] 検索失敗: {shop_name} {girl_name} → {e}")
-    return None
 
 
 def enrich_with_cityheaven_urls(df):
