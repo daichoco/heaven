@@ -94,6 +94,16 @@ async def main():
             wait_until="domcontentloaded",
             timeout=60000,
         )
+        if response:
+            print(f"CityHeaven response: {response.status} {response.url}")
+            for name in ("server", "via", "cf-ray", "x-cache", "content-type", "retry-after"):
+                value = response.headers.get(name)
+                if value:
+                    print(f"{name}: {value}")
+
+            if response.status >= 400:
+                body = await response.text()
+                print("Response body:", " ".join(body.split())[:1500])
         if response and response.status >= 400:
             raise RuntimeError(f"Cityheaven page request failed: HTTP {response.status}")
 
