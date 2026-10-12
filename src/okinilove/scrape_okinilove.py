@@ -36,16 +36,17 @@ REVIEW_COLUMNS = [
     "report_text",
     "cityheaven_url",
     "face",
+    "service",
     "age",
 ]
 _LEGACY_COLUMNS = REVIEW_COLUMNS[:7]
 
 
 def read_reviews():
-    """face/age 列が無い旧形式のJSONLも読み込めるようにする。"""
+    """詳細列が無い旧形式のJSONLも読み込めるようにする。"""
     reviews = read_jsonl(REVIEWS_JSONL_PATH, columns=_LEGACY_COLUMNS)
     full = read_jsonl(REVIEWS_JSONL_PATH)
-    for column in ("face", "age"):
+    for column in ("face", "service", "age"):
         reviews[column] = full[column] if column in full.columns else None
     return reviews
 HEADERS = {
@@ -57,6 +58,7 @@ PUBLICATION_RE = re.compile(r"\[公開日\d{4}/\d{2}/\d{2}\]")
 
 
 SHOP_INDEX_TTL = timedelta(days=7)
+SHOP_INDEX_SCHEMA_VERSION = 2
 # 全投稿履歴の一覧カテゴリ（70=デリヘル, 71=ヘルス, 72=ソープ）
 SHOP_INDEX_CATEGORIES = [70, 71, 72]
 SHOP_INDEX_INDUSTRIES = {
@@ -64,6 +66,23 @@ SHOP_INDEX_INDUSTRIES = {
     71: "ヘルス",
     72: "ソープランド",
 }
+SHOP_EXCLUSION_TERMS = (
+    "熟女",
+    "熟母",
+    "熟妻",
+    "熟年",
+    "マダム",
+    "ミセス",
+    "シニア",
+    "おばさん",
+    "美魔女",
+    "アラフォー",
+    "アラフィフ",
+    "40代",
+    "50代",
+    "60代",
+    "年上",
+)
 HISTORY_ENTRY_RE = re.compile(
     r'<a href="https?://okinilove\.com/(blog-entry-\d+\.html)"[^>]*>\s*([^<]*【全投稿履歴】)', re.S
 )
@@ -106,12 +125,19 @@ def shop_industry_from_title(title, category):
     return SHOP_INDEX_INDUSTRIES.get(category)
 
 
-def fetch_shop_index(session):
+def shop_industry_label_from_title(title):
+    """店舗履歴タイトルから、店名より後ろにある業種表示を返す。"""
+    title = title.replace("【全投稿履歴】", "").strip()
+    return title.rpartition("-")[2].strip()
+
+
+def fetch_shop_index(session, categories=None):
     """カテゴリページを巡回して店舗URL、別名、業種を収集する。"""
     shops = {}
     aliases = {}
     industries = {}
-    for category in SHOP_INDEX_CATEGORIES:
+    industry_labels = {}
+    for category in categories or SHOP_INDEX_CATEGORIES:
         seen = set()
         page = 0
         while True:
@@ -131,15 +157,52 @@ def fetch_shop_index(session):
                 industry = shop_industry_from_title(title, category)
                 if industry:
                     industries.setdefault(display, set()).add(industry)
+                industry_label = shop_industry_label_from_title(title)
+                category_labels = industry_labels.setdefault(display, {}).setdefault(
+                    str(category), set()
+                )
+                if industry_label:
+                    category_labels.add(industry_label)
                 for name in names:
                     aliases.setdefault(name, display)
             page += 1
             time.sleep(0.5)
-    return shops, aliases, {
-        shop: next(iter(values))
-        for shop, values in industries.items()
-        if len(values) == 1
-    }
+    return (
+        shops,
+        aliases,
+        {
+            shop: next(iter(values))
+            for shop, values in industries.items()
+            if len(values) == 1
+        },
+        {
+            shop: {
+                category: sorted(labels)
+                for category, labels in category_labels.items()
+            }
+            for shop, category_labels in industry_labels.items()
+        },
+    )
+
+
+def filter_shop_urls_by_categories(shops, industry_labels, categories=None):
+    """カテゴリ70から熟女系の店名・業種表示がある店舗を除外する。"""
+    selected_categories = set(categories or SHOP_INDEX_CATEGORIES)
+    filtered = {}
+    for shop, url in shops.items():
+        labels_by_category = industry_labels.get(shop, {})
+        shop_categories = {int(category) for category in labels_by_category}
+        if selected_categories and not shop_categories.intersection(selected_categories):
+            continue
+        category_70_labels = labels_by_category.get("70", [])
+        if 70 in selected_categories and any(
+            term in text.casefold()
+            for text in (shop, *category_70_labels)
+            for term in SHOP_EXCLUSION_TERMS
+        ):
+            continue
+        filtered[shop] = url
+    return filtered
 
 
 def load_shop_urls(session):
@@ -152,22 +215,31 @@ def load_shop_urls(session):
             fresh = False
         if (
             fresh
+            and cached.get("schema_version") == SHOP_INDEX_SCHEMA_VERSION
             and cached.get("categories") == SHOP_INDEX_CATEGORIES
             and cached.get("shops")
             and "aliases" in cached
             and "industries" in cached
+            and "industry_labels" in cached
         ):
-            return cached["shops"], cached["aliases"]
+            return (
+                filter_shop_urls_by_categories(
+                    cached["shops"], cached["industry_labels"]
+                ),
+                cached["aliases"],
+            )
 
-    shops, aliases, industries = fetch_shop_index(session)
+    shops, aliases, industries, industry_labels = fetch_shop_index(session)
     SHOP_INDEX_PATH.write_text(
         json.dumps(
             {
+                "schema_version": SHOP_INDEX_SCHEMA_VERSION,
                 "fetched_at": datetime.now(timezone.utc).isoformat(),
                 "categories": SHOP_INDEX_CATEGORIES,
                 "shops": shops,
                 "aliases": aliases,
                 "industries": industries,
+                "industry_labels": industry_labels,
             },
             ensure_ascii=False,
             indent=1,
@@ -175,7 +247,7 @@ def load_shop_urls(session):
         encoding="utf-8",
     )
     print(f"店舗索引を更新: {len(shops)}店")
-    return shops, aliases
+    return filter_shop_urls_by_categories(shops, industry_labels), aliases
 
 
 def normalize_existing_shop_names(aliases):
@@ -469,10 +541,13 @@ def fetch_article_record(session, shop_name, article_url):
     gap = None
     stars = None
     face = ""
+    service = ""
 
     for heading, value_text, value_link in fields:
         if "ルックス" in heading:
             face = extract_face(value_text)
+        elif "サービスについて" in heading:
+            service = " ".join(value_text.split())
         elif "女の子の名前" in heading:
             if value_link:
                 girl_name = value_link.get_text(strip=True)
@@ -505,6 +580,7 @@ def fetch_article_record(session, shop_name, article_url):
         "star": stars,
         "report_text": report_text,
         "face": face,
+        "service": service,
         "age": extract_age(decode_response(profile)),
     }
 
@@ -542,10 +618,23 @@ def recently_skipped_urls(skipped, now=None):
     return urls
 
 
-def scrape_new_records(session, shop_urls, known_article_urls):
+def scrape_new_records(
+    session,
+    shop_urls,
+    known_article_urls,
+    batch_callback=None,
+    batch_size=25,
+):
     new_records = []
     skipped = load_skipped_articles()
     skip_urls = recently_skipped_urls(skipped)
+
+    def flush_batch():
+        nonlocal new_records
+        if batch_callback and new_records:
+            batch_callback(new_records)
+            new_records = []
+
     try:
         for shop_name, history_url in shop_urls.items():
             try:
@@ -567,12 +656,15 @@ def scrape_new_records(session, shop_urls, known_article_urls):
                 if record:
                     new_records.append(record)
                     known_article_urls.add(article_url)
+                    if len(new_records) >= batch_size:
+                        flush_batch()
                 else:
                     skipped[article_url] = datetime.now(timezone.utc).isoformat()
                 time.sleep(0.5)
             time.sleep(0.5)
     finally:
         save_skipped_articles(skipped)
+    flush_batch()
     return new_records
 
 
@@ -627,13 +719,12 @@ def append_records_to_raw_html(records):
 
 def append_records_to_jsonl(records):
     existing = read_reviews()
-    def norm(url):
-        return str(url).replace("http://", "https://", 1)
 
-    known_urls = {norm(u) for u in existing["report_url"].dropna()}
+    known_urls = {_normalize_report_url(u) for u in existing["report_url"].dropna()}
     additions = []
     for record in records:
-        if norm(record["url"]) in known_urls:
+        normalized_url = _normalize_report_url(record["url"])
+        if normalized_url in known_urls:
             continue
         additions.append(
             {
@@ -647,10 +738,11 @@ def append_records_to_jsonl(records):
                 if record["girl_url"] and "cityheaven.net" in record["girl_url"]
                 else None,
                 "face": record.get("face", ""),
+                "service": record.get("service", ""),
                 "age": record.get("age", ""),
             }
         )
-        known_urls.add(norm(record["url"]))
+        known_urls.add(normalized_url)
 
     if additions:
         updated = pd.concat(
@@ -659,6 +751,10 @@ def append_records_to_jsonl(records):
         )
         write_jsonl_atomic(updated, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
     return len(additions)
+
+
+def _normalize_report_url(url):
+    return str(url).replace("http://", "https://", 1)
 
 
 def extract_report_detail(session, article_url):
@@ -754,15 +850,48 @@ def backfill_face_and_age():
     return len(faces) + len(ages)
 
 
+def backfill_review_service_from_cache():
+    """記事詳細キャッシュのサービス内容をメインレビューJSONLへ補完する。"""
+    reviews = read_reviews()
+    details = load_report_details()
+    details_by_url = {
+        _normalize_report_url(url): detail for url, detail in details.items()
+    }
+    updated = 0
+
+    for index, report_url in reviews["report_url"].items():
+        detail = details_by_url.get(_normalize_report_url(report_url))
+        current = reviews.at[index, "service"]
+        value = detail.get("service") if detail else None
+        value = " ".join(value.split()) if isinstance(value, str) else value
+        if value and current != value:
+            reviews.at[index, "service"] = value
+            updated += 1
+
+    if updated:
+        write_jsonl_atomic(reviews, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    print(f"サービス内容を補完: {updated}件")
+    return updated
+
+
 def parse_report_details(soup, fragment):
     fields = article_section_fields(soup, fragment)
     if fields is None:
         return None
     looks = next((text for heading, text, _ in fields if "ルックス" in heading), "")
+    service = next(
+        (
+            " ".join(text.split())
+            for heading, text, _ in fields
+            if "サービスについて" in heading
+        ),
+        "",
+    )
     anchor = soup.find(attrs={"name": fragment}) or soup.find(id=fragment)
     return {
         "face": extract_face(looks),
         "style": extract_style(looks),
+        "service": service,
         "report_text": _report_text_after(anchor.parent) if anchor else "",
     }
 
@@ -774,11 +903,18 @@ def load_report_details():
 
 
 def backfill_report_details(report_urls):
-    """顔・スタイル・本文を記事ごとに1回だけ取得してキャッシュする（取得できた記事のみ保存）。"""
+    """記事ごとに1回取得し、顔・スタイル・サービス・本文をキャッシュする。"""
     details = load_report_details()
+    details_by_url = {
+        _normalize_report_url(url): detail for url, detail in details.items()
+    }
     pending = {}
     for url in report_urls:
-        if url and url not in details and "#" in url:
+        if (
+            url
+            and "#" in url
+            and "service" not in details_by_url.get(_normalize_report_url(url), {})
+        ):
             pending.setdefault(url.partition("#")[0], []).append(url)
     if not pending:
         return 0
@@ -787,7 +923,11 @@ def backfill_report_details(report_urls):
         try:
             response = requests.get(base_url, headers=HEADERS, timeout=20)
             response.raise_for_status()
-        except requests.RequestException:
+        except requests.RequestException as error:
+            print(
+                f"Failed to fetch report details for {base_url}: {error}",
+                file=sys.stderr,
+            )
             return {}
         soup = BeautifulSoup(response.text, "html.parser")
         return {
@@ -825,11 +965,13 @@ def refresh_okinilove_data():
         backfill_face_and_age()
         from okinilove.render_people_summary import _extract_rows, render_people_summary_file
 
-        backfill_report_details(
+        report_urls = [
             report["url"]
             for row in _extract_rows(BeautifulSoup(RAW_HTML_PATH.read_text(encoding="utf-8"), "html.parser"))
             for report in row["reports"]
-        )
+        ]
+        backfill_report_details(report_urls)
+        backfill_review_service_from_cache()
         people_count = render_people_summary_file(RAW_HTML_PATH)
 
     print(
@@ -837,6 +979,90 @@ def refresh_okinilove_data():
         f"JSONL追加{jsonl_added}件、人物別表示{people_count}人"
     )
     return raw_added, jsonl_added
+
+
+def refresh_shop_category_reviews(category):
+    """指定カテゴリの未取得レビューを補完し、カテゴリ70では熟女系店舗を除外する。"""
+    counts = {"raw": 0, "jsonl": 0}
+    with requests.Session() as session:
+        shops, aliases, industries, industry_labels = fetch_shop_index(
+            session, categories=[category]
+        )
+        shop_urls = filter_shop_urls_by_categories(
+            shops, industry_labels, categories=[category]
+        )
+        if category == 70:
+            print(
+                f"カテゴリ70: 店舗{len(shops)}店、熟女系除外"
+                f"{len(shops) - len(shop_urls)}店、取得対象{len(shop_urls)}店"
+            )
+            cached_index = {}
+            if SHOP_INDEX_PATH.exists():
+                cached_index = json.loads(
+                    SHOP_INDEX_PATH.read_text(encoding="utf-8")
+                )
+            cached_index["categories"] = SHOP_INDEX_CATEGORIES
+            cached_index["shops"] = {
+                **cached_index.get("shops", {}),
+                **shops,
+            }
+            cached_index["aliases"] = {
+                **cached_index.get("aliases", {}),
+                **aliases,
+            }
+            cached_index["industries"] = {
+                **cached_index.get("industries", {}),
+                **industries,
+            }
+            merged_labels = cached_index.get("industry_labels", {})
+            for shop, category_map in industry_labels.items():
+                merged_labels.setdefault(shop, {}).update(category_map)
+            cached_index["industry_labels"] = merged_labels
+            SHOP_INDEX_PATH.write_text(
+                json.dumps(cached_index, ensure_ascii=False, indent=1),
+                encoding="utf-8",
+            )
+        with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
+            current_soup = BeautifulSoup(source.read(), "html.parser")
+        known_urls = existing_article_urls(current_soup)
+        known_urls.update(
+            read_reviews()["report_url"].dropna().astype(str)
+        )
+
+        def persist_batch(records):
+            counts["jsonl"] += append_records_to_jsonl(records)
+            counts["raw"] += append_records_to_raw_html(records)
+
+        scrape_new_records(
+            session,
+            shop_urls,
+            known_urls,
+            batch_callback=persist_batch,
+        )
+        backfill_face_and_age()
+        from okinilove.render_people_summary import (
+            _extract_rows,
+            render_people_summary_file,
+        )
+
+        report_urls = [
+            report["url"]
+            for row in _extract_rows(
+                BeautifulSoup(
+                    RAW_HTML_PATH.read_text(encoding="utf-8"), "html.parser"
+                )
+            )
+            for report in row["reports"]
+        ]
+        backfill_report_details(report_urls)
+        backfill_review_service_from_cache()
+        people_count = render_people_summary_file(RAW_HTML_PATH)
+
+    print(
+        f"カテゴリ{category}更新: 対象{len(shop_urls)}店、"
+        f"レビュー追加{counts['jsonl']}件、人物別表示{people_count}人"
+    )
+    return counts["raw"], counts["jsonl"]
 
 
 if __name__ == "__main__":

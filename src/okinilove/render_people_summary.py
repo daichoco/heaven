@@ -228,14 +228,30 @@ def extract_profile_image_url(page_html, page_url, person_name=""):
             add_candidate(meta.get("content"), score=80)
 
     for image in soup.find_all("img"):
-        if image.find_parent(id="mitayoguid") or image.find_parent(class_="mitayoimg"):
-            continue
         alt = image.get("alt", "")
-        for attribute in ("src", "data-src", "data-original", "data-lazy-src"):
-            add_candidate(image.get(attribute), alt)
+        image_urls = [
+            image.get(attribute)
+            for attribute in ("src", "data-src", "data-original", "data-lazy-src")
+            if image.get(attribute)
+        ]
         for attribute in ("srcset", "data-srcset"):
-            for candidate in image.get(attribute, "").split(","):
-                add_candidate(candidate.strip().split(" ", 1)[0], alt)
+            image_urls.extend(
+                candidate.strip().split(" ", 1)[0]
+                for candidate in image.get(attribute, "").split(",")
+                if candidate.strip()
+            )
+        in_mitayo_widget = bool(
+            image.find_parent(id="mitayoguid")
+            or image.find_parent(class_="mitayoimg")
+        )
+        has_profile_image_path = any(
+            "/img/girls/" in urljoin(page_url, image_url.strip()).lower()
+            for image_url in image_urls
+        )
+        if in_mitayo_widget and not has_profile_image_path:
+            continue
+        for image_url in image_urls:
+            add_candidate(image_url, alt)
 
     for score, image_url in sorted(candidates, key=lambda item: item[0], reverse=True):
         if score >= 20 and urlparse(image_url).scheme in {"http", "https"}:
@@ -247,13 +263,21 @@ def _fetch_profile_image(profile_url, person_name):
     try:
         response = requests.get(profile_url, headers=HEADERS, timeout=(5, 15))
         if not 200 <= response.status_code < 400:
+            print(
+                f"プロフィール画像取得失敗 ({profile_url}): "
+                f"HTTP {response.status_code}"
+            )
             return None
         page_html = response.content[:PROFILE_IMAGE_HTML_LIMIT].decode(
             response.encoding or "utf-8",
             errors="replace",
         )
-        return extract_profile_image_url(page_html, response.url, person_name)
-    except requests.RequestException:
+        image_url = extract_profile_image_url(page_html, response.url, person_name)
+        if not image_url:
+            print(f"プロフィール画像が見つかりません ({profile_url})")
+        return image_url
+    except requests.RequestException as error:
+        print(f"プロフィール画像取得失敗 ({profile_url}): {error}")
         return None
 
 
@@ -481,6 +505,7 @@ def build_people_summary_html(source_html, profile_images=None):
             else html.escape(person["name"])
         )
         report_items = []
+        service_types = set()
         gap_counts, face_counts = Counter(), Counter()
         for report in person["reports"]:
             report["gap"] = _clean_gap(report["gap"])
@@ -493,6 +518,11 @@ def build_people_summary_html(source_html, profile_images=None):
             )
             detail = {**details_by_report.get(report["url"], {}), **cache.get(report["url"], {})}
             face_counts.update(sorted(set(_face_tokens(detail.get("face")))))
+            service_tokens = set(re.split(r"[\s　]+", detail.get("service") or ""))
+            if any(token.startswith("SP（") for token in service_tokens):
+                service_types.add("sp")
+            if "超SP" in service_tokens:
+                service_types.add("super-sp")
             if not detail.get("report_text"):
                 detail["report_text"] = details_by_report.get(report["url"], {}).get("report_text", "")
             face_html = "".join(
@@ -501,7 +531,7 @@ def build_people_summary_html(source_html, profile_images=None):
             )
             params_html = "".join(
                 f"<p class='review-param'><span class='review-label'>{label}</span>{html.escape(detail[key])}</p>"
-                for label, key in (("スタイル", "style"),)
+                for label, key in (("スタイル", "style"), ("サービス", "service"))
                 if detail.get(key)
             )
             if face_html:
@@ -551,6 +581,7 @@ def build_people_summary_html(source_html, profile_images=None):
             f'data-search="{html.escape(search_text, quote=True)}" '
             f'data-industry="{html.escape(industry, quote=True)}" '
             f'data-gaps="{html.escape(data_gaps, quote=True)}" data-faces="{html.escape(data_faces, quote=True)}" '
+            f'data-service-types="{"|".join(sorted(service_types))}" '
             f'data-neg="{neg_ratio if neg_ratio is not None else 2:.4f}" '
             f'data-negn="{neg_total}" data-vals="{value_total}" data-reports="{len(person["reports"])}" '
             f'data-average="{average if average is not None else 0:.3f}">'
@@ -596,7 +627,7 @@ h1 {{ margin: 0 0 16px; font-size: 1.4rem; }}
 .filters input[type="search"] {{ padding-left: 34px; }}
 .filter-section {{ margin-top: 14px; padding-top: 13px; border-top: 1px solid #edf0f2; }}
 .filter-section-title {{ margin-bottom: 9px; color: #38434b; font-size: 0.82rem; font-weight: 700; }}
-.filter-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 12px; }}
+.filter-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; }}
 .filter-footer {{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }}
 .result-count {{ margin: 0; color: #59666f; font-size: 0.85rem; }}
 .result-count strong {{ color: #20272d; font-size: 1rem; }}
@@ -640,7 +671,7 @@ h1 {{ font-size: 1.25rem; }}
 .filters {{ padding: 12px; }}
 .filter-primary {{ grid-template-columns: 1fr 1fr; gap: 9px; }}
 .filter-search {{ grid-column: 1 / -1; }}
-.filter-grid {{ grid-template-columns: 1fr 1fr; gap: 9px; }}
+.filter-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }}
 .filters input, .filters select {{ min-height: 42px; }}
 .table-wrap {{ max-height: none; overflow: visible; border: 0; background: transparent; }}
 table, tbody, tr, td {{ display: block; width: 100%; }}
@@ -675,6 +706,7 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <label class="filter-field"><span>ネガ率</span><select id="negmax"><option value="">指定なし</option><option value="0">0%のみ</option><option value="0.1">10%以下</option><option value="0.2">20%以下</option><option value="0.3">30%以下</option></select></label>
 <label class="filter-field"><span>評価数</span><select id="reports"><option value="0">指定なし</option><option value="2">2件以上</option><option value="3">3件以上</option><option value="5">5件以上</option></select></label>
 <label class="filter-field"><span>年齢</span><select id="age" aria-label="年齢上限"><option value="">指定なし</option><option value="20">20歳以下</option><option value="25">25歳以下</option><option value="30">30歳以下</option><option value="35">35歳以下</option><option value="40">40歳以下</option><option value="unknown">年齢不明</option></select></label>
+<label class="filter-field"><span>SPサービス</span><select id="service-type"><option value="">指定なし</option><option value="sp">SPあり</option><option value="super-sp">超SPあり</option><option value="either">SPまたは超SPあり</option></select></label>
 <label class="filter-field"><span>並び順</span><select id="sort"><option value="average">平均評価順</option><option value="neg">ネガ率が低い順</option><option value="adj">補正ネガ率が低い順</option></select></label>
 </div>
 </div>
@@ -683,17 +715,17 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>
-const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), sortSelect=document.getElementById('sort');
+const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), serviceTypeFilter=document.getElementById('service-type'), sortSelect=document.getElementById('sort');
 const tbody=document.querySelector('#reviews tbody'), originalPairs=[...tbody.querySelectorAll('tr.person-row')].map(r=>[r,r.nextElementSibling]);
 const totN=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.negn),0), totV=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.vals),0), prior=totV?totN/totV:0;
 const adj=r=>(Number(r.dataset.negn)+5*prior)/(Number(r.dataset.vals)+5);
 const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);industryFilter.addEventListener('change',applyFilters);
 function applySort() {{ const pairs=originalPairs.slice(); if(sortSelect.value==='adj') pairs.sort((a,b)=>adj(a[0])-adj(b[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='neg') pairs.sort((a,b)=>Number(a[0].dataset.neg)-Number(b[0].dataset.neg)||Number(b[0].dataset.average)-Number(a[0].dataset.average)); pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}}); }}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
-function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), match=row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
+function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
 document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
-searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);
+searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);
 document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';applySort();applyFilters();}});
 </script></body></html>'''
     return BeautifulSoup(page, "html.parser")
