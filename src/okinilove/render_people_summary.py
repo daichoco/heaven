@@ -15,6 +15,21 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 RAW_HTML_PATH = ROOT_DIR / "docs" / "okinilove_remove_unknown.html"
 PROFILE_IMAGE_WORKERS = 8
 PROFILE_IMAGE_HTML_LIMIT = 512 * 1024
+SHOP_INDUSTRIES = {
+    "ソープランド": "ソープランド",
+    "デリバリーヘルス": "デリヘル",
+    "デリヘル": "デリヘル",
+    "ヘルス（箱ヘル）": "ヘルス",
+    "ホテルヘルス": "ヘルス",
+    "メンズエステ": "エステ",
+    "風俗エステ": "エステ",
+    "その他": "その他",
+}
+SHOP_INDEX_INDUSTRIES = {
+    "70": "デリヘル",
+    "71": "ヘルス",
+    "72": "ソープランド",
+}
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36",
 }
@@ -287,6 +302,120 @@ def _load_review_details():
     return by_report, ages
 
 
+def _normalize_shop_name(name):
+    return re.sub(r"[\s　・（）()【】［］\[\]「」『』＆&!！]", "", name or "").casefold()
+
+
+def _load_shop_industries():
+    """既存の店舗カテゴリとレポート履歴から、業種が一意に判明する店舗を返す。"""
+    industries_by_shop = {}
+
+    index_path = ROOT_DIR / "data" / "okinilove_shop_index.json"
+    if index_path.exists():
+        shop_index = json.loads(index_path.read_text(encoding="utf-8"))
+        index_industries = shop_index.get("industries", {})
+        if index_industries:
+            for shop, industry in index_industries.items():
+                normalized_shop = _normalize_shop_name(shop)
+                if normalized_shop:
+                    industries_by_shop.setdefault(normalized_shop, set()).add(industry)
+            for alias, shop in shop_index.get("aliases", {}).items():
+                industry = index_industries.get(shop)
+                normalized_alias = _normalize_shop_name(alias)
+                if industry and normalized_alias:
+                    industries_by_shop.setdefault(normalized_alias, set()).add(industry)
+        else:
+            for category in shop_index.get("categories", []):
+                industry = SHOP_INDEX_INDUSTRIES.get(str(category))
+                if not industry:
+                    continue
+                for shop in shop_index.get("shops", {}):
+                    normalized_shop = _normalize_shop_name(shop)
+                    if normalized_shop:
+                        industries_by_shop.setdefault(normalized_shop, set()).add(industry)
+
+    history_path = ROOT_DIR / "data" / "tokai_fuzoku_report_history.jsonl"
+    if history_path.exists():
+        for line in history_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            industry = SHOP_INDUSTRIES.get(row.get("shop_type", ""))
+            shop = _normalize_shop_name(row.get("shop_name", ""))
+            if industry and shop:
+                industries_by_shop.setdefault(shop, set()).add(industry)
+
+    return {
+        shop: next(iter(industries))
+        for shop, industries in industries_by_shop.items()
+        if len(industries) == 1
+    }
+
+
+def _industry_from_profile_html(page_html):
+    soup = BeautifulSoup(page_html, "html.parser")
+    shop_name = soup.select_one(".shopname")
+    texts = [shop_name.get_text(" ", strip=True)] if shop_name else []
+    if soup.title:
+        texts.append(soup.title.get_text(" ", strip=True))
+    if not texts:
+        return None
+
+    for shop_text in texts:
+        if "ソープ" in shop_text:
+            return "ソープランド"
+        if "デリヘル" in shop_text or "デリバリーヘルス" in shop_text:
+            return "デリヘル"
+        if "ヘルス" in shop_text:
+            return "ヘルス"
+        if "エステ" in shop_text:
+            return "エステ"
+    return None
+
+
+def _fetch_profile_shop_industry(profile_urls):
+    for profile_url in profile_urls:
+        hostname = (urlparse(profile_url).hostname or "").casefold()
+        if not hostname.endswith(("cityheaven.net", "yoasobi.co.jp")):
+            continue
+        try:
+            response = requests.get(profile_url, headers=HEADERS, timeout=(5, 15))
+            response.raise_for_status()
+        except requests.RequestException as error:
+            print(f"掲載URLから業種を取得できません ({profile_url}): {error}")
+            continue
+        industry = _industry_from_profile_html(response.content)
+        if industry:
+            return industry
+    return None
+
+
+def _load_profile_shop_industries(people, known_industries):
+    profile_urls_by_shop = {}
+    for person in people:
+        shop_key = _normalize_shop_name(person["shop"])
+        profile_url = person["profile_url"]
+        if shop_key not in known_industries and profile_url:
+            profile_urls_by_shop.setdefault(shop_key, set()).add(profile_url)
+
+    if not profile_urls_by_shop:
+        return {}
+
+    resolved = {}
+    with ThreadPoolExecutor(max_workers=PROFILE_IMAGE_WORKERS) as executor:
+        futures = {
+            executor.submit(_fetch_profile_shop_industry, sorted(urls)): shop_key
+            for shop_key, urls in profile_urls_by_shop.items()
+        }
+        for future in as_completed(futures):
+            industry = future.result()
+            if industry:
+                resolved[futures[future]] = industry
+
+    print(f"掲載URLから業種を取得: {len(resolved)} / {len(profile_urls_by_shop)}店舗")
+    return resolved
+
+
 POSITIVE = {
     "face": {"かわいい", "キレイ", "きれい", "幼い"},
     "gap": {"写真より良い", "そのまま変りない", "そのまま変わりない"},
@@ -321,11 +450,13 @@ def build_people_summary_html(source_html, profile_images=None):
     people = list(_person_groups(_extract_rows(source_soup)))
     profile_images = profile_images or {}
     details_by_report, ages = _load_review_details()
+    shop_industries = _load_shop_industries()
+    shop_industries.update(_load_profile_shop_industries(people, shop_industries))
     details_path = ROOT_DIR / "data" / "okinilove_report_details.json"
     cache = json.loads(details_path.read_text(encoding="utf-8")) if details_path.exists() else {}
     shops = sorted({person["shop"] for person in people if person["shop"]})
     rows_html = []
-    all_gaps, all_faces = Counter(), Counter()
+    all_gaps, all_faces, all_industries = Counter(), Counter(), Counter()
     for person in sorted(
         people,
         key=lambda item: (
@@ -361,7 +492,7 @@ def build_people_summary_html(source_html, profile_images=None):
                 else "記事URLなし"
             )
             detail = {**details_by_report.get(report["url"], {}), **cache.get(report["url"], {})}
-            face_counts.update(set(_face_tokens(detail.get("face"))))
+            face_counts.update(sorted(set(_face_tokens(detail.get("face")))))
             if not detail.get("report_text"):
                 detail["report_text"] = details_by_report.get(report["url"], {}).get("report_text", "")
             face_html = "".join(
@@ -391,6 +522,8 @@ def build_people_summary_html(source_html, profile_images=None):
         reports_html = f"<ol class='report-list'>{''.join(report_items)}</ol>"
         search_text = " ".join((person["shop"], person["name"])).casefold()
         age = ages.get(person["profile_url"], "")
+        industry = shop_industries.get(_normalize_shop_name(person["shop"]), "不明")
+        all_industries[industry] += 1
         age_html = f"<span class='age'>{html.escape(str(age))}歳</span>" if age else ""
         def chips(counts, kind):
             return "".join(
@@ -416,6 +549,7 @@ def build_people_summary_html(source_html, profile_images=None):
         rows_html.append(
             f'<tr class="person-row" data-shop="{html.escape(person["shop"], quote=True)}" '
             f'data-search="{html.escape(search_text, quote=True)}" '
+            f'data-industry="{html.escape(industry, quote=True)}" '
             f'data-gaps="{html.escape(data_gaps, quote=True)}" data-faces="{html.escape(data_faces, quote=True)}" '
             f'data-neg="{neg_ratio if neg_ratio is not None else 2:.4f}" '
             f'data-negn="{neg_total}" data-vals="{value_total}" data-reports="{len(person["reports"])}" '
@@ -440,6 +574,10 @@ def build_people_summary_html(source_html, profile_images=None):
         f'<option value="{html.escape(key, quote=True)}">{html.escape(key)} ({n}人)</option>'
         for key, n in all_faces.most_common()
     )
+    industry_options = "".join(
+        f'<option value="{html.escape(key, quote=True)}">{html.escape(key)} ({n}人)</option>'
+        for key, n in all_industries.most_common()
+    )
     page = f'''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>オキニラブ 人物別レビュー</title>
@@ -448,10 +586,22 @@ def build_people_summary_html(source_html, profile_images=None):
 * {{ box-sizing: border-box; }}
 body {{ max-width: 1280px; margin: 0 auto; padding: 24px; }}
 h1 {{ margin: 0 0 16px; font-size: 1.4rem; }}
-.filters {{ display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }}
-.filters input, .filters select {{ min-height: 38px; padding: 7px 10px; border: 1px solid #b9c2c9; border-radius: 4px; background: white; }}
-.filters input {{ flex: 1 1 180px; min-width: 150px; }}
-.filters select {{ flex: 0 1 auto; max-width: 200px; }}
+.filters {{ margin-bottom: 14px; padding: 16px; border: 1px solid #d7dfe4; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px #2637460a; }}
+.filter-primary {{ display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(160px, 0.8fr); gap: 12px; }}
+.filter-field {{ display: grid; min-width: 0; gap: 5px; color: #56616a; font-size: 0.78rem; font-weight: 600; }}
+.filters input, .filters select {{ width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid #cbd4da; border-radius: 6px; background: #fff; color: #20272d; font: inherit; font-size: 0.9rem; }}
+.filters input:focus, .filters select:focus {{ border-color: #28738a; outline: 3px solid #28738a26; }}
+.filter-search {{ position: relative; }}
+.filter-search::before {{ position: absolute; left: 11px; bottom: 11px; color: #73818a; content: "⌕"; font-size: 1.15rem; line-height: 1; }}
+.filters input[type="search"] {{ padding-left: 34px; }}
+.filter-section {{ margin-top: 14px; padding-top: 13px; border-top: 1px solid #edf0f2; }}
+.filter-section-title {{ margin-bottom: 9px; color: #38434b; font-size: 0.82rem; font-weight: 700; }}
+.filter-grid {{ display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 12px; }}
+.filter-footer {{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }}
+.result-count {{ margin: 0; color: #59666f; font-size: 0.85rem; }}
+.result-count strong {{ color: #20272d; font-size: 1rem; }}
+.reset-filters {{ padding: 7px 11px; border: 1px solid #cbd4da; border-radius: 6px; background: #f7f9fa; color: #35434c; font: inherit; font-size: 0.82rem; cursor: pointer; }}
+.reset-filters:hover {{ border-color: #8b9aa3; background: #eef2f4; }}
 .table-wrap {{ max-height: calc(100vh - 150px); overflow: auto; border: 1px solid #cbd2d8; background: white; }}
 table {{ width: 100%; border-collapse: collapse; }}
 th, td {{ padding: 10px 12px; border-bottom: 1px solid #e0e4e7; text-align: left; vertical-align: top; }}
@@ -487,8 +637,11 @@ a {{ color: #17617a; }}
 @media (max-width: 700px) {{
 body {{ padding: 12px; }}
 h1 {{ font-size: 1.25rem; }}
-.filters {{ display: grid; grid-template-columns: 1fr; gap: 8px; }}
-.filters input, .filters select {{ width: 100%; min-height: 44px; }}
+.filters {{ padding: 12px; }}
+.filter-primary {{ grid-template-columns: 1fr 1fr; gap: 9px; }}
+.filter-search {{ grid-column: 1 / -1; }}
+.filter-grid {{ grid-template-columns: 1fr 1fr; gap: 9px; }}
+.filters input, .filters select {{ min-height: 42px; }}
 .table-wrap {{ max-height: none; overflow: visible; border: 0; background: transparent; }}
 table, tbody, tr, td {{ display: block; width: 100%; }}
 thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }}
@@ -507,29 +660,41 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 }}
 </style></head><body>
 <h1>女の子別 評価・レポート</h1>
-<div class="filters"><input id="search" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
-<select id="shop"><option value="">全店舗</option>{shop_options}</select>
-<select id="minimum"><option value="0">全評価</option><option value="3">平均3点以上</option><option value="4">平均4点以上</option><option value="5">平均5点</option></select>
-<select id="face"><option value="">顔: すべて</option>{face_options}</select>
-<select id="gap"><option value="">ギャップ: すべて</option>{gap_options}</select>
-<select id="negmax"><option value="">ネガ率: すべて</option><option value="0">ネガ率 0%のみ</option><option value="0.1">ネガ率 10%以下</option><option value="0.2">ネガ率 20%以下</option><option value="0.3">ネガ率 30%以下</option></select>
-<select id="reports"><option value="0">評価数: すべて</option><option value="2">2件以上</option><option value="3">3件以上</option><option value="5">5件以上</option></select>
-<select id="age" aria-label="年齢上限"><option value="">年齢: すべて</option><option value="20">20歳以下</option><option value="25">25歳以下</option><option value="30">30歳以下</option><option value="35">35歳以下</option><option value="40">40歳以下</option><option value="unknown">年齢不明</option></select>
-<select id="sort"><option value="average">並び: 平均評価順</option><option value="neg">並び: ネガ率が低い順</option><option value="adj">並び: 補正ネガ率が低い順(評価数考慮)</option></select></div>
+<section class="filters" id="filters" aria-label="レビューの絞り込み">
+<div class="filter-primary">
+<label class="filter-field filter-search"><span>名前・店舗を検索</span><input id="search" type="search" placeholder="名前や店舗名を入力" aria-label="名前・店舗で検索"></label>
+<label class="filter-field"><span>店舗</span><select id="shop"><option value="">全店舗</option>{shop_options}</select></label>
+<label class="filter-field"><span>業種</span><select id="industry" aria-label="業種"><option value="">すべて</option>{industry_options}</select></label>
+</div>
+<div class="filter-section">
+<div class="filter-section-title">詳細条件</div>
+<div class="filter-grid">
+<label class="filter-field"><span>平均評価</span><select id="minimum"><option value="0">指定なし</option><option value="3">3点以上</option><option value="4">4点以上</option><option value="5">5点</option></select></label>
+<label class="filter-field"><span>顔の評価</span><select id="face"><option value="">すべて</option>{face_options}</select></label>
+<label class="filter-field"><span>写真とのギャップ</span><select id="gap"><option value="">すべて</option>{gap_options}</select></label>
+<label class="filter-field"><span>ネガ率</span><select id="negmax"><option value="">指定なし</option><option value="0">0%のみ</option><option value="0.1">10%以下</option><option value="0.2">20%以下</option><option value="0.3">30%以下</option></select></label>
+<label class="filter-field"><span>評価数</span><select id="reports"><option value="0">指定なし</option><option value="2">2件以上</option><option value="3">3件以上</option><option value="5">5件以上</option></select></label>
+<label class="filter-field"><span>年齢</span><select id="age" aria-label="年齢上限"><option value="">指定なし</option><option value="20">20歳以下</option><option value="25">25歳以下</option><option value="30">30歳以下</option><option value="35">35歳以下</option><option value="40">40歳以下</option><option value="unknown">年齢不明</option></select></label>
+<label class="filter-field"><span>並び順</span><select id="sort"><option value="average">平均評価順</option><option value="neg">ネガ率が低い順</option><option value="adj">補正ネガ率が低い順</option></select></label>
+</div>
+</div>
+<div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
+</section>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>
-const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), sortSelect=document.getElementById('sort');
+const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), sortSelect=document.getElementById('sort');
 const tbody=document.querySelector('#reviews tbody'), originalPairs=[...tbody.querySelectorAll('tr.person-row')].map(r=>[r,r.nextElementSibling]);
 const totN=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.negn),0), totV=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.vals),0), prior=totV?totN/totV:0;
 const adj=r=>(Number(r.dataset.negn)+5*prior)/(Number(r.dataset.vals)+5);
-const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);
+const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);industryFilter.addEventListener('change',applyFilters);
 function applySort() {{ const pairs=originalPairs.slice(); if(sortSelect.value==='adj') pairs.sort((a,b)=>adj(a[0])-adj(b[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='neg') pairs.sort((a,b)=>Number(a[0].dataset.neg)-Number(b[0].dataset.neg)||Number(b[0].dataset.average)-Number(a[0].dataset.average)); pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}}); }}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
-function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), match=row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('empty').hidden=shown!==0; }}
+function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), match=row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
 document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
 searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);
+document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';applySort();applyFilters();}});
 </script></body></html>'''
     return BeautifulSoup(page, "html.parser")
 

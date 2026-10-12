@@ -57,8 +57,13 @@ PUBLICATION_RE = re.compile(r"\[公開日\d{4}/\d{2}/\d{2}\]")
 
 
 SHOP_INDEX_TTL = timedelta(days=7)
-# 全投稿履歴の一覧カテゴリ。まずソープのみ（70=デリヘル, 71=ヘルス, 73=番外編は未対応）
-SHOP_INDEX_CATEGORIES = [72]
+# 全投稿履歴の一覧カテゴリ（70=デリヘル, 71=ヘルス, 72=ソープ）
+SHOP_INDEX_CATEGORIES = [70, 71, 72]
+SHOP_INDEX_INDUSTRIES = {
+    70: "デリヘル",
+    71: "ヘルス",
+    72: "ソープランド",
+}
 HISTORY_ENTRY_RE = re.compile(
     r'<a href="https?://okinilove\.com/(blog-entry-\d+\.html)"[^>]*>\s*([^<]*【全投稿履歴】)', re.S
 )
@@ -79,13 +84,33 @@ def shop_names_from_title(title):
         latin, reading, rest = match.groups()
         display = f"{reading}{rest}".strip()
         aliases.update({latin.strip(), f"{latin.strip()}{rest}".strip(), reading, display})
+    parenthetical = re.match(r"^(.+?)（([^）]+)）(.*)$", raw)
+    if parenthetical:
+        base, alternate, rest = parenthetical.groups()
+        aliases.update({f"{base}{rest}".strip(), f"{alternate}{rest}".strip()})
     return display, aliases
 
 
+def shop_industry_from_title(title, category):
+    """店舗履歴タイトルの業種を優先し、見つからなければカテゴリから返す。"""
+    title = title.replace("【全投稿履歴】", "")
+    suffix = title.rpartition("-")[2]
+    if "ソープ" in suffix:
+        return "ソープランド"
+    if "デリヘル" in suffix or "デリバリーヘルス" in suffix:
+        return "デリヘル"
+    if "ホテルヘルス" in suffix or "ヘルス" in suffix:
+        return "ヘルス"
+    if "エステ" in suffix:
+        return "エステ"
+    return SHOP_INDEX_INDUSTRIES.get(category)
+
+
 def fetch_shop_index(session):
-    """カテゴリページを巡回して ({表示名: 全投稿履歴URL}, {別名: 表示名}) を作る。"""
+    """カテゴリページを巡回して店舗URL、別名、業種を収集する。"""
     shops = {}
     aliases = {}
+    industries = {}
     for category in SHOP_INDEX_CATEGORIES:
         seen = set()
         page = 0
@@ -103,11 +128,18 @@ def fetch_shop_index(session):
             for entry, title in new.items():
                 display, names = shop_names_from_title(title)
                 shops[display] = f"https://okinilove.com/{entry}"
+                industry = shop_industry_from_title(title, category)
+                if industry:
+                    industries.setdefault(display, set()).add(industry)
                 for name in names:
                     aliases.setdefault(name, display)
             page += 1
             time.sleep(0.5)
-    return shops, aliases
+    return shops, aliases, {
+        shop: next(iter(values))
+        for shop, values in industries.items()
+        if len(values) == 1
+    }
 
 
 def load_shop_urls(session):
@@ -118,10 +150,16 @@ def load_shop_urls(session):
             fresh = datetime.now(timezone.utc) - datetime.fromisoformat(cached["fetched_at"]) < SHOP_INDEX_TTL
         except (KeyError, TypeError, ValueError):
             fresh = False
-        if fresh and cached.get("categories") == SHOP_INDEX_CATEGORIES and cached.get("shops") and "aliases" in cached:
+        if (
+            fresh
+            and cached.get("categories") == SHOP_INDEX_CATEGORIES
+            and cached.get("shops")
+            and "aliases" in cached
+            and "industries" in cached
+        ):
             return cached["shops"], cached["aliases"]
 
-    shops, aliases = fetch_shop_index(session)
+    shops, aliases, industries = fetch_shop_index(session)
     SHOP_INDEX_PATH.write_text(
         json.dumps(
             {
@@ -129,6 +167,7 @@ def load_shop_urls(session):
                 "categories": SHOP_INDEX_CATEGORIES,
                 "shops": shops,
                 "aliases": aliases,
+                "industries": industries,
             },
             ensure_ascii=False,
             indent=1,

@@ -271,14 +271,11 @@ html = """<!DOCTYPE html>
       body { max-width: 1400px; margin: 0 auto; padding: 16px; font: 15px/1.5 sans-serif; color: #20272d; }
       h1 { margin: 0 0 16px; font-size: 1.4rem; }
       thead th {
-        position: sticky;
-        top: 0;
         background: #f9f9f9;
-        z-index: 1;
       }
       th.saturday { color: blue; }
       th.sunday { color: red; }
-      body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 220px); overflow: auto; border: 1px solid #ccd2d8; background: white; }
+      body > div[style*="overflow-x: auto"] { overflow-x: auto; overflow-y: visible; border: 1px solid #ccd2d8; background: white; }
       table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 14px; }
       th, td { border: 1px solid #d7dde1; padding: 8px; text-align: center; vertical-align: top; }
       th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: #f9f9f9; }
@@ -309,7 +306,7 @@ html = """<!DOCTYPE html>
         .filter-group label { min-height: 36px; margin-right: 8px; }
         input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; }
         input[type="date"] { min-height: 42px; }
-        body > div[style*="overflow-x: auto"] { max-height: calc(100vh - 260px); overflow: auto; }
+        body > div[style*="overflow-x: auto"] { max-height: none; overflow-x: auto; overflow-y: visible; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
         body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: 97px minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid #f5f6f7; background: white; color: #333; font-size: 13px; }
@@ -498,7 +495,7 @@ html = """<!DOCTYPE html>
 """
 
 # テーブル開始
-html += "<div style='height: calc(100vh - 100px); overflow-y: auto; overflow-x: auto;'>"
+html += "<div style='overflow-x: auto;'>"
 html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
 
 # 日付ヘッダー
