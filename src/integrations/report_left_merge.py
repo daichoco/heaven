@@ -269,6 +269,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .day-picker { display: flex; align-items: center; gap: 8px; }
       .day-picker select { flex: 1; min-width: 0; max-width: 320px; min-height: 40px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); font-weight: 700; }
       .day-picker button { flex: none; min-height: 40px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--chip); color: var(--fg); font-size: 15px; cursor: pointer; }
+      .day-picker select.inactive { font-weight: normal; color: var(--muted); }
       .day-picker button:disabled { opacity: 0.4; cursor: default; }
       th.day-col { min-width: 140px; }
       td[data-on="1"] .cell { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--surface-open); color: var(--link); font-weight: 700; }
@@ -337,6 +338,12 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         const next = select.selectedIndex + delta;
         if (next < 0 || next >= select.options.length) return;
         select.selectedIndex = next;
+        selectDay();
+      }
+
+      // セレクタや前日/翌日を操作したら日付指定モードに戻す
+      function selectDay() {
+        document.querySelector('input[name="dateMode"][value="day"]').checked = true;
         applyCombinedFilter();
       }
 
@@ -344,7 +351,11 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         resetAllReviews();
         const select = document.getElementById("daySelect");
         if (!select || !select.options.length) return;
-        const day = select.value;
+        const weekendMode = document.querySelector('input[name="dateMode"]:checked').value === "weekend";
+        // 表示対象の列番号（日付指定なら選択日、土日モードなら土日すべて）
+        const targetDays = new Set(weekendMode
+          ? [...select.options].filter(o => /\((土|日)\)/.test(o.dataset.label)).map(o => o.value)
+          : [select.value]);
         const workingOnly = document.getElementById("workingOnly").checked;
         const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
         const workingCounts = new Array(select.options.length).fill(0);
@@ -360,7 +371,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
           row.querySelectorAll('td[data-day]').forEach(cell => {
             const on = cell.dataset.on === "1" || TIME_RE.test(cell.textContent.trim());
             if (on && showByReport) workingCounts[Number(cell.dataset.day)] += 1;
-            if (cell.dataset.day === day) isWorking = on;
+            if (targetDays.has(cell.dataset.day) && on) isWorking = true;
           });
           if (isWorking && showByReport) working += 1;
           const visible = showByReport && (isWorking || !workingOnly);
@@ -368,9 +379,9 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
           row.style.display = visible ? "" : "none";
         });
 
-        // 選択日以外の列（PC）とカード（スマホ）を隠す
+        // 対象日以外の列（PC）とカード（スマホ）を隠す
         document.querySelectorAll('[data-day]').forEach(el => {
-          el.style.display = el.dataset.day === day ? "" : "none";
+          el.style.display = targetDays.has(el.dataset.day) ? "" : "none";
         });
 
         [...select.options].forEach((option, i) => {
@@ -378,7 +389,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         });
         document.getElementById("prevDay").disabled = select.selectedIndex <= 0;
         document.getElementById("nextDay").disabled = select.selectedIndex >= select.options.length - 1;
-        const label = select.options[select.selectedIndex].dataset.label;
+        select.classList.toggle("inactive", weekendMode);
+        const label = weekendMode ? "土日" : select.options[select.selectedIndex].dataset.label;
         document.getElementById("dayCount").textContent = workingOnly
           ? `${label} の出勤 ${working}名`
           : `${label} の出勤 ${working}名 / 表示 ${shown}名`;
@@ -413,6 +425,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
 
     <div class="filter-group">
       <strong>表示条件：</strong><br>
+      <label><input type="radio" name="dateMode" value="day" checked onchange="applyCombinedFilter()"> 日付指定</label>
+      <label><input type="radio" name="dateMode" value="weekend" onchange="applyCombinedFilter()"> 土日出勤のみ</label>
       <label><input type="checkbox" id="workingOnly" checked onchange="applyCombinedFilter()"> 出勤の人のみ</label>
     </div>
 
@@ -426,7 +440,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
     <div class="sticky-toolbar" id="toolbar">
       <div class="day-picker">
         <button type="button" id="prevDay" onclick="shiftDay(-1)" aria-label="前日">‹ 前日</button>
-        <select id="daySelect" aria-label="表示する日付" onchange="applyCombinedFilter()">__DAY_OPTIONS__</select>
+        <select id="daySelect" aria-label="表示する日付" onchange="selectDay()">__DAY_OPTIONS__</select>
         <button type="button" id="nextDay" onclick="shiftDay(1)" aria-label="翌日">翌日 ›</button>
       </div>
       <p class="filter-count" id="dayCount" aria-live="polite"></p>
