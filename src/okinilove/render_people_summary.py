@@ -1,6 +1,7 @@
 import html
 import json
 import re
+import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -12,6 +13,12 @@ from bs4 import BeautifulSoup
 ARTICLE_URL_RE = re.compile(r"^https?://okinilove\.com/blog-entry-\d+", re.IGNORECASE)
 STAR_RE = re.compile(r"[★☆]{1,5}")
 ROOT_DIR = Path(__file__).resolve().parents[2]
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from okinilove.shop_filters import is_chubby_shop
+
 RAW_HTML_PATH = ROOT_DIR / "docs" / "okinilove_remove_unknown.html"
 PROFILE_IMAGE_WORKERS = 8
 PROFILE_IMAGE_HTML_LIMIT = 512 * 1024
@@ -376,6 +383,30 @@ def _load_shop_industries():
     }
 
 
+def _load_chubby_shop_names():
+    index_path = ROOT_DIR / "data" / "okinilove_shop_index.json"
+    if not index_path.exists():
+        return set()
+
+    shop_index = json.loads(index_path.read_text(encoding="utf-8"))
+    industry_labels = shop_index.get("industry_labels", {})
+    chubby_shops = set()
+    for shop, labels_by_category in industry_labels.items():
+        labels = [
+            label
+            for category_labels in labels_by_category.values()
+            for label in category_labels
+        ]
+        if is_chubby_shop(shop, labels):
+            chubby_shops.add(_normalize_shop_name(shop))
+            chubby_shops.update(
+                _normalize_shop_name(alias)
+                for alias, canonical in shop_index.get("aliases", {}).items()
+                if canonical == shop
+            )
+    return chubby_shops
+
+
 def _industry_from_profile_html(page_html):
     soup = BeautifulSoup(page_html, "html.parser")
     shop_name = soup.select_one(".shopname")
@@ -476,6 +507,7 @@ def build_people_summary_html(source_html, profile_images=None):
     details_by_report, ages = _load_review_details()
     shop_industries = _load_shop_industries()
     shop_industries.update(_load_profile_shop_industries(people, shop_industries))
+    chubby_shops = _load_chubby_shop_names()
     details_path = ROOT_DIR / "data" / "okinilove_report_details.json"
     cache = json.loads(details_path.read_text(encoding="utf-8")) if details_path.exists() else {}
     shops = sorted({person["shop"] for person in people if person["shop"]})
@@ -553,6 +585,10 @@ def build_people_summary_html(source_html, profile_images=None):
         search_text = " ".join((person["shop"], person["name"])).casefold()
         age = ages.get(person["profile_url"], "")
         industry = shop_industries.get(_normalize_shop_name(person["shop"]), "不明")
+        is_chubby = (
+            _normalize_shop_name(person["shop"]) in chubby_shops
+            or is_chubby_shop(person["shop"])
+        )
         all_industries[industry] += 1
         age_html = f"<span class='age'>{html.escape(str(age))}歳</span>" if age else ""
         def chips(counts, kind):
@@ -580,6 +616,7 @@ def build_people_summary_html(source_html, profile_images=None):
             f'<tr class="person-row" data-shop="{html.escape(person["shop"], quote=True)}" '
             f'data-search="{html.escape(search_text, quote=True)}" '
             f'data-industry="{html.escape(industry, quote=True)}" '
+            f'data-chubby="{"true" if is_chubby else "false"}" '
             f'data-gaps="{html.escape(data_gaps, quote=True)}" data-faces="{html.escape(data_faces, quote=True)}" '
             f'data-service-types="{"|".join(sorted(service_types))}" '
             f'data-neg="{neg_ratio if neg_ratio is not None else 2:.4f}" '
@@ -629,6 +666,8 @@ h1 {{ margin: 0 0 16px; font-size: 1.4rem; }}
 .filter-section-title {{ margin-bottom: 9px; color: #38434b; font-size: 0.82rem; font-weight: 700; }}
 .filter-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; }}
 .filter-footer {{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }}
+.chubby-toggle {{ display: inline-flex; align-items: center; gap: 7px; color: #59666f; font-size: 0.85rem; cursor: pointer; }}
+.chubby-toggle input {{ width: auto; min-height: 0; margin: 0; }}
 .result-count {{ margin: 0; color: #59666f; font-size: 0.85rem; }}
 .result-count strong {{ color: #20272d; font-size: 1rem; }}
 .reset-filters {{ padding: 7px 11px; border: 1px solid #cbd4da; border-radius: 6px; background: #f7f9fa; color: #35434c; font: inherit; font-size: 0.82rem; cursor: pointer; }}
@@ -710,23 +749,24 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <label class="filter-field"><span>並び順</span><select id="sort"><option value="average">平均評価順</option><option value="neg">ネガ率が低い順</option><option value="adj">補正ネガ率が低い順</option></select></label>
 </div>
 </div>
-<div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
+<div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><label class="chubby-toggle"><input id="include-chubby" type="checkbox">ぽっちゃり系店舗も表示</label><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
 </section>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>
-const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), serviceTypeFilter=document.getElementById('service-type'), sortSelect=document.getElementById('sort');
+const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), serviceTypeFilter=document.getElementById('service-type'), includeChubbyFilter=document.getElementById('include-chubby'), sortSelect=document.getElementById('sort');
 const tbody=document.querySelector('#reviews tbody'), originalPairs=[...tbody.querySelectorAll('tr.person-row')].map(r=>[r,r.nextElementSibling]);
 const totN=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.negn),0), totV=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.vals),0), prior=totV?totN/totV:0;
 const adj=r=>(Number(r.dataset.negn)+5*prior)/(Number(r.dataset.vals)+5);
 const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);industryFilter.addEventListener('change',applyFilters);
 function applySort() {{ const pairs=originalPairs.slice(); if(sortSelect.value==='adj') pairs.sort((a,b)=>adj(a[0])-adj(b[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='neg') pairs.sort((a,b)=>Number(a[0].dataset.neg)-Number(b[0].dataset.neg)||Number(b[0].dataset.average)-Number(a[0].dataset.average)); pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}}); }}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
-function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
+function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
 document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
-searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);
-document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';applySort();applyFilters();}});
+searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);includeChubbyFilter.addEventListener('change',applyFilters);
+document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;applySort();applyFilters();}});
+applyFilters();
 </script></body></html>'''
     return BeautifulSoup(page, "html.parser")
 

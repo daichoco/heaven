@@ -17,6 +17,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl, write_jsonl_atomic
+from okinilove.shop_filters import is_chubby_shop
 
 DATA_DIR = ROOT_DIR / "data"
 DOCS_DIR = ROOT_DIR / "docs"
@@ -186,13 +187,20 @@ def fetch_shop_index(session, categories=None):
 
 
 def filter_shop_urls_by_categories(shops, industry_labels, categories=None):
-    """カテゴリ70から熟女系の店名・業種表示がある店舗を除外する。"""
+    """熟女系のカテゴリ70店舗と、ぽっちゃり系店舗を収集対象から除外する。"""
     selected_categories = set(categories or SHOP_INDEX_CATEGORIES)
     filtered = {}
     for shop, url in shops.items():
         labels_by_category = industry_labels.get(shop, {})
         shop_categories = {int(category) for category in labels_by_category}
         if selected_categories and not shop_categories.intersection(selected_categories):
+            continue
+        selected_labels = [
+            label
+            for category in selected_categories
+            for label in labels_by_category.get(str(category), [])
+        ]
+        if is_chubby_shop(shop, selected_labels):
             continue
         category_70_labels = labels_by_category.get("70", [])
         if 70 in selected_categories and any(
@@ -982,7 +990,7 @@ def refresh_okinilove_data():
 
 
 def refresh_shop_category_reviews(category):
-    """指定カテゴリの未取得レビューを補完し、カテゴリ70では熟女系店舗を除外する。"""
+    """指定カテゴリの未取得レビューを補完し、対象外店舗を除外する。"""
     counts = {"raw": 0, "jsonl": 0}
     with requests.Session() as session:
         shops, aliases, industries, industry_labels = fetch_shop_index(
@@ -993,35 +1001,43 @@ def refresh_shop_category_reviews(category):
         )
         if category == 70:
             print(
-                f"カテゴリ70: 店舗{len(shops)}店、熟女系除外"
+                f"カテゴリ70: 店舗{len(shops)}店、対象外店舗除外"
                 f"{len(shops) - len(shop_urls)}店、取得対象{len(shop_urls)}店"
             )
-            cached_index = {}
-            if SHOP_INDEX_PATH.exists():
-                cached_index = json.loads(
-                    SHOP_INDEX_PATH.read_text(encoding="utf-8")
-                )
-            cached_index["categories"] = SHOP_INDEX_CATEGORIES
-            cached_index["shops"] = {
-                **cached_index.get("shops", {}),
-                **shops,
-            }
-            cached_index["aliases"] = {
-                **cached_index.get("aliases", {}),
-                **aliases,
-            }
-            cached_index["industries"] = {
-                **cached_index.get("industries", {}),
-                **industries,
-            }
-            merged_labels = cached_index.get("industry_labels", {})
-            for shop, category_map in industry_labels.items():
-                merged_labels.setdefault(shop, {}).update(category_map)
-            cached_index["industry_labels"] = merged_labels
-            SHOP_INDEX_PATH.write_text(
-                json.dumps(cached_index, ensure_ascii=False, indent=1),
-                encoding="utf-8",
+        else:
+            print(
+                f"カテゴリ{category}: 店舗{len(shops)}店、対象外店舗除外"
+                f"{len(shops) - len(shop_urls)}店、取得対象{len(shop_urls)}店"
             )
+
+        cached_index = {}
+        if SHOP_INDEX_PATH.exists():
+            cached_index = json.loads(
+                SHOP_INDEX_PATH.read_text(encoding="utf-8")
+            )
+        cached_index["schema_version"] = SHOP_INDEX_SCHEMA_VERSION
+        cached_index["fetched_at"] = datetime.now(timezone.utc).isoformat()
+        cached_index["categories"] = SHOP_INDEX_CATEGORIES
+        cached_index["shops"] = {
+            **cached_index.get("shops", {}),
+            **shops,
+        }
+        cached_index["aliases"] = {
+            **cached_index.get("aliases", {}),
+            **aliases,
+        }
+        cached_index["industries"] = {
+            **cached_index.get("industries", {}),
+            **industries,
+        }
+        merged_labels = cached_index.get("industry_labels", {})
+        for shop, category_map in industry_labels.items():
+            merged_labels.setdefault(shop, {}).update(category_map)
+        cached_index["industry_labels"] = merged_labels
+        SHOP_INDEX_PATH.write_text(
+            json.dumps(cached_index, ensure_ascii=False, indent=1),
+            encoding="utf-8",
+        )
         with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
             current_soup = BeautifulSoup(source.read(), "html.parser")
         known_urls = existing_article_urls(current_soup)
