@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -273,52 +274,99 @@ def enrich_missing_cityheaven_urls(
     return data, filled
 
 
+def _env_flag(name):
+    return os.environ.get(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _calendar_slugs(calendar_keys):
+    return frozenset(
+        info["slug"]
+        for info in (parse_cityheaven_url(f"{key}/") for key in calendar_keys)
+        if info
+    )
+
+
+def maintain_okinilove_data(
+    existing,
+    calendar_data,
+    *,
+    normalize_url,
+    enrich_with_cityheaven_urls=None,
+    check_unavailable=False,
+    search_enrich=False,
+    time_budget=ENRICH_TIME_BUDGET_SECONDS,
+):
+    """通信を伴う保守処理（掲載終了確認・店舗ページ検索による補完）。変更があれば True を返す。"""
+    changed = False
+    calendar_keys = set(calendar_data["url_key"].dropna()) if "url_key" in calendar_data.columns else set()
+
+    if check_unavailable:
+        # カレンダーに表示されている人は掲載終了していないため、掲載終了確認の対象外にする
+        on_calendar = existing["cityheaven_url"].apply(normalize_url).isin(calendar_keys)
+        existing, removed_count = remove_unavailable_profile_rows(existing, protected=on_calendar)
+        if removed_count:
+            print(f"公開終了プロフィールのデータを削除: {removed_count}件")
+            changed = True
+
+    if search_enrich:
+        if enrich_with_cityheaven_urls is None:
+            raise ValueError("search_enrich には enrich_with_cityheaven_urls が必要です")
+        existing, searched_filled = enrich_missing_cityheaven_urls(
+            existing,
+            enrich_with_cityheaven_urls,
+            calendar_slugs=_calendar_slugs(calendar_keys),
+            slug_index=_shop_slug_index(existing, calendar_data, normalize_url),
+            time_budget=time_budget,
+        )
+        if searched_filled:
+            print(f"cityheaven_url 再補完(検索): {searched_filled}行")
+            changed = True
+    return existing, changed
+
+
 def merge_okinilove_data(
     calendar_data,
     *,
     normalize_url,
     enrich_with_cityheaven_urls,
+    check_unavailable=None,
+    search_enrich=None,
 ):
-    """既存のオキニラブデータを突合し、出勤データへ右結合する（サイトの再取得はしない）。"""
+    """既存のオキニラブデータを突合し、出勤データへ右結合する（サイトの再取得はしない）。
+
+    既定ではカレンダー掲載者の紐づけ（通信なし）だけを行う。掲載終了確認と店舗ページ検索による補完は
+    時間がかかるため、環境変数 OKINILOVE_CHECK_UNAVAILABLE=1 / OKINILOVE_SEARCH_ENRICH=1 のときだけ実行する
+    （単独実行は src/okinilove/maintain_okinilove.py）。
+    """
     if not OKINILOVE_JSONL.exists():
         raise FileNotFoundError(f"オキニラブ既存JSONLがありません: {OKINILOVE_JSONL}")
+    if check_unavailable is None:
+        check_unavailable = _env_flag("OKINILOVE_CHECK_UNAVAILABLE")
+    if search_enrich is None:
+        search_enrich = _env_flag("OKINILOVE_SEARCH_ENRICH")
 
     existing = _read_all_columns()
-    changed = False
 
     start = time.perf_counter()
-    slug_index = _shop_slug_index(existing, calendar_data, normalize_url)
-    existing, calendar_filled = fill_cityheaven_urls_from_calendar(
-        existing, calendar_data, normalize_url, slug_index=slug_index
-    )
+    existing, calendar_filled = fill_cityheaven_urls_from_calendar(existing, calendar_data, normalize_url)
     print(
         f"cityheaven_url 再補完(カレンダー照合): {calendar_filled}件, "
         f"{time.perf_counter() - start:.2f}s"
     )
-    changed |= bool(calendar_filled)
+    changed = bool(calendar_filled)
 
-    # カレンダーに表示されている人は掲載終了していないため、掲載終了確認の対象外にする
-    calendar_keys = set(calendar_data["url_key"].dropna()) if "url_key" in calendar_data.columns else set()
-    on_calendar = existing["cityheaven_url"].apply(normalize_url).isin(calendar_keys)
-    existing, removed_count = remove_unavailable_profile_rows(existing, protected=on_calendar)
-    if removed_count:
-        print(f"公開終了プロフィールのデータを削除: {removed_count}件")
-        changed = True
-
-    calendar_slugs = frozenset(
-        info["slug"]
-        for info in (parse_cityheaven_url(f"{key}/") for key in calendar_keys)
-        if info
-    )
-    existing, searched_filled = enrich_missing_cityheaven_urls(
-        existing,
-        enrich_with_cityheaven_urls,
-        calendar_slugs=calendar_slugs,
-        slug_index=slug_index,
-    )
-    if searched_filled:
-        print(f"cityheaven_url 再補完(検索): {searched_filled}行")
-        changed = True
+    if check_unavailable or search_enrich:
+        existing, maintained = maintain_okinilove_data(
+            existing,
+            calendar_data,
+            normalize_url=normalize_url,
+            enrich_with_cityheaven_urls=enrich_with_cityheaven_urls,
+            check_unavailable=check_unavailable,
+            search_enrich=search_enrich,
+        )
+        changed |= maintained
+    else:
+        print("掲載終了確認・検索補完はスキップ（maintain_okinilove.py で単独実行可能）")
 
     if changed:
         write_jsonl_atomic(existing, OKINILOVE_JSONL)
