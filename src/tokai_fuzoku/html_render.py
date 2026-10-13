@@ -1,7 +1,16 @@
 # html_renderer.py
-import pandas as pd
 import re
+import sys
 from html import escape
+from pathlib import Path
+
+import pandas as pd
+
+SRC_DIR = Path(__file__).resolve().parents[1]
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from web_common import BACK_NAV, BACK_TO_TOP, FILTER_TOGGLE_SCRIPT, HEAD_COMMON
 
 
 def render_score_detail(score, detail, label):
@@ -69,7 +78,7 @@ def render_report_entry(row, i):
     girl_link = f'<a href="{girl_url}" target="_blank" class="link-button">{name}</a>' if girl_url else ""
     profile_image = (
         f'<img class="profile-thumbnail" src="{escape(str(image_url), quote=True)}" '
-        f'alt="{escape(str(name), quote=True)}のプロフィール画像" loading="lazy" referrerpolicy="no-referrer">'
+        f'alt="{escape(str(name), quote=True)}のプロフィール画像" width="48" height="48" loading="lazy" decoding="async" referrerpolicy="no-referrer">'
         if pd.notna(image_url) and image_url
         else ""
     )
@@ -98,155 +107,112 @@ def render_report_entry(row, i):
     html += '</div></details>'
     return html
 
+
+def option_tags(values):
+    return "".join(
+        f'<option value="{escape(value, quote=True)}">{escape(value)}</option>' for value in values
+    )
+
+
+def render_page(shop_options, type_options, entries_html):
+    """option タグとレポート要素(HTML)からページ全体を組み立てる。"""
+    return (
+        PAGE_TEMPLATE.replace("SHOP_OPTIONS", shop_options)
+        .replace("TYPE_OPTIONS", type_options)
+        .replace("ENTRIES", entries_html)
+    )
+
+
 def generate_html(df):
     shops = sorted(df["shop_name"].dropna().astype(str).unique()) if "shop_name" in df else []
     types = sorted(df["type"].dropna().astype(str).unique()) if "type" in df else []
-    shop_options = "".join(
-        f'<option value="{escape(value, quote=True)}">{escape(value)}</option>' for value in shops
-    )
-    type_options = "".join(
-        f'<option value="{escape(value, quote=True)}">{escape(value)}</option>' for value in types
-    )
-    html = """
-    <html lang="ja">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.65; }
-        .link-button {
-            color: #007BFF;
-            text-decoration: underline;
-        }
-        .report-entry {
-            margin-bottom: 1em;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            padding: 0.75em;
-            background-color: #f9f9f9;
-            transition: background-color 0.2s ease;
-        }
-        .report-entry[open] { background-color: #eef6ff; }
-        .report-heading { cursor: pointer; font-weight: bold; padding: 0.3em; outline: none; }
-        .report-heading:hover { color: #007BFF; }
-        .report-heading { margin: 0 0 0.5em; font-size: 1.05em; line-height: 1.5; }
-        .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
-        .score-chip { padding: 2px 8px; border-radius: 4px; background: #e8eef4; font-size: 0.9em; }
-        .profile-thumbnail { width: 48px; height: 48px; margin: 0 6px; object-fit: cover; border: 1px solid #ccd2d8; border-radius: 4px; vertical-align: middle; }
-        .score-item { margin: 0.35em 0; }
-        .score-label { margin: 0.25em 0; font-size: 1em; }
-        .report-details { margin: 0.5em 0 0 0.75em; }
-        .report-comment { max-width: 72ch; line-height: 1.8; color: #333; overflow-wrap: anywhere; }
-        .report-comment p { margin: 0.35em 0 0.8em; white-space: pre-wrap; }
-        button {
-            margin-right: 10px;
-            padding: 6px 12px;
-            font-size: 14px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .filter-bar { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(135px, auto)); gap: 8px; margin: 0 0 14px; }
-        .filter-bar input, .filter-bar select { min-height: 38px; padding: 6px 9px; border: 1px solid #b9c2c9; border-radius: 4px; background: #fff; color: #222; }
-        .filter-count { margin: 0 0 10px; color: #58636d; font-size: 0.9em; }
-        .no-results { padding: 16px; color: #58636d; }
-        @media (max-width: 760px) { .filter-bar { grid-template-columns: 1fr 1fr; } .filter-bar input { grid-column: 1 / -1; } }
-        @media (max-width: 600px) {
-            body { padding: 12px; }
-            h1 { font-size: 1.35rem; }
-            .filter-bar { grid-template-columns: 1fr; }
-            .filter-bar input { grid-column: auto; }
-            .filter-bar input, .filter-bar select, button { min-height: 44px; }
-            .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-            .entry-controls button { margin: 0; }
-            .report-entry { padding: 10px; }
-            .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
-            .score-overview { flex-basis: 100%; margin: 4px 0 0; }
-            .profile-thumbnail { width: 40px; height: 40px; margin: 0; }
-            .report-details { margin-left: 0; }
-        }
+    entries = "".join(render_report_entry(row, i) for i, row in df.iterrows())
+    return render_page(option_tags(shops), option_tags(types), entries)
 
-        summary {
-            font-weight: bold;
-            cursor: pointer;
-            padding: 0.3em;
-            outline: none;
-        }
 
-        summary:hover {
-            color: #007BFF;
-        }
+PAGE_TEMPLATE = """<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+""" + HEAD_COMMON + """
+<title>東海風俗レポート</title>
+<style>
+    .profile-thumbnail { width: 48px; height: 48px; margin: 0 6px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; vertical-align: middle; }
+    @media (max-width: 600px) {
+        .profile-thumbnail { width: 40px; height: 40px; margin: 0; }
+    }
+</style>
+<script>
+    function expandAll() {
+        document.querySelectorAll("details.report-entry").forEach(entry => entry.open = true);
+    }
+    function collapseAll() {
+        document.querySelectorAll("details.report-entry").forEach(entry => entry.open = false);
+    }
+    function applyFilters() {
+        const query = document.getElementById("reportSearch").value.trim().toLocaleLowerCase();
+        const shop = document.getElementById("shopFilter").value;
+        const type = document.getElementById("typeFilter").value;
+        const repeat = document.getElementById("repeatFilter").value;
+        const minScore = Number(document.getElementById("scoreFilter").value);
+        let visible = 0;
 
-    </style>
-    <script>
-        function expandAll() {
-            document.querySelectorAll("details.report-entry").forEach(entry => entry.open = true);
-        }
-        function collapseAll() {
-            document.querySelectorAll("details.report-entry").forEach(entry => entry.open = false);
-        }
-        function applyFilters() {
-            const query = document.getElementById("reportSearch").value.trim().toLocaleLowerCase();
-            const shop = document.getElementById("shopFilter").value;
-            const type = document.getElementById("typeFilter").value;
-            const repeat = document.getElementById("repeatFilter").value;
-            const minScore = Number(document.getElementById("scoreFilter").value);
-            let visible = 0;
-
-            document.querySelectorAll(".report-entry").forEach(entry => {
-                const total = Number(entry.dataset.total);
-                const matches = entry.dataset.search.includes(query)
-                    && (!shop || entry.dataset.shop === shop)
-                    && (!type || entry.dataset.type === type)
-                    && (!repeat || entry.dataset.repeat === repeat)
-                    && (!minScore || (Number.isFinite(total) && total >= minScore));
-                entry.hidden = !matches;
-                if (matches) visible += 1;
-            });
-            document.getElementById("filterCount").textContent = `${visible} / ${document.querySelectorAll(".report-entry").length} 件`;
-            document.getElementById("noResults").hidden = visible !== 0;
-        }
-        function resetFilters() {
-            document.getElementById("reportSearch").value = "";
-            document.getElementById("shopFilter").value = "";
-            document.getElementById("typeFilter").value = "";
-            document.getElementById("repeatFilter").value = "";
-            document.getElementById("scoreFilter").value = "0";
-            applyFilters();
-        }
-        document.addEventListener("DOMContentLoaded", () => {
-            document.querySelectorAll(".filter-bar input, .filter-bar select").forEach(control => {
-                control.addEventListener(control.tagName === "INPUT" ? "input" : "change", applyFilters);
-            });
-            applyFilters();
+        document.querySelectorAll(".report-entry").forEach(entry => {
+            const total = Number(entry.dataset.total);
+            const matches = entry.dataset.search.includes(query)
+                && (!shop || entry.dataset.shop === shop)
+                && (!type || entry.dataset.type === type)
+                && (!repeat || entry.dataset.repeat === repeat)
+                && (!minScore || (Number.isFinite(total) && total >= minScore));
+            entry.hidden = !matches;
+            if (matches) visible += 1;
         });
-    </script>
-    </head>
-    <body>
-    <h1>東海風俗レポート</h1>
-    <div class="filter-bar">
+        document.getElementById("filterCount").textContent = `${visible} / ${document.querySelectorAll(".report-entry").length} 件`;
+        document.getElementById("noResults").hidden = visible !== 0;
+        if (window.updateFilterToggle) updateFilterToggle();
+    }
+    function resetFilters() {
+        document.getElementById("reportSearch").value = "";
+        document.getElementById("shopFilter").value = "";
+        document.getElementById("typeFilter").value = "";
+        document.getElementById("repeatFilter").value = "";
+        document.getElementById("scoreFilter").value = "0";
+        applyFilters();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".sticky-toolbar input, .sticky-toolbar select").forEach(control => {
+            control.addEventListener(control.tagName === "INPUT" ? "input" : "change", applyFilters);
+        });
+        applyFilters();
+    });
+</script>
+</head>
+<body class="report-page">
+""" + BACK_NAV + """
+<h1>東海風俗レポート</h1>
+<div class="sticky-toolbar" id="toolbar">
+    <div class="toolbar-row">
         <input id="reportSearch" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
-        <select id="shopFilter"><option value="">全店舗</option>SHOP_OPTIONS</select>
-        <select id="typeFilter"><option value="">全種別</option>TYPE_OPTIONS</select>
-        <select id="repeatFilter"><option value="">全リピート状態</option><option value="return">返す</option><option value="not-return">返さない</option><option value="other">その他の記載</option><option value="unknown">未記載</option></select>
-        <select id="scoreFilter"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>
+        <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterBar">絞り込み</button>
+    </div>
+    <div class="filter-bar" id="filterBar">
+        <select id="shopFilter" aria-label="店舗"><option value="">全店舗</option>SHOP_OPTIONS</select>
+        <select id="typeFilter" aria-label="種別"><option value="">全種別</option>TYPE_OPTIONS</select>
+        <select id="repeatFilter" aria-label="リピート状態"><option value="">全リピート状態</option><option value="return">返す</option><option value="not-return">返さない</option><option value="other">その他の記載</option><option value="unknown">未記載</option></select>
+        <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>
         <button type="button" onclick="resetFilters()">条件をリセット</button>
     </div>
     <p id="filterCount" class="filter-count"></p>
-    <p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
-    <div class="entry-controls">
-        <button type="button" onclick="expandAll()">全部展開</button>
-        <button type="button" onclick="collapseAll()">全部閉じる</button>
-    </div>
-    """
-    for i, row in df.iterrows():
-        html += render_report_entry(row, i)
-    html = html.replace("SHOP_OPTIONS", shop_options).replace("TYPE_OPTIONS", type_options)
-    html += "</body></html>"
-    return html
+</div>
+<p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
+<div class="entry-controls">
+    <button type="button" onclick="expandAll()">全部展開</button>
+    <button type="button" onclick="collapseAll()">全部閉じる</button>
+</div>
+<div id="entries">
+ENTRIES
+</div>
+""" + FILTER_TOGGLE_SCRIPT + "\n" + BACK_TO_TOP + """
+</body>
+</html>
+"""

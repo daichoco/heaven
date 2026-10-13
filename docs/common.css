@@ -1,0 +1,145 @@
+/* docs/*.html 共通スタイル。各ページはこのファイルを読み込んだ後、ページ固有の <style> で上書きする。 */
+:root {
+  color-scheme: light dark;
+  --page-pad: 24px;
+  --bg: #ffffff;
+  --surface: #f9f9f9;
+  --surface-alt: #ffffff;
+  --surface-open: #eef6ff;
+  --fg: #222222;
+  --fg-soft: #333333;
+  --muted: #58636d;
+  --border: #cccccc;
+  --border-soft: #e0e4e7;
+  --chip: #e8eef4;
+  --link: #0066cc;
+  --accent: #007bff;
+  --accent-hover: #0056b3;
+  --accent-fg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #b9c2c9;
+  --shadow: rgba(0, 0, 0, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181b;
+    --surface: #1d2125;
+    --surface-alt: #22272c;
+    --surface-open: #1b2a3a;
+    --fg: #e3e6e9;
+    --fg-soft: #d0d5da;
+    --muted: #9ba6af;
+    --border: #3b4249;
+    --border-soft: #30363c;
+    --chip: #2b3239;
+    --link: #6cb6ff;
+    --accent: #2f81f7;
+    --accent-hover: #1f6feb;
+    --accent-fg: #ffffff;
+    --input-bg: #1d2125;
+    --input-border: #4a535b;
+    --shadow: rgba(0, 0, 0, 0.6);
+  }
+  img { opacity: 0.92; }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--fg);
+  padding: var(--page-pad);
+  padding-left: max(var(--page-pad), env(safe-area-inset-left));
+  padding-right: max(var(--page-pad), env(safe-area-inset-right));
+  padding-bottom: max(var(--page-pad), env(safe-area-inset-bottom));
+}
+a { color: var(--link); }
+
+/* iOS Safari は 16px 未満の入力欄にフォーカスすると拡大するため 16px に揃える */
+input, select, textarea { font-size: 16px; }
+
+/* スマホ・タッチ端末ではタップ領域を 44px 以上に */
+@media (max-width: 760px), (pointer: coarse) {
+  button, select, input:not([type="checkbox"]):not([type="radio"]) { min-height: 44px; }
+  input[type="checkbox"], input[type="radio"] { width: 20px; height: 20px; }
+}
+
+/* 先頭の「← 一覧」 */
+.page-nav { margin: 0 0 8px; }
+.page-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; font-weight: 600; text-decoration: none; }
+
+/* 「先頭へ」ボタン */
+.back-to-top {
+  position: fixed;
+  right: calc(16px + env(safe-area-inset-right));
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 30;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-size: 15px;
+  box-shadow: 0 2px 8px var(--shadow);
+  cursor: pointer;
+}
+.back-to-top[hidden] { display: none; }
+
+/* 絞り込みバーの固定表示 */
+.sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin: 0 0 12px;
+  padding: max(8px, env(safe-area-inset-top)) 0 8px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border-soft);
+}
+.toolbar-row { display: flex; gap: 8px; }
+.toolbar-row input { flex: 1; min-width: 0; }
+.filter-toggle { display: none; }
+.filter-count { margin: 6px 0 0; color: var(--muted); font-size: 0.9em; }
+@media (max-width: 760px) {
+  .filter-toggle { display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .sticky-toolbar:not(.filters-open) .filter-bar { display: none; }
+}
+
+/* report_final / ns_senmon 共通のレポート一覧 */
+.report-page { max-width: 980px; font-family: sans-serif; line-height: 1.65; }
+.report-page .link-button { color: var(--link); text-decoration: underline; }
+.report-page .report-entry { margin-bottom: 1em; border: 1px solid var(--border); border-radius: 6px; padding: 0.75em; background-color: var(--surface); transition: background-color 0.2s ease; }
+.report-page .report-entry[open] { background-color: var(--surface-open); }
+.report-page .report-heading { cursor: pointer; font-weight: bold; padding: 0.3em; outline: none; margin: 0 0 0.5em; font-size: 1.05em; line-height: 1.5; }
+.report-page .report-heading:hover { color: var(--accent); }
+.report-page .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
+.report-page .score-chip { padding: 2px 8px; border-radius: 4px; background: var(--chip); font-size: 0.9em; font-weight: normal; }
+.report-page .score-item { margin: 0.35em 0; }
+.report-page .score-label { margin: 0.25em 0; font-size: 1em; }
+.report-page .report-details { margin: 0.5em 0 0 0.75em; }
+.report-page .report-comment { max-width: 72ch; line-height: 1.8; color: var(--fg-soft); overflow-wrap: anywhere; }
+.report-page .report-comment p { margin: 0.35em 0 0.8em; white-space: pre-wrap; }
+.report-page button { margin-right: 10px; padding: 6px 12px; font-size: 15px; background-color: var(--accent); color: var(--accent-fg); border: none; border-radius: 4px; cursor: pointer; }
+.report-page button:hover { background-color: var(--accent-hover); }
+.report-page .toolbar-row button, .report-page .filter-bar button { margin: 0; }
+.report-page .filter-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin: 8px 0 0; }
+.report-page .sticky-toolbar input, .report-page .sticky-toolbar select { min-height: 38px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); }
+.report-page .filter-bar select { width: 100%; min-width: 0; }
+.report-page .no-results { padding: 16px; color: var(--muted); }
+@media (max-width: 760px) {
+  .report-page .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .report-page { --page-pad: 12px; }
+  .report-page h1 { font-size: 1.35rem; margin: 0 0 8px; }
+  .report-page .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .report-page .entry-controls button { margin: 0; }
+  .report-page .report-entry { padding: 10px; }
+  .report-page .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+  .report-page .score-overview { flex-basis: 100%; margin: 4px 0 0; }
+  .report-page .report-details { margin-left: 0; }
+}

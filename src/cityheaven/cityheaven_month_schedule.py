@@ -2,11 +2,19 @@ import asyncio
 import os
 import re
 import ast
+import sys
 import pandas as pd
 from datetime import datetime
+from html import escape
 from pathlib import Path
 from urllib.parse import urljoin
 from playwright.async_api import async_playwright
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR / "src") not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR / "src"))
+
+from web_common import BACK_TO_TOP, HEAD_COMMON
 
 
 async def safe_evaluate(page, script):
@@ -178,86 +186,87 @@ async def scrape_cityheaven():
         return weekend_map
 
 
+REPORT_LINKS = [
+    ("calendar_report.html", "カレンダー形式レポート"),
+    ("report_final.html", "最終レポート"),
+    ("okinilove_remove_unknown.html", "オキニラブレポート"),
+    ("ns_senmon_report.html", "NS専門レポート"),
+]
+
+
+def render_index_html(weekend_map):
+    report_items = "".join(
+        f'<li><a href="{href}">{label}</a></li>' for href, label in REPORT_LINKS
+    )
+    day_cards = ""
+    for date, members in weekend_map.items():
+        day_cards += f'<div class="day-card"><h2>{escape(date)}</h2>'
+        if not members:
+            day_cards += "<p>出勤なし</p>"
+        for m in members:
+            day_cards += f"""
+<div class="member">
+<img src="{escape(m['image'], quote=True)}" alt="{escape(m['name'], quote=True)}" width="50" height="50" loading="lazy" decoding="async">
+<div>
+    <div class="member-name"><a href="{escape(m['url'], quote=True)}" target="_blank" rel="noopener">{escape(m['name'])}</a>（{escape(m['shop'])}）</div>
+    <div class="status">{escape(m['status'])}</div>
+</div>
+</div>
+"""
+        day_cards += "</div>"
+
+    return f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+{HEAD_COMMON}
+<title>土日出勤カレンダー</title>
+<style>
+:root {{ --page-pad: 20px; --bg: #f9f9f9; }}
+@media (prefers-color-scheme: dark) {{ :root {{ --bg: #15181b; }} }}
+body {{ font-family: sans-serif; max-width: 960px; line-height: 1.55; }}
+h1 {{ text-align: center; margin: 0 0 24px; font-size: 1.5rem; }}
+.calendar-grid {{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }}
+.day-card {{ background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }}
+.day-card h2 {{ margin: 0 0 10px; font-size: 1.1em; border-bottom: 1px solid var(--border-soft); padding-bottom: 4px; }}
+.member {{ display: flex; align-items: center; margin-bottom: 10px; }}
+.member img {{ width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }}
+.member-name {{ font-weight: bold; }}
+.status {{ font-size: 0.9em; color: var(--muted); }}
+.reports {{ margin: 0 0 24px; padding-left: 1.2em; }}
+.reports a {{ display: inline-flex; align-items: center; min-height: 44px; }}
+@media (max-width: 600px) {{
+    :root {{ --page-pad: 12px; }}
+    h1 {{ text-align: left; font-size: 1.25rem; margin-bottom: 18px; }}
+    .calendar-grid {{ grid-template-columns: 1fr; gap: 10px; }}
+    .day-card {{ padding: 10px; }}
+    .member {{ align-items: flex-start; }}
+    .member img {{ width: 44px; height: 44px; flex: none; }}
+    .member-name {{ overflow-wrap: anywhere; }}
+}}
+</style>
+</head>
+<body>
+<h1>公開ページ</h1>
+<section class="report-links">
+<h2>📄 レポート一覧</h2>
+<ul class="reports">{report_items}</ul>
+</section>
+
+<h1>土日出勤カレンダー</h1>
+<div class="calendar-grid">
+{day_cards}
+</div>
+{BACK_TO_TOP}
+</body>
+</html>
+"""
+
+
 # --- 実行 ---
 if __name__ == "__main__":
     weekend_map = asyncio.run(scrape_cityheaven())
     print("weekend_map:", weekend_map)
-    html = """<!DOCTYPE html>
-    <html lang="ja">
-    <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>土日出勤カレンダー</title>
-    <style>
-    * { box-sizing: border-box; }
-    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; max-width: 960px; margin: auto; color: #20272d; line-height: 1.55; }
-    h1 { text-align: center; margin: 0 0 24px; font-size: 1.5rem; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .day-card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
-    .day-card h2 { margin: 0 0 10px; font-size: 1.1em; border-bottom: 1px solid #eee; padding-bottom: 4px; }
-    .member { display: flex; align-items: center; margin-bottom: 10px; }
-    .member img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }
-    .member-name { font-weight: bold; }
-    .status { font-size: 0.9em; color: #555; }
-        .report-list a { display: inline-block; padding: 8px 0; }
-        @media (max-width: 600px) {
-            body { padding: 12px; }
-            h1 { text-align: left; font-size: 1.25rem; margin-bottom: 18px; }
-            .calendar-grid { grid-template-columns: 1fr; gap: 10px; }
-            .day-card { padding: 10px; }
-            .member { align-items: flex-start; }
-            .member img { width: 44px; height: 44px; flex: none; }
-            .member-name { overflow-wrap: anywhere; }
-            .report-list a { min-height: 44px; padding: 10px 0; }
-        }
-    </style>
-    </head>
-    <body>
-    <h1>公開ページ</h1>
-    <section class="report-list">
-    <h2>📄 レポート一覧</h2>
-    <ul class="reports">
-        <li><a href="calendar_report.html" target="_blank">カレンダー形式レポート</a></li>
-        <li><a href="report_final.html" target="_blank">最終レポート</a></li>
-        <li><a href="okinilove_remove_unknown.html" target="_blank">オキニラブレポート</a></li>
-    </ul>
-    </section>
-
-    <h1>土日出勤カレンダー</h1>
-    <div class="calendar-grid">
-    """
-
-
-    for date, members in weekend_map.items():
-        html += f'<div class="day-card">'
-        html += f'<h2>{date}</h2>'
-
-        if not members:
-            html += "<p>出勤なし</p>"
-        else:
-            for m in members:
-                html += f"""
-                <div class="member">
-                <img src="{m['image']}" alt="{m['name']}">
-                <div>
-                    <div class="member-name">
-                    <a href="{m['url']}" target="_blank">{m['name']}</a>（{m['shop']}）
-                    </div>
-                    <div class="status">{m['status']}</div>
-                </div>
-                </div>
-                """
-
-        html += "</div>"
-
-    html += """
-    </div>
-    <p><a href="index.html">index.htmlに戻る</a></p>
-    </body>
-    </html>
-    """
-    file_path = Path(__file__).resolve().parents[2] / "docs" / "index.html"
+    file_path = ROOT_DIR / "docs" / "index.html"
     with file_path.open("w", encoding="utf-8") as f:
-        f.write(html)
-
-# %%
+        f.write(render_index_html(weekend_map))

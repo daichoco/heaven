@@ -10,6 +10,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl
+from web_common import BACK_NAV, BACK_TO_TOP, FILTER_TOGGLE_SCRIPT, HEAD_COMMON
 
 INPUT_JSONL = ROOT_DIR / "data" / "ns_senmon_reports.jsonl"
 OUTPUT_HTML = ROOT_DIR / "docs" / "ns_senmon_report.html"
@@ -174,46 +175,12 @@ TEMPLATE = """<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+""" + HEAD_COMMON + """
 <title>NS専門 レポート（仮）</title>
 <style>
-    * { box-sizing: border-box; }
-    body { font-family: sans-serif; max-width: 980px; margin: 0 auto; padding: 24px; color: #222; line-height: 1.65; }
-    .link-button { color: #007BFF; text-decoration: underline; }
-    .report-entry { margin-bottom: 1em; border: 1px solid #ccc; border-radius: 6px; padding: 0.75em; background-color: #f9f9f9; transition: background-color 0.2s ease; }
-    .report-entry[open] { background-color: #eef6ff; }
-    .report-heading { cursor: pointer; font-weight: bold; padding: 0.3em; outline: none; margin: 0 0 0.5em; font-size: 1.05em; line-height: 1.5; }
-    .report-heading:hover { color: #007BFF; }
-    .entry-date { margin-left: 0.5em; font-weight: normal; color: #58636d; font-size: 0.85em; }
-    .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
-    .score-chip { padding: 2px 8px; border-radius: 4px; background: #e8eef4; font-size: 0.9em; font-weight: normal; }
-    .sub-report { margin: 0.6em 0; padding: 0.5em 0.75em; border-left: 3px solid #9bbbe0; background: #fff; }
+    .entry-date { margin-left: 0.5em; font-weight: normal; color: var(--muted); font-size: 0.85em; }
+    .sub-report { margin: 0.6em 0; padding: 0.5em 0.75em; border-left: 3px solid #9bbbe0; background: var(--surface-alt); }
     .sub-heading { font-weight: bold; }
-    .score-item { margin: 0.35em 0; }
-    .score-label { margin: 0.25em 0; font-size: 1em; }
-    .report-details { margin: 0.5em 0 0 0.75em; }
-    .report-comment { max-width: 72ch; line-height: 1.8; color: #333; overflow-wrap: anywhere; }
-    .report-comment p { margin: 0.35em 0 0.8em; white-space: pre-wrap; }
-    button { margin-right: 10px; padding: 6px 12px; font-size: 14px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background-color: #0056b3; }
-    .filter-bar { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(4, minmax(135px, auto)); gap: 8px; margin: 0 0 14px; }
-    .filter-bar input, .filter-bar select { min-height: 38px; padding: 6px 9px; border: 1px solid #b9c2c9; border-radius: 4px; background: #fff; color: #222; }
-    .filter-count { margin: 0 0 10px; color: #58636d; font-size: 0.9em; }
-    .no-results { padding: 16px; color: #58636d; }
-    @media (max-width: 760px) { .filter-bar { grid-template-columns: 1fr 1fr; } .filter-bar input { grid-column: 1 / -1; } }
-    @media (max-width: 600px) {
-        body { padding: 12px; }
-        h1 { font-size: 1.35rem; }
-        .filter-bar { grid-template-columns: 1fr; }
-        .filter-bar input { grid-column: auto; }
-        .filter-bar input, .filter-bar select, button { min-height: 44px; }
-        .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .entry-controls button { margin: 0; }
-        .report-entry { padding: 10px; }
-        .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
-        .score-overview { flex-basis: 100%; margin: 4px 0 0; }
-        .report-details { margin-left: 0; }
-    }
 </style>
 <script>
     function expandAll() { document.querySelectorAll("details.report-entry").forEach(e => e.open = true); }
@@ -240,6 +207,7 @@ TEMPLATE = """<!DOCTYPE html>
         });
         document.getElementById("filterCount").textContent = `${visible} / ${document.querySelectorAll(".report-entry").length} 件`;
         document.getElementById("noResults").hidden = visible !== 0;
+        if (window.updateFilterToggle) updateFilterToggle();
     }
     function sortEntries() {
         const key = document.getElementById("sortKey").value;
@@ -262,7 +230,7 @@ TEMPLATE = """<!DOCTYPE html>
         applyFilters();
     }
     document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".filter-bar input, .filter-bar select").forEach(control => {
+        document.querySelectorAll(".sticky-toolbar input, .sticky-toolbar select").forEach(control => {
             const handler = control.id === "sortKey" ? sortEntries : applyFilters;
             control.addEventListener(control.tagName === "INPUT" ? "input" : "change", handler);
         });
@@ -270,17 +238,23 @@ TEMPLATE = """<!DOCTYPE html>
     });
 </script>
 </head>
-<body>
+<body class="report-page">
+""" + BACK_NAV + """
 <h1>NS専門 レポート（仮）</h1>
-<div class="filter-bar">
-    <input id="reportSearch" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
-    <select id="shopFilter"><option value="">全店舗</option>SHOP_OPTIONS</select>
-    <select id="repeatFilter"><option value="">全リピート</option>REPEAT_OPTIONS</select>
-    <select id="ageFilter"><option value="">全年齢</option>AGE_OPTIONS</select>
-    <select id="sortKey"><option value="date">新しい順</option><option value="total">総合点が高い順</option><option value="play">プレイ点が高い順</option></select>
-    <button type="button" onclick="resetFilters()">条件をリセット</button>
+<div class="sticky-toolbar" id="toolbar">
+    <div class="toolbar-row">
+        <input id="reportSearch" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
+        <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterBar">絞り込み</button>
+    </div>
+    <div class="filter-bar" id="filterBar">
+        <select id="shopFilter" aria-label="店舗"><option value="">全店舗</option>SHOP_OPTIONS</select>
+        <select id="repeatFilter" aria-label="リピート"><option value="">全リピート</option>REPEAT_OPTIONS</select>
+        <select id="ageFilter" aria-label="年齢"><option value="">全年齢</option>AGE_OPTIONS</select>
+        <select id="sortKey" data-sort aria-label="並び順"><option value="date">新しい順</option><option value="total">総合点が高い順</option><option value="play">プレイ点が高い順</option></select>
+        <button type="button" onclick="resetFilters()">条件をリセット</button>
+    </div>
+    <p id="filterCount" class="filter-count"></p>
 </div>
-<p id="filterCount" class="filter-count"></p>
 <p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
 <div class="entry-controls">
     <button type="button" onclick="expandAll()">全部展開</button>
@@ -289,10 +263,10 @@ TEMPLATE = """<!DOCTYPE html>
 <div id="entries">
 ENTRIES
 </div>
+""" + FILTER_TOGGLE_SCRIPT + "\n" + BACK_TO_TOP + """
 </body>
 </html>
 """
-
 
 def main():
     data = read_jsonl(INPUT_JSONL)
