@@ -93,16 +93,26 @@ def girl_key(name):
     return clean(re.sub(r"(さん|ちゃん)$", "", text))
 
 
-LABEL_SPLIT_RE = re.compile(r"[「【(（\[~〜♡❤♥☆★…\s]")
+LABEL_SPLIT_RE = re.compile(r"[「『【《〈<{(（\[~〜♡❤♥☆★…\s]")
+TRUNCATION_RE = re.compile(r"(\.{2,}|…+)$")
 
 
 def label_keys(label):
-    """一覧ラベルから照合キーを作る。「東出 あさひ」は空白を詰めた形でも照合する。"""
+    """一覧ラベルから照合キーを作る。「東出 あさひ」は空白を詰めた形でも照合する。
+
+    「てぃな【プレミア★】(2...」「ゆら『プレミアキャスト』...」のような装飾・省略記号付きでも名前部分で照合する。
+    """
     label = unicodedata.normalize("NFKC", label or "").strip()
-    head = LABEL_SPLIT_RE.split(label.replace("\u3000", " "), 1)[0]
-    tokens = label.replace("\u3000", " ").split()
+    truncated = bool(TRUNCATION_RE.search(label))
+    text = TRUNCATION_RE.sub("", label).strip().replace("\u3000", " ")
+    parts = LABEL_SPLIT_RE.split(text, 1)
+    if truncated and len(parts) == 1:
+        # 名前自体が途中で省略されていると別人と一致しうるため照合しない
+        return set()
+    head = parts[0]
+    tokens = text.split()
     keys = girl_keys(head)
-    if len(tokens) >= 2:
+    if len(tokens) >= 2 and not (truncated and len(tokens) == 2):
         keys |= girl_keys(tokens[0] + tokens[1])
     return keys
 
