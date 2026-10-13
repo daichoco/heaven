@@ -256,7 +256,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       th.saturday { color: var(--sat); }
       th.sunday { color: var(--sun); }
       body > div[style*="overflow-x: auto"] { overflow-x: auto; overflow-y: visible; border: 1px solid var(--border); background: var(--surface-alt); }
-      table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 14px; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
       th, td { border: 1px solid var(--border-soft); padding: 8px; text-align: center; vertical-align: top; }
       th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: var(--surface); }
       td.shop-cell { min-width: 220px; text-align: left; }
@@ -266,6 +266,13 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
       .filter-group label { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; }
+      .day-picker { display: flex; align-items: center; gap: 8px; }
+      .day-picker select { flex: 1; min-width: 0; max-width: 320px; min-height: 40px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); font-weight: 700; }
+      .day-picker button { flex: none; min-height: 40px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--chip); color: var(--fg); font-size: 15px; cursor: pointer; }
+      .day-picker button:disabled { opacity: 0.4; cursor: default; }
+      th.day-col { min-width: 140px; }
+      td[data-on="1"] .cell { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--surface-open); color: var(--link); font-weight: 700; }
+      .no-results { padding: 16px; color: var(--muted); }
       .review-row.review-merged { background-color: var(--review-merged); }
       .review-row.review-ns { background-color: var(--review-ns); }
       .review-row.review-okinilove { background-color: var(--review-okinilove); }
@@ -313,128 +320,74 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       }
     </style>
     <script>
-      function applyCombinedFilter() {
-        resetAllReviews();
-        const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
-        const dateSelected = document.querySelector('input[name="filter"]:checked').value;
-        const inputDate = document.getElementById("dateInput").value;
+      const TIME_RE = /^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/;
+
+      function initialDayIndex(select) {
         const today = new Date();
-        const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
-        const mm = today.getMonth() + 1;
-        const dd = today.getDate();
-        const dayOfWeek = weekdays[today.getDay()];
-        const todayLabel = `${mm}/${dd}(${dayOfWeek})`;
-
-        const rows = document.querySelectorAll('tbody tr:not(.review-row)');
-
-        rows.forEach(row => {
-          let showByDate = false;
-          let showByReport = false;
-
-          // 日付フィルタ
-          if (dateSelected === "all") {
-            showByDate = true;
-          } else if (dateSelected === "today") {
-            const cell = row.querySelector(`[data-label="${todayLabel}"]`);
-            const text = cell ? cell.textContent.trim() : "";
-            showByDate = /^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text);
-          } else if (dateSelected === "weekend") {
-            row.querySelectorAll('td[data-label]').forEach(cell => {
-              const label = cell.getAttribute('data-label');
-              if (label && (label.includes("(土)") || label.includes("(日)"))) {
-                const text = cell.textContent.trim();
-                if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
-                  showByDate = true;
-                }
-              }
-            });
-          } else if (dateSelected === "date") {
-            if (inputDate) {
-              const date = new Date(inputDate);
-              const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
-              row.querySelectorAll('td[data-label]').forEach(cell => {
-                const cellLabel = cell.getAttribute('data-label');
-                if (cellLabel === label) {
-                  const text = cell.textContent.trim();
-                  if (/^\\d{1,2}:\\d{2}\\s*~\\s*\\d{1,2}:\\d{2}$/.test(text)) {
-                    showByDate = true;
-                  }
-                }
-              });
-            } else {
-              showByDate = true;
-            }
-          }
-
-          // レポートフィルタ
-          const hasReport = row.getAttribute("data-report");
-          if (reportSelected === "all") {
-            showByReport = true;
-          } else if (reportSelected === "has") {
-            showByReport = hasReport === "true";
-          } else if (reportSelected === "none") {
-            showByReport = hasReport === "false";
-          }
-
-          // AND条件で表示制御
-          row.style.display = (showByDate && showByReport) ? "" : "none";
+        const options = [...select.options];
+        const index = options.findIndex(option => {
+          const [month, day] = option.dataset.date.split("/").map(Number);
+          return month === today.getMonth() + 1 && day === today.getDate();
         });
-        // --- 日付列の表示制御 ---
-        const allHeaders = document.querySelectorAll("thead th");
-        const allCells = document.querySelectorAll("tbody td[data-label]");
-
-        // まず全て表示
-        allHeaders.forEach(th => th.style.display = "");
-        allCells.forEach(td => td.style.display = "");
-
-        if (dateSelected === "today") {
-          allHeaders.forEach(th => {
-            const label = th.textContent.trim();
-            if (label !== todayLabel && label !== "名前＋レビュー+店名" && label !== "画像") {
-              th.style.display = "none";
-            }
-          });
-          allCells.forEach(td => {
-            const label = td.getAttribute("data-label");
-            if (label !== todayLabel) td.style.display = "none";
-          });
-        }
-
-        if (dateSelected === "date" && inputDate) {
-          const date = new Date(inputDate);
-          const label = `${date.getMonth() + 1}/${date.getDate()}(${weekdays[date.getDay()]})`;
-
-          allHeaders.forEach(th => {
-            const text = th.textContent.trim();
-            if (text !== label && text !== "名前＋レビュー+店名" && text !== "画像") {
-              th.style.display = "none";
-            }
-          });
-          allCells.forEach(td => {
-            const cellLabel = td.getAttribute("data-label");
-            if (cellLabel !== label) td.style.display = "none";
-          });
-        }
-
-        if (dateSelected === "weekend") {
-          allHeaders.forEach(th => {
-            const text = th.textContent.trim();
-            if (!(text.includes("(土)") || text.includes("(日)") ||
-                  text === "名前＋レビュー+店名" || text === "画像")) {
-              th.style.display = "none";
-            }
-          });
-          allCells.forEach(td => {
-            const label = td.getAttribute("data-label");
-            if (!(label.includes("(土)") || label.includes("(日)"))) {
-              td.style.display = "none";
-            }
-          });
-        }
+        return index >= 0 ? index : 0;
       }
 
-      function applyDateFilter() {
-        document.querySelector('input[name="filter"][value="date"]').checked = true;
+      function shiftDay(delta) {
+        const select = document.getElementById("daySelect");
+        const next = select.selectedIndex + delta;
+        if (next < 0 || next >= select.options.length) return;
+        select.selectedIndex = next;
+        applyCombinedFilter();
+      }
+
+      function applyCombinedFilter() {
+        resetAllReviews();
+        const select = document.getElementById("daySelect");
+        if (!select || !select.options.length) return;
+        const day = select.value;
+        const workingOnly = document.getElementById("workingOnly").checked;
+        const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
+        const workingCounts = new Array(select.options.length).fill(0);
+        let working = 0;
+        let shown = 0;
+
+        document.querySelectorAll('tbody tr:not(.review-row)').forEach(row => {
+          const hasReport = row.getAttribute("data-report");
+          const showByReport = reportSelected === "all"
+            || (reportSelected === "has" && hasReport === "true")
+            || (reportSelected === "none" && hasReport === "false");
+          let isWorking = false;
+          row.querySelectorAll('td[data-day]').forEach(cell => {
+            const on = cell.dataset.on === "1" || TIME_RE.test(cell.textContent.trim());
+            if (on && showByReport) workingCounts[Number(cell.dataset.day)] += 1;
+            if (cell.dataset.day === day) isWorking = on;
+          });
+          if (isWorking && showByReport) working += 1;
+          const visible = showByReport && (isWorking || !workingOnly);
+          if (visible) shown += 1;
+          row.style.display = visible ? "" : "none";
+        });
+
+        // 選択日以外の列（PC）とカード（スマホ）を隠す
+        document.querySelectorAll('[data-day]').forEach(el => {
+          el.style.display = el.dataset.day === day ? "" : "none";
+        });
+
+        [...select.options].forEach((option, i) => {
+          option.textContent = `${option.dataset.label}  出勤${workingCounts[i]}名`;
+        });
+        document.getElementById("prevDay").disabled = select.selectedIndex <= 0;
+        document.getElementById("nextDay").disabled = select.selectedIndex >= select.options.length - 1;
+        const label = select.options[select.selectedIndex].dataset.label;
+        document.getElementById("dayCount").textContent = workingOnly
+          ? `${label} の出勤 ${working}名`
+          : `${label} の出勤 ${working}名 / 表示 ${shown}名`;
+        document.getElementById("noResults").hidden = shown > 0;
+      }
+
+      function initCalendar() {
+        const select = document.getElementById("daySelect");
+        if (select && select.options.length) select.selectedIndex = initialDayIndex(select);
         applyCombinedFilter();
       }
 
@@ -454,17 +407,13 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       }
     </script>
   </head>
-  <body onload="applyCombinedFilter()">
+  <body onload="initCalendar()">
     __BACK_NAV__
     <h1>出勤カレンダーとレビュー一覧</h1>
 
     <div class="filter-group">
-      <strong>日付条件：</strong><br>
-      <label><input type="radio" name="filter" value="all" checked onchange="applyCombinedFilter()"> 全表示</label>
-      <label><input type="radio" name="filter" value="today" onchange="applyCombinedFilter()"> 本日出勤のみ</label>
-      <label><input type="radio" name="filter" value="weekend" onchange="applyCombinedFilter()"> 土日出勤のみ</label>
-      <label><input type="radio" name="filter" value="date" onchange="applyCombinedFilter()"> 日付指定</label>
-      <label>日付で絞り込み: <input type="date" id="dateInput" onchange="applyDateFilter()"></label>
+      <strong>表示条件：</strong><br>
+      <label><input type="checkbox" id="workingOnly" checked onchange="applyCombinedFilter()"> 出勤の人のみ</label>
     </div>
 
     <div class="filter-group">
@@ -474,12 +423,24 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
     </div>
 
+    <div class="sticky-toolbar" id="toolbar">
+      <div class="day-picker">
+        <button type="button" id="prevDay" onclick="shiftDay(-1)" aria-label="前日">‹ 前日</button>
+        <select id="daySelect" aria-label="表示する日付" onchange="applyCombinedFilter()">__DAY_OPTIONS__</select>
+        <button type="button" id="nextDay" onclick="shiftDay(1)" aria-label="翌日">翌日 ›</button>
+      </div>
+      <p class="filter-count" id="dayCount" aria-live="polite"></p>
+    </div>
+
 """
 CALENDAR_PAGE_HEAD = (
     CALENDAR_PAGE_HEAD
     .replace("__HEAD_COMMON__", HEAD_COMMON.replace("\n", "\n    "))
     .replace("__BACK_NAV__", BACK_NAV)
 )
+
+
+WORK_TIME_RE = re.compile(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$")
 
 
 def build_calendar_html(merged):
@@ -509,21 +470,21 @@ def build_calendar_html(merged):
         key=lambda x: parse_date_with_year_adjustment(x, current_year, today.month)
     )
 
-    # HTML組み立て開始
-    html = CALENDAR_PAGE_HEAD
+    # HTML組み立て開始（日付セレクタの選択肢 value は data-day と同じ列番号）
+    day_options = "".join(
+        f"<option value='{i}' data-date='{day.split('(')[0]}' data-label='{day}'>{day}</option>"
+        for i, day in enumerate(calendar_cols)
+    )
+    html = CALENDAR_PAGE_HEAD.replace("__DAY_OPTIONS__", day_options)
 
     # テーブル開始
     html += "<div style='overflow-x: auto;'>"
     html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
 
     # 日付ヘッダー
-    for day in calendar_cols:
-        if "(土)" in day:
-            html += f"<th class='saturday'>{day}</th>"
-        elif "(日)" in day:
-            html += f"<th class='sunday'>{day}</th>"
-        else:
-            html += f"<th>{day}</th>"
+    for i, day in enumerate(calendar_cols):
+        day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
+        html += f"<th class='day-col{day_class}' data-day='{i}'>{day}</th>"
 
     html += "</tr></thead><tbody>"
 
@@ -597,15 +558,15 @@ def build_calendar_html(merged):
 
         # スマホ用の横スクロールカレンダー（デスクトップでは非表示）
         html += "<div class='m-cal'><ul>"
-        for day in calendar_cols:
+        for i, day in enumerate(calendar_cols):
             status = str(row[day]) if pd.notna(row[day]) else "-"
             day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
-            is_time = re.match(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$", status.strip())
+            is_time = WORK_TIME_RE.match(status.strip())
             if is_time:
                 box = f"<div class='m-box on'>{re.sub(r'\s*~\s*', '<br>~<br>', status.strip())}</div>"
             else:
                 box = f"<div class='m-box off'>{status}</div>"
-            html += f"<li><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
+            html += f"<li data-day='{i}'><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
         html += "</ul></div>"
 
         html += "</td>"
@@ -614,18 +575,19 @@ def build_calendar_html(merged):
         html += f"<td class='img-cell'><img src='{image_url}' alt='{name}' width='64' height='64' loading='lazy' decoding='async'></td>"
 
         # 出勤日
-        for day in calendar_cols:
+        for i, day in enumerate(calendar_cols):
             status = row[day] if pd.notna(row[day]) else "-"
             day_class = " class='saturday'" if "(土)" in day else (" class='sunday'" if "(日)" in day else "")
             short_day = day.split("(")[0]
-            html += f"<td data-label='{day}' data-date='{short_day}'{day_class}><span class='cell'>{status}</span></td>"
+            on_attr = " data-on='1'" if WORK_TIME_RE.match(str(status).strip()) else ""
+            html += f"<td data-label='{day}' data-date='{short_day}' data-day='{i}'{on_attr}{day_class}><span class='cell'>{status}</span></td>"
 
         html += "</tr>"
 
         # mergedレビュー行（複数レポートは縦に並べる）
         if merged_reports:
             html += f"<tr id='{row_id_merged}' class='review-row review-merged' style='display:none;'>"
-            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            html += f"<td colspan='3' style='text-align: left;'>"
             for eval_value, report_url in merged_reports:
                 try:
                     html += "<ul>"
@@ -641,7 +603,7 @@ def build_calendar_html(merged):
         # NS専門レビュー行
         if ns_reports:
             html += f"<tr id='{row_id_ns}' class='review-row review-ns' style='display:none;'>"
-            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            html += f"<td colspan='3' style='text-align: left;'>"
             for rep in ns_reports:
                 html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
                 for k, v in rep["scores"].items():
@@ -654,7 +616,7 @@ def build_calendar_html(merged):
         # okiniloveレビュー行
         if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
             html += f"<tr id='{row_id_okinilove}' class='review-row review-okinilove' style='display:none;'>"
-            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            html += f"<td colspan='3' style='text-align: left;'>"
             if _has_value(eval_okinilove):
               if isinstance(eval_okinilove, dict):
                 html += "<ul>"
@@ -669,7 +631,9 @@ def build_calendar_html(merged):
                 html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
             html += "</td></tr>"
 
-    html += "</tbody></table></div>" + BACK_TO_TOP + "</body></html>"
+    html += "</tbody></table></div>"
+    html += "<p class='no-results' id='noResults' hidden>条件に合う人はいません。</p>"
+    html += BACK_TO_TOP + "</body></html>"
     return html
 
 
