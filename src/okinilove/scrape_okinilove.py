@@ -1,6 +1,7 @@
 import json
 import re
 import sys
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
@@ -302,6 +303,10 @@ def profile_link_in_row(row):
 
 
 _UNREACHABLE_HOSTS = set()
+# 同一ホストへのタイムアウトがこの回数連続したら、以降の確認をスキップする
+_TIMEOUT_SKIP_THRESHOLD = 3
+_HOST_TIMEOUT_COUNTS = {}
+_HOST_STATE_LOCK = threading.Lock()
 # 閉鎖済みで存在しないホストは掲載終了として扱う
 _DEAD_HOSTS = {"www1.yoasobi.co.jp", "www3.yoasobi.co.jp", "www.dolce-vita-e.com"}
 
@@ -320,6 +325,8 @@ def _fetch_profile_status(url):
             allow_redirects=True,
             stream=True,
         )
+        with _HOST_STATE_LOCK:
+            _HOST_TIMEOUT_COUNTS.pop(host, None)
         try:
             if response.status_code == 400 and urlparse(url).netloc.lower() == "www.yoasobi.co.jp":
                 body = next(response.iter_content(chunk_size=64 * 1024), b"")
@@ -334,10 +341,25 @@ def _fetch_profile_status(url):
             return response.status_code
         finally:
             response.close()
+    except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout) as error:
+        with _HOST_STATE_LOCK:
+            count = _HOST_TIMEOUT_COUNTS.get(host, 0) + 1
+            _HOST_TIMEOUT_COUNTS[host] = count
+            newly_skipped = count >= _TIMEOUT_SKIP_THRESHOLD and host not in _UNREACHABLE_HOSTS
+            if newly_skipped:
+                _UNREACHABLE_HOSTS.add(host)
+        if newly_skipped:
+            print(
+                f"{host} へのタイムアウトが{count}回連続したため保持（以降スキップ）: {url}"
+            )
+        else:
+            print(f"プロフィール確認タイムアウトのため保持: {url} ({error})")
+        return None
     except requests.RequestException as error:
         if "NameResolutionError" in str(error):
             # ホスト名自体が存在しない場合は、同じホストを何度も確認しない
-            _UNREACHABLE_HOSTS.add(host)
+            with _HOST_STATE_LOCK:
+                _UNREACHABLE_HOSTS.add(host)
             print(f"ホスト名を解決できないため保持（以降スキップ）: {host} 例: {url}")
         else:
             print(f"プロフィール確認失敗のため保持: {url} ({error})")
