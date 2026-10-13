@@ -29,6 +29,8 @@ OUTPUT_HTML = ROOT_DIR / "docs" / "ns_senmon_report.html"
 
 PLAY_KEY = "プレイ満足度（点数）"
 TOTAL_KEY = "総合満足度（点数）"
+# 総合スコアで加える全体平均の件数（ベイズ平均の事前件数）
+PRIOR_WEIGHT = 3
 REPEAT_OPTIONS = ["初めて", "2回目", "3回目", "4回以上"]
 AGE_OPTIONS = [
     ("10代", 0, 19),
@@ -90,6 +92,19 @@ def score_text(label, group, key):
     return value, f"{label} 平均{format_score(value)}（{count}件）"
 
 
+def adjusted_score(group, prior_mean):
+    """件数補正した総合スコア（全体平均 PRIOR_WEIGHT 件分を加えた平均）。有効な総合点が無ければ None。"""
+    totals = [t for t in (number(r["details"], TOTAL_KEY) for r in group) if t is not None]
+    if not totals or prior_mean is None:
+        return None
+    return (sum(totals) + prior_mean * PRIOR_WEIGHT) / (len(totals) + PRIOR_WEIGHT)
+
+
+def overall_total_mean(records):
+    """全レポートの有効な総合点の平均（人物平均の平均ではない）。"""
+    return average(number(r["details"], TOTAL_KEY) for r in records)[0]
+
+
 def chip(text, extra=""):
     return f"<span class='chip{extra}'>{html.escape(text)}</span>"
 
@@ -132,7 +147,7 @@ def tally_chips(counts):
     )
 
 
-def render_person(group, profiles):
+def render_person(group, profiles, prior_mean=None):
     record = group[0]
     shop = record["shop_name"]
     name = record["name"]
@@ -140,6 +155,7 @@ def render_person(group, profiles):
     age = next((a for a in (number(r["details"], "推定年齢") for r in group) if a is not None), None)
     total, total_text = score_text("総合", group, TOTAL_KEY)
     play, play_text = score_text("プレイ", group, PLAY_KEY)
+    score = adjusted_score(group, prior_mean)
     repeats = Counter(v for v in (field_value(r["details"], "姫のリピート") for r in group) if v)
     busts = Counter(
         v for v in (field_value(r["details"], "おっぱい（印象）").replace("\n", " ") for r in group) if v
@@ -172,6 +188,8 @@ def render_person(group, profiles):
     score_html = "".join(
         f"<div><strong>{html.escape(text)}</strong></div>" for text in (total_text, play_text) if text
     ) or "点数なし"
+    if score is not None:
+        score_html += f"<div class='adjusted-score' title='件数補正した総合スコア'>スコア {score:.1f}</div>"
     tally_html = (
         f"<div><span class='review-label'>リピート</span>{tally_chips(repeats) or '-'}</div>"
         f"<div><span class='review-label'>おっぱい</span>{tally_chips(busts) or '-'}</div>"
@@ -197,6 +215,7 @@ def render_person(group, profiles):
         f'<tr class="person-row" data-shop="{html.escape(shop, quote=True)}" '
         f'data-repeat="{html.escape("|".join(repeats), quote=True)}" '
         f'data-age="{age if age is not None else ""}" data-shop-type="{kind}" '
+        f'data-score="{f"{score:.3f}" if score is not None else ""}" '
         f'data-total="{f"{total:.3f}" if total is not None else ""}" '
         f'data-play="{f"{play:.3f}" if play is not None else ""}" '
         f'data-date="{html.escape(str(record["date"]), quote=True)}" '
@@ -223,12 +242,15 @@ def build_html(records, profiles=None):
     age_options = "".join(
         f'<option value="{low}-{high}">{label}</option>' for label, low, high in AGE_OPTIONS
     )
-    rows = "".join(render_person(group, profiles) for group in groups)
+    prior_mean = overall_total_mean(records)
+    rows = "".join(render_person(group, profiles, prior_mean) for group in groups)
     return (
         TEMPLATE.replace("SHOP_OPTIONS", shop_options)
         .replace("REPEAT_OPTIONS", repeat_options)
         .replace("AGE_OPTIONS", age_options)
         .replace("PEOPLE_COUNT", str(len(groups)))
+        .replace("PRIOR_MEAN", format_score(round(prior_mean, 1)) if prior_mean is not None else "-")
+        .replace("PRIOR_WEIGHT", str(PRIOR_WEIGHT))
         .replace("ROWS", rows)
     )
 
@@ -260,6 +282,8 @@ h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .filter-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
 .result-count { margin: 0; color: var(--field-label); font-size: 0.85rem; }
 .result-count strong { color: var(--fg); font-size: 1rem; }
+.score-note { margin: 8px 0 0; color: var(--muted); font-size: 0.8rem; }
+.adjusted-score { margin-top: 2px; color: var(--muted); font-size: 0.85rem; }
 .reset-filters { min-height: 36px; padding: 7px 14px; border: 1px solid var(--field-border); border-radius: 6px; background: var(--detail-bg); color: var(--text-soft); font: inherit; font-size: 0.9rem; cursor: pointer; }
 .reset-filters:hover { border-color: #8b9aa3; background: var(--head); }
 .table-wrap { max-height: calc(100vh - 150px); overflow: auto; border: 1px solid var(--table-border); background: var(--panel); }
@@ -341,10 +365,11 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
 <label class="filter-field"><span>店舗種別</span><select id="shop-type"><option value="">すべて</option><option value="luxury">高級</option><option value="other">高級以外</option></select></label>
 <label class="filter-field"><span>リピート</span><select id="repeat"><option value="">すべて</option>REPEAT_OPTIONS</select></label>
 <label class="filter-field"><span>推定年齢</span><select id="age"><option value="">すべて</option>AGE_OPTIONS</select></label>
-<label class="filter-field"><span>並び順</span><select id="sort"><option value="date">新しい順</option><option value="total">総合点（平均）が高い順</option><option value="play">プレイ点（平均）が高い順</option></select></label>
+<label class="filter-field"><span>並び順</span><select id="sort"><option value="score">総合スコア順</option><option value="date">新しい順</option><option value="total">総合点（平均）が高い順</option><option value="play">プレイ点（平均）が高い順</option></select></label>
 </div>
 </div>
 <div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">PEOPLE_COUNT</strong> / PEOPLE_COUNT 人</p><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
+<p class="score-note">総合スコア = 総合点の平均に全体平均（PRIOR_MEAN点）をPRIOR_WEIGHT件分加えて補正した値。件数が少ない人ほど全体平均に近づきます。</p>
 </section>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>点数</th><th>リピート / おっぱい</th><th>レポート</th></tr></thead><tbody>ROWS</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
