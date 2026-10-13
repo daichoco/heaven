@@ -3,6 +3,7 @@ import asyncio
 import json
 import re
 import sys
+import time
 from datetime import datetime
 from html import escape as html_escape
 from pathlib import Path
@@ -118,9 +119,9 @@ def _evaluation_dict(value):
     return ast.literal_eval(value) if isinstance(value, str) else {}
 
 
-def extract_report_final_df():
+def extract_report_final_df(parser="lxml"):
     html = load_html(DOCS_DIR / "report_final.html")
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html, parser)
     reports = []
 
     for detail in soup.find_all("details"):
@@ -197,10 +198,18 @@ def extract_cityheaven_profiles_df():
     return pd.DataFrame(payload["records"], columns=payload["columns"])
 
 
+def _log_elapsed(label, start):
+    print(f"[timing] {label}: {time.perf_counter() - start:.2f}s")
+
+
 def main():
+    start = time.perf_counter()
     asyncio.run(scrape_cityheaven_profiles())
+    _log_elapsed("scrape_cityheaven_profiles", start)
     try:
+        start = time.perf_counter()
         df1_current = extract_report_final_df()
+        _log_elapsed("extract_report_final_df", start)
         df2 = extract_cityheaven_profiles_df()
     finally:
         PROFILE_DATA_PATH.unlink(missing_ok=True)
@@ -215,12 +224,17 @@ def main():
     df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
 
     merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
+    start = time.perf_counter()
     merged = merge_okinilove_data(
       merged,
       normalize_url=normalize_url,
       enrich_with_cityheaven_urls=enrich_with_cityheaven_urls,
     )
-    return merge_ns_reports(merged, normalize_url=normalize_url)
+    _log_elapsed("merge_okinilove_data", start)
+    start = time.perf_counter()
+    merged = merge_ns_reports(merged, normalize_url=normalize_url)
+    _log_elapsed("merge_ns_reports", start)
+    return merged
 
 
 CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
@@ -666,4 +680,6 @@ def write_calendar_html(merged, path=None):
 
 
 if __name__ == "__main__":
+    _total_start = time.perf_counter()
     write_calendar_html(main())
+    _log_elapsed("report_left_merge 合計", _total_start)
