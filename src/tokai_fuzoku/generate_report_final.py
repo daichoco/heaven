@@ -236,6 +236,18 @@ def is_unavailable_aqua_profile(url, session, roster_state):
         return False
 
 
+def is_unavailable_o_ren_profile(url, final_url):
+    parsed = urlparse(url)
+    final = urlparse(final_url)
+    is_o_ren_host = parsed.netloc.lower() in {"o-ren-group.com", "www.o-ren-group.com"}
+    is_profile_path = re.search(r"/castid-\d+/?$", parsed.path) is not None
+    is_roster_redirect = (
+        final.netloc.lower() in {"o-ren-group.com", "www.o-ren-group.com"}
+        and final.path.rstrip("/") == "/cast"
+    )
+    return is_o_ren_host and is_profile_path and is_roster_redirect
+
+
 def filter_unavailable_girl_urls(df, session):
     """プロフィールURLを確認し、終了ページを除外して画像URLも付与する。"""
     unavailable_urls = set()
@@ -255,6 +267,9 @@ def filter_unavailable_girl_urls(df, session):
                     unavailable_urls.add(url)
                     continue
                 if 200 <= response.status_code < 400:
+                    if is_unavailable_o_ren_profile(url, response.url):
+                        unavailable_urls.add(url)
+                        continue
                     chunks = []
                     size = 0
                     for chunk in response.iter_content(chunk_size=64 * 1024):
