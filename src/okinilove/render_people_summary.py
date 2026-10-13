@@ -1,3 +1,4 @@
+import hashlib
 import html
 import json
 import re
@@ -18,8 +19,11 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from okinilove.shop_filters import is_chubby_shop
+from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 RAW_HTML_PATH = ROOT_DIR / "docs" / "okinilove_remove_unknown.html"
+# 人物ページから分離したレビュー本文 (顔・スタイル・サービス・本文)。HTML と同じフォルダに置く。
+REVIEW_BODIES_NAME = "okinilove_review_bodies.json"
 PROFILE_IMAGE_WORKERS = 8
 PROFILE_IMAGE_HTML_LIMIT = 512 * 1024
 SHOP_INDUSTRIES = {
@@ -501,7 +505,13 @@ def _face_tokens(text):
 
 
 def build_people_summary_html(source_html, profile_images=None):
+    return build_people_summary(source_html, profile_images)[0]
+
+
+def build_people_summary(source_html, profile_images=None):
+    """人物別ページ (BeautifulSoup) と、レビュー本文 JSON の文字列を返す。"""
     source_soup = BeautifulSoup(source_html, "html.parser")
+    review_bodies = []
     people = list(_person_groups(_extract_rows(source_soup)))
     profile_images = profile_images or {}
     details_by_report, ages = _load_review_details()
@@ -528,7 +538,7 @@ def build_people_summary_html(source_html, profile_images=None):
             f'<a class="profile-link" href="{html.escape(person["profile_url"], quote=True)}" target="_blank" rel="noopener noreferrer">'
             + (
                 f'<img class="profile-photo" src="{html.escape(image_url, quote=True)}" '
-                f'alt="{html.escape(person["name"], quote=True)}のプロフィール画像" loading="lazy" referrerpolicy="no-referrer">'
+                f'alt="{html.escape(person["name"], quote=True)}のプロフィール画像" width="42" height="56" loading="lazy" decoding="async" referrerpolicy="no-referrer">'
                 if image_url
                 else ""
             )
@@ -557,29 +567,25 @@ def build_people_summary_html(source_html, profile_images=None):
                 service_types.add("super-sp")
             if not detail.get("report_text"):
                 detail["report_text"] = details_by_report.get(report["url"], {}).get("report_text", "")
-            face_html = "".join(
-                f"<span class='chip {_tone('face', token)}'>{html.escape(token)}</span>"
-                for token in _face_tokens(detail.get("face"))
-            )
-            params_html = "".join(
-                f"<p class='review-param'><span class='review-label'>{label}</span>{html.escape(detail[key])}</p>"
-                for label, key in (("スタイル", "style"), ("サービス", "service"))
-                if detail.get(key)
-            )
-            if face_html:
-                params_html = f"<p class='review-param'><span class='review-label'>顔</span>{face_html}</p>" + params_html
-            body_html = (
-                f"<p class='review-text'>{html.escape(detail['report_text'])}</p>"
-                if detail.get("report_text")
-                else ""
-            )
+            # 顔・スタイル・サービス・本文は別ファイル (REVIEW_BODIES_NAME) に分け、開いたときに読み込む
+            body = {}
+            faces = [[token, _tone("face", token)] for token in _face_tokens(detail.get("face"))]
+            if faces:
+                body["f"] = faces
+            for key, short in (("style", "s"), ("service", "v"), ("report_text", "t")):
+                if detail.get(key):
+                    body[short] = detail[key]
+            rid_attr = ""
+            if body:
+                rid_attr = f" data-rid='{len(review_bodies)}'"
+                review_bodies.append(body)
             report_items.append(
-                "<li class='review-item'>"
-                f"<div class='review-params'>{params_html}"
+                f"<li class='review-item'{rid_attr}>"
+                "<div class='review-params'>"
                 f"<p class='review-param'><span class='review-label'>ギャップ</span><span class='review-gap chip {_tone("gap", report["gap"])}'>{html.escape(report['gap']) or 'ギャップ評価なし'}</span></p></div>"
                 "<details class='review-body'>"
                 f"<summary class='review-rating'>{html.escape(report['rating']) or '評価なし'}</summary>"
-                f"<div class='review-detail'>{body_html}<div class='review-meta'>{article_link}</div></div></details></li>"
+                f"<div class='review-detail'><div class='review-meta'>{article_link}</div></div></details></li>"
             )
         reports_html = f"<ol class='report-list'>{''.join(report_items)}</ol>"
         search_text = " ".join((person["shop"], person["name"])).casefold()
@@ -646,89 +652,103 @@ def build_people_summary_html(source_html, profile_images=None):
         f'<option value="{html.escape(key, quote=True)}">{html.escape(key)} ({n}人)</option>'
         for key, n in all_industries.most_common()
     )
+    bodies_json = json.dumps(review_bodies, ensure_ascii=False, separators=(",", ":"))
+    bodies_url = f"{REVIEW_BODIES_NAME}?v={hashlib.sha256(bodies_json.encode('utf-8')).hexdigest()[:12]}"
     page = f'''<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="ja"><head><meta charset="utf-8">
+{HEAD_COMMON}
 <title>オキニラブ 人物別レビュー</title>
 <style>
-:root {{ color-scheme: light; font-family: "Yu Gothic UI", Meiryo, sans-serif; color: #20272d; background: #f2f4f5; }}
-* {{ box-sizing: border-box; }}
-body {{ max-width: 1280px; margin: 0 auto; padding: 24px; }}
+:root {{ --page-pad: 24px; --bg: #f2f4f5; --fg: #20272d; --link: #17617a; --panel: #fff; --panel-border: #d7dfe4; --field-label: #56616a; --field-border: #cbd4da; --focus: #28738a; --rule: #edf0f2; --head: #e9eef1; --row-hover: #f6f8f9; --row-open: #eef4f6; --detail-bg: #fafbfb; --chip: #eceff1; --chip-fg: #56616a; --pos-bg: #e0f2e5; --pos-border: #9ccfaa; --pos-fg: #1e6b36; --neg-bg: #fdeaea; --neg-border: #e7a3a3; --neg-fg: #b3261e; --rating: #865019; --text-soft: #38434b; --quote-bg: #f8f9fa; --table-border: #cbd2d8; --row-border: #e0e4e7; --muted: #68747d; }}
+@media (prefers-color-scheme: dark) {{
+:root {{ --bg: #15181b; --fg: #e3e6e9; --link: #6cc0d8; --panel: #1d2125; --panel-border: #30363c; --field-label: #9ba6af; --field-border: #4a535b; --focus: #4fa3bd; --rule: #2b3137; --head: #262c32; --row-hover: #22282d; --row-open: #1d2c33; --detail-bg: #191d20; --chip: #2b3239; --chip-fg: #b5bec6; --pos-bg: #16301f; --pos-border: #2f6b40; --pos-fg: #7fd49a; --neg-bg: #3a1b1b; --neg-border: #8a3c3c; --neg-fg: #ff8a80; --rating: #e0a35c; --text-soft: #c9d0d6; --quote-bg: #1a1e22; --table-border: #3b4249; --row-border: #30363c; --muted: #9ba6af; }}
+}}
+body {{ max-width: 1280px; font-family: "Yu Gothic UI", Meiryo, sans-serif; }}
 h1 {{ margin: 0 0 16px; font-size: 1.4rem; }}
-.filters {{ margin-bottom: 14px; padding: 16px; border: 1px solid #d7dfe4; border-radius: 10px; background: #fff; box-shadow: 0 2px 8px #2637460a; }}
+.filters {{ margin-bottom: 14px; padding: 16px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--panel); box-shadow: 0 2px 8px #2637460a; }}
 .filter-primary {{ display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr) minmax(160px, 0.8fr); gap: 12px; }}
-.filter-field {{ display: grid; min-width: 0; gap: 5px; color: #56616a; font-size: 0.78rem; font-weight: 600; }}
-.filters input, .filters select {{ width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid #cbd4da; border-radius: 6px; background: #fff; color: #20272d; font: inherit; font-size: 0.9rem; }}
-.filters input:focus, .filters select:focus {{ border-color: #28738a; outline: 3px solid #28738a26; }}
+.filter-field {{ display: grid; min-width: 0; gap: 5px; color: var(--field-label); font-size: 0.78rem; font-weight: 600; }}
+.filters input, .filters select {{ width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid var(--field-border); border-radius: 6px; background: var(--panel); color: var(--fg); font: inherit; font-size: 16px; }}
+.filters input:focus, .filters select:focus {{ border-color: var(--focus); outline: 3px solid #28738a40; }}
 .filter-search {{ position: relative; }}
 .filter-search::before {{ position: absolute; left: 11px; bottom: 11px; color: #73818a; content: "⌕"; font-size: 1.15rem; line-height: 1; }}
 .filters input[type="search"] {{ padding-left: 34px; }}
-.filter-section {{ margin-top: 14px; padding-top: 13px; border-top: 1px solid #edf0f2; }}
-.filter-section-title {{ margin-bottom: 9px; color: #38434b; font-size: 0.82rem; font-weight: 700; }}
+.filter-section {{ margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--rule); }}
+.filter-section-title {{ margin-bottom: 9px; color: var(--text-soft); font-size: 0.82rem; font-weight: 700; }}
 .filter-grid {{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 12px; }}
 .filter-footer {{ display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }}
-.chubby-toggle {{ display: inline-flex; align-items: center; gap: 7px; color: #59666f; font-size: 0.85rem; cursor: pointer; }}
-.chubby-toggle input {{ width: auto; min-height: 0; margin: 0; }}
-.result-count {{ margin: 0; color: #59666f; font-size: 0.85rem; }}
-.result-count strong {{ color: #20272d; font-size: 1rem; }}
-.reset-filters {{ padding: 7px 11px; border: 1px solid #cbd4da; border-radius: 6px; background: #f7f9fa; color: #35434c; font: inherit; font-size: 0.82rem; cursor: pointer; }}
-.reset-filters:hover {{ border-color: #8b9aa3; background: #eef2f4; }}
-.table-wrap {{ max-height: calc(100vh - 150px); overflow: auto; border: 1px solid #cbd2d8; background: white; }}
+.chubby-toggle {{ display: inline-flex; align-items: center; gap: 7px; min-height: 44px; color: var(--field-label); font-size: 0.85rem; cursor: pointer; }}
+.chubby-toggle input {{ width: 20px; height: 20px; min-height: 0; margin: 0; }}
+.result-count {{ margin: 0; color: var(--field-label); font-size: 0.85rem; }}
+.result-count strong {{ color: var(--fg); font-size: 1rem; }}
+.reset-filters {{ min-height: 36px; padding: 7px 14px; border: 1px solid var(--field-border); border-radius: 6px; background: var(--detail-bg); color: var(--text-soft); font: inherit; font-size: 0.9rem; cursor: pointer; }}
+.reset-filters:hover {{ border-color: #8b9aa3; background: var(--head); }}
+.table-wrap {{ max-height: calc(100vh - 150px); overflow: auto; border: 1px solid var(--table-border); background: var(--panel); }}
 table {{ width: 100%; border-collapse: collapse; }}
-th, td {{ padding: 10px 12px; border-bottom: 1px solid #e0e4e7; text-align: left; vertical-align: top; }}
-thead th {{ position: sticky; top: 0; z-index: 1; background: #e9eef1; }}
-tbody tr:hover {{ background: #f6f8f9; }}
+th, td {{ padding: 10px 12px; border-bottom: 1px solid var(--row-border); text-align: left; vertical-align: top; }}
+thead th {{ position: sticky; top: 0; z-index: 1; background: var(--head); }}
+tbody tr:hover {{ background: var(--row-hover); }}
 .average-cell {{ min-width: 100px; white-space: nowrap; }}
 .profile-link {{ display: inline-flex; align-items: center; gap: 9px; min-width: 150px; }}
-.profile-photo {{ width: 42px; height: 56px; flex: none; object-fit: cover; border: 1px solid #cbd2d8; border-radius: 3px; background: #f2f4f5; }}
+.profile-photo {{ width: 42px; height: 56px; flex: none; object-fit: cover; border: 1px solid var(--table-border); border-radius: 3px; background: var(--bg); }}
 .person-row {{ cursor: pointer; }}
-.person-row.open {{ background: #eef4f6; }}
-.toggle {{ color: #17617a; font-size: 0.8rem; }}
+.person-row.open {{ background: var(--row-open); }}
+.toggle {{ color: var(--link); font-size: 0.8rem; }}
 .tally-cell div {{ margin-bottom: 4px; }}
-.neg-rate {{ color: #1e6b36; }}
-.chip {{ display: inline-block; margin: 0 4px 2px 0; padding: 1px 7px; border-radius: 10px; border: 1px solid transparent; background: #eceff1; color: #56616a; font-size: 0.82rem; white-space: nowrap; }}
-.chip.pos {{ background: #e0f2e5; border-color: #9ccfaa; color: #1e6b36; font-weight: 600; }}
-.chip.neg {{ background: #fdeaea; border-color: #e7a3a3; color: #b3261e; text-decoration: underline wavy #e7a3a3; text-underline-offset: 3px; }}
+.neg-rate {{ color: var(--pos-fg); }}
+.chip {{ display: inline-block; margin: 0 4px 2px 0; padding: 1px 7px; border-radius: 10px; border: 1px solid transparent; background: var(--chip); color: var(--chip-fg); font-size: 0.82rem; white-space: nowrap; }}
+.chip.pos {{ background: var(--pos-bg); border-color: var(--pos-border); color: var(--pos-fg); font-weight: 600; }}
+.chip.neg {{ background: var(--neg-bg); border-color: var(--neg-border); color: var(--neg-fg); text-decoration: underline wavy var(--neg-border); text-underline-offset: 3px; }}
 .tally-cell .review-label {{ background: none; padding: 0; margin-right: 6px; }}
-.detail-row > td {{ background: #fafbfb; }}
+.detail-row > td {{ background: var(--detail-bg); }}
 .report-list {{ max-width: 700px; margin: 0; padding-left: 0; list-style: none; }}
-.review-item {{ padding: 6px 0; border-top: 1px solid #e5e8ea; }}
+.review-item {{ padding: 6px 0; border-top: 1px solid var(--row-border); }}
 .review-item:first-child {{ border-top: 0; }}
-.review-body > summary {{ margin-top: 4px; padding: 4px 0; cursor: pointer; }}
+.review-body > summary {{ display: flex; align-items: center; min-height: 44px; margin-top: 4px; padding: 4px 0; cursor: pointer; }}
 .review-detail {{ padding: 0 0 10px 4px; }}
 .review-meta {{ margin-top: 8px; }}
-.review-rating {{ color: #865019; white-space: nowrap; }}
-.review-param {{ margin: 4px 0 0; color: #38434b; white-space: pre-wrap; }}
-.review-gap {{ color: #56616a; }}
-.review-label {{ display: inline-block; margin-right: 8px; padding: 0 6px; border-radius: 3px; background: #e9eef1; color: #56616a; font-size: 0.8rem; }}
-.review-text {{ margin: 8px 0 0; padding: 8px 10px; border-left: 3px solid #cbd2d8; background: #f8f9fa; white-space: pre-wrap; color: #38434b; }}
-.age {{ display: block; margin-top: 2px; color: #68747d; font-size: 0.85rem; }}
-a {{ color: #17617a; }}
-.empty {{ padding: 18px; color: #5a646d; }}
+.review-meta a {{ display: inline-flex; align-items: center; min-height: 44px; }}
+.review-rating {{ color: var(--rating); white-space: nowrap; }}
+.review-param {{ margin: 4px 0 0; color: var(--text-soft); white-space: pre-wrap; }}
+.review-gap {{ color: var(--chip-fg); }}
+.review-label {{ display: inline-block; margin-right: 8px; padding: 0 6px; border-radius: 3px; background: var(--head); color: var(--field-label); font-size: 0.8rem; }}
+.review-text {{ margin: 8px 0 0; padding: 8px 10px; border-left: 3px solid var(--table-border); background: var(--quote-bg); white-space: pre-wrap; color: var(--text-soft); }}
+.review-loading {{ margin: 6px 0; color: var(--muted); font-size: 0.85rem; }}
+.review-loading button {{ margin-left: 8px; min-height: 36px; padding: 4px 12px; border: 1px solid var(--field-border); border-radius: 6px; background: var(--panel); color: var(--fg); font: inherit; cursor: pointer; }}
+.age {{ display: block; margin-top: 2px; color: var(--muted); font-size: 0.85rem; }}
+a {{ color: var(--link); }}
+.empty {{ padding: 18px; color: var(--muted); }}
+@media (max-width: 760px), (pointer: coarse) {{
+.reset-filters, .review-loading button {{ min-height: 44px; }}
+}}
 @media (max-width: 700px) {{
-body {{ padding: 12px; }}
+:root {{ --page-pad: 12px; }}
 h1 {{ font-size: 1.25rem; }}
 .filters {{ padding: 12px; }}
 .filter-primary {{ grid-template-columns: 1fr 1fr; gap: 9px; }}
 .filter-search {{ grid-column: 1 / -1; }}
 .filter-grid {{ grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }}
-.filters input, .filters select {{ min-height: 42px; }}
+.filters input, .filters select {{ min-height: 44px; }}
+.filter-footer {{ flex-wrap: wrap; }}
 .table-wrap {{ max-height: none; overflow: visible; border: 0; background: transparent; }}
 table, tbody, tr, td {{ display: block; width: 100%; }}
 thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }}
-#reviews tbody tr {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 0 0 10px; padding: 12px; border: 1px solid #cbd2d8; background: white; }}
-#reviews tbody tr.detail-row {{ display: block; margin: -10px 0 10px; padding: 8px 12px; border: 1px solid #cbd2d8; border-top: 0; }}
+#reviews tbody tr {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 0 0 10px; padding: 12px; border: 1px solid var(--table-border); background: var(--panel); }}
+#reviews tbody tr.person-row.open {{ background: var(--row-open); }}
+#reviews tbody tr.detail-row {{ display: block; margin: -10px 0 10px; padding: 8px 12px; border: 1px solid var(--table-border); border-top: 0; }}
 #reviews tbody tr[hidden] {{ display: none !important; }}
 #reviews td {{ min-width: 0; padding: 4px 0; border: 0; overflow-wrap: anywhere; }}
 #reviews td:nth-child(1), #reviews td:nth-child(2), #reviews td:nth-child(4) {{ grid-column: 1 / -1; }}
-#reviews td:nth-child(1) {{ font-weight: 600; color: #56616a; }}
-#reviews td:nth-child(3)::before {{ content: "平均評価"; display: block; color: #68747d; font-size: 0.8rem; }}
-#reviews td:nth-child(5)::before {{ content: "評価数"; display: block; color: #68747d; font-size: 0.8rem; }}
+#reviews td:nth-child(1) {{ font-weight: 600; color: var(--field-label); }}
+#reviews td:nth-child(3)::before {{ content: "平均評価"; display: block; color: var(--muted); font-size: 0.8rem; }}
+#reviews td:nth-child(5)::before {{ content: "評価数"; display: block; color: var(--muted); font-size: 0.8rem; }}
 .average-cell {{ min-width: 0; }}
 .profile-link {{ min-width: 0; }}
 .report-list {{ max-width: 100%; }}
 .review-meta {{ margin-top: 8px; }}
 }}
 </style></head><body>
+{BACK_NAV}
 <h1>女の子別 評価・レポート</h1>
 <section class="filters" id="filters" aria-label="レビューの絞り込み">
 <div class="filter-primary">
@@ -762,13 +782,43 @@ const reportsFilter=document.getElementById('reports');reportsFilter.addEventLis
 function applySort() {{ const pairs=originalPairs.slice(); if(sortSelect.value==='adj') pairs.sort((a,b)=>adj(a[0])-adj(b[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='neg') pairs.sort((a,b)=>Number(a[0].dataset.neg)-Number(b[0].dataset.neg)||Number(b[0].dataset.average)-Number(a[0].dataset.average)); pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}}); }}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
 function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
-document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;}}}}));
+let bodiesPromise=null;
+const loadBodies=()=>bodiesPromise||(bodiesPromise=fetch('{bodies_url}').then(r=>{{if(!r.ok)throw new Error(r.status);return r.json();}}).catch(e=>{{bodiesPromise=null;throw e;}}));
+const el=(tag,cls,text)=>{{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}};
+const param=(label,content)=>{{const p=el('p','review-param');p.append(el('span','review-label',label));typeof content==='string'?p.append(content):p.append(...content);return p;}};
+function fillBodies(detailRow) {{
+  const items=[...detailRow.querySelectorAll('li.review-item[data-rid]:not([data-filled])')];
+  if(!items.length)return;
+  detailRow.querySelector('.review-loading')?.remove();
+  const status=el('p','review-loading','レビュー本文を読み込み中…');
+  detailRow.querySelector('td').prepend(status);
+  loadBodies().then(bodies=>{{
+    status.remove();
+    items.forEach(li=>{{
+      const b=bodies[Number(li.dataset.rid)]||{{}}, params=li.querySelector('.review-params'), gap=params.firstElementChild, nodes=[];
+      if(b.f)nodes.push(param('顔',b.f.map(([t,tone])=>el('span','chip '+tone,t))));
+      if(b.s)nodes.push(param('スタイル',b.s));
+      if(b.v)nodes.push(param('サービス',b.v));
+      nodes.forEach(n=>params.insertBefore(n,gap));
+      if(b.t)li.querySelector('.review-detail').prepend(el('p','review-text',b.t));
+      li.dataset.filled='1';
+    }});
+  }}).catch(()=>{{
+    status.textContent='レビュー本文を読み込めませんでした。';
+    const retry=el('button','', '再読み込み');retry.type='button';
+    retry.addEventListener('click',event=>{{event.stopPropagation();fillBodies(detailRow);}});
+    status.append(retry);
+  }});
+}}
+document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;fillBodies(row.nextElementSibling);}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
 searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);includeChubbyFilter.addEventListener('change',applyFilters);
 document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;applySort();applyFilters();}});
 applyFilters();
-</script></body></html>'''
-    return BeautifulSoup(page, "html.parser")
+</script>
+{BACK_TO_TOP}
+</body></html>'''
+    return BeautifulSoup(page, "html.parser"), bodies_json
 
 
 def render_people_summary_file(path):
@@ -777,7 +827,8 @@ def render_people_summary_file(path):
     source_soup = BeautifulSoup(raw_html, "html.parser")
     people = list(_person_groups(_extract_rows(source_soup)))
     profile_images = _fetch_profile_images(people)
-    page = build_people_summary_html(raw_html, profile_images)
+    page, bodies_json = build_people_summary(raw_html, profile_images)
+    (path.parent / REVIEW_BODIES_NAME).write_text(bodies_json, encoding="utf-8")
     path.write_text(str(page), encoding="utf-8")
     return len(page.select("#reviews tbody tr"))
 

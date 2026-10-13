@@ -9,4 +9,6 @@ Tabular datasets use JSON Lines (`.jsonl`): one JSON object per record. Read and
 - `okinilove_shop_index.json`: cached shop index (shop name -> 全投稿履歴 URL) built from Okinilove category pages (categories 70–72: デリヘル・ヘルス・ソープランド); refreshed every 7 days. Review scraping excludes shops identified as ぽっちゃり系 by their name or category industry label, and category 70 also excludes shops with age-related terms in the name or category-70 industry label. The generated people-review HTML hides ぽっちゃり系 shops by default and provides a checkbox to show them.
 - `okinilove_profile_status.json`: generated 24-hour profile status cache; excluded from Git.
 
+Published pages in `docs/` share `docs/common.css` (static, edited by hand; dark mode and iPhone/safe-area rules) and `src/web_common.py` (shared head, 「← 一覧」 nav, 「先頭へ」 button). `src/okinilove/render_people_summary.py` writes the review bodies (face/style/service/text) to `docs/okinilove_review_bodies.json`, which the people-review page fetches when a person is opened; review links, ratings, and gaps stay in the HTML because the scrapers re-parse it.
+
 Do not add derived join keys such as `url_key` to the persisted records. Compute them at runtime.

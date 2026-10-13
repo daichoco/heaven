@@ -3,6 +3,8 @@ import asyncio
 import json
 import re
 import sys
+from datetime import datetime
+from html import escape as html_escape
 from pathlib import Path
 
 import pandas as pd
@@ -21,6 +23,7 @@ from cityheaven.exists_merge import (
   PROFILE_DATA_PATH,
   main as scrape_cityheaven_profiles,
 )
+from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
@@ -220,65 +223,28 @@ def main():
     return merge_ns_reports(merged, normalize_url=normalize_url)
 
 
-if __name__ == "__main__":
-    merged = main()
-
-
-# %%
-import pandas as pd
-import ast
-import re
-from bs4 import BeautifulSoup
-from datetime import datetime
-from html import escape as html_escape
-
-# merged は DataFrame と仮定
-# 出勤日カラムを抽出
-calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
-
-# 日本語の曜日リスト
-weekdays = ["月", "火", "水", "木", "金", "土", "日"]
-
-# 今日の日付を取得
-today = datetime.now()
-today_label = f"{today.month}/{str(today.day).zfill(2)}({weekdays[today.weekday()]})"
-
-# カレンダー列を翌年考慮でソート
-def parse_date_with_year_adjustment(date_str, current_year, today_month):
-    # date_str は "1/1(月)" の形式
-    date_part = date_str.split('(')[0]  # "1/1"
-    month, day = map(int, date_part.split('/'))
-    year = current_year
-    if month < today_month:  # 翌年を考慮
-        year += 1
-    return datetime(year, month, day)
-
-current_year = today.year
-calendar_cols = sorted(
-    calendar_cols,
-    key=lambda x: parse_date_with_year_adjustment(x, current_year, today.month)
-)
-
-# HTML組み立て開始
-html = """<!DOCTYPE html>
+CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    __HEAD_COMMON__
     <title>出勤カレンダー一覧</title>
     <style>
-      * { box-sizing: border-box; }
-      body { max-width: 1400px; margin: 0 auto; padding: 16px; font: 15px/1.5 sans-serif; color: #20272d; }
+      :root { --page-pad: 16px; --sat: blue; --sun: red; --row-sep: #f5f6f7; --review-merged: #f9f9f9; --review-ns: #fff8f0; --review-okinilove: #f0f9ff; }
+      @media (prefers-color-scheme: dark) {
+        :root { --sat: #6cb6ff; --sun: #ff7b72; --row-sep: #0f1214; --review-merged: #1d2125; --review-ns: #2a2219; --review-okinilove: #172431; }
+      }
+      body { max-width: 1400px; font: 15px/1.5 sans-serif; }
       h1 { margin: 0 0 16px; font-size: 1.4rem; }
       thead th {
-        background: #f9f9f9;
+        background: var(--surface);
       }
-      th.saturday { color: blue; }
-      th.sunday { color: red; }
-      body > div[style*="overflow-x: auto"] { overflow-x: auto; overflow-y: visible; border: 1px solid #ccd2d8; background: white; }
+      th.saturday { color: var(--sat); }
+      th.sunday { color: var(--sun); }
+      body > div[style*="overflow-x: auto"] { overflow-x: auto; overflow-y: visible; border: 1px solid var(--border); background: var(--surface-alt); }
       table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 14px; }
-      th, td { border: 1px solid #d7dde1; padding: 8px; text-align: center; vertical-align: top; }
-      th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: #f9f9f9; }
+      th, td { border: 1px solid var(--border-soft); padding: 8px; text-align: center; vertical-align: top; }
+      th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: var(--surface); }
       td.shop-cell { min-width: 220px; text-align: left; }
       .m-cal { display: none; }
       img { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; }
@@ -286,47 +252,48 @@ html = """<!DOCTYPE html>
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
       .filter-group label { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; }
-      input { min-height: 22px; }
+      .review-row.review-merged { background-color: var(--review-merged); }
+      .review-row.review-ns { background-color: var(--review-ns); }
+      .review-row.review-okinilove { background-color: var(--review-okinilove); }
       .shop-cell button {
-        min-height: 40px;
+        min-height: 44px;
         padding: 8px 12px;
         border-radius: 4px;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
+        color: var(--fg);
+        background-color: var(--chip);
+        border: 1px solid var(--border);
         cursor: pointer;
         width: 100%;
       }
       .shop-cell button:active {
-        background-color: #e0e0e0;
+        background-color: var(--border-soft);
       }
       @media (max-width: 700px) {
-        body { padding: 12px; }
+        :root { --page-pad: 12px; }
         h1 { font-size: 1.2rem; }
         .filter-group { margin-bottom: 16px; }
-        .filter-group label { min-height: 36px; margin-right: 8px; }
-        input[type="radio"], input[type="checkbox"] { width: 18px; height: 18px; }
-        input[type="date"] { min-height: 42px; }
+        .filter-group label { min-height: 44px; margin-right: 8px; }
         body > div[style*="overflow-x: auto"] { max-height: none; overflow-x: auto; overflow-y: visible; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: 97px minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid #f5f6f7; background: white; color: #333; font-size: 13px; }
+        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: 97px minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid var(--row-sep); background: var(--surface-alt); color: var(--fg-soft); font-size: 13px; }
         body > div[style*="overflow-x: auto"] td { border: 0; padding: 0; }
         body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 2; grid-row: 1; min-width: 0; text-align: left; }
-        body > div[style*="overflow-x: auto"] td.shop-cell > a { display: block; font-size: 16px; font-weight: 700; line-height: 1.3; color: #777; text-decoration: none; }
+        body > div[style*="overflow-x: auto"] td.shop-cell > a { display: block; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--muted); text-decoration: none; }
         body > div[style*="overflow-x: auto"] td.shop-cell > br { display: none; }
-        body > div[style*="overflow-x: auto"] td.shop-cell .shop-info { display: block; font-size: 10px; line-height: 15px; color: #777; }
+        body > div[style*="overflow-x: auto"] td.shop-cell .shop-info { display: block; font-size: 10px; line-height: 15px; color: var(--muted); }
         body > div[style*="overflow-x: auto"] td.img-cell { grid-column: 1; grid-row: 1; }
         body > div[style*="overflow-x: auto"] td.img-cell img { display: block; width: 97px; height: 97px; border-radius: 5px; object-fit: cover; }
         body > div[style*="overflow-x: auto"] td[data-label] { display: none; }
         body > div[style*="overflow-x: auto"] .m-cal { display: block; margin: 5px 0 0; overflow-x: scroll; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
         body > div[style*="overflow-x: auto"] .m-cal ul { display: flex; margin: 0; padding: 0; list-style: none; width: max-content; }
-        body > div[style*="overflow-x: auto"] .m-cal li { width: 65px; margin: 4px; color: #777; }
-        body > div[style*="overflow-x: auto"] .m-date { margin: 0 0 2px; font-size: 13px; line-height: 18px; text-align: center; color: #777; }
-        body > div[style*="overflow-x: auto"] .m-date.saturday { color: #0066ff; }
-        body > div[style*="overflow-x: auto"] .m-date.sunday { color: #ff0000; }
-        body > div[style*="overflow-x: auto"] .m-box { height: 50px; border-radius: 5px; box-shadow: 0 0 4px rgba(0,0,0,0.2); overflow: hidden; text-align: center; font-size: 11px; line-height: 15.4px; padding: 3px 0 0; }
+        body > div[style*="overflow-x: auto"] .m-cal li { width: 65px; margin: 4px; color: var(--muted); }
+        body > div[style*="overflow-x: auto"] .m-date { margin: 0 0 2px; font-size: 13px; line-height: 18px; text-align: center; color: var(--muted); }
+        body > div[style*="overflow-x: auto"] .m-date.saturday { color: var(--sat); }
+        body > div[style*="overflow-x: auto"] .m-date.sunday { color: var(--sun); }
+        body > div[style*="overflow-x: auto"] .m-box { height: 50px; border-radius: 5px; box-shadow: 0 0 4px var(--shadow); overflow: hidden; text-align: center; font-size: 11px; line-height: 15.4px; padding: 3px 0 0; }
         body > div[style*="overflow-x: auto"] .m-box.on { font-size: 13px; line-height: 13px; padding: 5px 0; }
-        body > div[style*="overflow-x: auto"] .m-box.off { background: linear-gradient(#fff calc(100% - 8px), #ccc 0); }
+        body > div[style*="overflow-x: auto"] .m-box.off { background: linear-gradient(var(--surface-alt) calc(100% - 8px), var(--border) 0); }
         body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
         body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       }
@@ -474,6 +441,7 @@ html = """<!DOCTYPE html>
     </script>
   </head>
   <body onload="applyCombinedFilter()">
+    __BACK_NAV__
     <h1>出勤カレンダーとレビュー一覧</h1>
 
     <div class="filter-group">
@@ -493,173 +461,209 @@ html = """<!DOCTYPE html>
     </div>
 
 """
+CALENDAR_PAGE_HEAD = (
+    CALENDAR_PAGE_HEAD
+    .replace("__HEAD_COMMON__", HEAD_COMMON.replace("\n", "\n    "))
+    .replace("__BACK_NAV__", BACK_NAV)
+)
 
-# テーブル開始
-html += "<div style='overflow-x: auto;'>"
-html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
 
-# 日付ヘッダー
-for day in calendar_cols:
-    if "(土)" in day:
-        html += f"<th class='saturday'>{day}</th>"
-    elif "(日)" in day:
-        html += f"<th class='sunday'>{day}</th>"
-    else:
-        html += f"<th>{day}</th>"
+def build_calendar_html(merged):
+    # 出勤日カラムを抽出
+    calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
 
-html += "</tr></thead><tbody>"
+    # 日本語の曜日リスト
+    weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
-# 同じ姫に東海風俗レポートが複数ある場合は1行にまとめる
-merged_reports_by_key = {}
-for idx, row in merged.iterrows():
-    key = row.get("url_key")
-    if pd.isna(key):
-        continue
-    if _has_value(row["evaluations_merged"]):
-        merged_reports_by_key.setdefault(key, []).append(
-            (row["evaluations_merged"], row["report_url_merged"])
-        )
-rendered_keys = set()
+    # 今日の日付を取得
+    today = datetime.now()
+    today_label = f"{today.month}/{str(today.day).zfill(2)}({weekdays[today.weekday()]})"
 
-for idx, row in merged.iterrows():
-    key = row.get("url_key")
-    if pd.notna(key):
-        if key in rendered_keys:
-            continue
-        rendered_keys.add(key)
-    merged_reports = merged_reports_by_key.get(key, []) if pd.notna(key) else (
-        [(row["evaluations_merged"], row["report_url_merged"])] if _has_value(row["evaluations_merged"]) else []
+    # カレンダー列を翌年考慮でソート
+    def parse_date_with_year_adjustment(date_str, current_year, today_month):
+        # date_str は "1/1(月)" の形式
+        date_part = date_str.split('(')[0]  # "1/1"
+        month, day = map(int, date_part.split('/'))
+        year = current_year
+        if month < today_month:  # 翌年を考慮
+            year += 1
+        return datetime(year, month, day)
+
+    current_year = today.year
+    calendar_cols = sorted(
+        calendar_cols,
+        key=lambda x: parse_date_with_year_adjustment(x, current_year, today.month)
     )
-    name = row["名前"]
-    shop = row["店名"]
-    shop = [s.strip() for s in shop.split("\n") if s.strip()]
-    image_url = row["画像URL"]
-    profile_url = row["URL"]
 
-    eval_merged = row["evaluations_merged"]
-    eval_okinilove = row["evaluations_okinilove"]
-    report_url_merged = row["report_url_merged"]
-    report_url_okinilove = row["report_url_okinilove"]
-    report_text_okinilove = row["report_text"]
+    # HTML組み立て開始
+    html = CALENDAR_PAGE_HEAD
 
-    ns_reports = row["ns_reports"] if isinstance(row["ns_reports"], list) else []
-    row_id_ns = f"review-ns-{idx}"
+    # テーブル開始
+    html += "<div style='overflow-x: auto;'>"
+    html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
 
-    has_report = "true" if (
-      ns_reports
-      or merged_reports
-      or _has_value(eval_okinilove)
-      or _has_value(report_text_okinilove)
-    ) else "false"
-    row_id_merged = f"review-merged-{idx}"
-    row_id_okinilove = f"review-okinilove-{idx}"
-
-    # メイン行
-    html += f"<tr data-report='{has_report}'>"
-
-    # ★ 名前＋レビュー＋店名（統合セル）
-    html += f"<td class='shop-cell'>"
-    html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
-
-    # レビューボタン
-    if merged_reports:
-        count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
-        html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
-    if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
-        html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
-
-    if ns_reports:
-        html += f"<br><button onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
-
-    # 店名（名前の下に表示）
-    if len(shop) >= 1:
-        html += f"<br><span class='shop-info'>{shop[0]}</span>"
-    if len(shop) >= 2:
-        html += f"<br><span class='shop-info'>{shop[1]}</span>"
-
-    # スマホ用の横スクロールカレンダー（デスクトップでは非表示）
-    html += "<div class='m-cal'><ul>"
+    # 日付ヘッダー
     for day in calendar_cols:
-        status = str(row[day]) if pd.notna(row[day]) else "-"
-        day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
-        is_time = re.match(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$", status.strip())
-        if is_time:
-            box = f"<div class='m-box on'>{re.sub(r'\s*~\s*', '<br>~<br>', status.strip())}</div>"
+        if "(土)" in day:
+            html += f"<th class='saturday'>{day}</th>"
+        elif "(日)" in day:
+            html += f"<th class='sunday'>{day}</th>"
         else:
-            box = f"<div class='m-box off'>{status}</div>"
-        html += f"<li><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
-    html += "</ul></div>"
+            html += f"<th>{day}</th>"
 
-    html += "</td>"
+    html += "</tr></thead><tbody>"
 
-    # 画像セル
-    html += f"<td class='img-cell'><img src='{image_url}' alt='{name}'></td>"
+    # 同じ姫に東海風俗レポートが複数ある場合は1行にまとめる
+    merged_reports_by_key = {}
+    for idx, row in merged.iterrows():
+        key = row.get("url_key")
+        if pd.isna(key):
+            continue
+        if _has_value(row["evaluations_merged"]):
+            merged_reports_by_key.setdefault(key, []).append(
+                (row["evaluations_merged"], row["report_url_merged"])
+            )
+    rendered_keys = set()
 
-    # 出勤日
-    for day in calendar_cols:
-        status = row[day] if pd.notna(row[day]) else "-"
-        day_class = " class='saturday'" if "(土)" in day else (" class='sunday'" if "(日)" in day else "")
-        short_day = day.split("(")[0]
-        html += f"<td data-label='{day}' data-date='{short_day}'{day_class}><span class='cell'>{status}</span></td>"
+    for idx, row in merged.iterrows():
+        key = row.get("url_key")
+        if pd.notna(key):
+            if key in rendered_keys:
+                continue
+            rendered_keys.add(key)
+        merged_reports = merged_reports_by_key.get(key, []) if pd.notna(key) else (
+            [(row["evaluations_merged"], row["report_url_merged"])] if _has_value(row["evaluations_merged"]) else []
+        )
+        name = row["名前"]
+        shop = row["店名"]
+        shop = [s.strip() for s in shop.split("\n") if s.strip()]
+        image_url = row["画像URL"]
+        profile_url = row["URL"]
 
-    html += "</tr>"
+        eval_merged = row["evaluations_merged"]
+        eval_okinilove = row["evaluations_okinilove"]
+        report_url_merged = row["report_url_merged"]
+        report_url_okinilove = row["report_url_okinilove"]
+        report_text_okinilove = row["report_text"]
 
-    # mergedレビュー行（複数レポートは縦に並べる）
-    if merged_reports:
-        html += f"<tr id='{row_id_merged}' class='review-row' style='display:none; background-color:#f9f9f9;'>"
-        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
-        for eval_value, report_url in merged_reports:
-            try:
-                html += "<ul>"
-                for k, v in _evaluation_dict(eval_value).items():
-                    html += f"<li><strong>{k}:</strong> {v}</li>"
-                if pd.notna(report_url):
-                    html += f"<li><a href='{report_url}' target='_blank'>レポートリンク (merged)</a></li>"
+        ns_reports = row["ns_reports"] if isinstance(row["ns_reports"], list) else []
+        row_id_ns = f"review-ns-{idx}"
+
+        has_report = "true" if (
+          ns_reports
+          or merged_reports
+          or _has_value(eval_okinilove)
+          or _has_value(report_text_okinilove)
+        ) else "false"
+        row_id_merged = f"review-merged-{idx}"
+        row_id_okinilove = f"review-okinilove-{idx}"
+
+        # メイン行
+        html += f"<tr data-report='{has_report}'>"
+
+        # ★ 名前＋レビュー＋店名（統合セル）
+        html += f"<td class='shop-cell'>"
+        html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
+
+        # レビューボタン
+        if merged_reports:
+            count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
+            html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
+        if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
+            html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
+
+        if ns_reports:
+            html += f"<br><button onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
+
+        # 店名（名前の下に表示）
+        if len(shop) >= 1:
+            html += f"<br><span class='shop-info'>{shop[0]}</span>"
+        if len(shop) >= 2:
+            html += f"<br><span class='shop-info'>{shop[1]}</span>"
+
+        # スマホ用の横スクロールカレンダー（デスクトップでは非表示）
+        html += "<div class='m-cal'><ul>"
+        for day in calendar_cols:
+            status = str(row[day]) if pd.notna(row[day]) else "-"
+            day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
+            is_time = re.match(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$", status.strip())
+            if is_time:
+                box = f"<div class='m-box on'>{re.sub(r'\s*~\s*', '<br>~<br>', status.strip())}</div>"
+            else:
+                box = f"<div class='m-box off'>{status}</div>"
+            html += f"<li><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
+        html += "</ul></div>"
+
+        html += "</td>"
+
+        # 画像セル
+        html += f"<td class='img-cell'><img src='{image_url}' alt='{name}' width='64' height='64' loading='lazy' decoding='async'></td>"
+
+        # 出勤日
+        for day in calendar_cols:
+            status = row[day] if pd.notna(row[day]) else "-"
+            day_class = " class='saturday'" if "(土)" in day else (" class='sunday'" if "(日)" in day else "")
+            short_day = day.split("(")[0]
+            html += f"<td data-label='{day}' data-date='{short_day}'{day_class}><span class='cell'>{status}</span></td>"
+
+        html += "</tr>"
+
+        # mergedレビュー行（複数レポートは縦に並べる）
+        if merged_reports:
+            html += f"<tr id='{row_id_merged}' class='review-row review-merged' style='display:none;'>"
+            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            for eval_value, report_url in merged_reports:
+                try:
+                    html += "<ul>"
+                    for k, v in _evaluation_dict(eval_value).items():
+                        html += f"<li><strong>{k}:</strong> {v}</li>"
+                    if pd.notna(report_url):
+                        html += f"<li><a href='{report_url}' target='_blank'>レポートリンク (merged)</a></li>"
+                    html += "</ul>"
+                except Exception:
+                    html += "<p>レビュー解析失敗 (merged)</p>"
+            html += "</td></tr>"
+
+        # NS専門レビュー行
+        if ns_reports:
+            html += f"<tr id='{row_id_ns}' class='review-row review-ns' style='display:none;'>"
+            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            for rep in ns_reports:
+                html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
+                for k, v in rep["scores"].items():
+                    html += f"<li><strong>{k}:</strong> {html_escape(str(v))}</li>"
                 html += "</ul>"
-            except Exception:
-                html += "<p>レビュー解析失敗 (merged)</p>"
-        html += "</td></tr>"
+                for k, v in rep["comments"].items():
+                    html += f"<p><strong>{k}</strong></p><pre>{html_escape(str(v))}</pre>"
+            html += "</td></tr>"
 
-    # NS専門レビュー行
-    if ns_reports:
-        html += f"<tr id='{row_id_ns}' class='review-row' style='display:none; background-color:#fff8f0;'>"
-        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
-        for rep in ns_reports:
-            html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
-            for k, v in rep["scores"].items():
-                html += f"<li><strong>{k}:</strong> {html_escape(str(v))}</li>"
-            html += "</ul>"
-            for k, v in rep["comments"].items():
-                html += f"<p><strong>{k}</strong></p><pre>{html_escape(str(v))}</pre>"
-        html += "</td></tr>"
+        # okiniloveレビュー行
+        if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
+            html += f"<tr id='{row_id_okinilove}' class='review-row review-okinilove' style='display:none;'>"
+            html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
+            if _has_value(eval_okinilove):
+              if isinstance(eval_okinilove, dict):
+                html += "<ul>"
+                for key, value in eval_okinilove.items():
+                  html += f"<li><strong>{key}:</strong> {value}</li>"
+                html += "</ul>"
+              else:
+                html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
+            if _has_value(report_text_okinilove):
+                html += f"<pre>{report_text_okinilove}</pre>"
+            if pd.notna(report_url_okinilove):
+                html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
+            html += "</td></tr>"
 
-    # okiniloveレビュー行
-    if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
-        html += f"<tr id='{row_id_okinilove}' class='review-row' style='display:none; background-color:#f0f9ff;'>"
-        html += f"<td colspan='{2 + len(calendar_cols)}' style='text-align: left;'>"
-        if _has_value(eval_okinilove):
-          if isinstance(eval_okinilove, dict):
-            html += "<ul>"
-            for key, value in eval_okinilove.items():
-              html += f"<li><strong>{key}:</strong> {value}</li>"
-            html += "</ul>"
-          else:
-            html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
-        if _has_value(report_text_okinilove):
-            html += f"<pre>{report_text_okinilove}</pre>"
-        if pd.notna(report_url_okinilove):
-            html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
-        html += "</td></tr>"
+    html += "</tbody></table></div>" + BACK_TO_TOP + "</body></html>"
+    return html
 
 
+def write_calendar_html(merged, path=None):
+    output_path = path or DOCS_DIR / "calendar_report.html"
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write(build_calendar_html(merged))
 
-html += "</tbody></table></div><p><a href=\"index.html\">index.htmlに戻る</a></p></body></html>"
 
-# 整形
-soup = BeautifulSoup(html, "html.parser")
-# formatted_html = soup.prettify()
-# html = formatted_html
-output_path = DOCS_DIR / "calendar_report.html"
-with output_path.open("w", encoding="utf-8") as f:
-    f.write(html)
-# %%
+if __name__ == "__main__":
+    write_calendar_html(main())
