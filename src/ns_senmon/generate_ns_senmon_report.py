@@ -17,6 +17,13 @@ if str(SRC_DIR) not in sys.path:
 from data_store import read_jsonl
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
+
+def shop_type(entry):
+    """'luxury'（高級）/ 'other'（スタンダード・激安・表記なし）/ ''（不明）。"""
+    if not entry or "price_class" not in entry:
+        return ""
+    return "luxury" if "高級" in entry["price_class"] else "other"
+
 INPUT_JSONL = ROOT_DIR / "data" / "ns_senmon_reports.jsonl"
 OUTPUT_HTML = ROOT_DIR / "docs" / "ns_senmon_report.html"
 
@@ -125,7 +132,7 @@ def tally_chips(counts):
     )
 
 
-def render_person(group, profile_images):
+def render_person(group, profiles):
     record = group[0]
     shop = record["shop_name"]
     name = record["name"]
@@ -138,7 +145,12 @@ def render_person(group, profile_images):
         v for v in (field_value(r["details"], "おっぱい（印象）").replace("\n", " ") for r in group) if v
     )
 
-    image_url = profile_images.get(ch_url, "")
+    profile = profiles.get(ch_url) or {}
+    image_url = profile.get("image_url", "")
+    kind = shop_type(profile) if ch_url else ""
+    kind_html = (
+        f"<span class='shop-kind'>{html.escape(profile['shop_kind'])}</span>" if profile.get("shop_kind") else ""
+    )
     photo = (
         f'<img class="profile-photo" src="{html.escape(image_url, quote=True)}" '
         f'alt="{html.escape(name, quote=True)}のプロフィール画像" width="42" height="56" '
@@ -184,12 +196,12 @@ def render_person(group, profile_images):
     return (
         f'<tr class="person-row" data-shop="{html.escape(shop, quote=True)}" '
         f'data-repeat="{html.escape("|".join(repeats), quote=True)}" '
-        f'data-age="{age if age is not None else ""}" '
+        f'data-age="{age if age is not None else ""}" data-shop-type="{kind}" '
         f'data-total="{f"{total:.3f}" if total is not None else ""}" '
         f'data-play="{f"{play:.3f}" if play is not None else ""}" '
         f'data-date="{html.escape(str(record["date"]), quote=True)}" '
         f'data-search="{html.escape(search_text, quote=True)}">'
-        f"<td>{html.escape(shop)}</td><td>{person_html}{age_html}</td>"
+        f"<td>{html.escape(shop)}{kind_html}</td><td>{person_html}{age_html}</td>"
         f"<td class='average-cell'>{score_html}</td>"
         f"<td class='tally-cell'>{tally_html}</td>"
         f"<td><span class='latest'>{html.escape(str(record['date']))}</span>"
@@ -198,8 +210,8 @@ def render_person(group, profile_images):
     )
 
 
-def build_html(records, profile_images=None):
-    profile_images = profile_images or {}
+def build_html(records, profiles=None):
+    profiles = profiles or {}
     groups = group_records(records)
     shops = sorted({r["shop_name"] for r in records if r["shop_name"]})
     shop_options = "".join(
@@ -211,7 +223,7 @@ def build_html(records, profile_images=None):
     age_options = "".join(
         f'<option value="{low}-{high}">{label}</option>' for label, low, high in AGE_OPTIONS
     )
-    rows = "".join(render_person(group, profile_images) for group in groups)
+    rows = "".join(render_person(group, profiles) for group in groups)
     return (
         TEMPLATE.replace("SHOP_OPTIONS", shop_options)
         .replace("REPEAT_OPTIONS", repeat_options)
@@ -261,6 +273,7 @@ tbody tr:hover { background: var(--row-hover); }
 .person-row { cursor: pointer; }
 .person-row.open { background: var(--row-open); }
 .toggle { color: var(--link); font-size: 0.8rem; }
+.shop-kind { display: block; margin-top: 2px; color: var(--muted); font-size: 0.8rem; font-weight: normal; }
 .latest { display: block; color: var(--muted); font-size: 0.85rem; }
 #reviews th:last-child, #reviews .person-row > td:last-child { white-space: nowrap; }
 .tally-cell div { margin-bottom: 4px; }
@@ -325,6 +338,7 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
 <div class="filter-section">
 <div class="filter-section-title">詳細条件</div>
 <div class="filter-grid">
+<label class="filter-field"><span>店舗種別</span><select id="shop-type"><option value="">すべて</option><option value="luxury">高級</option><option value="other">高級以外</option></select></label>
 <label class="filter-field"><span>リピート</span><select id="repeat"><option value="">すべて</option>REPEAT_OPTIONS</select></label>
 <label class="filter-field"><span>推定年齢</span><select id="age"><option value="">すべて</option>AGE_OPTIONS</select></label>
 <label class="filter-field"><span>並び順</span><select id="sort"><option value="date">新しい順</option><option value="total">総合点（平均）が高い順</option><option value="play">プレイ点（平均）が高い順</option></select></label>
@@ -351,7 +365,7 @@ function applySort() {
     sorted.forEach(p => { tbody.appendChild(p[0]); tbody.appendChild(p[1]); });
 }
 function applyFilters() {
-    const query = $('search').value.trim().toLocaleLowerCase(), shop = $('shop').value, repeat = $('repeat').value, ageRange = $('age').value;
+    const query = $('search').value.trim().toLocaleLowerCase(), shop = $('shop').value, repeat = $('repeat').value, ageRange = $('age').value, shopType = $('shop-type').value;
     let shown = 0;
     pairs.forEach(([row, detail]) => {
         let ageOk = true;
@@ -363,6 +377,7 @@ function applyFilters() {
         const match = row.dataset.search.includes(query)
             && (!shop || row.dataset.shop === shop)
             && (!repeat || row.dataset.repeat.split('|').includes(repeat))
+            && (!shopType || row.dataset.shopType === shopType)
             && ageOk;
         row.hidden = !match;
         detail.hidden = !match || !row.classList.contains('open');
@@ -378,7 +393,7 @@ pairs.forEach(([row, detail]) => row.addEventListener('click', event => {
     if (open) { row.classList.add('open'); detail.hidden = false; }
 }));
 $('search').addEventListener('input', applyFilters);
-['shop', 'repeat', 'age'].forEach(id => $(id).addEventListener('change', applyFilters));
+['shop', 'shop-type', 'repeat', 'age'].forEach(id => $(id).addEventListener('change', applyFilters));
 $('sort').addEventListener('change', applySort);
 $('reset-filters').addEventListener('click', () => {
     $('filters').querySelectorAll('select').forEach(select => select.selectedIndex = 0);
@@ -395,7 +410,7 @@ applyFilters();
 """
 
 
-def load_profile_images(records):
+def load_profiles(records):
     people = {}
     for record in records:
         if record.get("cityheaven_url"):
@@ -417,7 +432,7 @@ def main():
             record["details"] = json.loads(record["details"])
         if not isinstance(record.get("cityheaven_url"), str):
             record["cityheaven_url"] = ""
-    OUTPUT_HTML.write_text(build_html(records, load_profile_images(records)), encoding="utf-8")
+    OUTPUT_HTML.write_text(build_html(records, load_profiles(records)), encoding="utf-8")
     print(f"HTMLを生成しました: {OUTPUT_HTML} ({len(records)}件 / {len(group_records(records))}人)")
 
 

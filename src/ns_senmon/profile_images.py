@@ -1,11 +1,15 @@
-"""CityHeaven のプロフィール写真 URL を取得し、data/ns_senmon_profile_image_cache.json にキャッシュする。
+"""CityHeaven のプロフィールページから写真 URL と店舗種別を取得し、data/ns_senmon_profile_image_cache.json にキャッシュする。
 
-キャッシュ: cityheaven_url -> {"checked_at": ISO8601, "status": "ok"|"not_found"|"no_image"|"error", "image_url": str}
+キャッシュ: cityheaven_url -> {"checked_at": ISO8601, "status": "ok"|"not_found"|"no_image"|"error", "image_url": str,
+                              "shop_kind": "ソープ(高級/金津園)" など, "price_class": "高級"|"スタンダード"|"激安"|""}
+  shop_kind / price_class は `.shopname` の h1 直後のテキスト「業種(価格帯/地域)」から取る。
+  ページを読めたが `.shopname` が無い場合はキーを持たない（種別不明）。
   - ok        : 写真URLを取得済み。IMAGE_REFRESH_DAYS 経過後に取り直す。
   - not_found : HTTP 404/410。掲載終了とみなし再取得しない。
   - no_image / error : 写真なし・通信失敗。RETRY_DAYS 経過後に再試行する。
 """
 import json
+import re
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, wait
@@ -13,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
+from bs4 import BeautifulSoup
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT_DIR / "src"
@@ -27,6 +32,31 @@ IMAGE_REFRESH_DAYS = 90
 WORKERS = 4
 TIME_BUDGET_SECONDS = 120
 REQUEST_HEADERS = {**HEADERS, "Cookie": "mensesCookie=1"}
+SHOP_KIND_RE = re.compile(r"^\s*([^\s(（]+)\s*[(（]([^)）]*)[)）]")
+PRICE_WORDS = ("高級", "スタンダード", "激安", "格安", "大衆")
+
+
+def parse_shop_kind(page_html):
+    """`<div class="shopname"><h1>店名</h1> ソープ(高級/金津園)<br>...` から (業種表記, 価格帯) を返す。
+
+    `.shopname` が無ければ None。価格帯の表記が無い場合は空文字。
+    """
+    shopname = BeautifulSoup(page_html, "html.parser").select_one(".shopname")
+    heading = shopname.find("h1") if shopname else None
+    if not heading:
+        return None
+    text = ""
+    for node in heading.next_siblings:
+        if getattr(node, "name", None) == "br":
+            break
+        text += node.get_text() if hasattr(node, "get_text") else str(node)
+    match = SHOP_KIND_RE.match(text)
+    if not match:
+        return None
+    kind = match.group(0).strip()
+    parts = re.split(r"[/／]", match.group(2))
+    price = next((p.strip() for p in parts if any(w in p for w in PRICE_WORDS)), "")
+    return kind, price
 
 
 def _now():
@@ -39,6 +69,8 @@ def _needs_fetch(entry, now):
     status = entry.get("status")
     if status == "not_found":
         return False
+    if status in ("ok", "no_image") and "shop_checked" not in entry:
+        return True  # 店舗種別を持たない古いエントリは取り直す
     try:
         checked = datetime.fromisoformat(entry["checked_at"])
     except (KeyError, TypeError, ValueError):
@@ -58,11 +90,15 @@ def _fetch(url, name):
     if not 200 <= response.status_code < 400:
         print(f"プロフィール画像取得失敗 ({url}): HTTP {response.status_code}")
         return {"status": "error", "image_url": ""}
-    page_html = response.content[:PROFILE_IMAGE_HTML_LIMIT].decode(
-        response.encoding or "utf-8", errors="replace"
-    )
+    # Content-Type に charset が無いと requests は ISO-8859-1 とみなすため、UTF-8 で読む
+    encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "utf-8"
+    page_html = response.content[:PROFILE_IMAGE_HTML_LIMIT].decode(encoding, errors="replace")
     image_url = extract_profile_image_url(page_html, response.url, name)
-    return {"status": "ok", "image_url": image_url} if image_url else {"status": "no_image", "image_url": ""}
+    result = {"status": "ok" if image_url else "no_image", "image_url": image_url or "", "shop_checked": True}
+    parsed = parse_shop_kind(page_html)
+    if parsed:
+        result["shop_kind"], result["price_class"] = parsed
+    return result
 
 
 def load_cache(path=CACHE_PATH):
@@ -73,7 +109,7 @@ def load_cache(path=CACHE_PATH):
 
 
 def fetch_profile_images(people, path=CACHE_PATH, time_budget=TIME_BUDGET_SECONDS):
-    """people: {cityheaven_url: 名前}。{cityheaven_url: 画像URL} を返す（取得できたものだけ）。
+    """people: {cityheaven_url: 名前}。{cityheaven_url: キャッシュエントリ} を返す（キャッシュにあるものだけ）。
 
     失敗しても例外は出さず、時間切れの分は次回に回す。古いキャッシュの画像URLは取り直しに失敗しても使い続ける。
     """
@@ -97,8 +133,10 @@ def fetch_profile_images(people, path=CACHE_PATH, time_budget=TIME_BUDGET_SECOND
                 print(f"プロフィール画像取得失敗 ({url}): {error}")
                 result = {"status": "error", "image_url": ""}
             old = cache.get(url) or {}
-            if result["status"] == "error" and old.get("image_url"):
-                result["image_url"] = old["image_url"]
+            if result["status"] == "error":
+                # 取り直しに失敗したときは、前回までに分かっている写真・店舗種別を使い続ける
+                result = {**{k: v for k, v in old.items() if k != "checked_at"}, "status": "error",
+                          "image_url": old.get("image_url", "")}
             cache[url] = {"checked_at": checked_at, **result}
         found = sum(1 for f in done if cache[futures[f]].get("image_url"))
         print(f"プロフィール画像: {found} / {len(pending)}件取得" + (f"（時間切れ {len(not_done)}件は次回）" if not_done else ""))
@@ -106,4 +144,4 @@ def fetch_profile_images(people, path=CACHE_PATH, time_budget=TIME_BUDGET_SECOND
             path.write_text(json.dumps(dict(sorted(cache.items())), ensure_ascii=False, indent=1), encoding="utf-8")
         except OSError as error:
             print(f"プロフィール画像キャッシュの保存に失敗: {error}")
-    return {url: cache[url]["image_url"] for url in people if (cache.get(url) or {}).get("image_url")}
+    return {url: cache[url] for url in people if cache.get(url)}
