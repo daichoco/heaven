@@ -395,6 +395,7 @@ def find_unavailable_profile_urls(urls, now=None):
                 pass
         pending.append(url)
 
+    print(f"プロフィール状態確認: キャッシュ利用{len(statuses)}件 / 新規確認{len(pending)}件")
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {executor.submit(_fetch_profile_status, url): url for url in pending}
         for future in as_completed(futures):
@@ -408,6 +409,9 @@ def find_unavailable_profile_urls(urls, now=None):
     temporary_path = cache_path.with_suffix(".json.tmp")
     temporary_path.write_text(json.dumps(cache, ensure_ascii=False, indent=2), encoding="utf-8")
     temporary_path.replace(cache_path)
+    failed = sum(1 for url in pending if statuses.get(url) is None)
+    if failed:
+        print(f"プロフィール状態確認失敗のため保持: {failed}件")
     return {url for url, status in statuses.items() if status in {404, 410}}
 
 
