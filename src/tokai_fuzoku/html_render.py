@@ -143,9 +143,6 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
     }
 </style>
 <script>
-    function expandAll() {
-        document.querySelectorAll("details.report-entry").forEach(entry => entry.open = true);
-    }
     function collapseAll() {
         document.querySelectorAll("details.report-entry").forEach(entry => entry.open = false);
     }
@@ -206,7 +203,6 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 </div>
 <p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
 <div class="entry-controls">
-    <button type="button" onclick="expandAll()">全部展開</button>
     <button type="button" onclick="collapseAll()">全部閉じる</button>
 </div>
 <div id="entries">

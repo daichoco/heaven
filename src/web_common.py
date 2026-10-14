@@ -1,13 +1,14 @@
 """docs/*.html で共通に使う head 要素・ナビ・「先頭へ」ボタン。
 
-スタイルは静的ファイル docs/common.css にまとめ、各ページはそれを読み込んだうえで
-ページ固有の <style> を後に置いて上書きする。
+共通スタイルは docs/common.css、開閉時の位置補正は docs/common.js に置き、
+各ページはこれらを読み込んだうえでページ固有の <style> を適用する。
 """
 
 HEAD_COMMON = (
     '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
     '<meta name="color-scheme" content="light dark">\n'
-    '<link rel="stylesheet" href="common.css">'
+    '<link rel="stylesheet" href="common.css">\n'
+    '<script src="common.js" defer></script>'
 )
 
 BACK_NAV = '<nav class="page-nav" aria-label="ページ移動"><a href="index.html">← 一覧</a></nav>'

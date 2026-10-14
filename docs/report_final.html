@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <link rel="stylesheet" href="common.css">
+<script src="common.js" defer></script>
 <title>東海風俗レポート</title>
 <style>
     .profile-thumbnail { width: 48px; height: 48px; margin: 0 6px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; vertical-align: middle; }
@@ -13,9 +14,6 @@
     }
 </style>
 <script>
-    function expandAll() {
-        document.querySelectorAll("details.report-entry").forEach(entry => entry.open = true);
-    }
     function collapseAll() {
         document.querySelectorAll("details.report-entry").forEach(entry => entry.open = false);
     }
@@ -76,7 +74,6 @@
 </div>
 <p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
 <div class="entry-controls">
-    <button type="button" onclick="expandAll()">全部展開</button>
     <button type="button" onclick="collapseAll()">全部閉じる</button>
 </div>
 <div id="entries">

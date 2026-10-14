@@ -116,6 +116,7 @@ input, select, textarea { font-size: 16px; }
 .report-page .report-entry[open] { background-color: var(--surface-open); }
 .report-page .report-heading { cursor: pointer; font-weight: bold; padding: 0.3em; outline: none; margin: 0 0 0.5em; font-size: 1.05em; line-height: 1.5; }
 .report-page .report-heading:hover { color: var(--accent); }
+.person-row:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
 .report-page .score-overview { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-left: 0.5em; vertical-align: middle; }
 .report-page .score-chip { padding: 2px 8px; border-radius: 4px; background: var(--chip); font-size: 0.9em; font-weight: normal; }
 .report-page .score-item { margin: 0.35em 0; }
@@ -136,7 +137,7 @@ input, select, textarea { font-size: 16px; }
 @media (max-width: 600px) {
   .report-page { --page-pad: 12px; }
   .report-page h1 { font-size: 1.35rem; margin: 0 0 8px; }
-  .report-page .entry-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .report-page .entry-controls { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 12px; }
   .report-page .entry-controls button { margin: 0; }
   .report-page .report-entry { padding: 10px; }
   .report-page .report-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
