@@ -11,6 +11,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from web_common import BACK_NAV, BACK_TO_TOP, FILTER_TOGGLE_SCRIPT, HEAD_COMMON
+from ns_senmon.profile_images import classify_price_class, load_cache, normalize_profile_url
 
 
 def render_score_detail(score, detail, label):
@@ -25,7 +26,7 @@ def render_score_detail(score, detail, label):
         </div>
     '''
 
-def render_report_entry(row, i):
+def render_report_entry(row, i, shop_price_class=""):
     detail_columns = {
         "play_time":"total_cost",
         "face_score": "face_feature",
@@ -94,7 +95,8 @@ def render_report_entry(row, i):
 
     html = (
         f'<details class="report-entry" data-shop="{escape(str(shop), quote=True)}" '
-        f'data-type="{escape(str(typ), quote=True)}" data-repeat="{repeat_status}" '
+        f'data-type="{escape(str(typ), quote=True)}" data-shop-type="{shop_price_class}" '
+        f'data-repeat="{repeat_status}" '
         f'data-total="{total_attr}" data-search="{escape(search_text, quote=True)}">'
         f'<summary class="report-heading">{summary}{overview_html}</summary>'
         f'<div class="report-details">'
@@ -126,7 +128,19 @@ def render_page(shop_options, type_options, entries_html):
 def generate_html(df):
     shops = sorted(df["shop_name"].dropna().astype(str).unique()) if "shop_name" in df else []
     types = sorted(df["type"].dropna().astype(str).unique()) if "type" in df else []
-    entries = "".join(render_report_entry(row, i) for i, row in df.iterrows())
+    cache = load_cache()
+    prices_by_url = {
+        normalize_profile_url(url): classify_price_class(entry)
+        for url, entry in cache.items()
+    }
+    entries = "".join(
+        render_report_entry(
+            row,
+            i,
+            prices_by_url.get(normalize_profile_url(row.get("girl_url")), ""),
+        )
+        for i, row in df.iterrows()
+    )
     return render_page(option_tags(shops), option_tags(types), entries)
 
 
@@ -150,6 +164,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         const query = document.getElementById("reportSearch").value.trim().toLocaleLowerCase();
         const shop = document.getElementById("shopFilter").value;
         const type = document.getElementById("typeFilter").value;
+        const shopType = document.getElementById("shopTypeFilter").value;
         const repeat = document.getElementById("repeatFilter").value;
         const minScore = Number(document.getElementById("scoreFilter").value);
         let visible = 0;
@@ -159,6 +174,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
             const matches = entry.dataset.search.includes(query)
                 && (!shop || entry.dataset.shop === shop)
                 && (!type || entry.dataset.type === type)
+                && (!shopType || entry.dataset.shopType === shopType)
                 && (!repeat || entry.dataset.repeat === repeat)
                 && (!minScore || (Number.isFinite(total) && total >= minScore));
             entry.hidden = !matches;
@@ -172,8 +188,10 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         document.getElementById("reportSearch").value = "";
         document.getElementById("shopFilter").value = "";
         document.getElementById("typeFilter").value = "";
+        document.getElementById("shopTypeFilter").value = "";
         document.getElementById("repeatFilter").value = "";
         document.getElementById("scoreFilter").value = "0";
+        if (window.resetShopSearches) resetShopSearches();
         applyFilters();
     }
     document.addEventListener("DOMContentLoaded", () => {
@@ -193,8 +211,9 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterBar">絞り込み</button>
     </div>
     <div class="filter-bar" id="filterBar">
-        <select id="shopFilter" aria-label="店舗"><option value="">全店舗</option>SHOP_OPTIONS</select>
+        <select id="shopFilter" data-shop-filter aria-label="店舗"><option value="">全店舗</option>SHOP_OPTIONS</select>
         <select id="typeFilter" aria-label="種別"><option value="">全種別</option>TYPE_OPTIONS</select>
+        <select id="shopTypeFilter" aria-label="店舗種別"><option value="">店舗種別すべて</option><option value="luxury">高級</option><option value="other">高級以外</option></select>
         <select id="repeatFilter" aria-label="リピート状態"><option value="">全リピート状態</option><option value="return">返す</option><option value="not-return">返さない</option><option value="other">その他の記載</option><option value="unknown">未記載</option></select>
         <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>
         <button type="button" onclick="resetFilters()">条件をリセット</button>

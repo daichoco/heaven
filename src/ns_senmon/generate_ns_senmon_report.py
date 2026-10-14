@@ -15,14 +15,13 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl
+from ns_senmon.profile_images import classify_price_class
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 
 def shop_type(entry):
-    """'luxury'（高級）/ 'other'（スタンダード・激安・表記なし）/ ''（不明）。"""
-    if not entry or "price_class" not in entry:
-        return ""
-    return "luxury" if "高級" in entry["price_class"] else "other"
+    """'luxury'（高級）/ 'other'（明示された高級以外）/ ''（不明）。"""
+    return classify_price_class(entry)
 
 INPUT_JSONL = ROOT_DIR / "data" / "ns_senmon_reports.jsonl"
 OUTPUT_HTML = ROOT_DIR / "docs" / "ns_senmon_report.html"
@@ -357,7 +356,7 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
 <section class="filters" id="filters" aria-label="レポートの絞り込み">
 <div class="filter-primary">
 <label class="filter-field filter-search"><span>名前・店舗を検索</span><input id="search" type="search" placeholder="名前や店舗名を入力" aria-label="名前・店舗で検索"></label>
-<label class="filter-field"><span>店舗</span><select id="shop"><option value="">全店舗</option>SHOP_OPTIONS</select></label>
+<label class="filter-field"><span>店舗</span><select id="shop" data-shop-filter><option value="">全店舗</option>SHOP_OPTIONS</select></label>
 </div>
 <div class="filter-section">
 <div class="filter-section-title">詳細条件</div>
@@ -423,6 +422,7 @@ $('sort').addEventListener('change', applySort);
 $('reset-filters').addEventListener('click', () => {
     $('filters').querySelectorAll('select').forEach(select => select.selectedIndex = 0);
     $('search').value = '';
+    if (window.resetShopSearches) resetShopSearches();
     applySort();
     applyFilters();
 });

@@ -104,9 +104,13 @@ input, select, textarea { font-size: 16px; }
 .toolbar-row input { flex: 1; min-width: 0; }
 .filter-toggle { display: none; }
 .filter-count { margin: 6px 0 0; color: var(--muted); font-size: 0.9em; }
+.shop-picker { display: grid; min-width: 0; gap: 4px; }
+.shop-filter-search { width: 100%; min-width: 0; min-height: 40px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); }
+.shop-filter-status { color: var(--muted); font-size: 0.78rem; font-weight: normal; }
 @media (max-width: 760px) {
   .filter-toggle { display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .sticky-toolbar:not(.filters-open) .filter-bar { display: none; }
+  .shop-filter-search { min-height: 44px; }
 }
 
 /* report_final / ns_senmon 共通のレポート一覧 */

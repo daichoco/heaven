@@ -103,7 +103,7 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
 <section class="filters" id="filters" aria-label="レポートの絞り込み">
 <div class="filter-primary">
 <label class="filter-field filter-search"><span>名前・店舗を検索</span><input id="search" type="search" placeholder="名前や店舗名を入力" aria-label="名前・店舗で検索"></label>
-<label class="filter-field"><span>店舗</span><select id="shop"><option value="">全店舗</option><option value="CANDY（キャンディ）">CANDY（キャンディ）</option><option value="C´est裸美(セラヴィ)">C´est裸美(セラヴィ)</option><option value="KA-NAAAZ岐阜本店">KA-NAAAZ岐阜本店</option><option value="M">M</option><option value="MGMコレクション">MGMコレクション</option><option value="ROYALCLUB姫">ROYALCLUB姫</option><option value="Sabbat（サバト）">Sabbat（サバト）</option><option value="aQua（アクア）">aQua（アクア）</option><option value="きみにメロン組（旧:ｺｽﾌﾟﾚｱｶﾃﾞﾐｰ）">きみにメロン組（旧:ｺｽﾌﾟﾚｱｶﾃﾞﾐｰ）</option><option value="アイドルラボ">アイドルラボ</option><option value="イビサ＆パートナー">イビサ＆パートナー</option><option value="シャトールーブル">シャトールーブル</option><option value="シルクロード">シルクロード</option><option value="スタイリッシュバッハ">スタイリッシュバッハ</option><option value="スチュアーデス">スチュアーデス</option><option value="ドルチェビィタ恵里亜">ドルチェビィタ恵里亜</option><option value="プレイガール">プレイガール</option><option value="プレミア(Premier)">プレミア(Premier)</option><option value="ムーンライト">ムーンライト</option><option value="ラブティファニー">ラブティファニー</option><option value="ラブミサイル">ラブミサイル</option><option value="リージェントクラブ貴公子">リージェントクラブ貴公子</option><option value="レジーナ">レジーナ</option><option value="ロマネ">ロマネ</option><option value="ヴィーナス">ヴィーナス</option><option value="八星(ヤツボシ)">八星(ヤツボシ)</option><option value="時計台">時計台</option><option value="英國屋">英國屋</option></select></label>
+<label class="filter-field"><span>店舗</span><select id="shop" data-shop-filter><option value="">全店舗</option><option value="CANDY（キャンディ）">CANDY（キャンディ）</option><option value="C´est裸美(セラヴィ)">C´est裸美(セラヴィ)</option><option value="KA-NAAAZ岐阜本店">KA-NAAAZ岐阜本店</option><option value="M">M</option><option value="MGMコレクション">MGMコレクション</option><option value="ROYALCLUB姫">ROYALCLUB姫</option><option value="Sabbat（サバト）">Sabbat（サバト）</option><option value="aQua（アクア）">aQua（アクア）</option><option value="きみにメロン組（旧:ｺｽﾌﾟﾚｱｶﾃﾞﾐｰ）">きみにメロン組（旧:ｺｽﾌﾟﾚｱｶﾃﾞﾐｰ）</option><option value="アイドルラボ">アイドルラボ</option><option value="イビサ＆パートナー">イビサ＆パートナー</option><option value="シャトールーブル">シャトールーブル</option><option value="シルクロード">シルクロード</option><option value="スタイリッシュバッハ">スタイリッシュバッハ</option><option value="スチュアーデス">スチュアーデス</option><option value="ドルチェビィタ恵里亜">ドルチェビィタ恵里亜</option><option value="プレイガール">プレイガール</option><option value="プレミア(Premier)">プレミア(Premier)</option><option value="ムーンライト">ムーンライト</option><option value="ラブティファニー">ラブティファニー</option><option value="ラブミサイル">ラブミサイル</option><option value="リージェントクラブ貴公子">リージェントクラブ貴公子</option><option value="レジーナ">レジーナ</option><option value="ロマネ">ロマネ</option><option value="ヴィーナス">ヴィーナス</option><option value="八星(ヤツボシ)">八星(ヤツボシ)</option><option value="時計台">時計台</option><option value="英國屋">英國屋</option></select></label>
 </div>
 <div class="filter-section">
 <div class="filter-section-title">詳細条件</div>
@@ -2103,6 +2103,7 @@ $('sort').addEventListener('change', applySort);
 $('reset-filters').addEventListener('click', () => {
     $('filters').querySelectorAll('select').forEach(select => select.selectedIndex = 0);
     $('search').value = '';
+    if (window.resetShopSearches) resetShopSearches();
     applySort();
     applyFilters();
 });
