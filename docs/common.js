@@ -2,6 +2,60 @@
   const interactiveSelector =
     "a[href], button, input, select, textarea, [contenteditable]:not([contenteditable='false'])";
 
+  const shopSearches = new Map();
+
+  function filterShopOptions(select, search, status) {
+    const query = search.value.trim().toLocaleLowerCase();
+    const options = [...select.options].filter(option => option.value);
+    let visible = 0;
+    options.forEach(option => {
+      const matches = option.textContent.toLocaleLowerCase().includes(query);
+      option.hidden = !matches && !option.selected;
+      if (matches) visible += 1;
+    });
+    status.textContent = `${visible} / ${options.length} 店舗`;
+  }
+
+  function prepareShopFilters() {
+    document.querySelectorAll("select[data-shop-filter]").forEach(select => {
+      if (shopSearches.has(select)) return;
+      const picker = document.createElement("div");
+      picker.className = "shop-picker";
+      const search = document.createElement("input");
+      search.type = "search";
+      search.className = "shop-filter-search";
+      search.placeholder = "店舗名で検索";
+      search.setAttribute("aria-label", `${select.getAttribute("aria-label") || "店舗"}の選択肢を検索`);
+      const status = document.createElement("span");
+      status.className = "shop-filter-status";
+      status.setAttribute("aria-live", "polite");
+      select.before(picker);
+      picker.append(search, select, status);
+      shopSearches.set(select, search);
+      search.addEventListener("input", () => filterShopOptions(select, search, status));
+      search.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          select.focus();
+        }
+      });
+      select.addEventListener("change", () => {
+        if (select.value) return;
+        search.value = "";
+        filterShopOptions(select, search, status);
+      });
+      filterShopOptions(select, search, status);
+    });
+  }
+
+  window.resetShopSearches = () => {
+    shopSearches.forEach((search, select) => {
+      search.value = "";
+      const status = select.parentElement.querySelector(".shop-filter-status");
+      if (status) filterShopOptions(select, search, status);
+    });
+  };
+
   function findScrollContainer(element) {
     for (let parent = element.parentElement; parent; parent = parent.parentElement) {
       if (
@@ -120,6 +174,7 @@
     });
   }
 
+  prepareShopFilters();
   preparePersonRows();
 
   document.addEventListener("keydown", event => {

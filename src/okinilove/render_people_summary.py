@@ -753,7 +753,7 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <section class="filters" id="filters" aria-label="レビューの絞り込み">
 <div class="filter-primary">
 <label class="filter-field filter-search"><span>名前・店舗を検索</span><input id="search" type="search" placeholder="名前や店舗名を入力" aria-label="名前・店舗で検索"></label>
-<label class="filter-field"><span>店舗</span><select id="shop"><option value="">全店舗</option>{shop_options}</select></label>
+<label class="filter-field"><span>店舗</span><select id="shop" data-shop-filter><option value="">全店舗</option>{shop_options}</select></label>
 <label class="filter-field"><span>業種</span><select id="industry" aria-label="業種"><option value="">すべて</option>{industry_options}</select></label>
 </div>
 <div class="filter-section">
@@ -816,7 +816,7 @@ function fillBodies(detailRow) {{
 document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;fillBodies(row.nextElementSibling);}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
 searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);includeChubbyFilter.addEventListener('change',applyFilters);
-document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;applySort();applyFilters();}});
+document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;if(window.resetShopSearches)resetShopSearches();applySort();applyFilters();}});
 applySort();applyFilters();
 </script>
 {BACK_TO_TOP}

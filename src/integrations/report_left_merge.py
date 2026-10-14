@@ -266,6 +266,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
       .filter-group label { display: inline-flex; align-items: center; gap: 5px; margin-right: 12px; }
+      .calendar-shop-filter { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); align-items: center; gap: 10px; max-width: 600px; margin: 0 0 14px; }
+      .calendar-shop-filter select { width: 100%; min-width: 0; min-height: 40px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); }
       .day-picker { display: flex; align-items: center; gap: 8px; }
       .day-picker select { flex: 1; min-width: 0; max-width: 320px; min-height: 40px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); font-weight: 700; }
       .day-picker button { flex: none; min-height: 40px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--chip); color: var(--fg); font-size: 15px; cursor: pointer; }
@@ -295,6 +297,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         h1 { font-size: 1.2rem; }
         .filter-group { margin-bottom: 16px; }
         .filter-group label { min-height: 44px; margin-right: 8px; }
+        .calendar-shop-filter { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+        .calendar-shop-filter select { min-height: 44px; }
         body > div[style*="overflow-x: auto"] { max-height: none; overflow-x: auto; overflow-y: visible; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
@@ -358,15 +362,17 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
           : [select.value]);
         const workingOnly = document.getElementById("workingOnly").checked;
         const reportSelected = document.querySelector('input[name="reportFilter"]:checked').value;
+        const selectedShop = document.getElementById("shopFilter").value;
         const workingCounts = new Array(select.options.length).fill(0);
         let working = 0;
         let shown = 0;
 
         document.querySelectorAll('tbody tr:not(.review-row)').forEach(row => {
+          const shopMatches = !selectedShop || row.dataset.shops.split("|").includes(selectedShop);
           const hasReport = row.getAttribute("data-report");
-          const showByReport = reportSelected === "all"
+          const showByReport = shopMatches && (reportSelected === "all"
             || (reportSelected === "has" && hasReport === "true")
-            || (reportSelected === "none" && hasReport === "false");
+            || (reportSelected === "none" && hasReport === "false"));
           let isWorking = false;
           row.querySelectorAll('td[data-day]').forEach(cell => {
             const on = cell.dataset.on === "1" || TIME_RE.test(cell.textContent.trim());
@@ -437,6 +443,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       <label><input type="radio" name="reportFilter" value="none" onchange="applyCombinedFilter()"> レポートなしのみ</label>
     </div>
 
+    <label class="calendar-shop-filter"><span>店舗</span><select id="shopFilter" data-shop-filter aria-label="店舗" onchange="applyCombinedFilter()"><option value="">全店舗</option>__SHOP_OPTIONS__</select></label>
+
     <div class="sticky-toolbar" id="toolbar">
       <div class="day-picker">
         <button type="button" id="prevDay" onclick="shiftDay(-1)" aria-label="前日">‹ 前日</button>
@@ -490,6 +498,18 @@ def build_calendar_html(merged):
         for i, day in enumerate(calendar_cols)
     )
     html = CALENDAR_PAGE_HEAD.replace("__DAY_OPTIONS__", day_options)
+    shops = sorted({
+        shop.strip()
+        for value in merged.get("店名", [])
+        if isinstance(value, str)
+        for shop in value.split("\n")
+        if shop.strip()
+    })
+    shop_options = "".join(
+        f'<option value="{html_escape(shop, quote=True)}">{html_escape(shop)}</option>'
+        for shop in shops
+    )
+    html = html.replace("__SHOP_OPTIONS__", shop_options)
 
     # テーブル開始
     html += "<div style='overflow-x: auto;'>"
@@ -548,7 +568,8 @@ def build_calendar_html(merged):
         row_id_okinilove = f"review-okinilove-{idx}"
 
         # メイン行
-        html += f"<tr data-report='{has_report}'>"
+        shop_attr = html_escape("|".join(shop), quote=True)
+        html += f"<tr data-report='{has_report}' data-shops='{shop_attr}'>"
 
         # ★ 名前＋レビュー＋店名（統合セル）
         html += f"<td class='shop-cell'>"

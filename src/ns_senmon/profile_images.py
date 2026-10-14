@@ -59,6 +59,32 @@ def parse_shop_kind(page_html):
     return kind, price
 
 
+def classify_price_class(entry):
+    """Return luxury, other, or unknown based only on an explicit cached price label."""
+    if not entry or "price_class" not in entry:
+        return ""
+    price_class = str(entry.get("price_class", "")).strip()
+    if "高級" in price_class:
+        return "luxury"
+    if any(label in price_class for label in PRICE_WORDS if label != "高級"):
+        return "other"
+    return ""
+
+
+def normalize_profile_url(url):
+    """Normalize a CityHeaven profile URL for cache lookup."""
+    from urllib.parse import urlsplit, urlunsplit
+
+    parsed = urlsplit(str(url or ""))
+    if not parsed.netloc:
+        return ""
+    path = parsed.path.rstrip("/")
+    match = re.search(r"(/girlid-\d+)$", path)
+    if match:
+        path = path[: match.start()] + match.group(1)
+    return urlunsplit((parsed.scheme.lower(), parsed.netloc.lower(), path + "/", "", ""))
+
+
 def _now():
     return datetime.now(timezone.utc)
 
