@@ -19,6 +19,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from okinilove.shop_filters import is_chubby_shop
+from okinilove.scrape_okinilove import profile_check_url
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 RAW_HTML_PATH = ROOT_DIR / "docs" / "okinilove_remove_unknown.html"
@@ -272,7 +273,7 @@ def extract_profile_image_url(page_html, page_url, person_name=""):
 
 def _fetch_profile_image(profile_url, person_name):
     try:
-        response = requests.get(profile_url, headers=HEADERS, timeout=(5, 15))
+        response = requests.get(profile_check_url(profile_url), headers=HEADERS, timeout=(5, 15))
         if not 200 <= response.status_code < 400:
             print(
                 f"プロフィール画像取得失敗 ({profile_url}): "
@@ -438,7 +439,7 @@ def _fetch_profile_shop_industry(profile_urls):
         if not hostname.endswith(("cityheaven.net", "yoasobi.co.jp")):
             continue
         try:
-            response = requests.get(profile_url, headers=HEADERS, timeout=(5, 15))
+            response = requests.get(profile_check_url(profile_url), headers=HEADERS, timeout=(5, 15))
             response.raise_for_status()
         except requests.RequestException as error:
             print(f"掲載URLから業種を取得できません ({profile_url}): {error}")
