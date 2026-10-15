@@ -308,18 +308,32 @@ _TIMEOUT_SKIP_THRESHOLD = 3
 _HOST_TIMEOUT_COUNTS = {}
 _HOST_STATE_LOCK = threading.Lock()
 # 閉鎖済みで存在しないホストは掲載終了として扱う
-_DEAD_HOSTS = {"www1.yoasobi.co.jp", "www3.yoasobi.co.jp", "www.dolce-vita-e.com"}
+_DEAD_HOSTS = {"www.dolce-vita-e.com"}
+
+
+def profile_check_url(url):
+    """数字付き www のプロフィールURLは通常の www ホストで確認する。"""
+    parsed = urlparse(url)
+    if not parsed.hostname or not re.match(
+        r"^www\d+\.", parsed.hostname, re.IGNORECASE
+    ):
+        return url
+    netloc = re.sub(
+        r"^www\d+\.", "www.", parsed.netloc, count=1, flags=re.IGNORECASE
+    )
+    return parsed._replace(netloc=netloc).geturl()
 
 
 def _fetch_profile_status(url):
-    host = urlparse(url).netloc.lower()
+    check_url = profile_check_url(url)
+    host = urlparse(check_url).netloc.lower()
     if host in _DEAD_HOSTS:
         return 410
     if host in _UNREACHABLE_HOSTS:
         return None
     try:
         response = requests.get(
-            url,
+            check_url,
             headers=HEADERS,
             timeout=(5, 12),
             allow_redirects=True,
@@ -328,7 +342,10 @@ def _fetch_profile_status(url):
         with _HOST_STATE_LOCK:
             _HOST_TIMEOUT_COUNTS.pop(host, None)
         try:
-            if response.status_code == 400 and urlparse(url).netloc.lower() == "www.yoasobi.co.jp":
+            if (
+                response.status_code == 400
+                and urlparse(check_url).netloc.lower() == "www.yoasobi.co.jp"
+            ):
                 body = next(response.iter_content(chunk_size=64 * 1024), b"")
                 page_text = BeautifulSoup(
                     body.decode(response.encoding or "utf-8", errors="replace"),
@@ -382,10 +399,14 @@ def find_unavailable_profile_urls(urls, now=None):
     pending = []
     for url in set(urls):
         cached = cache.get(url)
-        if urlparse(url).netloc.lower() in _DEAD_HOSTS:
+        check_url = profile_check_url(url)
+        if urlparse(check_url).netloc.lower() in _DEAD_HOSTS:
             pending.append(url)
             continue
-        if cached:
+        if isinstance(cached, dict) and (
+            cached.get("check_url") == check_url
+            or (check_url == url and "check_url" not in cached)
+        ):
             try:
                 checked_at = datetime.fromisoformat(cached["checked_at"])
                 if now - checked_at < PROFILE_STATUS_CACHE_TTL:
@@ -403,7 +424,11 @@ def find_unavailable_profile_urls(urls, now=None):
             status = future.result()
             statuses[url] = status
             if status is not None and (200 <= status < 400 or status in {404, 410}):
-                cache[url] = {"checked_at": now.isoformat(), "status": status}
+                cache[url] = {
+                    "checked_at": now.isoformat(),
+                    "status": status,
+                    "check_url": profile_check_url(url),
+                }
 
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = cache_path.with_suffix(".json.tmp")
@@ -597,7 +622,8 @@ def fetch_article_record(session, shop_name, article_url):
     if not girl_name or not stars or not girl_url:
         return None
 
-    profile = session.get(girl_url, headers=HEADERS, timeout=15)
+    profile_url = profile_check_url(girl_url)
+    profile = session.get(profile_url, headers=HEADERS, timeout=15)
     if profile.status_code in {400, 404, 410}:
         return None
     profile.raise_for_status()
@@ -608,7 +634,7 @@ def fetch_article_record(session, shop_name, article_url):
     return {
         "shop": shop_name,
         "url": article_url,
-        "girl_url": girl_url,
+        "girl_url": profile.url or profile_url,
         "name": girl_name,
         "gap": gap or "",
         "star": stars,
@@ -824,7 +850,9 @@ def _report_text_after(section):
 
 def _fetch_age(girl_url):
     try:
-        response = requests.get(girl_url, headers=HEADERS, timeout=(5, 15))
+        response = requests.get(
+            profile_check_url(girl_url), headers=HEADERS, timeout=(5, 15)
+        )
         if not 200 <= response.status_code < 300:
             return None
         return extract_age(decode_response(response))
