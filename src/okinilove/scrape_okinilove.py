@@ -1,3 +1,4 @@
+import argparse
 import json
 import re
 import sys
@@ -586,12 +587,19 @@ def article_section_fields(soup, fragment):
     return fields
 
 
-def fetch_article_record(session, shop_name, article_url):
-    response = session.get(article_url, headers=HEADERS, timeout=20)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
+def fetch_article_record(
+    session,
+    shop_name,
+    article_url,
+    article_soup=None,
+    profile_response=None,
+):
+    if article_soup is None:
+        response = session.get(article_url, headers=HEADERS, timeout=20)
+        response.raise_for_status()
+        article_soup = BeautifulSoup(response.text, "html.parser")
     fragment = urlparse(article_url).fragment
-    fields = article_section_fields(soup, fragment)
+    fields = article_section_fields(article_soup, fragment)
     if fields is None:
         return None
 
@@ -623,14 +631,14 @@ def fetch_article_record(session, shop_name, article_url):
         return None
 
     profile_url = profile_check_url(girl_url)
-    profile = session.get(profile_url, headers=HEADERS, timeout=15)
+    profile = profile_response or session.get(profile_url, headers=HEADERS, timeout=15)
     if profile.status_code in {400, 404, 410}:
         return None
     profile.raise_for_status()
     if not is_personal_profile(girl_url, profile.url):
         return None
 
-    report_text = extract_report_detail(session, article_url) or gap or ""
+    report_text = extract_report_detail(session, article_url, article_soup) or gap or ""
     return {
         "shop": shop_name,
         "url": article_url,
@@ -643,6 +651,199 @@ def fetch_article_record(session, shop_name, article_url):
         "service": service,
         "age": extract_age(decode_response(profile)),
     }
+
+
+def numbered_profile_candidates(article_soup, article_url, shop_aliases=None):
+    """記事本文から数字付きwwwプロフィールと対応するレビュー節を抽出する。"""
+    shop_aliases = shop_aliases or {}
+    base_url = article_url.partition("#")[0]
+    candidates = []
+    anchors = article_soup.find_all(attrs={"name": True}) + article_soup.find_all(
+        attrs={"id": True}
+    )
+    seen_fragments = set()
+    for anchor in anchors:
+        fragment = (anchor.get("name") or anchor.get("id") or "").strip()
+        if not fragment or fragment in seen_fragments:
+            continue
+        seen_fragments.add(fragment)
+        fields = article_section_fields(article_soup, fragment)
+        if not fields:
+            continue
+        name_link = next(
+            (
+                value_link
+                for heading, _, value_link in fields
+                if "女の子の名前" in heading and value_link is not None
+            ),
+            None,
+        )
+        if name_link is None:
+            continue
+        profile_url = name_link.get("href", "")
+        if not profile_url or profile_check_url(profile_url) == profile_url:
+            continue
+        raw_shop = next(
+            (value for heading, value, _ in fields if "風俗店名" in heading),
+            "",
+        )
+        shop_name = shop_aliases.get(raw_shop, raw_shop)
+        candidates.append(
+            {
+                "shop": shop_name,
+                "name": name_link.get_text(strip=True),
+                "profile_url": profile_url,
+                "article_url": f"{base_url}#{fragment}",
+            }
+        )
+    return candidates
+
+
+def recover_numbered_profile_article(article_url):
+    """指定記事だけを読み、数字付きwww人物リンクの未登録レビューを追加する。"""
+    from okinilove.render_people_summary import (
+        _fetch_profile_image,
+        render_people_summary_file,
+    )
+
+    article_url = article_url.strip()
+    base_url = article_url.partition("#")[0]
+    cache = json.loads(SHOP_INDEX_PATH.read_text(encoding="utf-8")) if SHOP_INDEX_PATH.exists() else {}
+    shop_aliases = cache.get("aliases", {})
+    known = {
+        _normalize_report_url(str(url))
+        for url in read_reviews()["report_url"].dropna()
+    }
+    summary = {
+        "article_url": base_url,
+        "candidates": 0,
+        "already_present": 0,
+        "added": 0,
+        "unavailable": 0,
+        "ineligible": 0,
+        "errors": 0,
+        "results": [],
+    }
+    records = []
+    with requests.Session() as session:
+        response = session.get(base_url, headers=HEADERS, timeout=20)
+        response.raise_for_status()
+        article_soup = BeautifulSoup(response.text, "html.parser")
+        candidates = numbered_profile_candidates(article_soup, base_url, shop_aliases)
+        summary["candidates"] = len(candidates)
+        for candidate in candidates:
+            report_url = candidate["article_url"]
+            normalized_report_url = _normalize_report_url(report_url)
+            result = {
+                "name": candidate["name"],
+                "profile_url": candidate["profile_url"],
+                "report_url": report_url,
+            }
+            if normalized_report_url in known:
+                summary["already_present"] += 1
+                result["status"] = "already_present"
+                summary["results"].append(result)
+                continue
+            try:
+                profile_response = session.get(
+                    profile_check_url(candidate["profile_url"]),
+                    headers=HEADERS,
+                    timeout=15,
+                )
+                result["http_status"] = profile_response.status_code
+                if profile_response.status_code in {400, 404, 410}:
+                    summary["unavailable"] += 1
+                    result["status"] = "unavailable"
+                    summary["results"].append(result)
+                    continue
+                profile_response.raise_for_status()
+                if not is_personal_profile(candidate["profile_url"], profile_response.url):
+                    summary["unavailable"] += 1
+                    result["status"] = "not_personal"
+                    summary["results"].append(result)
+                    continue
+                if candidate["name"] not in BeautifulSoup(
+                    decode_response(profile_response), "html.parser"
+                ).get_text(" ", strip=True):
+                    summary["unavailable"] += 1
+                    result["status"] = "name_not_found"
+                    summary["results"].append(result)
+                    continue
+                record = fetch_article_record(
+                    session,
+                    candidate["shop"],
+                    report_url,
+                    article_soup=article_soup,
+                    profile_response=profile_response,
+                )
+                if record is None:
+                    summary["ineligible"] += 1
+                    result["status"] = "ineligible"
+                    summary["results"].append(result)
+                    continue
+                records.append(record)
+                known.add(normalized_report_url)
+                result["status"] = "confirmed"
+                records[-1]["_profile_image"] = _fetch_profile_image(
+                    record["girl_url"], record["name"]
+                )
+            except requests.RequestException as error:
+                summary["errors"] += 1
+                result["status"] = "error"
+                result["error"] = str(error)
+            summary["results"].append(result)
+
+        if records:
+            public_records = [
+                {key: value for key, value in record.items() if key != "_profile_image"}
+                for record in records
+            ]
+            raw_added = append_records_to_raw_html(public_records)
+            jsonl_added = append_records_to_jsonl(public_records)
+            if raw_added != jsonl_added:
+                raise RuntimeError(
+                    f"レビューHTML/JSONL追加件数が一致しません: {raw_added}/{jsonl_added}"
+                )
+            summary["added"] = jsonl_added
+            accepted_urls = {
+                _normalize_report_url(record["url"]) for record in public_records
+            }
+            skipped = load_skipped_articles()
+            removed = [
+                url
+                for url in skipped
+                if _normalize_report_url(url) in accepted_urls
+            ]
+            for url in removed:
+                del skipped[url]
+            if removed:
+                save_skipped_articles(skipped)
+            summary["removed_skip_entries"] = len(removed)
+
+            details = load_report_details()
+            for record in public_records:
+                detail = parse_report_details(
+                    article_soup, record["url"].partition("#")[2]
+                )
+                if detail:
+                    details[record["url"]] = detail
+            REPORT_DETAILS_PATH.write_text(
+                json.dumps(details, ensure_ascii=False, indent=1),
+                encoding="utf-8",
+            )
+            profile_images = {
+                record["girl_url"]: record["_profile_image"]
+                for record in records
+                if record["_profile_image"]
+            }
+            render_people_summary_file(
+                RAW_HTML_PATH,
+                profile_images=profile_images,
+                fetch_missing_images=False,
+                fetch_missing_industries=False,
+            )
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    return summary
 
 
 def load_skipped_articles():
@@ -817,12 +1018,13 @@ def _normalize_report_url(url):
     return str(url).replace("http://", "https://", 1)
 
 
-def extract_report_detail(session, article_url):
+def extract_report_detail(session, article_url, article_soup=None):
     base_url, _, fragment = article_url.partition("#")
-    response = session.get(base_url, headers=HEADERS, timeout=20)
-    response.raise_for_status()
-    soup = BeautifulSoup(response.text, "html.parser")
-    target = soup.find(attrs={"name": fragment}) if fragment else soup
+    if article_soup is None:
+        response = session.get(base_url, headers=HEADERS, timeout=20)
+        response.raise_for_status()
+        article_soup = BeautifulSoup(response.text, "html.parser")
+    target = article_soup.find(attrs={"name": fragment}) if fragment else article_soup
     if target is None:
         return ""
     return _report_text_after(target.parent if fragment else target)
@@ -1136,4 +1338,14 @@ def refresh_shop_category_reviews(category):
 
 
 if __name__ == "__main__":
-    refresh_okinilove_data()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--recover-numbered-profile-article",
+        metavar="URL",
+        help="指定したOkinilove記事だけから数字付きwwwプロフィールを探して取り込む",
+    )
+    args = parser.parse_args()
+    if args.recover_numbered_profile_article:
+        recover_numbered_profile_article(args.recover_numbered_profile_article)
+    else:
+        refresh_okinilove_data()

@@ -13,6 +13,50 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from okinilove import scrape_okinilove
 
 
+class NumberedArticleDiscoveryTests(unittest.TestCase):
+    def test_discovers_numbered_profiles_per_review_section(self):
+        soup = BeautifulSoup(
+            """
+            <div>
+              <h3><a name="sakuma">aQua（アクア）すい体験レポ</a></h3>
+              <h4>風俗店名</h4>AQUA
+              <h4>女の子の名前</h4>
+              <a href="https://www3.yoasobi.co.jp/tokai/girl/1312162">すい</a>
+              <h4>利用者満足度</h4>★★★★★
+              <h3 id="ordinary"><a name="ordinary">aQua（アクア）ももえ体験レポ</a></h3>
+              <h4>風俗店名</h4>AQUA
+              <h4>女の子の名前</h4>
+              <a href="https://www12.yoasobi.co.jp/tokai/girl/1312163">ももえ</a>
+              <h4>利用者満足度</h4>★★★★★
+            </div>
+            """,
+            "html.parser",
+        )
+        candidates = scrape_okinilove.numbered_profile_candidates(
+            soup,
+            "https://okinilove.com/blog-entry-2811.html",
+            {"AQUA": "アクア"},
+        )
+
+        self.assertEqual(
+            candidates,
+            [
+                {
+                    "shop": "アクア",
+                    "name": "すい",
+                    "profile_url": "https://www3.yoasobi.co.jp/tokai/girl/1312162",
+                    "article_url": "https://okinilove.com/blog-entry-2811.html#sakuma",
+                },
+                {
+                    "shop": "アクア",
+                    "name": "ももえ",
+                    "profile_url": "https://www12.yoasobi.co.jp/tokai/girl/1312163",
+                    "article_url": "https://okinilove.com/blog-entry-2811.html#ordinary",
+                },
+            ],
+        )
+
+
 class ProfileCheckUrlTests(unittest.TestCase):
     def test_normalizes_any_numbered_www_host(self):
         for numbered_host in ("www3.yoasobi.co.jp", "www4.example.com", "www12.example.com"):

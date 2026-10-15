@@ -524,7 +524,7 @@ def build_people_summary_html(source_html, profile_images=None):
     return build_people_summary(source_html, profile_images)[0]
 
 
-def build_people_summary(source_html, profile_images=None):
+def build_people_summary(source_html, profile_images=None, fetch_missing_industries=True):
     """人物別ページ (BeautifulSoup) と、レビュー本文 JSON の文字列を返す。"""
     source_soup = BeautifulSoup(source_html, "html.parser")
     review_bodies = []
@@ -532,7 +532,8 @@ def build_people_summary(source_html, profile_images=None):
     profile_images = profile_images or {}
     details_by_report, ages = _load_review_details()
     shop_industries = _load_shop_industries()
-    shop_industries.update(_load_profile_shop_industries(people, shop_industries))
+    if fetch_missing_industries:
+        shop_industries.update(_load_profile_shop_industries(people, shop_industries))
     chubby_shops = _load_chubby_shop_names()
     details_path = ROOT_DIR / "data" / "okinilove_report_details.json"
     cache = json.loads(details_path.read_text(encoding="utf-8")) if details_path.exists() else {}
@@ -895,13 +896,25 @@ applySort();applyFilters();
     return BeautifulSoup(page, "html.parser"), bodies_json
 
 
-def render_people_summary_file(path):
+def render_people_summary_file(
+    path,
+    profile_images=None,
+    fetch_missing_images=True,
+    fetch_missing_industries=True,
+):
     path = Path(path)
     raw_html = path.read_text(encoding="utf-8")
     source_soup = BeautifulSoup(raw_html, "html.parser")
     people = list(_person_groups(_extract_rows(source_soup)))
-    profile_images = _fetch_profile_images(people)
-    page, bodies_json = build_people_summary(raw_html, profile_images)
+    if profile_images is None:
+        profile_images = _fetch_profile_images(people)
+    elif fetch_missing_images:
+        profile_images = {**_fetch_profile_images(people), **profile_images}
+    page, bodies_json = build_people_summary(
+        raw_html,
+        profile_images,
+        fetch_missing_industries=fetch_missing_industries,
+    )
     (path.parent / REVIEW_BODIES_NAME).write_text(bodies_json, encoding="utf-8")
     path.write_text(str(page), encoding="utf-8")
     return len(page.select("#reviews tbody tr.person-row"))
