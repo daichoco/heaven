@@ -26,7 +26,7 @@ SHOP_INDEX_PATH = DATA_DIR / "okinilove_shop_index.json"
 RAW_HTML_PATH = DOCS_DIR / "okinilove_remove_unknown.html"
 REVIEWS_JSONL_PATH = DATA_DIR / "okinilove_reviews.jsonl"
 PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
-PROFILE_STATUS_CACHE_TTL = timedelta(hours=24)
+PROFILE_STATUS_CACHE_TTL = timedelta(days=7)
 SKIPPED_ARTICLES_PATH = DATA_DIR / "okinilove_skipped_articles.json"
 SKIPPED_ARTICLE_RETRY = timedelta(days=30)
 REVIEW_COLUMNS = [

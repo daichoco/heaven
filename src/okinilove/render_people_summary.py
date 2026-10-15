@@ -476,12 +476,27 @@ def _load_profile_shop_industries(people, known_industries):
 
 
 POSITIVE = {
-    "face": {"かわいい", "キレイ", "きれい", "幼い"},
+    "face": {"かわいい", "キレイ", "きれい"},
     "gap": {"写真より良い", "そのまま変りない", "そのまま変わりない"},
+    "style": {"ナイスボディ"},
+    "service": {"フェラ上手", "キス上手", "一生懸命", "テクニシャン", "手コキ上手", "いちゃいちゃ"},
+}
+NEUTRAL = {
+    "face": {"並", "幼い", "幼い（追）"},
+    "gap": set(),
+    "style": {"お絵かきあり", "ちょいぽちゃ", "ガリガリ", "デブ", "ムッチリ", "普通", "普通体型", "細い", "色白", "色黒"},
+    "service": {
+        "濃厚ベロチュー", "二度ヌキ以上", "即プレイ", "交渉次第で…",
+        "喫煙有（タバコ/アイコス）", "追銭", "撮影", "期間限定/出稼ぎ",
+        "A舐め", "AF（アナルファック）", "超SP", "SP（スペシャルサービス）",
+        "SP", "ぎこちない",
+    },
 }
 NEGATIVE = {
     "face": {"ブサイク", "老けてる"},
     "gap": {"写真より落ちる", "まったくの別人", "全くの別人"},
+    "style": {"ぽっちゃり", "おなかぽっこり", "お腹ポッコリ", "お腹ぽっこり", "おなかポッコリ"},
+    "service": {"事務的", "サバサバ", "手抜き", "地雷"},
 }
 
 
@@ -549,6 +564,8 @@ def build_people_summary(source_html, profile_images=None):
         report_items = []
         service_types = set()
         gap_counts, face_counts = Counter(), Counter()
+        pos_total = neg_total = value_total = 0
+        review_classes = Counter()
         for report in person["reports"]:
             report["gap"] = _clean_gap(report["gap"])
             if report["gap"]:
@@ -559,9 +576,24 @@ def build_people_summary(source_html, profile_images=None):
                 else "記事URLなし"
             )
             detail = {**details_by_report.get(report["url"], {}), **cache.get(report["url"], {})}
-            face_counts.update(sorted(set(_face_tokens(detail.get("face")))))
-            service_tokens = set(re.split(r"[\s　]+", detail.get("service") or ""))
-            if any(token.startswith("SP（") for token in service_tokens):
+            face_tokens = _face_tokens(detail.get("face"))
+            face_counts.update(sorted(set(face_tokens)))
+            style_tokens = _face_tokens(detail.get("style"))
+            service_tokens = _face_tokens(detail.get("service"))
+            items = (
+                [("face", token) for token in face_tokens]
+                + [("style", token) for token in style_tokens]
+                + [("service", token) for token in service_tokens]
+                + [("gap", report["gap"])]
+            )
+            if any(value in POSITIVE[kind] | NEGATIVE[kind] | NEUTRAL[kind] for kind, value in items):
+                value_total += 1
+                has_pos = any(_tone(kind, value) == "pos" for kind, value in items)
+                has_neg = any(_tone(kind, value) == "neg" for kind, value in items)
+                pos_total += has_pos
+                neg_total += has_neg
+                review_classes[(has_pos, has_neg)] += 1
+            if any(token == "SP" or token.startswith("SP（") for token in service_tokens):
                 service_types.add("sp")
             if "超SP" in service_tokens:
                 service_types.add("super-sp")
@@ -572,9 +604,12 @@ def build_people_summary(source_html, profile_images=None):
             faces = [[token, _tone("face", token)] for token in _face_tokens(detail.get("face"))]
             if faces:
                 body["f"] = faces
-            for key, short in (("style", "s"), ("service", "v"), ("report_text", "t")):
-                if detail.get(key):
-                    body[short] = detail[key]
+            if style_tokens:
+                body["s"] = [[token, _tone("style", token)] for token in style_tokens]
+            if service_tokens:
+                body["v"] = [[token, _tone("service", token)] for token in service_tokens]
+            if detail.get("report_text"):
+                body["t"] = detail["report_text"]
             rid_attr = ""
             if body:
                 rid_attr = f" data-rid='{len(review_bodies)}'"
@@ -605,16 +640,18 @@ def build_people_summary(source_html, profile_images=None):
 
         all_gaps.update(gap_counts)
         all_faces.update(face_counts)
-        neg_total = sum(n for k, n in face_counts.items() if _tone("face", k) == "neg") + sum(
-            n for k, n in gap_counts.items() if _tone("gap", k) == "neg"
-        )
-        value_total = sum(face_counts.values()) + sum(gap_counts.values())
         neg_ratio = neg_total / value_total if value_total else None
+        pos_ratio = pos_total / value_total if value_total else None
         neg_html = (
-            f"<div><span class='review-label'>ネガ率</span><strong class='neg-rate'>{neg_ratio * 100:.0f}%</strong> "
-            f"<span class='age'>({neg_total}/{value_total})</span></div>"
+            f"<div><span class='review-label'>ポジ含有率</span><strong>{pos_ratio * 100:.0f}%</strong> "
+            f"<span class='age'>({pos_total}/{value_total}件)</span></div>"
+            f"<div title='ネガ項目を含むレビュー数 / 判定可能レビュー数'><span class='review-label'>ネガ含有率</span><strong class='neg-rate'>{neg_ratio * 100:.0f}%</strong> "
+            f"<span class='age'>({neg_total}/{value_total}件)</span></div>"
+            f"<div class='age'>ポジのみ{review_classes[(True, False)]} / 両方{review_classes[(True, True)]} / "
+            f"ネガのみ{review_classes[(False, True)]} / 中立のみ{review_classes[(False, False)]}</div>"
+            f"<div class='age'>判定可能{value_total}件 / 全{len(person['reports'])}件</div>"
             if neg_ratio is not None
-            else ""
+            else "<div class='age'>判定可能レビューなし</div>"
         )
         data_gaps = "|".join(gap_counts)
         data_faces = "|".join(face_counts)
@@ -626,6 +663,7 @@ def build_people_summary(source_html, profile_images=None):
             f'data-gaps="{html.escape(data_gaps, quote=True)}" data-faces="{html.escape(data_faces, quote=True)}" '
             f'data-service-types="{"|".join(sorted(service_types))}" '
             f'data-neg="{neg_ratio if neg_ratio is not None else 2:.4f}" '
+            f'data-posn="{pos_total}" data-rated="{rated_count}" '
             f'data-negn="{neg_total}" data-vals="{value_total}" data-reports="{len(person["reports"])}" '
             f'data-average="{average if average is not None else 0:.3f}">'
             f"<td>{html.escape(person['shop'])}</td><td>{profile_link}{age_html}</td>"
@@ -762,29 +800,61 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <label class="filter-field"><span>平均評価</span><select id="minimum"><option value="0">指定なし</option><option value="3">3点以上</option><option value="4">4点以上</option><option value="5">5点</option></select></label>
 <label class="filter-field"><span>顔の評価</span><select id="face"><option value="">すべて</option>{face_options}</select></label>
 <label class="filter-field"><span>写真とのギャップ</span><select id="gap"><option value="">すべて</option>{gap_options}</select></label>
-<label class="filter-field"><span>ネガ率</span><select id="negmax"><option value="">指定なし</option><option value="0">0%のみ</option><option value="0.1">10%以下</option><option value="0.2">20%以下</option><option value="0.3">30%以下</option></select></label>
+<label class="filter-field"><span>気になる評価を含むレビュー率</span><select id="negmax"><option value="">指定なし</option><option value="0">0%のみ</option><option value="0.1">10%以下</option><option value="0.2">20%以下</option><option value="0.3">30%以下</option></select></label>
 <label class="filter-field"><span>評価数</span><select id="reports"><option value="0">指定なし</option><option value="2">2件以上</option><option value="3">3件以上</option><option value="5">5件以上</option></select></label>
-<label class="filter-field"><span>年齢</span><select id="age" aria-label="年齢上限"><option value="">指定なし</option><option value="20">20歳以下</option><option value="25">25歳以下</option><option value="30">30歳以下</option><option value="35">35歳以下</option><option value="40">40歳以下</option><option value="unknown">年齢不明</option></select></label>
+<label class="filter-field"><span>年齢</span><select id="age" aria-label="年齢区分"><option value="">指定なし</option><option value="under30">30歳未満</option><option value="30plus">30歳以上</option><option value="unknown">年齢不明</option></select></label>
 <label class="filter-field"><span>SPサービス</span><select id="service-type"><option value="">指定なし</option><option value="sp">SPあり</option><option value="super-sp">超SPあり</option><option value="either">SPまたは超SPあり</option></select></label>
-<label class="filter-field"><span>並び順</span><select id="sort"><option value="score">総合スコア順</option><option value="average">平均評価順</option><option value="neg">ネガ率が低い順</option><option value="adj">補正ネガ率が低い順</option></select></label>
+<label class="filter-field"><span>並び順</span><select id="sort"><option value="score">おすすめ順</option><option value="pos">ポジ含有率が高い順</option><option value="neg">ネガ含有率が低い順</option><option value="average">平均星が高い順</option><option value="count">判定可能レビュー数が多い順</option></select></label>
 </div>
 </div>
 <div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><label class="chubby-toggle"><input id="include-chubby" type="checkbox">ぽっちゃり系店舗も表示</label><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
 </section>
+<p class="age">ポジ・ネガ含有率は顔・写真との差・スタイル・サービスをレビュー単位で集計します。おすすめ順は補正平均星（小数1桁）が高い順 → 補正ネガ率が低い順 → 補正ポジ率が高い順 → 判定可能レビュー数が多い順です。星・率は全体平均3件分で補正します。判定不能・未分類のみのレビューは率の集計対象外です。</p>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>
 const searchInput=document.getElementById('search'), shopFilter=document.getElementById('shop'), industryFilter=document.getElementById('industry'), minFilter=document.getElementById('minimum'), faceFilter=document.getElementById('face'), gapFilter=document.getElementById('gap'), negFilter=document.getElementById('negmax'), ageFilter=document.getElementById('age'), serviceTypeFilter=document.getElementById('service-type'), includeChubbyFilter=document.getElementById('include-chubby'), sortSelect=document.getElementById('sort');
 const tbody=document.querySelector('#reviews tbody'), originalPairs=[...tbody.querySelectorAll('tr.person-row')].map(r=>[r,r.nextElementSibling]);
-const totN=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.negn),0), totV=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.vals),0), prior=totV?totN/totV:0;
-const adj=r=>(Number(r.dataset.negn)+5*prior)/(Number(r.dataset.vals)+5);
-const totR=originalPairs.reduce((s,p)=>s+Number(p[0].dataset.reports),0), meanStar=totR?originalPairs.reduce((s,p)=>s+Number(p[0].dataset.reports)*Number(p[0].dataset.average),0)/totR:0;
-// 総合スコア = ベイズ補正平均星 (m=3) − 5 × 補正ネガ率
-const score=r=>{{const n=Number(r.dataset.reports);return (Number(r.dataset.average)*n+3*meanStar)/(n+3)-5*adj(r);}};
+const count=r=>Number(r.dataset.vals), stars=r=>Number(r.dataset.average);
+const totV=originalPairs.reduce((s,p)=>s+count(p[0]),0);
+const prior=key=>totV?originalPairs.reduce((s,p)=>s+Number(p[0].dataset[key]),0)/totV:0;
+const priorPos=prior('posn'), priorNeg=prior('negn');
+const rated=r=>Number(r.dataset.rated);
+const totRated=originalPairs.reduce((s,p)=>s+rated(p[0]),0);
+const priorStar=totRated?originalPairs.reduce((s,p)=>s+rated(p[0])*stars(p[0]),0)/totRated:0;
+const correctedStar=r=>Math.round(10*(rated(r)*stars(r)+3*priorStar)/(rated(r)+3));
+const correctedRate=(r,key,baseline)=>(Number(r.dataset[key])+3*baseline)/(count(r)+3);
+const rate=(r,key)=>Number(r.dataset[key])/count(r);
+const evidenceTie=(a,b)=>count(b)-count(a)||stars(b)-stars(a);
 const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);industryFilter.addEventListener('change',applyFilters);
-function applySort() {{ const pairs=originalPairs.slice(); if(sortSelect.value==='score') pairs.sort((a,b)=>score(b[0])-score(a[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='adj') pairs.sort((a,b)=>adj(a[0])-adj(b[0])||Number(b[0].dataset.average)-Number(a[0].dataset.average)); if(sortSelect.value==='neg') pairs.sort((a,b)=>Number(a[0].dataset.neg)-Number(b[0].dataset.neg)||Number(b[0].dataset.average)-Number(a[0].dataset.average)); pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}}); }}
+function applySort() {{
+  const mode=sortSelect.value, pairs=originalPairs.slice();
+  pairs.sort(([a],[b])=>{{
+    if(mode==='score') {{
+      const missing=Number(rated(a)===0)-Number(rated(b)===0);
+      if(missing)return missing;
+      const starDifference=correctedStar(b)-correctedStar(a);
+      if(starDifference)return starDifference;
+      const missingEvaluation=Number(count(a)===0)-Number(count(b)===0);
+      if(missingEvaluation)return missingEvaluation;
+      return correctedRate(a,'negn',priorNeg)-correctedRate(b,'negn',priorNeg)
+        ||correctedRate(b,'posn',priorPos)-correctedRate(a,'posn',priorPos)
+        ||count(b)-count(a);
+    }}
+    if(['pos','neg'].includes(mode)) {{
+      const missing=Number(count(a)===0)-Number(count(b)===0);
+      if(missing)return missing;
+      if(!count(a)&&!count(b))return evidenceTie(a,b);
+      const difference=mode==='pos'?rate(b,'posn')-rate(a,'posn'):rate(a,'negn')-rate(b,'negn');
+      return difference||evidenceTie(a,b);
+    }}
+    if(mode==='average')return stars(b)-stars(a)||Number(b.dataset.rated)-Number(a.dataset.rated)||count(b)-count(a);
+    return evidenceTie(a,b);
+  }});
+  pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}});
+}}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
-function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:age>0&&age<=Number(ageFilter.value)), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
+function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:ageFilter.value==='under30'?age>0&&age<30:age>=30), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
 let bodiesPromise=null;
 const loadBodies=()=>bodiesPromise||(bodiesPromise=fetch('{bodies_url}').then(r=>{{if(!r.ok)throw new Error(r.status);return r.json();}}).catch(e=>{{bodiesPromise=null;throw e;}}));
 const el=(tag,cls,text)=>{{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}};
@@ -800,8 +870,8 @@ function fillBodies(detailRow) {{
     items.forEach(li=>{{
       const b=bodies[Number(li.dataset.rid)]||{{}}, params=li.querySelector('.review-params'), gap=params.firstElementChild, nodes=[];
       if(b.f)nodes.push(param('顔',b.f.map(([t,tone])=>el('span','chip '+tone,t))));
-      if(b.s)nodes.push(param('スタイル',b.s));
-      if(b.v)nodes.push(param('サービス',b.v));
+      if(b.s)nodes.push(param('スタイル',typeof b.s==='string'?b.s:b.s.map(([t,tone])=>el('span','chip '+tone,t))));
+      if(b.v)nodes.push(param('サービス',typeof b.v==='string'?b.v:b.v.map(([t,tone])=>el('span','chip '+tone,t))));
       nodes.forEach(n=>params.insertBefore(n,gap));
       if(b.t)li.querySelector('.review-detail').prepend(el('p','review-text',b.t));
       li.dataset.filled='1';
@@ -833,7 +903,7 @@ def render_people_summary_file(path):
     page, bodies_json = build_people_summary(raw_html, profile_images)
     (path.parent / REVIEW_BODIES_NAME).write_text(bodies_json, encoding="utf-8")
     path.write_text(str(page), encoding="utf-8")
-    return len(page.select("#reviews tbody tr"))
+    return len(page.select("#reviews tbody tr.person-row"))
 
 
 def main():

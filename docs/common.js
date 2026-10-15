@@ -6,14 +6,18 @@
 
   function filterShopOptions(select, search, status) {
     const query = search.value.trim().toLocaleLowerCase();
-    const options = [...select.options].filter(option => option.value);
+    const options = shopSearches.get(select).options;
+    const selectedValue = select.value;
     let visible = 0;
-    options.forEach(option => {
+    const filtered = options.filter(option => {
+      if (!option.value) return true;
       const matches = option.textContent.toLocaleLowerCase().includes(query);
-      option.hidden = !matches && !option.selected;
       if (matches) visible += 1;
+      return matches || option.value === selectedValue;
     });
-    status.textContent = `${visible} / ${options.length} 店舗`;
+    select.replaceChildren(...filtered);
+    select.value = selectedValue;
+    status.textContent = `${visible} / ${options.filter(option => option.value).length} 店舗`;
   }
 
   function prepareShopFilters() {
@@ -31,7 +35,7 @@
       status.setAttribute("aria-live", "polite");
       select.before(picker);
       picker.append(search, select, status);
-      shopSearches.set(select, search);
+      shopSearches.set(select, { search, options: [...select.options] });
       search.addEventListener("input", () => filterShopOptions(select, search, status));
       search.addEventListener("keydown", event => {
         if (event.key === "Enter") {
@@ -49,7 +53,7 @@
   }
 
   window.resetShopSearches = () => {
-    shopSearches.forEach((search, select) => {
+    shopSearches.forEach(({ search }, select) => {
       search.value = "";
       const status = select.parentElement.querySelector(".shop-filter-status");
       if (status) filterShopOptions(select, search, status);
