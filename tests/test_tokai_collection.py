@@ -727,8 +727,10 @@ class GeneratorTests(unittest.TestCase):
         )
         soup = BeautifulSoup(html, "html.parser")
         entries = soup.select("details.report-entry")
-        self.assertEqual(len(entries), 3)
-        not_return = entries[1]
+        self.assertEqual(len(entries), 2)
+        articles = soup.select("details.article-entry")
+        self.assertEqual(len(articles), 3)
+        not_return = next(article for article in articles if article["data-repeat"] == "not-return")
         self.assertEqual(not_return["data-repeat"], "not-return")
         self.assertEqual(not_return["data-total"], "")
         self.assertNotIn("総合 0", not_return.get_text())

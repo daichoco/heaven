@@ -54,24 +54,38 @@ py -3 -m unittest discover -s tests
 npm run check:html
 ```
 
-## Tokai report sorting
+## Tokai report sorting and person aggregation
 
-`tokai_final_report.html` sorts individual articles, not people. The default
-おすすめ順 compares total, play, face, then style scores in descending
-lexicographic order, without weighting or statistical correction. Each score
-can also be selected individually, as can newest article date. Missing,
-invalid, or non-finite scores come after valid scores (including zero) at each
-comparison level. Ties use newest article date, then original input order;
-missing dates come last. Repeat status and panel difference never affect rank.
+`tokai_final_report.html` groups reports by normalized profile URL. It does not
+guess that different URLs (or reports with no profile URL) represent the same
+person. Each person's card shows the latest available name/shop/profile link
+and image, report count, latest date, and averages for total, play, face, style,
+and panel difference. Each average shows its own `n`; missing/invalid values
+are excluded, zero is valid, and a score with no values is shown as 未評価.
+Opening a person shows every original report, newest first, with its original
+date, link, scores, and comments. The JSONL remains one row per article.
 
-Sorting remains available when the mobile filter panel is collapsed and works
-with search and every existing filter. Changing the order preserves expanded
-articles and filter conditions; resetting conditions preserves the selected
-order. The condition count excludes sorting.
+おすすめ順 compares each person's total, play, face, then style average in
+descending order, without weighting or statistical correction. Each score can
+also be selected individually, as can the person's newest report date. Missing
+averages come after valid averages (including zero). Ties use newest report
+date, then original input order; missing dates come last. Repeat status and
+panel difference never affect rank.
+
+Search and all existing filters match individual reports: a person is shown
+when at least one single report satisfies every active condition, and only
+matching reports remain visible inside that person's card. Thus conditions
+cannot be combined across different reports. Averages and sort order always
+use the person's full report history, including while filtered. The count
+distinguishes visible people from matching reports and shows both page totals.
+Sorting remains available when the mobile filter panel is collapsed; changing
+the order preserves expanded people and filter conditions, and resetting
+conditions preserves the selected order.
 
 Offline regression tests execute the actual JavaScript from both the template
 and published HTML using Node.js, including initial sorting, changing modes,
-missing/zero scores, ties, filters, reset, and expanded article state:
+missing/zero averages, ties, same-report filter matching, reset, and expanded
+person state:
 
 ```powershell
 py -3 -m unittest discover -s tests -p test_tokai_sorting.py

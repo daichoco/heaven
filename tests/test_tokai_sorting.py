@@ -12,14 +12,33 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from tokai_fuzoku.html_render import generate_html, sort_attributes
+from tokai_fuzoku.html_render import generate_html, group_reports, sort_attributes
+from tokai_fuzoku import generate_report_final as tokai
 
 
 HARNESS = r"""
 const fs = require("node:fs");
 const vm = require("node:vm");
 const {script, data, controls, actions} = JSON.parse(fs.readFileSync(0, "utf8"));
-const rows = data.map((dataset, index) => ({dataset, index, hidden: false, open: index === 0}));
+const rows = data.map((item, index) => {
+    const dataset = item.person || item;
+    const articleData = item.articles || [dataset];
+    const articles = articleData.map(articleDataset =>
+        ({dataset: articleDataset, hidden: false, open: index === 0})
+    );
+    return {
+        dataset, index, hidden: false, open: index === 0, articles,
+        querySelectorAll(selector) {
+            if (selector !== ".article-entry") throw new Error(`Unknown nested selector ${selector}`);
+            return this.articles;
+        },
+        querySelector(selector) {
+            if (selector !== ".person-filter-status") throw new Error(`Unknown nested element ${selector}`);
+            return this.status;
+        },
+        status: {textContent: ""},
+    };
+});
 const elements = Object.fromEntries(Object.entries(controls).map(([id, value]) =>
     [id, {value, listeners: {}, addEventListener(event, handler) {this.listeners[event] = handler;}}]
 ));
@@ -34,6 +53,9 @@ const context = vm.createContext({
         },
         querySelectorAll(selector) {
             if (selector === ".report-entry" || selector === "details.report-entry") return order;
+            if (selector === "details.report-entry, details.article-entry")
+                return [...order, ...order.flatMap(row => row.articles)];
+            if (selector === ".article-entry") return order.flatMap(row => row.articles);
             if (selector === ".sticky-toolbar input, .sticky-toolbar select:not([data-sort])")
                 return Object.entries(elements).filter(([id]) =>
                     id === "reportSearch" || id.endsWith("Filter")
@@ -58,7 +80,9 @@ function snapshot() {
     return {
         order: order.map(row => row.index),
         visible: order.filter(row => !row.hidden).map(row => row.index),
+        visibleArticles: order.map(row => row.articles.filter(article => !article.hidden).length),
         open: rows.map(row => row.open),
+        articleOpen: rows.map(row => row.articles.map(article => article.open)),
         count: elements.filterCount.textContent,
         noResults: elements.noResults.hidden,
         sort: elements.reportSort.value,
@@ -237,7 +261,7 @@ class TokaiSortingTests(unittest.TestCase):
             self.assertEqual(results[1]["visible"], [1, 0, 2])
             self.assertEqual(results[2]["visible"], [1])
             self.assertEqual(results[3]["visible"], [1])
-            self.assertEqual(results[3]["count"], "1 / 4 件")
+            self.assertEqual(results[3]["count"], "1 人 / 1 件（全 4 人 / 4 件）")
             self.assertEqual(results[4]["visible"], [])
             self.assertFalse(results[4]["noResults"])
             self.assertEqual(results[5]["visible"], [0, 2, 3, 1])
@@ -279,7 +303,139 @@ class TokaiSortingTests(unittest.TestCase):
             [report(repeat="not-return", panel="0"), report(repeat="return", panel="100")],
             lambda r: self.assertEqual(r[0]["order"], [0, 1]),
         )
-        self.run_scripts([], lambda r: self.assertEqual(r[0]["count"], "0 / 0 件"))
+        self.run_scripts([], lambda r: self.assertEqual(
+            r[0]["count"], "0 人 / 0 件（全 0 人 / 0 件）"
+        ))
+
+    def test_multiple_filters_must_match_the_same_article(self):
+        data = [
+            {
+                "person": report(total="80"),
+                "articles": [
+                    report(shop="shop", repeat="not-return", total="90"),
+                    report(shop="different", repeat="return", total="50"),
+                ],
+            },
+            {
+                "person": report(total="90"),
+                "articles": [report(shop="shop", repeat="return", total="80")],
+            },
+        ]
+        self.run_scripts(data, lambda results: (
+            self.assertEqual(results[-1]["visible"], [1]),
+            self.assertEqual(results[-1]["visibleArticles"], [1, 0]),
+            self.assertEqual(results[-1]["count"], "1 人 / 1 件（全 2 人 / 3 件）"),
+        ), actions=[
+            {"id": "shopFilter", "value": "shop"},
+            {"id": "repeatFilter", "value": "return"},
+            {"id": "scoreFilter", "value": "80"},
+        ])
+
+    def test_collapse_all_closes_people_and_individual_reports(self):
+        self.run_scripts(
+            [{"person": report(), "articles": [report(), report(date="20240101")]}],
+            lambda results: (
+                self.assertEqual(results[-1]["open"], [False]),
+                self.assertEqual(results[-1]["articleOpen"], [[False, False]]),
+            ),
+            actions=[{"call": "collapseAll"}],
+        )
+
+
+class TokaiPersonAggregationTests(unittest.TestCase):
+    def test_url_identity_missing_scores_latest_metadata_and_article_preservation(self):
+        common = "https://profiles.example/girl?id=17"
+        frame = pd.DataFrame([
+            {
+                "date": "2025-01-01", "girl_url": common + "&utm_source=old",
+                "name": "旧名", "shop_name": "旧店", "type": "旧種別",
+                "total_point": 0, "play_score": None, "face_score": float("nan"),
+                "style_score": 0, "panel_point": 5, "url": "https://reports.example/old",
+                "profile_image_url": "https://images.example/old.jpg",
+                "total_comment": "旧コメント",
+            },
+            {
+                "date": "2025-02-01", "girl_url": "https://PROFILES.example/girl/?utm_medium=x&id=17#bio",
+                "name": "新名", "shop_name": "新店", "type": "新種別",
+                "total_point": 80, "play_score": 100, "face_score": None,
+                "style_score": 20, "panel_point": None, "url": "https://reports.example/new",
+                "profile_image_url": "https://images.example/new.jpg",
+                "total_comment": "<script>残るコメント</script>",
+            },
+            {
+                "date": "2025-03-01", "girl_url": "https://profiles.example/other/",
+                "name": "新名", "shop_name": "別店", "total_point": None,
+                "url": "https://reports.example/other",
+            },
+            {
+                "date": "2025-04-01", "girl_url": None, "name": "未連携",
+                "shop_name": "未連携店", "url": "https://reports.example/no-profile-1",
+            },
+            {
+                "date": "2025-05-01", "girl_url": None, "name": "未連携",
+                "shop_name": "未連携店", "url": "https://reports.example/no-profile-2",
+            },
+        ])
+        people = group_reports(frame)
+        self.assertEqual(len(people), 4)
+        merged = next(person for person in people if len(person["reports"]) == 2)
+        self.assertEqual(merged["latest"]["name"], "新名")
+        self.assertEqual(merged["latest"]["shop_name"], "新店")
+        self.assertEqual(merged["latest"]["profile_image_url"], "https://images.example/new.jpg")
+        self.assertEqual(merged["scores"]["total"], 40)
+        self.assertEqual(merged["score_counts"]["total"], 2)
+        self.assertEqual(merged["scores"]["play"], 100)
+        self.assertEqual(merged["score_counts"]["play"], 1)
+        self.assertEqual(merged["scores"]["style"], 10)
+        self.assertEqual(merged["scores"]["panel"], 5)
+        self.assertEqual(
+            [record["url"] for _, record in merged["reports"]],
+            ["https://reports.example/new", "https://reports.example/old"],
+        )
+
+        with patch("tokai_fuzoku.html_render.load_cache", return_value={}):
+            page = BeautifulSoup(generate_html(frame), "html.parser")
+        self.assertEqual(len(page.select(".report-entry")), 4)
+        self.assertEqual(len(page.select(".article-entry")), len(frame))
+        merged_card = next(
+            card for card in page.select(".report-entry")
+            if card.select_one(".person-identity a").get_text() == "新名"
+            and len(card.select(".article-entry")) == 2
+        )
+        self.assertEqual(
+            [merged_card[f"data-{key}"] for key in ("total", "play", "face", "style", "date")],
+            ["40", "100", "", "10", "20250201"],
+        )
+        self.assertIn("パネル差 5.0（n=1）", merged_card.get_text())
+        self.assertIn("未評価", next(
+            card for card in page.select(".report-entry") if card is not merged_card
+        ).get_text())
+        self.assertEqual(
+            {a["href"] for a in page.select(".article-entry a[href]")},
+            set(frame["url"]),
+        )
+        self.assertEqual(
+            page.select_one('.report-entry img.profile-thumbnail')["src"],
+            "https://images.example/new.jpg",
+        )
+        self.assertIn("n=2", page.select_one(".report-entry .score-overview").text)
+        self.assertIn("<script>", page.select_one(".article-entry .report-details").text)
+        self.assertNotIn(
+            "<script>", str(page.select_one(".article-entry .report-details"))
+        )
+
+    def test_generated_real_dataset_keeps_every_article_and_groups_by_url(self):
+        df = tokai.load_input_data()
+        people = group_reports(df)
+        with patch("tokai_fuzoku.html_render.load_cache", return_value={}):
+            page = BeautifulSoup(generate_html(df), "html.parser")
+        self.assertEqual(len(page.select(".report-entry")), len(people))
+        self.assertEqual(len(page.select(".article-entry")), len(df))
+        article_links = {
+            link["href"] for link in page.select(".article-entry a[href]")
+            if link.get_text(strip=True) == "レポート"
+        }
+        self.assertEqual(article_links, set(df["url"].dropna().astype(str)))
 
 
 if __name__ == "__main__":
