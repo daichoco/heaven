@@ -15,6 +15,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl
+from html_format import write_html
 from html_render import generate_html
 
 INPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
@@ -346,7 +347,7 @@ def main():
         df = enrich_report_data(df, session)
 
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_HTML.write_text(generate_html(df), encoding="utf-8")
+    write_html(OUTPUT_HTML, generate_html(df))
     print(f"生成しました: {OUTPUT_HTML}")
 
 

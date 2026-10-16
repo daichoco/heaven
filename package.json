@@ -1,0 +1,11 @@
+{
+  "name": "heaven-html",
+  "private": true,
+  "scripts": {
+    "format:html": "node scripts/format-html.cjs",
+    "check:html": "node scripts/format-html.cjs --check"
+  },
+  "devDependencies": {
+    "js-beautify": "2.0.3"
+  }
+}

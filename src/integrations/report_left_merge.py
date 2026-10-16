@@ -17,6 +17,7 @@ if str(SRC_DIR) not in sys.path:
   sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl, write_jsonl_atomic
+from html_format import write_html
 from okinilove.okinilove_left_merge import merge_okinilove_data
 from ns_senmon.ns_left_merge import merge_ns_reports
 from ns_senmon.match_cityheaven import resolve_urls
@@ -674,8 +675,7 @@ def build_calendar_html(merged):
 
 def write_calendar_html(merged, path=None):
     output_path = path or DOCS_DIR / "calendar_report.html"
-    with output_path.open("w", encoding="utf-8") as f:
-        f.write(build_calendar_html(merged))
+    write_html(output_path, build_calendar_html(merged))
 
 
 if __name__ == "__main__":

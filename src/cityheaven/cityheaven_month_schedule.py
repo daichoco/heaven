@@ -15,6 +15,7 @@ if str(ROOT_DIR / "src") not in sys.path:
     sys.path.insert(0, str(ROOT_DIR / "src"))
 
 from web_common import BACK_TO_TOP, HEAD_COMMON
+from html_format import write_html
 
 
 async def safe_evaluate(page, script):
@@ -263,10 +264,12 @@ h1 {{ text-align: center; margin: 0 0 24px; font-size: 1.5rem; }}
 """
 
 
+def write_index_html(weekend_map, path=None):
+    write_html(path or ROOT_DIR / "docs" / "index.html", render_index_html(weekend_map))
+
+
 # --- 実行 ---
 if __name__ == "__main__":
     weekend_map = asyncio.run(scrape_cityheaven())
     print("weekend_map:", weekend_map)
-    file_path = ROOT_DIR / "docs" / "index.html"
-    with file_path.open("w", encoding="utf-8") as f:
-        f.write(render_index_html(weekend_map))
+    write_index_html(weekend_map)

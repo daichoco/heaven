@@ -19,6 +19,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from okinilove.shop_filters import is_chubby_shop
+from html_format import write_html
 from okinilove.scrape_okinilove import profile_check_url
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
@@ -916,7 +917,7 @@ def render_people_summary_file(
         fetch_missing_industries=fetch_missing_industries,
     )
     (path.parent / REVIEW_BODIES_NAME).write_text(bodies_json, encoding="utf-8")
-    path.write_text(str(page), encoding="utf-8")
+    write_html(path, str(page))
     return len(page.select("#reviews tbody tr.person-row"))
 
 

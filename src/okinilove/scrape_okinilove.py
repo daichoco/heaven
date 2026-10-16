@@ -19,6 +19,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl, write_jsonl_atomic
+from html_format import write_html
 from okinilove.shop_filters import is_chubby_shop
 
 DATA_DIR = ROOT_DIR / "data"
@@ -278,7 +279,7 @@ def normalize_existing_shop_names(aliases):
             cell.string = aliases[name]
             html_changed += 1
     if html_changed:
-        RAW_HTML_PATH.write_text(str(soup), encoding="utf-8")
+        write_html(RAW_HTML_PATH, str(soup))
     if changed or html_changed:
         print(f"店名を統一: JSONL {changed}件、一覧HTML {html_changed}件")
 
@@ -477,7 +478,7 @@ def remove_unavailable_profiles():
     reviews = reviews.loc[keep_reviews].reset_index(drop=True)
 
     if removed_rows:
-        RAW_HTML_PATH.write_text(str(raw_soup), encoding="utf-8")
+        write_html(RAW_HTML_PATH, str(raw_soup))
     if removed_reviews:
         write_jsonl_atomic(reviews, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
 
@@ -974,7 +975,7 @@ def append_records_to_raw_html(records):
         added += 1
 
     if added:
-        RAW_HTML_PATH.write_text(str(soup), encoding="utf-8")
+        write_html(RAW_HTML_PATH, str(soup))
     return added
 
 

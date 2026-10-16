@@ -1,5 +1,6 @@
 .venv/
 __pycache__/
 *.pyc
+node_modules/
 data/okinilove_profile_status.json
 data/cityheaven_profiles.json

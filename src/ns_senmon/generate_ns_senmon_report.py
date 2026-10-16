@@ -15,6 +15,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl
+from html_format import write_html
 from ns_senmon.profile_images import classify_price_class
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
@@ -457,7 +458,7 @@ def main():
             record["details"] = json.loads(record["details"])
         if not isinstance(record.get("cityheaven_url"), str):
             record["cityheaven_url"] = ""
-    OUTPUT_HTML.write_text(build_html(records, load_profiles(records)), encoding="utf-8")
+    write_html(OUTPUT_HTML, build_html(records, load_profiles(records)))
     print(f"HTMLを生成しました: {OUTPUT_HTML} ({len(records)}件 / {len(group_records(records))}人)")
 
 
