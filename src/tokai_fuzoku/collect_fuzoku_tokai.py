@@ -1,9 +1,11 @@
 """東海風俗レポートを 1記事URL = 1行で `data/tokai_fuzoku_reports.jsonl` に収集する。
 
-実行モード（いずれも環境変数 FUZOKU_TOKAI_PASSWORD が必要）:
+実行モード（--recheck-profiles 以外は環境変数 FUZOKU_TOKAI_PASSWORD が必要）:
   引数なし                   通常の差分収集（最新日から --overlap-days 日さかのぼって未取得記事を取り込む）
   --backfill [--resume]      過去分補完（一覧を max_pages までページ送りし、未取得記事だけを取り込む）
   --fill-details             既存記事のうち詳細（点数・コメント・時間・費用）未保存の行を補完する
+  --recheck-profiles [--status S ...]
+                             保存済み profile_status を人物単位で再判定する（既定は unavailable の人物）
 """
 import argparse
 import json
@@ -41,9 +43,12 @@ from report_store import (
     article_date_from_url,
     canonical_article_url,
     is_missing,
+    latest_profile_status_by_person,
     normalize_profile_url,
     parse_report_details,
+    person_key,
 )
+from profile_signals import classify_profile_page, decode_html
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -225,9 +230,10 @@ def safe_quit(driver):
 class ProfileChecker:
     """プロフィール掲載確認を人物（正規化プロフィールURL）単位でキャッシュする。
 
-    結果は published / unavailable / unknown。404・410、別ページへの転送、
-    ブラウザ描画後も名前が無い場合だけを unavailable とし、通信失敗・403/429/5xx・
-    ブラウザ起動/読み込み失敗は unknown（掲載終了と断定しない）。
+    結果は published / unavailable / unknown。unavailable は profile_signals の明確な不在シグナル
+    （404・410、別ページへの転送、サイト別の空テンプレート）だけ。CityHeaven は同一URLで200なら published。
+    それ以外は名前照合（タグ・装飾・読みを緩和）し、一致しなければブラウザ描画後に再照合して、
+    それでも名前が無い・通信失敗・403/429/5xx・ブラウザ失敗は unknown（掲載終了と断定しない）。
     """
 
     def __init__(self, session, driver_factory=build_driver):
@@ -240,6 +246,7 @@ class ProfileChecker:
         self.page_requests = 0
 
     def _page(self, url, key):
+        """(status, html)。status が None なら名前照合が必要。"""
         if key in self.pages:
             return self.pages[key]
         self.page_requests += 1
@@ -249,16 +256,18 @@ class ProfileChecker:
             print(f"プロフィール取得失敗のため掲載状況不明: {url} ({exc})")
             page = ("unknown", None)
         else:
-            if response.status_code in {404, 410}:
-                page = ("unavailable", None)
-            elif not 200 <= response.status_code < 300:
-                print(f"プロフィール取得 HTTP {response.status_code} のため掲載状況不明: {url}")
-                page = ("unknown", None)
-            elif normalize_profile_url(response.url) != key:
-                print(f"プロフィールが別ページへ転送されるため掲載終了扱い: {url} -> {response.url}")
-                page = ("unavailable", None)
-            else:
-                page = ("ok", response.text)
+            content = getattr(response, "content", None)
+            html = (
+                decode_html(content, getattr(response, "encoding", None))
+                if isinstance(content, bytes)
+                else response.text
+            )
+            status, reason = classify_profile_page(url, response.url, response.status_code, html)
+            if status == "unavailable":
+                print(f"プロフィール掲載終了（{reason}）: {url}")
+            elif status == "unknown":
+                print(f"プロフィール取得 {reason} のため掲載状況不明: {url}")
+            page = (status, html)
         self.pages[key] = page
         return page
 
@@ -269,7 +278,7 @@ class ProfileChecker:
         cache_key = (key, normalize_name(str(name)))
         if cache_key not in self.results:
             status, html = self._page(url, key)
-            if status == "ok":
+            if status is None:
                 text = BeautifulSoup(html, "lxml").get_text(" ")
                 status = "published" if name_in_text(text, str(name)) else self._check_with_browser(url, str(name))
             self.results[cache_key] = status
@@ -295,8 +304,8 @@ class ProfileChecker:
             wait_for_name_parts(self.driver, name)
             return "published"
         except TimeoutException:
-            print(f"プロフィールに名前を確認できないため掲載終了扱い: {url}")
-            return "unavailable"
+            print(f"プロフィールに名前を確認できないため掲載状況不明（不在の証拠なし）: {url}")
+            return "unknown"
         except (WebDriverException, urllib3.exceptions.HTTPError) as exc:
             print(f"ブラウザでの確認失敗のため掲載状況不明: {url} ({type(exc).__name__})")
             self.close()
@@ -541,6 +550,67 @@ def run_fill_details(collector, limit=None):
         print("--limit に達したため中断しました。再実行すると残りを補完します")
 
 
+RECHECK_STATUSES = ("unavailable", "unknown", "published")
+
+
+def recheck_targets(records, statuses):
+    """再確認する人物を {人物キー: [記事行...]} で返す。対象は profile_status 保存済みの行のみ。
+
+    人物の現在の状態は最新の確定結果（published/unavailable）、確定結果が無ければ unknown。
+    """
+    latest = latest_profile_status_by_person(records)
+    groups = {}
+    for record in records:
+        key = person_key(record)
+        if key is None or is_missing(record.get("profile_status")) or not canonical_article_url(record.get("url")):
+            continue
+        groups.setdefault(key, []).append(record)
+    return {key: rows for key, rows in groups.items() if latest.get(key, "unknown") in statuses}
+
+
+def run_recheck_profiles(collector, statuses=("unavailable",), limit=None):
+    """保存済みの profile_status を人物単位で再判定する（記事本文は取得しない）。
+
+    確定結果（published/unavailable）が出た人物だけ、その人物の状態保存済み行を更新する。
+    unknown（通信失敗・制限など）のときは既存の状態を変更しない。
+    """
+    targets = recheck_targets(collector.store.records, set(statuses))
+    print(f"プロフィール再判定の対象: {len(targets)}人（状態: {', '.join(statuses)}）")
+    latest = latest_profile_status_by_person(collector.store.records)
+    for index, (key, rows) in enumerate(targets.items(), start=1):
+        if limit is not None and index > limit:
+            print("--limit に達したため中断しました。再実行すると残りを再判定します")
+            break
+        rows = sorted(rows, key=lambda row: str(row.get("date") or ""), reverse=True)
+        names = list(dict.fromkeys(str(row.get("name")) for row in rows if not is_missing(row.get("name"))))
+        results = []
+        for name in names:
+            results.append(collector.checker.check(rows[0]["girl_url"], name))
+            if results[-1] == "published":
+                break
+        if "published" in results:
+            status = "published"
+        elif "unavailable" in results:
+            status = "unavailable"
+        else:
+            status = "unknown"
+        previous = latest.get(key, "unknown")
+        print(f"再判定 {index}/{len(targets)}: {key} {previous} -> {status}")
+        collector.counts[f"profile_{status}"] += 1
+        if status != "unknown":
+            checked_at = collector.clock()
+            for row in rows:
+                collector.store.upsert(
+                    {"url": row["url"], "profile_status": status, "profile_checked_at": checked_at}
+                )
+            if status != previous:
+                collector.counts["status_changed"] += 1
+        if index % SAVE_EVERY == 0:
+            collector.checkpoint()
+        collector.sleep(REQUEST_INTERVAL_SECONDS)
+    print(f"状態が変わった人物: {collector.counts['status_changed']}人（unknown の人物は変更していません）")
+
+
 def configure_retries(session):
     retry = Retry(
         total=3,
@@ -575,6 +645,17 @@ def parse_args(argv):
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--backfill", action="store_true", help="過去分を一覧の max_pages まで走査して未取得記事を取り込む")
     mode.add_argument("--fill-details", action="store_true", help="詳細未保存の既存記事を補完する（欠損列のみ）")
+    mode.add_argument(
+        "--recheck-profiles",
+        action="store_true",
+        help="保存済みの profile_status を人物単位で再判定する（ログイン不要。--limit は人物数）",
+    )
+    parser.add_argument(
+        "--status",
+        action="append",
+        choices=RECHECK_STATUSES,
+        help="--recheck-profiles の対象となる現在の状態（複数指定可。既定: unavailable）",
+    )
     parser.add_argument("--resume", action="store_true", help="--backfill の中断ページから再開する")
     parser.add_argument("--max-pages", type=int, help="一覧の最大ページ数（既定: FUZOKU_TOKAI_MAX_PAGES または 75）")
     parser.add_argument("--overlap-days", type=int, default=DEFAULT_OVERLAP_DAYS, help="通常収集で最新日からさかのぼる日数")
@@ -582,6 +663,9 @@ def parse_args(argv):
     args = parser.parse_args(argv)
     if args.resume and not args.backfill:
         parser.error("--resume は --backfill と併用してください")
+    if args.status and not args.recheck_profiles:
+        parser.error("--status は --recheck-profiles と併用してください")
+    args.status = list(dict.fromkeys(args.status or ["unavailable"]))
     if args.overlap_days < 0:
         parser.error("--overlap-days は0以上を指定してください")
     if args.limit is not None and args.limit < 1:
@@ -599,7 +683,7 @@ def resolve_max_pages(value):
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
     password = os.environ.get("FUZOKU_TOKAI_PASSWORD")
-    if not password:
+    if not password and not args.recheck_profiles:
         raise RuntimeError("FUZOKU_TOKAI_PASSWORD 環境変数を設定してください")
     max_pages = resolve_max_pages(args.max_pages)
 
@@ -610,11 +694,14 @@ def main(argv=None):
 
     with requests.Session() as session:
         configure_retries(session)
-        login(session, password)
+        if not args.recheck_profiles:
+            login(session, password)
         checker = ProfileChecker(session)
         collector = Collector(session, store, state, checker)
         try:
-            if args.fill_details:
+            if args.recheck_profiles:
+                run_recheck_profiles(collector, args.status, args.limit)
+            elif args.fill_details:
                 run_fill_details(collector, args.limit)
             elif args.backfill:
                 run_backfill(collector, max_pages, args.resume, args.limit)

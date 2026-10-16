@@ -35,6 +35,7 @@ from report_store import (
     parse_report_details,
     person_key,
 )
+from profile_signals import classify_profile_page, decode_html
 
 INPUT_JSONL = REPORTS_JSONL
 OUTPUT_HTML = ROOT_DIR / "docs" / "tokai_final_report.html"
@@ -233,7 +234,11 @@ def is_unavailable_o_ren_profile(url, final_url):
 
 
 def filter_unavailable_girl_urls(df, session):
-    """プロフィールURLを確認し、終了ページを除外して画像URLも付与する。"""
+    """プロフィールURLを確認し、終了ページを除外して画像URLも付与する。
+
+    除外は明確な不在シグナル（404/410、別ページへの転送、サイト別の空テンプレート、
+    aQua の在籍API確認）のときだけ。取得失敗や名前の不一致では除外しない。
+    """
     unavailable_urls = set()
     profile_images = {}
     aqua_roster_state = {}
@@ -273,7 +278,12 @@ def filter_unavailable_girl_urls(df, session):
                         size += min(len(chunk), remaining)
                         if size >= PROFILE_HTML_LIMIT:
                             break
-                    page_html = b"".join(chunks).decode(response.encoding or "utf-8", errors="replace")
+                    page_html = decode_html(b"".join(chunks), response.encoding)
+                    status, reason = classify_profile_page(url, response.url, response.status_code, page_html)
+                    if status == "unavailable":
+                        tqdm.write(f"プロフィール掲載終了（{reason}）: {url}")
+                        unavailable_urls.add(key)
+                        continue
                     if is_unavailable_aqua_profile(url, session, aqua_roster_state):
                         unavailable_urls.add(key)
                         continue

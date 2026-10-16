@@ -243,6 +243,142 @@ class ReportStoreTests(unittest.TestCase):
             self.assertEqual([r["name"] for r in store.records], ["first"])
 
 
+class ProfileSignalTests(unittest.TestCase):
+    SABBAT = "https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-57814696/"
+    SHABOOLE = "https://www.shaboole.com/profile/01722/"
+    BACH = "https://www.stylish-bach.com/top/girls/girldetail/?girl_id=64733072"
+    RGROUP = "https://r-group.jp/profile?lid=9"
+    SHABOOLE_EMPTY = "<html><head><title>名古屋愛知風俗デリヘル シャブール｜[]プロフィール</title></head><body>名前 年齢 才</body></html>"
+    SHABOOLE_OK = "<html><head><title>名古屋愛知風俗デリヘル シャブール｜なな[可愛い系]プロフィール</title></head><body>なな</body></html>"
+    BACH_EMPTY = '<html><body><div class="profile">10月 5日 入店 愛桜/まお</div></body></html>'
+    BACH_OK = '<html><body><div class="element-girl-detail"><div class="profilename">りら/LILA (21歳)</div></div></body></html>'
+
+    def test_classify(self):
+        import profile_signals
+
+        classify = profile_signals.classify_profile_page
+        self.assertEqual(classify(self.SABBAT, self.SABBAT, 200, "<html>るな♡【PREMIUM】</html>")[0], "published")
+        self.assertEqual(classify(self.SABBAT, self.SABBAT + "?of=y", 200, "<html></html>")[0], "published")
+        self.assertEqual(
+            classify(self.SABBAT, "https://www.cityheaven.net/gifu/A2101/A210101/sabbat/", 200, "")[0], "unavailable"
+        )
+        self.assertEqual(classify(self.SABBAT, self.SABBAT, 404, "")[0], "unavailable")
+        self.assertEqual(classify(self.SABBAT, self.SABBAT, 503, "")[0], "unknown")
+        self.assertEqual(classify(self.SHABOOLE, self.SHABOOLE, 200, self.SHABOOLE_EMPTY)[0], "unavailable")
+        self.assertIsNone(classify(self.SHABOOLE, self.SHABOOLE, 200, self.SHABOOLE_OK)[0])
+        self.assertEqual(classify(self.BACH, self.BACH, 200, self.BACH_EMPTY)[0], "unavailable")
+        self.assertIsNone(classify(self.BACH, self.BACH, 200, self.BACH_OK)[0])
+        self.assertIsNone(classify(self.RGROUP, self.RGROUP, 200, "<title>橘　真央プロフィール</title>")[0])
+        self.assertIsNone(
+            classify("http://example.com/girl/1", "https://sp.example.com/girl/1/", 200, "<html></html>")[0]
+        )
+        self.assertEqual(
+            classify("https://example.com/girl?id=1", "https://example.com/girl?id=2", 200, "")[0], "unavailable"
+        )
+
+    def test_decode_ignores_requests_latin1_default(self):
+        import profile_signals
+
+        raw = self.SHABOOLE_EMPTY.encode("utf-8")
+        self.assertEqual(profile_signals.decode_html(raw, "ISO-8859-1"), self.SHABOOLE_EMPTY)
+        sjis = '<meta charset="Shift_JIS"><title>なな</title>'.encode("shift_jis")
+        self.assertIn("なな", profile_signals.decode_html(sjis, None))
+
+        class BytesResponse(FakeResponse):
+            encoding = "ISO-8859-1"
+
+            @property
+            def content(self):
+                return self.text.encode("utf-8")
+
+        session = FakeSession({self.SHABOOLE: BytesResponse(self.SHABOOLE, self.SHABOOLE_EMPTY)})
+        checker = collect.ProfileChecker(session, driver_factory=lambda: self.fail("browser not needed"))
+        self.assertEqual(checker.check(self.SHABOOLE, "みく"), "unavailable")
+
+    def test_checker_uses_signals_and_name_mismatch_is_unknown(self):
+        session = FakeSession(
+            {
+                self.SABBAT: "<html><title>「るな♡【PREMIUM】」Sabbat</title></html>",
+                self.SHABOOLE: self.SHABOOLE_EMPTY,
+                self.BACH: self.BACH_EMPTY,
+                self.RGROUP: "<html><title>橘　真央プロフィール</title>橘　真央</html>",
+            }
+        )
+        checker = collect.ProfileChecker(session, driver_factory=lambda: (_ for _ in ()).throw(RuntimeError("no chrome")))
+        self.assertEqual(checker.check(self.SABBAT, "全然違う名前"), "published")
+        self.assertEqual(checker.check(self.SHABOOLE, "みく"), "unavailable")
+        self.assertEqual(checker.check(self.BACH, "あず"), "unavailable")
+        self.assertEqual(checker.check(self.RGROUP, "橘　奈央"), "unknown")
+        self.assertEqual(checker.check(self.RGROUP, "橘真央"), "published")
+
+    def test_generator_filter_matches_policy(self):
+        class StreamResponse(FakeResponse):
+            encoding = "utf-8"
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def iter_content(self, chunk_size):
+                yield self.text.encode("utf-8")
+
+        pages = {
+            self.SABBAT: StreamResponse(self.SABBAT, "<html>るな♡【PREMIUM】</html>"),
+            self.SHABOOLE: StreamResponse(self.SHABOOLE, self.SHABOOLE_EMPTY),
+            self.BACH: StreamResponse(self.BACH, self.BACH_EMPTY),
+            self.RGROUP: StreamResponse(self.RGROUP, "<html>橘　真央</html>"),
+            "https://example.com/girl/9": StreamResponse(
+                "https://example.com/girl/9", "<html>list</html>", final_url="https://example.com/girls/"
+            ),
+            "https://example.com/girl/8": StreamResponse("https://example.com/girl/8", "", 429),
+        }
+
+        class StreamSession(FakeSession):
+            def get(self, url, **kwargs):
+                self.calls.append(url)
+                return pages[url]
+
+        frame = pd.DataFrame(
+            [
+                legacy_record(article_url(1, 1), name="るな【PLATINUM】", girl_url=self.SABBAT),
+                legacy_record(article_url(2, 2), name="みく", girl_url=self.SHABOOLE),
+                legacy_record(article_url(3, 3), name="あず", girl_url=self.BACH),
+                legacy_record(article_url(4, 4), name="橘　奈央", girl_url=self.RGROUP),
+                legacy_record(article_url(5, 5), name="えま", girl_url="https://example.com/girl/9"),
+                legacy_record(article_url(6, 6), name="りこ", girl_url="https://example.com/girl/8"),
+            ]
+        )
+        filtered = tokai.filter_unavailable_girl_urls(frame, StreamSession({}))
+        self.assertEqual(
+            list(filtered["url"]), [article_url(1, 1), article_url(4, 4), article_url(6, 6)]
+        )
+
+
+class NameMatchTests(unittest.TestCase):
+    def test_rank_tags_decorations_and_readings(self):
+        from wait_for_name_parts import base_name, name_in_text
+
+        self.assertEqual(base_name("るな【PLATINUM】"), "るな")
+        self.assertEqual(base_name("TSUKASA（ツカサ）"), "tsukasa")
+        self.assertTrue(name_in_text("プロフィール るな♡【PREMIUM】 22歳", "るな【PLATINUM】"))
+        self.assertTrue(name_in_text("ＴＳＵＫＡＳＡ プロフィール", "TSUKASA（ツカサ）"))
+        self.assertTrue(name_in_text("桃花 プロフィール", "桃花（ももか）"))
+        self.assertTrue(name_in_text("★ゆ☆め♪ 21歳", "ゆめ［新人］"))
+        self.assertTrue(name_in_text("橘 奈央", "橘　奈央"))
+        self.assertFalse(name_in_text("橘 真央", "橘　奈央"))
+        self.assertFalse(name_in_text("プロフィール ちゃん[才カップ]", "みく"))
+
+    def test_short_base_names_keep_strict_matching(self):
+        from wait_for_name_parts import name_in_text
+
+        self.assertFalse(name_in_text("みなみ 在籍", "み【新人】"))
+        self.assertTrue(name_in_text("み【新人】 在籍", "み【新人】"))
+        self.assertFalse(name_in_text("A 在籍", "A（エー）"))
+        self.assertTrue(name_in_text("A（エー）", "A（エー）"))
+
+
 class FakeDriver:
     def __init__(self, error=None):
         self.error = error
@@ -285,7 +421,7 @@ class ProfileCheckerTests(unittest.TestCase):
         session = FakeSession({"https://a.example/js": "<html>loading</html>"})
         with patch.object(collect, "wait_for_name_parts", side_effect=TimeoutException()):
             checker = collect.ProfileChecker(session, driver_factory=FakeDriver)
-            self.assertEqual(checker.check("https://a.example/js", "あや"), "unavailable")
+            self.assertEqual(checker.check("https://a.example/js", "あや"), "unknown")
 
         broken = FakeDriver(error=WebDriverException("crash"))
         checker = collect.ProfileChecker(session, driver_factory=lambda: broken)
@@ -439,6 +575,77 @@ class BackfillTests(CollectorTestBase):
 
         saved = {r["url"] for r in report_store.read_jsonl_records(self.data_path)}
         self.assertEqual(saved, {a1, a2, a3})
+
+
+class RecheckProfilesTests(CollectorTestBase):
+    def test_recheck_updates_only_definitive_results(self):
+        sabbat = "https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-57814696/"
+        gone = "https://example.com/girl/2"
+        flaky = "https://example.com/girl/3"
+        fine = "https://example.com/girl/4"
+        legacy = "https://example.com/girl/5"
+
+        def row(day, post, name, girl_url, status, checked="2026-01-05T00:00:00+00:00"):
+            extra = {"profile_status": status, "profile_checked_at": checked} if status else {}
+            return legacy_record(article_url(day, post), name=name, girl_url=girl_url, **extra)
+
+        write_records(
+            self.data_path,
+            [
+                row(1, 1, "るな", sabbat, "published", "2026-01-01T00:00:00+00:00"),
+                row(2, 2, "るな【PLATINUM】", sabbat, "unavailable"),
+                row(3, 3, "ゆき", gone, "unavailable"),
+                row(4, 4, "まい", flaky, "unavailable"),
+                row(5, 5, "えま", fine, "published"),
+                row(6, 6, "りこ", legacy, None),
+            ],
+        )
+        pages = {
+            sabbat: "<html>るな♡【PREMIUM】</html>",
+            flaky: FakeResponse(flaky, "", 429),
+            fine: "<html>えま</html>",
+        }
+        collector, session = self.make_collector(pages)
+        collect.run_recheck_profiles(collector, ["unavailable"])
+        collector.checkpoint()
+
+        self.assertEqual(collector.counts["status_changed"], 1)
+        self.assertEqual(collector.counts["profile_unknown"], 1)
+        self.assertNotIn(fine, session.calls)
+        self.assertNotIn(legacy, session.calls)
+        self.assertEqual(session.calls.count(sabbat), 1)
+        saved = {r["url"]: r for r in report_store.read_jsonl_records(self.data_path)}
+        self.assertEqual(saved[article_url(1, 1)]["profile_status"], "published")
+        self.assertEqual(saved[article_url(2, 2)]["profile_status"], "published")
+        self.assertEqual(saved[article_url(2, 2)]["profile_checked_at"], saved[article_url(1, 1)]["profile_checked_at"])
+        self.assertEqual(saved[article_url(3, 3)]["profile_status"], "unavailable")
+        self.assertNotEqual(saved[article_url(3, 3)]["profile_checked_at"], "2026-01-05T00:00:00+00:00")
+        self.assertEqual(saved[article_url(4, 4)]["profile_status"], "unavailable")
+        self.assertEqual(saved[article_url(4, 4)]["profile_checked_at"], "2026-01-05T00:00:00+00:00")
+        self.assertNotIn("profile_status", saved[article_url(6, 6)])
+        self.assertEqual(
+            report_store.latest_profile_status_by_person(saved.values())[report_store.normalize_profile_url(sabbat)],
+            "published",
+        )
+
+    def test_recheck_cli_needs_no_password_and_validates_status(self):
+        args = collect.parse_args(["--recheck-profiles", "--status", "unknown", "--status", "unavailable"])
+        self.assertEqual(args.status, ["unknown", "unavailable"])
+        self.assertEqual(collect.parse_args(["--recheck-profiles"]).status, ["unavailable"])
+        with self.assertRaises(SystemExit), patch("sys.stderr"):
+            collect.parse_args(["--status", "unknown"])
+        with self.assertRaises(SystemExit), patch("sys.stderr"):
+            collect.parse_args(["--recheck-profiles", "--backfill"])
+
+        with (
+            patch.object(collect, "OUTPUT_JSONL", self.data_path),
+            patch.object(collect, "STATE_JSON", self.state_path),
+            patch.object(collect, "login", side_effect=AssertionError("login used")),
+            patch.dict(os.environ, {}, clear=False),
+        ):
+            os.environ.pop("FUZOKU_TOKAI_PASSWORD", None)
+            collect.main(["--recheck-profiles"])
+        self.assertFalse(self.data_path.exists())
 
 
 class FillDetailsTests(CollectorTestBase):
