@@ -18,7 +18,7 @@ from data_store import read_jsonl
 from html_render import generate_html
 
 INPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
-OUTPUT_HTML = ROOT_DIR / "docs" / "report_final.html"
+OUTPUT_HTML = ROOT_DIR / "docs" / "tokai_final_report.html"
 LOGIN_URL = "https://m.fuzoku-tokai.com/"
 
 HEADERS = {

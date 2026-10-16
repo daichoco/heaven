@@ -120,7 +120,7 @@ def _evaluation_dict(value):
 
 
 def extract_report_final_df(parser="lxml"):
-    html = load_html(DOCS_DIR / "report_final.html")
+    html = load_html(DOCS_DIR / "tokai_final_report.html")
     soup = BeautifulSoup(html, parser)
     reports = []
 
