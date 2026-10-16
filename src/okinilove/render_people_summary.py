@@ -812,7 +812,7 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 </div>
 <div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><label class="chubby-toggle"><input id="include-chubby" type="checkbox">ぽっちゃり系店舗も表示</label><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
 </section>
-<p class="age">ポジ・ネガ含有率は顔・写真との差・スタイル・サービスをレビュー単位で集計します。おすすめ順は補正平均星（小数1桁）が高い順 → 補正ネガ率が低い順 → 補正ポジ率が高い順 → 判定可能レビュー数が多い順です。星・率は全体平均3件分で補正します。判定不能・未分類のみのレビューは率の集計対象外です。</p>
+<p class="age">ポジ・ネガ含有率は顔・写真との差・スタイル・サービスをレビュー単位で集計します。おすすめ順は補正平均星（小数1桁）が高い順 → 補正ネガ率が低い順 → 補正ポジ率が高い順 → 判定可能レビュー数が多い順です。星・率は全体平均1件分で補正します。判定不能・未分類のみのレビューは率の集計対象外です。</p>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>
@@ -825,8 +825,8 @@ const priorPos=prior('posn'), priorNeg=prior('negn');
 const rated=r=>Number(r.dataset.rated);
 const totRated=originalPairs.reduce((s,p)=>s+rated(p[0]),0);
 const priorStar=totRated?originalPairs.reduce((s,p)=>s+rated(p[0])*stars(p[0]),0)/totRated:0;
-const correctedStar=r=>Math.round(10*(rated(r)*stars(r)+3*priorStar)/(rated(r)+3));
-const correctedRate=(r,key,baseline)=>(Number(r.dataset[key])+3*baseline)/(count(r)+3);
+const correctedStar=r=>Math.round(10*(rated(r)*stars(r)+priorStar)/(rated(r)+1));
+const correctedRate=(r,key,baseline)=>(Number(r.dataset[key])+baseline)/(count(r)+1);
 const rate=(r,key)=>Number(r.dataset[key])/count(r);
 const evidenceTie=(a,b)=>count(b)-count(a)||stars(b)-stars(a);
 const reportsFilter=document.getElementById('reports');reportsFilter.addEventListener('change',applyFilters);ageFilter.addEventListener('change',applyFilters);industryFilter.addEventListener('change',applyFilters);
