@@ -1,3 +1,9 @@
+"""東海風俗レポートHTMLを生成する。
+
+既定（オンライン）: プロフィール掲載確認・プロフィール画像取得を行い、詳細未保存の旧記事だけ本文を取得する。
+--offline: ネットに接続せず、JSONLに保存済みの詳細と収集時のプロフィール確認結果だけで生成する。
+"""
+import argparse
 import os
 import re
 import sys
@@ -14,11 +20,23 @@ SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from data_store import read_jsonl
+from data_store import read_jsonl_records
 from html_format import write_html
 from html_render import generate_html
+from report_store import (
+    COMMENT_COLUMNS,
+    DETAIL_COLUMNS,
+    PLAY_TIME_COLUMNS,
+    REPORTS_JSONL,
+    SCORE_COLUMNS,
+    is_missing,
+    latest_profile_status_by_person,
+    normalize_profile_url,
+    parse_report_details,
+    person_key,
+)
 
-INPUT_JSONL = ROOT_DIR / "data" / "tokai_fuzoku_reports.jsonl"
+INPUT_JSONL = REPORTS_JSONL
 OUTPUT_HTML = ROOT_DIR / "docs" / "tokai_final_report.html"
 LOGIN_URL = "https://m.fuzoku-tokai.com/"
 
@@ -30,72 +48,37 @@ PROFILE_HTML_LIMIT = 512 * 1024
 AQUA_API_ROOT = "https://www.k-aqua-jpn.com/shop/api"
 AQUA_ROSTER_API = f"{AQUA_API_ROOT}/parts/pc/25/1"
 
-COMMENT_COLUMNS = {
-    "style_comment": "◆姫のスタイル（コメント）：",
-    "panel_gap": "◆パネマジ度（コメント）：",
-    "pie_comment": "◆姫の胸（コメント）：",
-    "play_comment": "◆プレイ内容（コメント）：",
-    "total_comment": "◆総合満足度（コメント）：",
-    "repeat_comment": "◆裏を返す返さないの具体的な理由：",
-}
-SCORE_COLUMNS = {
-    "total_point": "◆総合満足度（点数）：",
-    "style_score": "◆姫のスタイル・肌（点数）：",
-    "panel_point": "◆パネマジ度（点数）：",
-    "play_score": "◆プレイ内容（点数）：",
-}
-PLAY_TIME_COLUMNS = {
-    "play_time": "◆プレイ時間：",
-    "total_cost": "◆総額：",
-}
-
-
-def extract_comment(soup, label):
-    tag = soup.find("p", string=label)
-    if tag:
-        next_tag = tag.find_next_sibling("p")
-        return next_tag.get_text(strip=True) if next_tag else None
-    tqdm.write(f"{label} に関する記述なし")
-    return None
-
-
-def extract_score(soup, label):
-    import re
-
-    for paragraph in soup.find_all("p"):
-        if label in paragraph.get_text(strip=True):
-            font = paragraph.find("font")
-            if font:
-                match = re.search(r"\d+", font.get_text(strip=True))
-                if match:
-                    return int(match.group())
-    tqdm.write(f"{label} に関する記述なし")
-    return None
-
-
-def extract_play_time(soup, label):
-    for paragraph in soup.find_all("p"):
-        text = paragraph.get_text(strip=True)
-        if label in text:
-            return text
-    tqdm.write(f"{label} に関する記述なし")
-    return None
+DETAIL_LABELS = {**COMMENT_COLUMNS, **SCORE_COLUMNS, **PLAY_TIME_COLUMNS}
 
 
 def load_input_data():
-    df = read_jsonl(INPUT_JSONL)
+    """記事単位のJSONLを読む。旧データ（詳細列・確認結果なし）も読めるよう欠損列は空で補う。"""
+    if not INPUT_JSONL.exists():
+        raise FileNotFoundError(f"JSON Linesデータがありません: {INPUT_JSONL}")
+    records = read_jsonl_records(INPUT_JSONL)
+    df = pd.DataFrame(records)
     required_columns = {"delete?", "predict_age", "url", "shop_name", "name", "girl_url"}
     missing_columns = required_columns.difference(df.columns)
     if missing_columns:
         missing = ", ".join(sorted(missing_columns))
         raise ValueError(f"入力JSONLに必要な列がありません: {missing}")
+    for column in [*DETAIL_COLUMNS, "profile_status", "profile_checked_at", "fetched_at"]:
+        if column not in df.columns:
+            df[column] = None
 
     df = df.loc[df["delete?"].eq(0)].copy()
+    # 収集時の確認で掲載終了と確定した人物は、その人物の全レポートを除く（最新の確定結果を採用）
+    statuses = latest_profile_status_by_person(records)
+    unavailable = df.apply(lambda row: statuses.get(person_key(row)) == "unavailable", axis=1)
+    if len(df) and unavailable.any():
+        tqdm.write(f"収集時に掲載終了と確認された人物のレポートを除外: {int(unavailable.sum())}件")
+        df = df.loc[~unavailable].copy()
     ages = pd.to_numeric(
         df["predict_age"].astype("string").str.extract(r"(\d+)")[0],
         errors="coerce",
     )
     return df.loc[ages.le(30)].copy().reset_index(drop=True)
+
 
 
 def extract_profile_image_url(page_html, page_url, girl_name=""):
@@ -255,7 +238,16 @@ def filter_unavailable_girl_urls(df, session):
     profile_images = {}
     aqua_roster_state = {}
 
-    for url in tqdm(df["girl_url"].dropna().unique(), desc="Checking profile URLs"):
+    # 同じ人物（正規化プロフィールURL）の複数レポートでも確認は1回だけ行う
+    profile_keys = df["girl_url"].map(
+        lambda url: normalize_profile_url(url) or (None if is_missing(url) else str(url))
+    ) if len(df) else pd.Series(dtype=object)
+    representative_urls = {}
+    for key, url, name in zip(profile_keys, df.get("girl_url", []), df.get("name", [])):
+        if key is not None and key not in representative_urls:
+            representative_urls[key] = (url, name)
+
+    for key, (url, girl_name) in tqdm(representative_urls.items(), desc="Checking profile URLs"):
         try:
             with session.get(
                 url,
@@ -265,11 +257,11 @@ def filter_unavailable_girl_urls(df, session):
                 stream=True,
             ) as response:
                 if response.status_code in {404, 410}:
-                    unavailable_urls.add(url)
+                    unavailable_urls.add(key)
                     continue
                 if 200 <= response.status_code < 400:
                     if is_unavailable_o_ren_profile(url, response.url):
-                        unavailable_urls.add(url)
+                        unavailable_urls.add(key)
                         continue
                     chunks = []
                     size = 0
@@ -283,20 +275,20 @@ def filter_unavailable_girl_urls(df, session):
                             break
                     page_html = b"".join(chunks).decode(response.encoding or "utf-8", errors="replace")
                     if is_unavailable_aqua_profile(url, session, aqua_roster_state):
-                        unavailable_urls.add(url)
+                        unavailable_urls.add(key)
                         continue
-                    girl_name = str(df.loc[df["girl_url"].eq(url), "name"].iloc[0])
-                    profile_images[url] = extract_profile_image_url(page_html, response.url, girl_name)
+                    profile_images[key] = extract_profile_image_url(page_html, response.url, str(girl_name))
         except requests.RequestException as exc:
             tqdm.write(f"URL確認失敗のため保持: {url} ({exc})")
 
     filtered = df.copy()
+    filtered["_profile_key"] = profile_keys
     if unavailable_urls:
-        removed = filtered["girl_url"].isin(unavailable_urls)
+        removed = filtered["_profile_key"].isin(unavailable_urls)
         tqdm.write(f"公開終了URLを持つレコードを除外: {int(removed.sum())}件")
         filtered = filtered.loc[~removed].copy()
-    filtered["profile_image_url"] = filtered["girl_url"].map(profile_images)
-    return filtered.reset_index(drop=True)
+    filtered["profile_image_url"] = filtered["_profile_key"].map(profile_images)
+    return filtered.drop(columns="_profile_key").reset_index(drop=True)
 
 
 def login(session, password):
@@ -313,38 +305,76 @@ def login(session, password):
     tqdm.write(f"After login: {response.url}")
 
 
-def enrich_report_data(df, session):
-    columns = {**COMMENT_COLUMNS, **SCORE_COLUMNS, **PLAY_TIME_COLUMNS}
-    values = {column: [] for column in columns}
+def has_stored_details(df):
+    if "fetched_at" not in df.columns:
+        return pd.Series(False, index=df.index)
+    return df["fetched_at"].map(lambda value: not is_missing(value))
 
-    for _, row in tqdm(df.iterrows(), total=len(df), desc="Scraping progress"):
+
+def enrich_report_data(df, session):
+    """詳細未保存の旧記事だけ本文を取得して詳細列を埋める（JSONLには書き戻さない）。
+
+    収集時に保存済みの詳細はそのまま使う。保存するには collect_fuzoku_tokai.py --fill-details。
+    """
+    df = df.copy()
+    for column in DETAIL_LABELS:
+        if column not in df.columns:
+            df[column] = None
+        df[column] = df[column].astype(object)
+    targets = df.index[~has_stored_details(df)]
+    for index in tqdm(targets, total=len(targets), desc="Scraping progress"):
+        row = df.loc[index]
         response = session.get(row["url"], headers=HEADERS, timeout=30)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, "html.parser")
         tqdm.write(f"{row['shop_name']}:{row['name']}")
-
-        for column, label in COMMENT_COLUMNS.items():
-            values[column].append(extract_comment(soup, label))
-        for column, label in SCORE_COLUMNS.items():
-            values[column].append(extract_score(soup, label))
-        for column, label in PLAY_TIME_COLUMNS.items():
-            values[column].append(extract_play_time(soup, label))
-
-    for column, column_values in values.items():
-        df[column] = column_values
+        for column, value in parse_report_details(soup).items():
+            if value is None:
+                tqdm.write(f"{DETAIL_LABELS[column]} に関する記述なし")
+            df.at[index, column] = value
     return df
 
 
-def main():
-    password = os.environ.get("FUZOKU_TOKAI_PASSWORD")
-    if not password:
-        raise RuntimeError("FUZOKU_TOKAI_PASSWORD 環境変数を設定してください")
+def prepare_offline_data(df):
+    """ネットなしで、保存済みの詳細だけからHTMLを作る。画像・掲載確認は行わない。"""
+    df = df.copy()
+    for column in DETAIL_LABELS:
+        if column not in df.columns:
+            df[column] = None
+    missing = int((~has_stored_details(df)).sum()) if len(df) else 0
+    if missing:
+        tqdm.write(
+            f"詳細未保存の記事 {missing}件は基本項目のみ表示します"
+            "（collect_fuzoku_tokai.py --fill-details で補完できます）"
+        )
+    return df
 
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser(description="東海風俗レポートHTMLを生成する")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="ネット接続なしで保存済みデータから生成する（プロフィール再確認・画像取得なし）",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv=()):
+    args = parse_args(list(argv))
     df = load_input_data()
-    with requests.Session() as session:
-        login(session, password)
-        df = filter_unavailable_girl_urls(df, session)
-        df = enrich_report_data(df, session)
+    if args.offline:
+        df = prepare_offline_data(df)
+    else:
+        password = os.environ.get("FUZOKU_TOKAI_PASSWORD")
+        if not password:
+            raise RuntimeError(
+                "FUZOKU_TOKAI_PASSWORD 環境変数を設定してください（ネットなしで生成する場合は --offline）"
+            )
+        with requests.Session() as session:
+            login(session, password)
+            df = filter_unavailable_girl_urls(df, session)
+            df = enrich_report_data(df, session)
 
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
     write_html(OUTPUT_HTML, generate_html(df))
@@ -352,4 +382,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

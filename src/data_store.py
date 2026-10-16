@@ -42,6 +42,27 @@ def read_jsonl(path, *, columns=None):
     return records
 
 
+def read_jsonl_records(path):
+    """JSON Linesを型変換せず辞書のリストとして読む（未知のキーも保持する）。"""
+    path = Path(path)
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8") as file:
+        return [json.loads(line) for line in file if line.strip()]
+
+
+def write_jsonl_records_atomic(records, path):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = path.with_name(f".{path.name}.tmp")
+    serialized = "".join(
+        json.dumps(_json_value(record), ensure_ascii=False, allow_nan=False) + "\n"
+        for record in records
+    )
+    temporary_path.write_text(serialized, encoding="utf-8", newline="")
+    temporary_path.replace(path)
+
+
 def write_jsonl_atomic(records, path, *, columns=None):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)

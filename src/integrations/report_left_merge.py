@@ -26,6 +26,7 @@ from cityheaven.exists_merge import (
   main as scrape_cityheaven_profiles,
 )
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
+from tokai_fuzoku.report_store import canonical_article_url
 
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
@@ -68,8 +69,12 @@ def enrich_with_cityheaven_urls(df):
 
 
 def report_identity_key(row):
+    # 東海風俗は1記事=1レポートのため記事URLを優先する（同一人物の別レポートも履歴に残す）。
     # cityheaven_url は検索で後から補完されるため、新規判定のキーには使わない
-    for column in ("girl_url", "report_url"):
+    article_key = canonical_article_url(row.get("report_url"))
+    if article_key:
+        return article_key
+    for column in ("report_url", "girl_url"):
         key = normalize_url(row.get(column))
         if key:
             return key
@@ -93,9 +98,8 @@ def append_new_reports(history, current_reports):
         key for key in history.apply(report_identity_key, axis=1) if key
     }
     current_keys = current_reports.apply(report_identity_key, axis=1)
-    new_reports = current_reports.loc[
-        current_keys.notna() & ~current_keys.isin(history_keys)
-    ].copy()
+    is_new = current_keys.notna() & ~current_keys.isin(history_keys) & ~current_keys.duplicated()
+    new_reports = current_reports.loc[is_new].copy()
     if new_reports.empty:
         return history, 0
 

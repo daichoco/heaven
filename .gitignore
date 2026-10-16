@@ -4,3 +4,4 @@ __pycache__/
 node_modules/
 data/okinilove_profile_status.json
 data/cityheaven_profiles.json
+data/tokai_fuzoku_collect_state.json
