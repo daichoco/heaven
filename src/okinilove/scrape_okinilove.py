@@ -355,7 +355,14 @@ def _fetch_profile_status(url):
                 ).get_text(" ", strip=True)
                 if "ページが見つかりません" in page_text and "ページが削除されています" in page_text:
                     return 410
-            if 200 <= response.status_code < 400 and not is_personal_profile(url, response.url):
+            page_html = (
+                decode_response(response)
+                if 200 <= response.status_code < 400 and _is_nagoya_choku_profile_url(url)
+                else None
+            )
+            if 200 <= response.status_code < 400 and not is_personal_profile(
+                url, response.url, page_html
+            ):
                 return 410
             return response.status_code
         finally:
@@ -502,11 +509,50 @@ def fetch_article_urls(session, history_url):
     }
 
 
-def is_personal_profile(original_url, final_url):
-    """転送後のURLに元の個人IDが残っていれば個人ページ。トップや店ページへの転送、アーカイブは対象外。"""
-    if urlparse(original_url).netloc.endswith(("okinilove.com", "web.archive.org")):
+def _is_nagoya_choku_profile_url(url):
+    parsed = urlparse(url)
+    return (
+        parsed.hostname
+        and parsed.hostname.lower().rstrip(".")
+        in {"nagoya-choku0930.jp", "www.nagoya-choku0930.jp"}
+        and re.fullmatch(r"/[oh]/profile\.php", parsed.path, re.IGNORECASE)
+        is not None
+    )
+
+
+def _is_nagoya_choku_landing_page(page_html):
+    if not page_html:
         return False
-    if urlparse(final_url).netloc.endswith(("okinilove.com", "web.archive.org")):
+    soup = BeautifulSoup(page_html, "html.parser")
+    title = soup.title.get_text(" ", strip=True) if soup.title else ""
+    text = soup.get_text(" ", strip=True)
+    return (
+        title == "愛知人妻 SNS風俗 デリヘル 直アポ"
+        and "新感覚のSNS風俗！名古屋待ち合わせ人妻デリヘル" in text
+        and "ENTER OVER18" in text
+        and not any(
+            marker in text
+            for marker in ("プロフィール", "身長", "体重", "スリーサイズ", "カップ")
+        )
+    )
+
+
+def is_personal_profile(original_url, final_url, page_html=None):
+    """転送後のURLと既知のサイトトップ構造から個人ページか判定する。"""
+    original = urlparse(original_url)
+    final = urlparse(final_url)
+    if original.netloc.endswith(("okinilove.com", "web.archive.org")):
+        return False
+    if final.netloc.endswith(("okinilove.com", "web.archive.org")):
+        return False
+    if (
+        _is_nagoya_choku_profile_url(original_url)
+        and final.hostname
+        and final.hostname.lower().rstrip(".")
+        in {"nagoya-choku0930.jp", "www.nagoya-choku0930.jp"}
+        and final.path in {"", "/"}
+        and _is_nagoya_choku_landing_page(page_html)
+    ):
         return False
     ids = re.findall(r"\d{4,}", original_url.split("?aid=")[0].replace("&aid=ad_001", ""))
     return not ids or ids[-1] in final_url
@@ -636,7 +682,8 @@ def fetch_article_record(
     if profile.status_code in {400, 404, 410}:
         return None
     profile.raise_for_status()
-    if not is_personal_profile(girl_url, profile.url):
+    page_html = decode_response(profile) if _is_nagoya_choku_profile_url(girl_url) else None
+    if not is_personal_profile(girl_url, profile.url, page_html):
         return None
 
     report_text = extract_report_detail(session, article_url, article_soup) or gap or ""
@@ -758,7 +805,14 @@ def recover_numbered_profile_article(article_url):
                     summary["results"].append(result)
                     continue
                 profile_response.raise_for_status()
-                if not is_personal_profile(candidate["profile_url"], profile_response.url):
+                page_html = (
+                    decode_response(profile_response)
+                    if _is_nagoya_choku_profile_url(candidate["profile_url"])
+                    else None
+                )
+                if not is_personal_profile(
+                    candidate["profile_url"], profile_response.url, page_html
+                ):
                     summary["unavailable"] += 1
                     result["status"] = "not_personal"
                     summary["results"].append(result)

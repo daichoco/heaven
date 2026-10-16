@@ -91,6 +91,67 @@ class ProfileCheckUrlTests(unittest.TestCase):
             )
         self.assertEqual(get.call_args.args[0], "https://www.yoasobi.co.jp/girl/123456")
 
+    def test_detects_nagoya_choku_homepage_redirect_without_profile_data(self):
+        source_url = (
+            "http://www.nagoya-choku0930.jp/o/profile.php?id=4251"
+            "&keepThis=true&TB_iframe=true&width=830&height=550"
+        )
+        final_url = "https://www.nagoya-choku0930.jp:443/?id=4251"
+        landing_page = """
+            <html><head><title>愛知人妻 SNS風俗 デリヘル 直アポ</title></head>
+            <body>新感覚のSNS風俗！名古屋待ち合わせ人妻デリヘル
+            <form id="conf_age_18">ENTER OVER18</form></body></html>
+        """
+
+        self.assertFalse(
+            scrape_okinilove.is_personal_profile(
+                source_url, final_url, landing_page
+            )
+        )
+
+    def test_keeps_ambiguous_nagoya_choku_redirect(self):
+        source_url = "http://www.nagoya-choku0930.jp/h/profile.php?id=4251"
+
+        self.assertTrue(
+            scrape_okinilove.is_personal_profile(
+                source_url,
+                "https://www.nagoya-choku0930.jp/?id=4251",
+                "<html><title>直アポ</title><body>確認できないページ</body></html>",
+            )
+        )
+        self.assertTrue(
+            scrape_okinilove.is_personal_profile(
+                source_url, "https://www.nagoya-choku0930.jp/?id=4251"
+            )
+        )
+        self.assertTrue(
+            scrape_okinilove.is_personal_profile(
+                source_url,
+                "https://www.nagoya-choku0930.jp/?id=4251",
+                "<html><title>愛知人妻 SNS風俗 デリヘル 直アポ</title>"
+                "<body>新感覚のSNS風俗！名古屋待ち合わせ人妻デリヘル "
+                "ENTER OVER18 身長 160cm</body></html>",
+            )
+        )
+
+    def test_profile_status_marks_confirmed_nagoya_choku_homepage_unavailable(self):
+        source_url = "http://www.nagoya-choku0930.jp/h/profile.php?id=4251"
+        response = Mock(
+            status_code=200,
+            url="https://www.nagoya-choku0930.jp/?id=4251",
+            content=(
+                "<html><head><title>愛知人妻 SNS風俗 デリヘル 直アポ</title></head>"
+                "<body>新感覚のSNS風俗！名古屋待ち合わせ人妻デリヘル "
+                "ENTER OVER18</body></html>"
+            ).encode(),
+            encoding="utf-8",
+            apparent_encoding="utf-8",
+        )
+        response.close = Mock()
+
+        with patch.object(scrape_okinilove.requests, "get", return_value=response):
+            self.assertEqual(scrape_okinilove._fetch_profile_status(source_url), 410)
+
     def test_numbered_host_ignores_cached_unavailable_status(self):
         now = datetime.now(timezone.utc)
         source_url = "https://www12.example.com/girl/123456"
