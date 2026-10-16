@@ -1,4 +1,5 @@
 # html_renderer.py
+import math
 import re
 import sys
 from html import escape
@@ -12,6 +13,21 @@ if str(SRC_DIR) not in sys.path:
 
 from web_common import BACK_NAV, BACK_TO_TOP, FILTER_TOGGLE_SCRIPT, HEAD_COMMON
 from ns_senmon.profile_images import classify_price_class, load_cache, normalize_profile_url
+
+
+def sort_attributes(row):
+    attributes = {}
+    for name, column in (
+        ("total", "total_point"), ("play", "play_score"),
+        ("face", "face_score"), ("style", "style_score"),
+    ):
+        value = pd.to_numeric(row.get(column), errors="coerce")
+        attributes[f"data-{name}"] = (
+            f"{value:g}" if pd.notna(value) and math.isfinite(value) else ""
+        )
+    date = pd.to_datetime(row.get("date"), errors="coerce")
+    attributes["data-date"] = date.strftime("%Y%m%d") if pd.notna(date) else ""
+    return attributes
 
 
 def render_score_detail(score, detail, label):
@@ -71,8 +87,9 @@ def render_report_entry(row, i, shop_price_class=""):
         else "other" if repeat_value
         else "unknown"
     )
-    total_score = pd.to_numeric(row.get("total_point"), errors="coerce")
-    total_attr = f"{total_score:g}" if pd.notna(total_score) else ""
+    sort_attrs = " ".join(
+        f'{key}="{value}"' for key, value in sort_attributes(row).items()
+    )
 
     shop_type = f"{shop}・{typ}" if shop or typ else ""
     report_link = f'<a href="{url}" target="_blank" class="link-button">レポート</a>' if url else ""
@@ -97,7 +114,7 @@ def render_report_entry(row, i, shop_price_class=""):
         f'<details class="report-entry" data-shop="{escape(str(shop), quote=True)}" '
         f'data-type="{escape(str(typ), quote=True)}" data-shop-type="{shop_price_class}" '
         f'data-repeat="{repeat_status}" '
-        f'data-total="{total_attr}" data-search="{escape(search_text, quote=True)}">'
+        f'{sort_attrs} data-search="{escape(search_text, quote=True)}">'
         f'<summary class="report-heading">{summary}{overview_html}</summary>'
         f'<div class="report-details">'
     )
@@ -152,11 +169,44 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <title>東海風俗レポート</title>
 <style>
     .profile-thumbnail { width: 48px; height: 48px; margin: 0 6px; object-fit: cover; border: 1px solid var(--border); border-radius: 4px; vertical-align: middle; }
+    .sort-control { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+    .sort-help { font-size: 0.85rem; color: var(--muted); }
     @media (max-width: 600px) {
         .profile-thumbnail { width: 40px; height: 40px; margin: 0; }
     }
 </style>
 <script>
+    let reportEntries = [];
+    function numericValue(entry, key) {
+        const raw = entry.dataset[key];
+        if (raw == null || raw.trim() === "") return null;
+        const value = Number(raw);
+        return Number.isFinite(value) ? value : null;
+    }
+    function compareDescending(a, b) {
+        if (a === b) return 0;
+        if (a === null) return 1;
+        if (b === null) return -1;
+        return b - a;
+    }
+    function applySort() {
+        const mode = document.getElementById("reportSort").value;
+        const keys = mode === "recommended"
+            ? ["total", "play", "face", "style", "date"]
+            : mode === "date" ? ["date"] : [mode, "date"];
+        const sorted = reportEntries.slice().sort((a, b) => {
+            for (const key of keys) {
+                const difference = compareDescending(
+                    numericValue(a.entry, key), numericValue(b.entry, key)
+                );
+                if (difference) return difference;
+            }
+            return a.index - b.index;
+        });
+        const fragment = document.createDocumentFragment();
+        sorted.forEach(({entry}) => fragment.appendChild(entry));
+        document.getElementById("entries").appendChild(fragment);
+    }
     function collapseAll() {
         document.querySelectorAll("details.report-entry").forEach(entry => entry.open = false);
     }
@@ -170,13 +220,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         let visible = 0;
 
         document.querySelectorAll(".report-entry").forEach(entry => {
-            const total = Number(entry.dataset.total);
+            const total = numericValue(entry, "total");
             const matches = entry.dataset.search.includes(query)
                 && (!shop || entry.dataset.shop === shop)
                 && (!type || entry.dataset.type === type)
                 && (!shopType || entry.dataset.shopType === shopType)
                 && (!repeat || entry.dataset.repeat === repeat)
-                && (!minScore || (Number.isFinite(total) && total >= minScore));
+                && (!minScore || (total !== null && total >= minScore));
             entry.hidden = !matches;
             if (matches) visible += 1;
         });
@@ -195,9 +245,13 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         applyFilters();
     }
     document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".sticky-toolbar input, .sticky-toolbar select").forEach(control => {
+        reportEntries = [...document.querySelectorAll(".report-entry")]
+            .map((entry, index) => ({entry, index}));
+        document.getElementById("reportSort").addEventListener("change", applySort);
+        document.querySelectorAll(".sticky-toolbar input, .sticky-toolbar select:not([data-sort])").forEach(control => {
             control.addEventListener(control.tagName === "INPUT" ? "input" : "change", applyFilters);
         });
+        applySort();
         applyFilters();
     });
 </script>
@@ -218,8 +272,20 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>
         <button type="button" onclick="resetFilters()">条件をリセット</button>
     </div>
+    <div class="sort-control">
+        <label for="reportSort">並び順</label>
+        <select id="reportSort" data-sort aria-describedby="sortHelp">
+            <option value="recommended">おすすめ順</option>
+            <option value="total">総合点順</option>
+            <option value="play">プレイ点順</option>
+            <option value="face">顔点順</option>
+            <option value="style">スタイル点順</option>
+            <option value="date">新着順</option>
+        </select>
+    </div>
     <p id="filterCount" class="filter-count"></p>
 </div>
+<p id="sortHelp" class="sort-help">おすすめ順は総合→プレイ→顔→スタイルの点数が高い順です。欠損は各項目の末尾、同点は新着順（記事の日付）です。リピート・パネル差は順位に含めません。</p>
 <p id="noResults" class="no-results" hidden>条件に一致するレポートはありません。</p>
 <div class="entry-controls">
     <button type="button" onclick="collapseAll()">全部閉じる</button>

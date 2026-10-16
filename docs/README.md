@@ -53,3 +53,48 @@ Offline regression checks (no report collection):
 py -3 -m unittest discover -s tests
 npm run check:html
 ```
+
+## Tokai report sorting
+
+`tokai_final_report.html` sorts individual articles, not people. The default
+おすすめ順 compares total, play, face, then style scores in descending
+lexicographic order, without weighting or statistical correction. Each score
+can also be selected individually, as can newest article date. Missing,
+invalid, or non-finite scores come after valid scores (including zero) at each
+comparison level. Ties use newest article date, then original input order;
+missing dates come last. Repeat status and panel difference never affect rank.
+
+Sorting remains available when the mobile filter panel is collapsed and works
+with search and every existing filter. Changing the order preserves expanded
+articles and filter conditions; resetting conditions preserves the selected
+order. The condition count excludes sorting.
+
+Offline regression tests execute the actual JavaScript from both the template
+and published HTML using Node.js, including initial sorting, changing modes,
+missing/zero scores, ties, filters, reset, and expanded article state:
+
+```powershell
+py -3 -m unittest discover -s tests -p test_tokai_sorting.py
+```
+
+### Applying renderer changes alongside newer data
+
+Keep the latest `data\tokai_fuzoku_reports.jsonl`; do not replace it with data
+from an older feature branch. Apply renderer/test/documentation changes first,
+then regenerate the HTML from that latest JSONL instead of overwriting a newer
+HTML with the feature branch's generated file:
+
+```powershell
+py -3 src\tokai_fuzoku\generate_report_final.py --offline
+```
+
+`--offline` uses stored details and the latest recorded profile availability,
+without login, collection, profile checks, or image requests. Age/deletion
+filters alone do not reproduce the published set, so use the existing generator
+rather than filtering the JSONL manually. The command does not modify JSONL.
+Without `--offline`, the generator may log in and fetch reports.
+
+Review the HTML diff against the latest page: report count, URLs, text, images,
+and existing filter attributes should remain unchanged for a matching enriched
+JSONL/HTML pair. Only the sort UI/script and sort metadata should change.
+Then run the regression command above and `npm run check:html`.
