@@ -17,6 +17,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote
 
+import pandas as pd
 import requests
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -70,14 +71,18 @@ def read_json(path):
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
 
 
+def name_text(value):
+    return "" if pd.isna(value) else value
+
+
 def clean(text):
-    text = unicodedata.normalize("NFKC", text or "").lower()
+    text = unicodedata.normalize("NFKC", name_text(text)).lower()
     return re.sub(r"[\s･・·\-_'´`’]", "", text)
 
 
 def shop_variants(name):
     # 括弧の中身・外側・全体を別候補にして、表記ゆれを吸収する
-    name = unicodedata.normalize("NFKC", name or "")
+    name = unicodedata.normalize("NFKC", name_text(name))
     variants = {clean(name), clean(BRACKET_RE.sub("", name))}
     variants.update(clean(inner) for inner in BRACKET_RE.findall(name))
     return {v for v in variants if len(v) >= 2}
@@ -86,7 +91,7 @@ def shop_variants(name):
 def girl_key(name):
     # 「なみ🔐」のような絵文字・記号の装飾を除く
     text = "".join(
-        ch for ch in unicodedata.normalize("NFKC", name or "")
+        ch for ch in unicodedata.normalize("NFKC", name_text(name))
         if unicodedata.category(ch)[0] not in "SC" and ch != "\ufe0f"
     )
     text = "".join(chr(ord(ch) - 0x60) if "ァ" <= ch <= "ヶ" else ch for ch in text)
@@ -102,7 +107,7 @@ def label_keys(label):
 
     「てぃな【プレミア★】(2...」「ゆら『プレミアキャスト』...」のような装飾・省略記号付きでも名前部分で照合する。
     """
-    label = unicodedata.normalize("NFKC", label or "").strip()
+    label = unicodedata.normalize("NFKC", name_text(label)).strip()
     truncated = bool(TRUNCATION_RE.search(label))
     text = TRUNCATION_RE.sub("", label).strip().replace("\u3000", " ")
     parts = LABEL_SPLIT_RE.split(text, 1)
@@ -119,7 +124,7 @@ def label_keys(label):
 
 def label_name(label):
     """CityHeavenの一覧ラベル（例: 'ハル【高級】' 'なみ(マーベラスコース)'）から名前部分を取り出す。"""
-    label = unicodedata.normalize("NFKC", label or "").strip()
+    label = unicodedata.normalize("NFKC", name_text(label)).strip()
     return LABEL_SPLIT_RE.split(label, 1)[0]
 
 
@@ -137,7 +142,7 @@ def canonical_url(url):
 
 def girl_keys(name):
     # 「葵（あおい）」「Berry/ベリー」のような表記を、各部分でも照合できるようにする
-    name = unicodedata.normalize("NFKC", name or "")
+    name = unicodedata.normalize("NFKC", name_text(name))
     parts = [name, BRACKET_RE.sub("", name)] + BRACKET_RE.findall(name)
     parts += [p for part in list(parts) for p in re.split(r"[/／]", part)]
     return {girl_key(p) for p in parts if girl_key(p)}
@@ -147,7 +152,7 @@ def load_candidates():
     rows = []
     for path in SOURCE_PATHS:
         for row in read_jsonl(path):
-            row["_name"] = row.get("girl_name") or row.get("name") or ""
+            row["_name"] = name_text(row.get("girl_name")) or name_text(row.get("name"))
             row["_source"] = path.name
             rows.append(row)
 
@@ -192,7 +197,7 @@ def load_candidates():
     return candidates
 
 def name_queries(name):
-    name = unicodedata.normalize("NFKC", name or "")
+    name = unicodedata.normalize("NFKC", name_text(name))
     parts = [BRACKET_RE.sub("", name)] + BRACKET_RE.findall(name)
     queries = []
     for part in parts:
@@ -213,6 +218,7 @@ class ShopSearcher:
 
     def resolve_shop(self, shop_name):
         """店舗一覧(gifu/shop-list)の店名検索で、店舗コードを一意に特定する。"""
+        shop_name = name_text(shop_name)
         names = {}
         for query in sorted(shop_variants(shop_name) | {BRACKET_RE.sub("", shop_name or "").strip()}, key=len, reverse=True):
             if len(query) < 2:
@@ -304,6 +310,10 @@ class ShopSearcher:
         return (None, "error") if errored else ("", "not_listed")
 
 def match_reports(rows, candidates, manual_map, shop_map, searcher=None):
+    rows = [
+        {**row, "shop_name": name_text(row.get("shop_name")), "name": name_text(row.get("name"))}
+        for row in rows
+    ]
     by_girl = defaultdict(list)
     shop_slugs = defaultdict(set)  # 正規化店名 -> slug群（他レポートの店名から）
     for c in candidates:
@@ -342,6 +352,8 @@ def match_reports(rows, candidates, manual_map, shop_map, searcher=None):
         if url in results:
             continue
         girl = girl_keys(row.get("name"))
+        if not girl:
+            continue
         slugs = set(learned.get(row.get("shop_name"), set())) | slugs_for(row.get("shop_name"))
         mapped = shop_map.get(row.get("shop_name"), [])
         mapped = {mapped} if isinstance(mapped, str) else set(mapped)
