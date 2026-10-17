@@ -603,7 +603,8 @@ def build_calendar_html(merged):
             day_class = " saturday" if "(土)" in day else (" sunday" if "(日)" in day else "")
             is_time = WORK_TIME_RE.match(status.strip())
             if is_time:
-                box = f"<div class='m-box on'>{re.sub(r'\s*~\s*', '<br>~<br>', status.strip())}</div>"
+                formatted_status = re.sub(r'\s*~\s*', '<br>~<br>', status.strip())
+                box = f"<div class='m-box on'>{formatted_status}</div>"
             else:
                 box = f"<div class='m-box off'>{status}</div>"
             html += f"<li data-day='{i}'><div class='m-date{day_class}'>{day.split('(')[0]}</div>{box}</li>"
