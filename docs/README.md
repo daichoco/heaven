@@ -32,8 +32,11 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 
 `reservation_difficulty.html` is generated offline from the NS専門,
 オキニラブ, and 東海風俗 JSONL reports. It lists people whose saved report
-text explicitly describes booking difficulty and includes the matching excerpt
-and source article link. Regenerate it with:
+text explicitly describes booking difficulty and includes the full matching
+database record and source article link. Each record links to the corresponding
+person/review in its existing docs report. The databases do not retain
+original source-page HTML, so the page displays the stored JSON record without
+truncating its values. Regenerate it with:
 
 ```powershell
 py -3 src\generate_booking_difficulty_report.py

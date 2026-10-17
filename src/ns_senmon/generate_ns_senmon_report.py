@@ -417,6 +417,28 @@ pairs.forEach(([row, detail]) => row.addEventListener('click', event => {
     pairs.forEach(([r, d]) => { r.classList.remove('open'); d.hidden = true; });
     if (open) { row.classList.add('open'); detail.hidden = false; }
 }));
+const linkedRecord = new URLSearchParams(location.search).get('record');
+if (linkedRecord) {
+    const normalizeRecordUrl = value => {
+        const url = new URL(value, location.href);
+        if (url.protocol === 'http:') url.protocol = 'https:';
+        return url.href;
+    };
+    const target = [...document.querySelectorAll('.review-item .review-meta a')]
+        .find(link => normalizeRecordUrl(link.href) === normalizeRecordUrl(linkedRecord));
+    const detail = target?.closest('.detail-row');
+    const row = detail?.previousElementSibling;
+    if (target && detail && row) {
+        pairs.forEach(([person, reviews]) => {
+            person.classList.remove('open');
+            reviews.hidden = true;
+        });
+        row.classList.add('open');
+        detail.hidden = false;
+        target.closest('details.review-body').open = true;
+        target.scrollIntoView({block: 'center'});
+    }
+}
 $('search').addEventListener('input', applyFilters);
 ['shop', 'shop-type', 'repeat', 'age'].forEach(id => $(id).addEventListener('change', applyFilters));
 $('sort').addEventListener('change', applySort);

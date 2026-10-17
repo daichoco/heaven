@@ -1,11 +1,12 @@
 """予約困難に関する明示的な記述を3つのレポートDBから抽出する。"""
+import json
 import re
 import sys
 from collections import defaultdict
 from datetime import date
 from html import escape
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 SRC_DIR = ROOT_DIR / "src"
@@ -17,9 +18,9 @@ from html_format import write_html
 from tokai_fuzoku.report_store import normalize_profile_url
 
 DATASETS = (
-    ("NS専門", "ns_senmon_reports.jsonl", "ns_senmon"),
-    ("オキニラブ", "okinilove_reviews.jsonl", "okinilove"),
-    ("東海風俗", "tokai_fuzoku_reports.jsonl", "tokai_fuzoku"),
+    ("NS専門", "ns_senmon_reports.jsonl", "ns_senmon", "ns_senmon_report.html"),
+    ("オキニラブ", "okinilove_reviews.jsonl", "okinilove", "okinilove_remove_unknown.html"),
+    ("東海風俗", "tokai_fuzoku_reports.jsonl", "tokai_fuzoku", "tokai_final_report.html"),
 )
 OUTPUT_HTML = ROOT_DIR / "docs" / "reservation_difficulty.html"
 BOOKING_DIFFICULTY = re.compile(
@@ -89,7 +90,7 @@ def extract_people():
     people = {}
     source_counts = defaultdict(int)
 
-    for label, filename, dataset in DATASETS:
+    for label, filename, dataset, _ in DATASETS:
         rows = read_jsonl_records(ROOT_DIR / "data" / filename)
         for row_number, record in enumerate(rows, start=1):
             excerpts = booking_evidence(record_text(dataset, record))
@@ -125,7 +126,7 @@ def extract_people():
                 evidence = {
                     "database": label,
                     "source_url": source_url,
-                    "excerpt": excerpt,
+                    "record": record,
                 }
                 if evidence not in person["sources"]:
                     person["sources"].append(evidence)
@@ -159,25 +160,38 @@ def render_person(person):
     source_items = []
     for item in person["sources"]:
         database = escape(item["database"])
-        excerpt = escape(item["excerpt"])
+        record_json = escape(json.dumps(item["record"], ensure_ascii=False, indent=2))
         source_url = safe_http_url(item["source_url"])
+        source_attribute = (
+            f' data-source-url="{escape(source_url, quote=True)}"' if source_url else ""
+        )
         if source_url:
             source = (
                 f'<a href="{escape(source_url, quote=True)}" '
                 f'target="_blank" rel="noopener">元記事</a>'
             )
+            docs_filename = next(
+                filename for label, _, _, filename in DATASETS
+                if label == item["database"]
+            )
+            docs_url = f"{docs_filename}?record={quote(source_url, safe='')}"
+            docs_link = (
+                f'<a href="{escape(docs_url, quote=True)}" target="_blank" '
+                f'rel="noopener">該当データのdocsを表示</a>'
+            )
         else:
             source = "元記事リンクなし"
+            docs_link = ""
         source_items.append(
-            f'<li><span class="database">{database}</span> {source}'
-            f'<blockquote>{excerpt}</blockquote></li>'
+            f'<li class="evidence-record"{source_attribute}>'
+            f'<span class="database">{database}</span> {source} {docs_link}'
+            f'<details class="stored-record">'
+            f'<summary>DBに保存された元データを全文表示（JSON）</summary>'
+            f'<pre>{record_json}</pre></details></li>'
         )
 
-    search_text = escape(
-        " ".join([name_text, *shops, *(item["excerpt"] for item in person["sources"])])
-    )
     return f"""
-<details class="person" data-search="{search_text}">
+<details class="person">
   <summary>{heading}<span class="evidence-count">{len(person["sources"])}件の根拠</span></summary>
   <ul class="evidence-list">{"".join(source_items)}</ul>
 </details>
@@ -189,7 +203,7 @@ def render_html(people, source_counts):
     people_html = "".join(render_person(person) for person in people)
     counts_html = " / ".join(
         f"{escape(label)} {source_counts.get(label, 0)}件"
-        for label, _, _ in DATASETS
+        for label, _, _, _ in DATASETS
     )
     return f"""<!DOCTYPE html>
 <html lang="ja">
@@ -212,7 +226,9 @@ h1 {{ font-size: 1.5rem; }}
 .evidence-list {{ margin-bottom: 0; padding-left: 1.2rem; }}
 .evidence-list li {{ margin: 12px 0; }}
 .database {{ display: inline-block; margin-right: 6px; padding: 1px 7px; border-radius: 10px; background: var(--chip); color: var(--fg-soft); font-size: 0.82rem; }}
-blockquote {{ margin: 6px 0; padding: 8px 12px; border-left: 3px solid var(--border); color: var(--fg-soft); white-space: pre-wrap; overflow-wrap: anywhere; }}
+.stored-record {{ margin-top: 8px; }}
+.stored-record > summary {{ display: inline-flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--link); }}
+.stored-record pre {{ max-height: 70vh; overflow: auto; margin: 4px 0; padding: 12px; border: 1px solid var(--border-soft); border-radius: 5px; background: var(--surface-alt); color: var(--fg-soft); white-space: pre-wrap; overflow-wrap: anywhere; }}
 .method {{ margin-top: 22px; padding: 12px; border: 1px solid var(--border-soft); border-radius: 6px; color: var(--muted); font-size: 0.9rem; }}
 .no-results {{ color: var(--muted); }}
 @media (max-width: 600px) {{
@@ -235,18 +251,29 @@ blockquote {{ margin: 6px 0; padding: 8px 12px; border-left: 3px solid var(--bor
     <section id="people">{people_html}</section>
     <aside class="method">
       <strong>抽出方法と注意</strong>
-      <p>対象は data/ns_senmon_reports.jsonl、data/okinilove_reviews.jsonl、data/tokai_fuzoku_reports.jsonl です。各レポート本文から「予約困難」「予約が取れない」「予約完売」など、予約の取りづらさを明示する記述を抽出し、元記事の抜粋を表示しています。否定文や「予約が取れなくなる前」などの将来の懸念は除外しました。</p>
-      <p>これは保存済みレビューの文言検索結果であり、現在の出勤状況や予約可能性を確認したものではありません。記述時期・レビュアーの主観・本文が別の人物に言及している可能性があるため、各元記事で確認してください。人物の統合はプロフィールURLが一致する場合のみ行い、プロフィールURLのないレコードは個別に扱っています。</p>
+      <p>対象は data/ns_senmon_reports.jsonl、data/okinilove_reviews.jsonl、data/tokai_fuzoku_reports.jsonl です。予約の取りづらさを明示する記述を含むレコードを抽出し、各カード内で該当レコードのJSONデータ全体を表示できます。本文や項目値は抜粋・要約せず、DBに保存された値をそのまま表示しています。否定文や「予約が取れなくなる前」などの将来の懸念は除外しました。</p>
+      <p>3つのデータベースには元ページのHTMLソース自体は保存されていないため、表示するのは取得・保存済みのレコードデータです。これは保存済みレビューの文言検索結果であり、現在の出勤状況や予約可能性を確認したものではありません。記述時期・レビュアーの主観・本文が別の人物に言及している可能性があるため、各元記事で確認してください。人物の統合はプロフィールURLが一致する場合のみ行い、プロフィールURLのないレコードは個別に扱っています。</p>
       <p>生成日: {date.today().isoformat()}</p>
     </aside>
     <script>
       const people = [...document.querySelectorAll(".person")];
       const search = document.getElementById("personSearch");
+      const linkedRecord = new URLSearchParams(location.search).get("record");
+      if (linkedRecord) {{
+        const linkedUrl = new URL(linkedRecord, location.href).href;
+        const evidence = [...document.querySelectorAll(".evidence-record[data-source-url]")]
+          .find(item => new URL(item.dataset.sourceUrl, location.href).href === linkedUrl);
+        if (evidence) {{
+          evidence.closest(".person").open = true;
+          evidence.querySelector(".stored-record").open = true;
+          evidence.scrollIntoView({{block: "center"}});
+        }}
+      }}
       function filterPeople() {{
         const query = search.value.trim().toLocaleLowerCase();
         let visible = 0;
         people.forEach(person => {{
-          const matches = person.dataset.search.toLocaleLowerCase().includes(query);
+          const matches = person.textContent.toLocaleLowerCase().includes(query);
           person.hidden = !matches;
           if (matches) visible += 1;
         }});
