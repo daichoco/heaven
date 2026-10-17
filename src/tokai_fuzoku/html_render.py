@@ -420,6 +420,32 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         });
         applySort();
         applyFilters();
+        const linkedRecord = new URLSearchParams(location.search).get("record");
+        if (linkedRecord) {
+            const normalizeRecordUrl = value => {
+                const url = new URL(value, location.href);
+                if (url.protocol === "http:") url.protocol = "https:";
+                return url.href;
+            };
+            const target = [...document.querySelectorAll(".article-entry a.link-button")]
+                .find(link => normalizeRecordUrl(link.href) === normalizeRecordUrl(linkedRecord));
+            const article = target?.closest(".article-entry");
+            const person = article?.closest(".report-entry");
+            if (target && article && person) {
+                person.open = true;
+                article.open = true;
+                target.scrollIntoView({block: "center"});
+            } else {
+                const notice = document.createElement("p");
+                notice.setAttribute("role", "status");
+                notice.textContent = "この記事は一覧の表示条件により掲載されていません。保存データを確認: ";
+                const fallback = document.createElement("a");
+                fallback.href = `reservation_difficulty.html?record=${encodeURIComponent(linkedRecord)}`;
+                fallback.textContent = "予約困難レポート";
+                notice.append(fallback);
+                document.querySelector("#entries")?.before(notice);
+            }
+        }
     });
 </script>
 </head>
