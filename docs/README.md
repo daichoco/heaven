@@ -31,12 +31,81 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 | `reservation_difficulty.html` | `src/generate_booking_difficulty_report.py` |
 
 `reservation_difficulty.html` is generated offline from the NS専門,
-オキニラブ, and 東海風俗 JSONL reports. It lists people whose saved report
-text explicitly describes booking difficulty and includes the full matching
-database record and source article link. Each record links to the corresponding
-person/review in its existing docs report. The databases do not retain
-original source-page HTML, so the page displays the stored JSON record without
-truncating its values. Regenerate it with:
+オキニラブ, and 東海風俗 JSONL reports. It lists candidates whose saved report
+text describes booking difficulty, being sold out (`完売`), or popularity
+(`人気`). These are separate, nonexclusive categories with a classification
+filter; the default shows booking-difficulty and sold-out candidates in the
+ordinary-candidate group, excluding people supported only by uncertain evidence.
+Popularity candidates include people described as popular but easy to book.
+Negated popularity/sellout statements and future predictions are excluded.
+Substring matches in `恋人気分` (feeling like lovers) and `不人気`
+(unpopular) are not counted as popularity evidence or highlighted.
+Inflected negations (`予約が埋まっていない`, `完売もなく`,
+`人気嬢ではない`), explicit predictions, shop-only popularity (`人気店`),
+and clear fallback choices referring to another person are excluded.
+Checks use individual fields and sentence-local context rather than suppressing
+an entire review because a different sentence contains a negation.
+Ambiguous comparisons, subject references, equipment-description fields, and
+speculation carry visible review reasons. The confirmation filter separates
+ordinary candidates, all candidates, and review-only people. A person with
+independent ordinary evidence remains an ordinary candidate; uncertain mentions
+do not qualify them for an additional category in the default confirmation mode.
+Names that also occur as saved shop names, or missing/placeholder names, require
+identity review and are kept separate by article instead of merged by a
+potentially misidentified profile URL. Source records are not corrected or guessed.
+Keywords may still refer to another person or a temporary situation: the labels
+describe saved wording, not verified popularity or current availability.
+Person table cells, photos,
+ratings, and detail rows are embedded from the existing docs reports, so
+reviews can be read without leaving the page. Okinilove's separate review
+bodies are inlined at generation time; no additional fetch is needed to open
+them. Matching reviews are marked and their bodies open when the person's
+details are expanded. Person-level ratings retain all reviews in the source
+docs, including those without booking-difficulty wording.
+Every matching entry includes a separate **抽出に使用した保存本文** block
+containing the complete, exact saved fields that supplied accepted or uncertain
+matches, with their field labels. Highlights use the extraction's exact character
+ranges, not a second search against a possibly different docs body. Text is escaped;
+the original docs body remains unchanged for comparison. A notice identifies
+fields whose complete text cannot be found in the existing docs display (ignoring
+whitespace), including omitted comments and different saved versions.
+HTTP/HTTPS-equivalent article links share a rendered entry, but all distinct
+saved evidence fields and raw records remain available.
+The age filter uses Okinilove's categories: no restriction, under 30, 30 or
+older, and unknown. It reads the displayed person ages across all three
+reports, not ages mentioned in review text. A person with multiple displayed
+ages matches either applicable age category; unknown means no displayed age
+is available. Age and text filters apply together.
+
+Cross-database sorting defaults to a relative satisfaction score, independent
+of popularity/sellout mentions. Scores use all saved records in each DB,
+including people outside the candidate list: NS/Tokai overall points and
+Okinilove stars. Records sharing a person key and article URL are counted once
+(HTTP/HTTPS variants are equivalent; review fragments remain distinct).
+Each person's mean rating is converted to a 0–100 percentile within that DB,
+using average ranks for ties and 50 for a single rated person. The adjusted
+score is `(count * percentile + 3 * 50) / (count + 3)`. The three-review prior
+pulls small samples toward the DB's mean percentile (50).
+
+Available DB scores are averaged with equal weight per DB, not by review
+count. Missing DB ratings do not count as zero; people without any ratings
+sort last. The page shows the original DB averages, rated review counts,
+per-DB adjusted scores, and combined score. Saved-data person grouping and
+coverage may differ from the embedded source report summaries. These scores
+are relative positions, not an absolute quality comparison across sources.
+Separate sort options use distinct matching article counts or the original
+extraction order. Sorting preserves the age, category, confirmation, and text filters. Record
+deep links reveal review-only candidates as well as ordinary candidates.
+
+Okinilove records missing from its existing docs are rendered offline with
+its existing person-summary renderer and saved review bodies.
+Tokai records excluded from its normal report are rendered from the matching
+JSONL records using the same person/report HTML renderer, without applying
+that report's age or availability filters. The full saved JSON and source
+links remain available as secondary information. The databases do not retain
+original external-page HTML. Generation requires the three existing docs
+reports and `docs/okinilove_review_bodies.json`; it never collects online data.
+Regenerate it with:
 
 ```powershell
 py -3 src\generate_booking_difficulty_report.py
