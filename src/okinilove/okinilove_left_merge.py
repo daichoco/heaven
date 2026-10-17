@@ -332,7 +332,7 @@ def merge_okinilove_data(
     check_unavailable=None,
     search_enrich=None,
 ):
-    """既存のオキニラブデータを突合し、出勤データへ右結合する（サイトの再取得はしない）。
+    """既存のオキニラブ記事を人物別リストにまとめ、出勤データへ結合する（再取得はしない）。
 
     既定ではカレンダー掲載者の紐づけ（通信なし）だけを行う。掲載終了確認と店舗ページ検索による補完は
     時間がかかるため、環境変数 OKINILOVE_CHECK_UNAVAILABLE=1 / OKINILOVE_SEARCH_ENRICH=1 のときだけ実行する
@@ -373,10 +373,24 @@ def merge_okinilove_data(
 
     existing = existing.loc[:, OKINILOVE_COLUMNS].copy()
     existing["url_key"] = existing["cityheaven_url"].apply(normalize_url)
+    grouped = pd.DataFrame(
+        [
+            {
+                "url_key": key,
+                "okinilove_reports": rows.loc[:, OKINILOVE_COLUMNS].to_dict("records"),
+            }
+            for key, rows in existing.loc[existing["url_key"].notna()].groupby("url_key", sort=False)
+        ],
+        columns=["url_key", "okinilove_reports"],
+    )
+    calendar_data = calendar_data.rename(columns={
+        column: f"{column}_merged"
+        for column in OKINILOVE_COLUMNS if column in calendar_data.columns
+    })
     return pd.merge(
-        existing,
+        grouped,
         calendar_data,
         how="right",
         on="url_key",
-        suffixes=("_okinilove", "_merged"),
+        validate="one_to_many",
     )
