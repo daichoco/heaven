@@ -62,7 +62,10 @@ def enrich_with_cityheaven_urls(df):
     missing = df["cityheaven_url"].isna() | (df["cityheaven_url"].astype("string").str.strip() == "")
     if not missing.any():
         return df
-    pairs = list(zip(df.loc[missing, "shop_name"].astype(str), df.loc[missing, "girl_name"].astype(str)))
+    pairs = list(zip(
+        df.loc[missing, "shop_name"].fillna("").astype(str),
+        df.loc[missing, "girl_name"].fillna("").astype(str),
+    ))
     resolved = resolve_urls(pairs)
     df.loc[missing, "cityheaven_url"] = [resolved[pair] for pair in pairs]
     return df
