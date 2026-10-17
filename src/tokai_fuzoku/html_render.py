@@ -426,10 +426,10 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
 <body class="report-page">
 """ + BACK_NAV + """
 <h1>東海風俗レポート</h1>
-<div class="sticky-toolbar" id="toolbar">
+<div class="sticky-toolbar filters-open" id="toolbar">
     <div class="toolbar-row">
         <input id="reportSearch" type="search" placeholder="名前・店舗で検索" aria-label="名前・店舗で検索">
-        <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="false" aria-controls="filterBar">絞り込み</button>
+        <button type="button" class="filter-toggle" id="filterToggle" aria-expanded="true" aria-controls="filterBar">絞り込み</button>
     </div>
     <div class="filter-bar" id="filterBar">
         <select id="shopFilter" data-shop-filter aria-label="店舗"><option value="">全店舗</option>SHOP_OPTIONS</select>

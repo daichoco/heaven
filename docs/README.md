@@ -82,6 +82,12 @@ Sorting remains available when the mobile filter panel is collapsed; changing
 the order preserves expanded people and filter conditions, and resetting
 conditions preserves the selected order.
 
+The Tokai page starts with its detailed filter panel expanded on mobile as well
+as desktop. The mobile 絞り込み button still closes and reopens the panel, with
+`aria-expanded` reflecting its state. This initial state is specific to Tokai;
+other pages retain their existing mobile collapse behavior. The initial people,
+counts, and recommended order do not require an empty search.
+
 Offline regression tests execute the actual JavaScript from both the template
 and published HTML using Node.js, including initial sorting, changing modes,
 missing/zero averages, ties, same-report filter matching, reset, and expanded
@@ -89,6 +95,19 @@ person state:
 
 ```powershell
 py -3 -m unittest discover -s tests -p test_tokai_sorting.py
+```
+
+Real-browser checks cover both generated and published pages in Chromium and
+WebKit, including mobile initial visibility, closing/reopening, empty searches,
+shop filtering, no results, reset, desktop sorting and expanded-state retention,
+scroll/reload/history, and blocked or delayed shared JavaScript. Requests are
+intercepted locally; profile images and remote pages are never downloaded.
+Playwright WebKit is not an actual iPhone running Brave, so it cannot establish
+device-specific rendering behavior.
+
+```powershell
+py -3 -m playwright install chromium webkit
+py -3 -m unittest discover -s tests -p test_tokai_browser.py
 ```
 
 ### Applying renderer changes alongside newer data
