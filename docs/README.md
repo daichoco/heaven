@@ -28,6 +28,20 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 | `ns_senmon_report.html` | `src/ns_senmon/generate_ns_senmon_report.py` |
 | `tokai_final_report.html` | `src/tokai_fuzoku/generate_report_final.py` |
 | `okinilove_remove_unknown.html` | `src/okinilove/render_people_summary.py`, including intermediate updates in `src/okinilove/scrape_okinilove.py` |
+| `reservation_difficulty.html` | `src/generate_booking_difficulty_report.py` |
+
+`reservation_difficulty.html` is generated offline from the NS専門,
+オキニラブ, and 東海風俗 JSONL reports. It lists people whose saved report
+text explicitly describes booking difficulty and includes the matching excerpt
+and source article link. Regenerate it with:
+
+```powershell
+py -3 src\generate_booking_difficulty_report.py
+```
+
+The extraction is a keyword-based snapshot, not a check of current schedules.
+Only identical normalized profile URLs are merged; records without profile
+URLs remain separate so namesakes are not combined by guesswork.
 
 Run generators as before, with Node.js on `PATH` and `npm ci` already completed;
 formatting is automatic at the write boundary. No extra formatting step is
