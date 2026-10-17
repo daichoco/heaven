@@ -5,5 +5,4 @@ tqdm
 pandas
 requests
 lxml
-ddgs
 playwright
