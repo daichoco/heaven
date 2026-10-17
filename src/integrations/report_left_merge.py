@@ -133,19 +133,23 @@ def extract_report_final_df(parser="lxml"):
     soup = BeautifulSoup(html, parser)
     reports = []
 
-    for detail in soup.find_all("details"):
-        if detail.find_parent("details"):
-            continue
+    article_details = soup.select("details.article-entry")
+    details = article_details or [
+        detail for detail in soup.find_all("details")
+        if not detail.find_parent("details")
+    ]
+    for detail in details:
 
         summary = detail.find("summary")
         if not summary:
             continue
 
-        shop_text = summary.contents[0].strip() if summary.contents else None
-        name_tag = summary.find("a")
+        shop_text = summary.get_text(" ", strip=True)
+        person = detail.find_parent("details", class_="report-entry")
+        profile_summary = person.find("summary", recursive=False) if person else summary
+        name_tag = profile_summary.find("a") if profile_summary else None
         girl_name = name_tag.get_text(strip=True) if name_tag else None
-        girl_url_tag = summary.find("a", string=girl_name)
-        girl_url = girl_url_tag["href"] if girl_url_tag else None
+        girl_url = name_tag.get("href") if name_tag else None
         report_link_tag = summary.find("a", string="レポート")
         report_link = report_link_tag["href"] if report_link_tag else None
 
@@ -176,7 +180,10 @@ def extract_report_final_df(parser="lxml"):
                     evaluations[key] = value
 
         match = re.search(r"\((.*?)\)", shop_text or "")
-        if match:
+        if "article-entry" in detail.get("class", []):
+            shop_name = detail.get("data-shop")
+            shop_type = detail.get("data-type")
+        elif match:
             shop_info = match.group(1)
             parts = re.split(r"[･・]", shop_info)
             shop_name = parts[0].strip() if len(parts) > 0 else None
@@ -197,8 +204,10 @@ def extract_report_final_df(parser="lxml"):
             }
         )
 
-    df = pd.DataFrame(reports)
-    df.loc[df["girl_url"].str.contains("cityheaven.net", na=False), "cityheaven_url"] = df["girl_url"]
+    df = pd.DataFrame(reports, columns=REPORT_HISTORY_COLUMNS)
+    df["cityheaven_url"] = df["girl_url"].where(
+        df["girl_url"].str.contains("cityheaven.net", na=False)
+    )
     return df
 
 
@@ -209,6 +218,19 @@ def extract_cityheaven_profiles_df():
 
 def _log_elapsed(label, start):
     print(f"[timing] {label}: {time.perf_counter() - start:.2f}s")
+
+
+def merge_tokai_reports(reports, profiles):
+    reports = reports.copy()
+    profiles = profiles.copy()
+    reports["url_key"] = reports["cityheaven_url"].apply(normalize_url)
+    profiles["url_key"] = profiles["URL"].apply(normalize_url)
+    # pandas matches null join keys; unresolved reports must not match URL-less profiles.
+    reports = reports.loc[reports["url_key"].notna()]
+    return pd.merge(
+        reports, profiles, how="right", on="url_key",
+        suffixes=("_df1", "_df2"), validate="many_to_one",
+    )
 
 
 def main():
@@ -224,15 +246,12 @@ def main():
         PROFILE_DATA_PATH.unlink(missing_ok=True)
 
     df1 = load_report_history()
-    df2["url_key"] = df2["URL"].apply(normalize_url)
     df1, added_count = append_new_reports(df1, df1_current)
     save_report_history(df1)
     if added_count:
       print(f"レポート履歴に新規追加: {added_count}件")
 
-    df1["url_key"] = df1["cityheaven_url"].apply(normalize_url)
-
-    merged = pd.merge(df1, df2, how="right", on="url_key", suffixes=("_df1", "_df2"))
+    merged = merge_tokai_reports(df1, df2)
     start = time.perf_counter()
     merged = merge_okinilove_data(
       merged,
@@ -288,6 +307,9 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .review-row.review-merged { background-color: var(--review-merged); }
       .review-row.review-ns { background-color: var(--review-ns); }
       .review-row.review-okinilove { background-color: var(--review-okinilove); }
+      .review-row { display: table-row; }
+      .review-row td { text-align: left; overflow-wrap: anywhere; }
+      .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       .shop-cell button {
         min-height: 44px;
         padding: 8px 12px;
@@ -301,7 +323,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .shop-cell button:active {
         background-color: var(--border-soft);
       }
-      @media (max-width: 700px) {
+      @media (max-width: 1100px), (pointer: coarse) {
         :root { --page-pad: 12px; }
         h1 { font-size: 1.2rem; }
         .filter-group { margin-bottom: 16px; }
@@ -330,7 +352,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         body > div[style*="overflow-x: auto"] .m-box.on { font-size: 13px; line-height: 13px; padding: 5px 0; }
         body > div[style*="overflow-x: auto"] .m-box.off { background: linear-gradient(var(--surface-alt) calc(100% - 8px), var(--border) 0); }
         body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
-        body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+        body > div[style*="overflow-x: auto"] .review-row { display: block; }
       }
     </style>
     <script>
@@ -420,16 +442,19 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
 
       function toggleReviewRow(id) {
         const row = document.getElementById(id);
-        if (row.style.display === "none") {
-          row.style.display = window.matchMedia("(max-width: 700px)").matches ? "block" : "table-row";
-        } else {
-          row.style.display = "none";
-        }
+        const open = row.style.display === "none";
+        row.style.display = open ? "" : "none";
+        document.querySelectorAll(`button[aria-controls="${id}"]`).forEach(button => {
+          button.setAttribute("aria-expanded", String(open));
+        });
       }
 
       function resetAllReviews() {
         document.querySelectorAll('.review-row').forEach(row => {
           row.style.display = "none";
+        });
+        document.querySelectorAll('button[aria-controls^="review-"]').forEach(button => {
+          button.setAttribute("aria-expanded", "false");
         });
       }
     </script>
@@ -477,6 +502,7 @@ WORK_TIME_RE = re.compile(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$")
 def build_calendar_html(merged):
     # 出勤日カラムを抽出
     calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
+    review_colspan = len(calendar_cols) + 2
 
     # 日本語の曜日リスト
     weekdays = ["月", "火", "水", "木", "金", "土", "日"]
@@ -558,11 +584,11 @@ def build_calendar_html(merged):
         image_url = row["画像URL"]
         profile_url = row["URL"]
 
-        eval_merged = row["evaluations_merged"]
-        eval_okinilove = row["evaluations_okinilove"]
-        report_url_merged = row["report_url_merged"]
-        report_url_okinilove = row["report_url_okinilove"]
-        report_text_okinilove = row["report_text"]
+        okinilove_reports = row["okinilove_reports"] if isinstance(row["okinilove_reports"], list) else []
+        okinilove_reports = [
+            report for report in okinilove_reports
+            if _has_value(report["evaluations"]) or _has_value(report["report_text"])
+        ]
 
         ns_reports = row["ns_reports"] if isinstance(row["ns_reports"], list) else []
         row_id_ns = f"review-ns-{idx}"
@@ -570,8 +596,7 @@ def build_calendar_html(merged):
         has_report = "true" if (
           ns_reports
           or merged_reports
-          or _has_value(eval_okinilove)
-          or _has_value(report_text_okinilove)
+          or okinilove_reports
         ) else "false"
         row_id_merged = f"review-merged-{idx}"
         row_id_okinilove = f"review-okinilove-{idx}"
@@ -587,12 +612,13 @@ def build_calendar_html(merged):
         # レビューボタン
         if merged_reports:
             count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
-            html += f"<br><button onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
-        if _has_value(eval_okinilove) or _has_value(report_text_okinilove):
-            html += f"<br><button onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove)</button>"
+            html += f"<br><button type='button' aria-controls='{row_id_merged}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
+        if okinilove_reports:
+            count = f" {len(okinilove_reports)}件" if len(okinilove_reports) > 1 else ""
+            html += f"<br><button type='button' aria-controls='{row_id_okinilove}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove{count})</button>"
 
         if ns_reports:
-            html += f"<br><button onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
+            html += f"<br><button type='button' aria-controls='{row_id_ns}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
 
         # 店名（名前の下に表示）
         if len(shop) >= 1:
@@ -632,7 +658,7 @@ def build_calendar_html(merged):
         # mergedレビュー行（複数レポートは縦に並べる）
         if merged_reports:
             html += f"<tr id='{row_id_merged}' class='review-row review-merged' style='display:none;'>"
-            html += f"<td colspan='3' style='text-align: left;'>"
+            html += f"<td colspan='{review_colspan}'>"
             for eval_value, report_url in merged_reports:
                 try:
                     html += "<ul>"
@@ -648,7 +674,7 @@ def build_calendar_html(merged):
         # NS専門レビュー行
         if ns_reports:
             html += f"<tr id='{row_id_ns}' class='review-row review-ns' style='display:none;'>"
-            html += f"<td colspan='3' style='text-align: left;'>"
+            html += f"<td colspan='{review_colspan}'>"
             for rep in ns_reports:
                 html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
                 for k, v in rep["scores"].items():
@@ -659,21 +685,23 @@ def build_calendar_html(merged):
             html += "</td></tr>"
 
         # okiniloveレビュー行
-        if pd.notna(eval_okinilove) or pd.notna(report_text_okinilove):
+        if okinilove_reports:
             html += f"<tr id='{row_id_okinilove}' class='review-row review-okinilove' style='display:none;'>"
-            html += f"<td colspan='3' style='text-align: left;'>"
-            if _has_value(eval_okinilove):
-              if isinstance(eval_okinilove, dict):
-                html += "<ul>"
-                for key, value in eval_okinilove.items():
-                  html += f"<li><strong>{key}:</strong> {value}</li>"
-                html += "</ul>"
-              else:
-                html += f"<p><strong>評価 (okinilove):</strong> {eval_okinilove}</p>"
-            if _has_value(report_text_okinilove):
-                html += f"<pre>{report_text_okinilove}</pre>"
-            if pd.notna(report_url_okinilove):
-                html += f"<br><a href='{report_url_okinilove}' target='_blank'>レポートリンク (okinilove)</a>"
+            html += f"<td colspan='{review_colspan}'>"
+            for report in okinilove_reports:
+                evaluations = report["evaluations"]
+                if _has_value(evaluations):
+                    if isinstance(evaluations, dict):
+                        html += "<ul>"
+                        for key, value in evaluations.items():
+                            html += f"<li><strong>{key}:</strong> {value}</li>"
+                        html += "</ul>"
+                    else:
+                        html += f"<p><strong>評価 (okinilove):</strong> {evaluations}</p>"
+                if _has_value(report["report_text"]):
+                    html += f"<pre>{report['report_text']}</pre>"
+                if pd.notna(report["report_url"]):
+                    html += f"<br><a href='{report['report_url']}' target='_blank'>レポートリンク (okinilove)</a>"
             html += "</td></tr>"
 
     html += "</tbody></table></div>"

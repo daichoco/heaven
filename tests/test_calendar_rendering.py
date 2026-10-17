@@ -35,10 +35,8 @@ class CalendarRenderingTests(unittest.TestCase):
                     "画像URL": "https://example.com/image.jpg",
                     "URL": "https://example.com/profile",
                     "evaluations_merged": None,
-                    "evaluations_okinilove": None,
                     "report_url_merged": None,
-                    "report_url_okinilove": None,
-                    "report_text": None,
+                    "okinilove_reports": [],
                     "ns_reports": [],
                     "10/17(土)": status,
                 }])

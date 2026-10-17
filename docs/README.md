@@ -30,6 +30,16 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 | `okinilove_remove_unknown.html` | `src/okinilove/render_people_summary.py`, including intermediate updates in `src/okinilove/scrape_okinilove.py` |
 | `reservation_difficulty.html` | `src/generate_booking_difficulty_report.py` |
 
+Calendar review buttons retain the collapsed-by-default behavior. Open rows use
+CSS to switch between cards (up to 1100 CSS pixels, or coarse-pointer touch
+devices) and desktop table rows, including after rotation/resizing. Tablet
+reviews no longer inherit a seven-day table's oversized minimum width.
+Each review spans every schedule column. Long review text wraps
+at all widths. Buttons expose `aria-controls` / `aria-expanded`, including when the
+shared script fails to load. Offline Chromium/WebKit touch and desktop checks are
+in `tests/test_calendar_browser.py` (390, 820, 1024, 1366, and 1440 CSS-pixel viewports).
+These are emulations, not physical iPhone/iPad tests.
+
 `reservation_difficulty.html` is generated offline from the NS専門,
 オキニラブ, and 東海風俗 JSONL reports. It lists candidates whose saved report
 text describes booking difficulty, being sold out (`完売`), or popularity

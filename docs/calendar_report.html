@@ -43,6 +43,9 @@
       .review-row.review-merged { background-color: var(--review-merged); }
       .review-row.review-ns { background-color: var(--review-ns); }
       .review-row.review-okinilove { background-color: var(--review-okinilove); }
+      .review-row { display: table-row; }
+      .review-row td { text-align: left; overflow-wrap: anywhere; }
+      .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
       .shop-cell button {
         min-height: 44px;
         padding: 8px 12px;
@@ -56,7 +59,7 @@
       .shop-cell button:active {
         background-color: var(--border-soft);
       }
-      @media (max-width: 700px) {
+      @media (max-width: 1100px), (pointer: coarse) {
         :root { --page-pad: 12px; }
         h1 { font-size: 1.2rem; }
         .filter-group { margin-bottom: 16px; }
@@ -85,7 +88,7 @@
         body > div[style*="overflow-x: auto"] .m-box.on { font-size: 13px; line-height: 13px; padding: 5px 0; }
         body > div[style*="overflow-x: auto"] .m-box.off { background: linear-gradient(var(--surface-alt) calc(100% - 8px), var(--border) 0); }
         body > div[style*="overflow-x: auto"] .review-row td { display: block; width: 100%; }
-        body > div[style*="overflow-x: auto"] .review-row pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+        body > div[style*="overflow-x: auto"] .review-row { display: block; }
       }
     </style>
     <script>
@@ -175,16 +178,19 @@
 
       function toggleReviewRow(id) {
         const row = document.getElementById(id);
-        if (row.style.display === "none") {
-          row.style.display = window.matchMedia("(max-width: 700px)").matches ? "block" : "table-row";
-        } else {
-          row.style.display = "none";
-        }
+        const open = row.style.display === "none";
+        row.style.display = open ? "" : "none";
+        document.querySelectorAll(`button[aria-controls="${id}"]`).forEach(button => {
+          button.setAttribute("aria-expanded", String(open));
+        });
       }
 
       function resetAllReviews() {
         document.querySelectorAll('.review-row').forEach(row => {
           row.style.display = "none";
+        });
+        document.querySelectorAll('button[aria-controls^="review-"]').forEach(button => {
+          button.setAttribute("aria-expanded", "false");
         });
       }
     </script>
@@ -480,7 +486,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>休み</span></td>
           </tr>
           <tr data-report='true' data-shops='エディーズ|ソープ(大衆/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/eddies/girlid-60654615/?lo=1' target='_blank'>こなつ（25歳）</a><br><button onclick="toggleReviewRow('review-merged-4')">レビュー(merged)</button><br><button onclick="toggleReviewRow('review-okinilove-4')">レビュー(okinilove)</button><br><span class='shop-info'>エディーズ</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/eddies/girlid-60654615/?lo=1' target='_blank'>こなつ（25歳）</a><br><button type='button' aria-controls='review-merged-4' aria-expanded='false' onclick="toggleReviewRow('review-merged-4')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-4' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-4')">レビュー(okinilove)</button><br><span class='shop-info'>エディーズ</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -524,7 +530,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr id='review-merged-4' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：50分:</strong> ◆総額：17000円</li>
                 <li><strong>顔: 100.0:</strong> 戸田恵梨香に似てますが、そんなに綺麗なわけではないのであまり期待値あげすぎない方がいいです</li>
@@ -539,13 +545,13 @@
             </td>
           </tr>
           <tr id='review-okinilove-4' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
               <pre>こんにちは管理人さん今回は「こなつ」さん新人さんをレポします。訳アリで凸してきました。かなりの緊張で顔が引きつっているのを感じ、軽いジョークを交えながら部屋にはいりました。お顔は痩せた戸田恵梨香。。。かな大体「新人」と言ってもお風呂屋が初めてとかいう「なんちゃって」新人が多い中、ホントに？と思わせるほどの、手際の悪さ若いのでまあご愛嬌という感じではありますが、話が続かないので自動的にお風呂に入ることになります洗って貰っても特筆することはありません。そのまま、ベットに向かいますが、いろいろ「取説」必要で、NGを出すことはないのですがこうして欲しい、これは嫌等、要望が多いのですが、それをクリアすると、飛び跳ねてくれます。エッチには貪欲で、もっと〇までとか、その位置で。。とか一緒に気持ち良くなろうとするスタンスで挑んできます。粗削りな感じではありますが、もしかしたら。。。という可能性（本人ん次第ですか）を持っている感じがしました。これが載った時までいてくれるかな？</pre><br><a href='https://okinilove.com/blog-entry-1562.html#namako' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='メビウス|ヘルス(人妻/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/mobius/girlid-62687723/?lo=1' target='_blank'>ふうか（27歳）</a><br><button onclick="toggleReviewRow('review-okinilove-5')">レビュー(okinilove)</button><br><span class='shop-info'>メビウス</span><br><span class='shop-info'>ヘルス(人妻/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/mobius/girlid-62687723/?lo=1' target='_blank'>ふうか（27歳）</a><br><button type='button' aria-controls='review-okinilove-5' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-5')">レビュー(okinilove)</button><br><span class='shop-info'>メビウス</span><br><span class='shop-info'>ヘルス(人妻/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -589,7 +595,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>10:00 ~ 23:59</span></td>
           </tr>
           <tr id='review-okinilove-5' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 
       ★★★★★
       →記事リンク</p>
@@ -623,7 +629,7 @@
             </td>
           </tr>
           <tr data-report='true' data-shops='名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-52941618/?lo=1' target='_blank'>ことり♡圧倒的本指名率№...</a><br><button onclick="toggleReviewRow('review-okinilove-6')">レビュー(okinilove)</button><br><span class='shop-info'>名古屋デリヘル GOLDニット</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-52941618/?lo=1' target='_blank'>ことり♡圧倒的本指名率№...</a><br><button type='button' aria-controls='review-okinilove-6' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-6')">レビュー(okinilove 5件)</button><br><span class='shop-info'>名古屋デリヘル GOLDニット</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -667,7 +673,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>10/25(日)出勤です☆事前予約受付中☆</span></td>
           </tr>
           <tr id='review-okinilove-6' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 
       ★★★★★
        →記事リンク</p>
@@ -680,10 +686,66 @@
 
 プレイの方もかなりの淫乱なのかすんなりG無しでOK!
 これはもうリピ確定です！</pre><br><a href='http://okinilove.com/blog-entry-1524.html#tatugoro3' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>前者の方のレビューを見て突撃しました(^^)
+
+この子はかなり当たりです(^^)
+なんと言っても性格がめちゃくちゃ良いです！
+
+こんな子が風俗に居るなんて信じられないです！なんで風俗してるのか不思議なくらい可愛いです。
+
+ベットではベロチューから始まり本当に文句のつけようがないくらい最高です！
+もうおじさん我慢出来ずにお願いしたら逆に◯れてっておねだりされちゃいました！
+
+お店の方、こんな良い子と巡り合わせてくれてありがとうございます！
+もうずっとことりちゃんしか遊びませんww</pre><br><a href='https://okinilove.com/blog-entry-2356.html#tamaro' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
+              <pre>パネルは加工が凄いのであてにはならないがまあまあかわいいです、リアルに10代ですし。
+
+性格はプライベートで付き合うなら難はあるけど仕事はちゃんとする感じです。
+
+スタイルは見事でおっぱいは気持ちいいし、キスもしっかりとしてくれます。
+
+ただフェラは自分にはあまり合わなくSPは有りで10k無しで20 kとコスパも良くなくリピは無理ですね。</pre><br><a href='https://okinilove.com/blog-entry-2356.html#yoruno' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
+              <pre>レビューが気になって突入してきました。
+結果良かったです。
+
+距離縮め方は地元の友達みたいな感じで声も大きいです。
+
+顔は写真より許容範囲で荒川静香の若い時？、スタイル抜群、一部傷箇所あり、声はかすれ気味で喘ぎ声は可愛くないですかw
+
+攻めれば反応してくれるますし攻めもそこそこ上手いです。
+
+SPはオコくれるならって約束して幕有りで楽しみましたけど、帰り際で話が盛り上がオコ渡せじまいで申し訳ないです。
+またリピしようかなぁ〜</pre><br><a href='https://okinilove.com/blog-entry-2766.html#kani' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
+              <pre>こちらでの高評価を見て行ってきました。
+まず、こちらのスタッフの方の電話対応は感じいいですね。
+
+さて、ことりさん。
+ホムペの写真がバリバリ修正されてたので、どんな子が来るかと不安でしたが、写真とは違いますが顔も可愛くスタイルも抜群です。
+
+プロフィールでは18歳。
+実際は自称２０歳。
+
+張りがあって、白い肌。
+美巨乳で乳首もピンク。
+どれだけ触ってもいいですよとのこと。
+
+性格もかわいいです。
+プレイは、◯れていい？
+と聞くと、お小遣いほしいと。
+
+ゴム付きで1。
+毎回いるらしいです。
+
+顔、スタイル、性格も二重丸ですが、毎回入場料いるので評価は3にしました。
+でも、いい子です。オススメです。</pre><br><a href='https://okinilove.com/blog-entry-2766.html#yaki' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='ジュリエット|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-56112055/?lo=1' target='_blank'>楓/Kaede💖刺激的な...</a><br><button onclick="toggleReviewRow('review-merged-11')">レビュー(merged 2件)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-56112055/?lo=1' target='_blank'>楓/Kaede💖刺激的な...</a><br><button type='button' aria-controls='review-merged-7' aria-expanded='false' onclick="toggleReviewRow('review-merged-7')">レビュー(merged)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -726,8 +788,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>11:00 ~ 23:00</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>11:00 ~ 23:00</span></td>
           </tr>
-          <tr id='review-merged-11' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-7' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：47000円</li>
                 <li><strong>顔: 90.0:</strong> ズバリ美人で綺麗系です。K-POPにいそうな顔立ち で万人受けすると思います。</li>
@@ -738,16 +800,6 @@
                 <li><strong>総合: 90:</strong> 綺麗な顔立ちスタイルも良くエロさもあって良かったです。少し不思議な感じで話がかみ合わないところもありました。欲を言えば3回戦いきたかった。</li>
                 <li><strong>リピート: 返す（リピートする）:</strong> 色んなプレイを楽しみたい。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2026/07/23/post-16138/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：47000円</li>
-                <li><strong>顔: 90.0:</strong> ズバリ美人で綺麗系です。K-POPにいそうな顔立ち で万人受けすると思います。</li>
-                <li><strong>スタイル: 90.0:</strong> ややスレンダーで出ているところは出ていて良いスタイルです。お尻はムッチリしていてそそります。抱き心地も抜群です。</li>
-                <li><strong>カップ: Ｅカップ:</strong> EとFの間くらいでしょうか、ほどよい巨乳で形もよい美乳でみても揉んでも楽しいです。</li>
-                <li><strong>パネル差: 0.0:</strong> パネマジはなしです。</li>
-                <li><strong>プレイ: 90.0:</strong> 特筆したテクニックは感じられなかったですが雰囲気がエロいので気持ちよかったです。マットは苦手だと話していました。</li>
-                <li><strong>総合: 90.0:</strong> 綺麗な顔立ちスタイルも良くエロさもあって良かったです。少し不思議な感じで話がかみ合わないところもありました。欲を言えば3回戦いきたかった。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 色んなプレイを楽しみたい。</li>
               </ul>
             </td>
           </tr>
@@ -796,7 +848,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr data-report='true' data-shops='素人ドM学園|デリヘル(スタンダード/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/siroutom_n/girlid-61858441/?lo=1' target='_blank'>まみ♡清楚でエロ過ぎ細身...</a><br><button onclick="toggleReviewRow('review-okinilove-14')">レビュー(okinilove)</button><br><span class='shop-info'>素人ドM学園</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/siroutom_n/girlid-61858441/?lo=1' target='_blank'>まみ♡清楚でエロ過ぎ細身...</a><br><button type='button' aria-controls='review-okinilove-9' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-9')">レビュー(okinilove 2件)</button><br><span class='shop-info'>素人ドM学園</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -839,8 +891,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>☆次回登校調整中☆</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>☆次回登校調整中☆</span></td>
           </tr>
-          <tr id='review-okinilove-14' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-9' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 
       ★★★★★
        →記事リンク</p>
@@ -863,10 +915,38 @@
 サービス、ルックス、スタイル、どれをとっても素晴らしくこの金額で遊べるなら間違いなくリピ確定です。
 
 最後なりましたが、管理人さんお身体に気を付けて今後も頑張ってくださいm(_ _)m</pre><br><a href='http://okinilove.com/blog-entry-2768.html#hametaro2' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>前から気になってたまみちゃん
+時間がたまたま空いたので問い合わせたらすぐ案内できるとのことで速攻で予約しました！
+
+指定されたホテルに先に入室し部屋でで待つこと数分、、、
+インターホンがなりドアを開けるとそこにはパネルと同等、いやそれ以上に可愛らしくて細い子が！
+
+挨拶もそこそこに一緒にシャワーを浴びてベッドへ
+
+まずはこちらが責めてもらいますが、濃厚なベロチューに始まりそこから下までゆっくりと舐めてくれます
+
+フェラも強すぎず弱すぎずの絶妙なラインでとても気持ちよく思わずイキそうに、、、
+イクのを我慢して攻守交代
+
+クリを責めると甘えるように可愛い声で喘いでくれます
+更に舐め続けぐちょぐちょに濡れてきたところでお誘いが！
+
+即答で答え無事にi〇
+〇はキツキツで想像以上に気持ち良い！！
+正常位、騎乗位、バックと一通り楽しんで無事フィニッシュ！
+
+賢者タイム中も優しく接してくれるまみちゃんの笑顔に一撃でやられちゃいました(/// ^///)
+
+退室後も笑顔で手を振ってくれるまみちゃんにまた会いに来ようと誓い帰路に着きました！
+
+このレベルの女の子でこの金額、サービスは控えめに言ってリピ確定です！
+
+また時間見て今度は長い時間楽しもうと思います！</pre><br><a href='https://okinilove.com/blog-entry-2768.html#siroto' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-63052627/?lo=1' target='_blank'>りず♡完未!えっちに貪欲...</a><br><button onclick="toggleReviewRow('review-okinilove-16')">レビュー(okinilove)</button><br><span class='shop-info'>名古屋デリヘル GOLDニット</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-63052627/?lo=1' target='_blank'>りず♡完未!えっちに貪欲...</a><br><button type='button' aria-controls='review-okinilove-10' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-10')">レビュー(okinilove)</button><br><span class='shop-info'>名古屋デリヘル GOLDニット</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -909,8 +989,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-16' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-10' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 
       ★★★★★
       →記事リンク</p>
@@ -944,7 +1024,7 @@
             </td>
           </tr>
           <tr data-report='true' data-shops='メビウス|ヘルス(人妻/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/mobius/girlid-44356497/?lo=1' target='_blank'>るあ（24歳）</a><br><button onclick="toggleReviewRow('review-okinilove-17')">レビュー(okinilove)</button><br><span class='shop-info'>メビウス</span><br><span class='shop-info'>ヘルス(人妻/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/mobius/girlid-44356497/?lo=1' target='_blank'>るあ（24歳）</a><br><button type='button' aria-controls='review-okinilove-11' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-11')">レビュー(okinilove 3件)</button><br><span class='shop-info'>メビウス</span><br><span class='shop-info'>ヘルス(人妻/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -987,8 +1067,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>次回明日11時～出勤!!完全素人💖小柄💖おじ様キラー</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>11:00 ~ 23:59</span></td>
           </tr>
-          <tr id='review-okinilove-17' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-11' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 
       ★★★★★
        →記事リンク</p>
@@ -1001,6 +1081,28 @@
 マンコとアナルの２穴同時指入れしながらのクンニは最高でした！ケツ穴はほぐさなくても指に唾液つけただけでムニュムニュと吸い込まれました
 
 こんなにスレンダーで低身長で可愛い嬢滅多に居ないのでこれからもっと調教していく予定です。</pre><br><a href='http://okinilove.com/blog-entry-2850.html#kateni' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>るあさんはとても細身ですが張りのあるお胸に可愛い乳首すごいキュートでした✨
+
+メビウスはお迎えスタイルではなく自分から部屋に突入なのでそこはちと残念
+
+プロフィールにはないAFに近い変態プレー？
+
+軽く指をくねくねしたらアッサリINもう1本もぱっくりしてくれたので2本の指挿入して解してからINしようとしたら時間オーバーでしたが次回リベンジで初AFにチャレンジしまっす！</pre><br><a href='https://okinilove.com/blog-entry-2850.html#kateni2' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>久しぶりにヘルス行くために可愛い女の子を探していたらるあ姫さまを発見し凸りました
+
+部屋に通され入室したらそれは可愛い小さな女の子がお出迎え
+
+お話し好きみたいでお話ししながら脱衣してもらいシャワーを浴びてビンビンの🍌を握ってきてパクリとフェラ
+
+小さいお口で一生懸命に咥えてる姿にメロメロ
+
+嬢は自分でまんこをグチュグチュ弄りながらクンニの催促
+
+勿論嫌いじゃないので洪水のまんこをペロペロ😋
+
+嬢もこっちも我慢できなくなりイ〇サートきつきつの穴に〇出し気持ち良かったですよ。</pre><br><a href='https://okinilove.com/blog-entry-3057.html#hakase' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='恋するバニー|ソープ(イメクラ,中級/福原桜筋)'>
@@ -1048,7 +1150,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr data-report='true' data-shops='シャトールーブル|ソープ(高級/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-65339206/?lo=1' target='_blank'>環　かんな（21歳）</a><br><button onclick="toggleReviewRow('review-merged-21')">レビュー(merged 2件)</button><br><button onclick="toggleReviewRow('review-ns-21')">レビュー(NS専門 2件)</button><br><span class='shop-info'>シャトールーブル</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-65339206/?lo=1' target='_blank'>環　かんな（21歳）</a><br><button type='button' aria-controls='review-merged-13' aria-expanded='false' onclick="toggleReviewRow('review-merged-13')">レビュー(merged)</button><br><button type='button' aria-controls='review-ns-13' aria-expanded='false' onclick="toggleReviewRow('review-ns-13')">レビュー(NS専門 2件)</button><br><span class='shop-info'>シャトールーブル</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1091,8 +1193,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>9:00 ~ 21:00</span></td>
           </tr>
-          <tr id='review-merged-21' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-13' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：130分:</strong> ◆総額：60000円</li>
                 <li><strong>顔: 95.0:</strong> 大きな八重歯の主張が強かったが、プレイ後はそこも可愛らしく思えた</li>
@@ -1104,20 +1206,10 @@
                 <li><strong>リピート: 返す（リピートする）:</strong> イチャイチャを楽しむことも、癒されることもできた。更なる魅力をみつけたい。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2026/07/12/post-16122/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：130分:</strong> ◆総額：60000円</li>
-                <li><strong>顔: 95.0:</strong> 大きな八重歯の主張が強かったが、プレイ後はそこも可愛らしく思えた</li>
-                <li><strong>スタイル: 90.0:</strong> 細身でありながら、しっかりとしたお尻は触り心地がよい。耳のピアス跡は塞がっている。</li>
-                <li><strong>カップ: Ｆカップ:</strong> 張りのある美乳。乳首は陥没しており、勃起時のエロさは特筆すべきものがある。</li>
-                <li><strong>パネル差: 80.0:</strong> 顔は日記含めぼかしが強く判別できないが、想像をよい方向に裏切られた。ボディーラインは写真どおり。</li>
-                <li><strong>プレイ: 90.0:</strong> エレベーターで三つ指ついた挨拶から、キス多め。部屋でもキスを繰り返し、淫誤、股間へのタッチを交えつつ、気分を盛り上げながら服を脱がせ合う。即尺の後、ベットで騎乗位。グラインドが気持ちよく堪らず射精。｢お掃除していいですか｣と聞かれ快諾、心地よいお清め。洗体でもキス多め。お風呂での潜望鏡の後、マットかベットか聞かれ、マットを選択。｢お尻も舐めていいですか｣と聞かれ期待も高まる。マットは脇も丁寧に舐められ興奮した。マットでのプレイの後、ベッドへ。体位の希望を聞かれ正常位を選択。｢おいで｣の一言はグッと来た。最後の洗い場で姫の乳首が勃起。恥ずかしがる姿が可愛らしい。見送りまでキス多め。あがり部屋でも三つ指ついたお礼でお別れ。</li>
-                <li><strong>総合: 90.0:</strong> 美人が積極的にキス、フェラをしてくれる。張りのある胸、お尻にシミはなく、触り心地がよい。何度も名前を呼んでくれたことが印象的。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> イチャイチャを楽しむことも、癒されることもできた。更なる魅力をみつけたい。</li>
-              </ul>
             </td>
           </tr>
-          <tr id='review-ns-21' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-13' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=21809' target='_blank'>レポートリンク (NS専門 2026-08-09)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 21歳</li>
@@ -1155,7 +1247,7 @@
             </td>
           </tr>
           <tr data-report='true' data-shops='Color|デリヘル(スタンダード/安城)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-43646347/?lo=1' target='_blank'>のあ【出勤日見て即ご予約...</a><br><button onclick="toggleReviewRow('review-okinilove-23')">レビュー(okinilove)</button><br><span class='shop-info'>Color</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-43646347/?lo=1' target='_blank'>のあ【出勤日見て即ご予約...</a><br><button type='button' aria-controls='review-okinilove-14' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-14')">レビュー(okinilove 3件)</button><br><span class='shop-info'>Color</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1198,8 +1290,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-23' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-14' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価
           ★★★★☆
          →記事リンク</p>
@@ -1208,10 +1300,40 @@
 会話等は普通ですがプレイが始まるとフェラから何もつけずに騎乗位でこちらの許可無くはじめます
 
 当然最後もそのまま</pre><br><a href='http://okinilove.com/blog-entry-2398.html#kurokami' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
+              <pre>久しぶりに風俗へ大航海！
+人気嬢ののあちゃんにゴムゴムのピ〇トル〜！してきました！
+
+人気だから可愛いのかな！？
+と待っているとのあちゃん登場！
+
+顔は並だけど悪くない！
+
+いざプレイに入るとなんでもあり！
+すぐイクしキスも濃厚！
+
+お待ちかねのSPも超SPであり！
+ただゆるく、ヤミヤミの実の能力者かと思いました！
+ブラックホール！ってね！
+
+またなぜかやるアヘ顔がマイナスポイント
+また体も硬く行為が限られる‥
+
+そんな感じでよかったけどリピはなしかな！またレポートしますね！</pre><br><a href='https://okinilove.com/blog-entry-2398.html#kaizoku' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>ニコラス最終章。放出祭り。。。
+
+今回は安城COLORの、のあちゃん。
+
+ここであまり話したくないけど…この子は…今まで会った子の中でピカイチでした。
+
+なんでも有りの、めちゃ可愛い子です。
+
+多くは語らず。ご自身で確認して下さい🙇</pre><br><a href='https://okinilove.com/blog-entry-2840.html#nikorasu' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='きみにメロン組|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-60067302/?lo=1' target='_blank'>あい🔐（20歳）</a><br><button onclick="toggleReviewRow('review-ns-26')">レビュー(NS専門 2件)</button><br><span class='shop-info'>きみにメロン組</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-60067302/?lo=1' target='_blank'>あい🔐（20歳）</a><br><button type='button' aria-controls='review-ns-15' aria-expanded='false' onclick="toggleReviewRow('review-ns-15')">レビュー(NS専門 2件)</button><br><span class='shop-info'>きみにメロン組</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1254,8 +1376,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>9:00 ~ 23:59</span></td>
           </tr>
-          <tr id='review-ns-26' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-15' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=23014' target='_blank'>レポートリンク (NS専門 2026-08-24)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 20歳</li>
@@ -1306,7 +1428,7 @@
             </td>
           </tr>
           <tr data-report='true' data-shops='でりどす岡崎|デリヘル(スタンダード/岡崎)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/girlid-59886106/?lo=1' target='_blank'>てぃな【プレミア★】（2...</a><br><button onclick="toggleReviewRow('review-okinilove-27')">レビュー(okinilove)</button><br><span class='shop-info'>でりどす岡崎</span><br><span class='shop-info'>デリヘル(スタンダード/岡崎)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/girlid-59886106/?lo=1' target='_blank'>てぃな【プレミア★】（2...</a><br><button type='button' aria-controls='review-okinilove-16' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-16')">レビュー(okinilove)</button><br><span class='shop-info'>でりどす岡崎</span><br><span class='shop-info'>デリヘル(スタンダード/岡崎)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1349,8 +1471,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-27' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-16' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>あまり教えたくはないですが展開します。
 
@@ -1364,7 +1486,7 @@
             </td>
           </tr>
           <tr data-report='true' data-shops='AVANCE|デリヘル(人妻/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/avance/girlid-48193857/?lo=1' target='_blank'>なみ（28歳）</a><br><button onclick="toggleReviewRow('review-merged-28')">レビュー(merged 8件)</button><br><button onclick="toggleReviewRow('review-okinilove-28')">レビュー(okinilove)</button><br><span class='shop-info'>AVANCE</span><br><span class='shop-info'>デリヘル(人妻/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/avance/girlid-48193857/?lo=1' target='_blank'>なみ（28歳）</a><br><button type='button' aria-controls='review-merged-17' aria-expanded='false' onclick="toggleReviewRow('review-merged-17')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-17' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-17')">レビュー(okinilove 4件)</button><br><span class='shop-info'>AVANCE</span><br><span class='shop-info'>デリヘル(人妻/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1407,8 +1529,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>15:00 ~ 0:30</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>15:00 ~ 0:30</span></td>
           </tr>
-          <tr id='review-merged-28' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-17' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
                 <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
@@ -1419,84 +1541,11 @@
                 <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
                 <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2024/03/14/post-14724/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/03/14/post-14724/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/03/14/post-14724/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/03/14/post-14724/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：70分:</strong> ◆総額：21000円</li>
-                <li><strong>顔: 80.0:</strong> 小さめのお顔で唇はぶ厚く、キレかわな顔立ちで見てて飽きのこないお顔</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーで細身すきにはハマる体型で、体の手入れもしっかりされてる</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸は小さめ、自分は貧乳すきなので80点ですがいろんなたいぷのかたが見れるのでこの点数。</li>
-                <li><strong>パネル差: 20.0:</strong> パネルでは雰囲気しか分かりませんが身長スタイルともにパネマジなし、お顔は想像以上でした</li>
-                <li><strong>プレイ: 100.0:</strong> 私はNNでしっかり堪能しましたがNSの方もいるようです。SPはデフォルトだと思います。</li>
-                <li><strong>総合: 100.0:</strong> 綺麗な子でしたし、人気なだけ合ってお話も上手。機会があればまた予約したいと思います。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全体的にとても満足したので再度リピート考えてます。</li>
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-28' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-17' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>管理人様、いつも楽しく拝見しております(^^)
 デリヘル通いを減らしてセフレ一本に転換しようと計画中ですが、良嬢揃いのアヴァンスの誘惑に負けましたので報告いたします😅
@@ -1517,6 +1566,61 @@
 
 良すぎてハマる事が予想されるので2回目呼ぶことを躊躇しているオッサンでした。
 皆様、遊べるうちにしっかりと遊んでおきましょう！ご安全に！</pre><br><a href='https://okinilove.com/blog-entry-2206.html#nagasi2' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>初めて投稿します
+今回はなみさんに突中しました。
+
+予めシャワーをしていたせいか、初対面でディープキスを長々とした後、そのままベッドIN
+
+とてもかわいい娘でその後も延々とフェラをした後お互いの服を脱がせあいました
+ガーターがセクシーでした
+
+キスを貪りあい、そののままの流れでI〇！！
+とてもよがっていました
+
+そのうち限界を迎え「どうする？」と聞いたら「いいよ」とのお返事だったのでそままOUT！！
+
+とても話も楽しくて楽しい時間を過ごせました
+しいて言うなら若いので熟女好きな小生としてはそこが物足りなかったな
+
+でもとてもいい娘なんでまた呼びたいと思います</pre><br><a href='https://okinilove.com/blog-entry-2206.html#repado' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>よく利用してます。
+
+ドアを開けるとベロチュースタートでお互い弄り合ってお風呂へ
+ベッドinして流れからそのままi〇
+
+やっぱり1番キツキツで痛いくらい。
+濡れも素晴らしいので本当に気持ちいいです。
+
+1時間で2発吸い取られました。
+あそこに余韻が残ってます。
+
+積極的でイチャイチャかわいいのでおすすめです〜</pre><br><a href='https://okinilove.com/blog-entry-2858.html#katatin' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>先日、岐阜のデリで満足が出来なかったのでこちらのお店に行ってしまいました（こんな短期間にデリに何度も行く事はないのですが・・・冬の寂しさのせいですかね？）
+
+突発的にその日出勤の良さげな子を衝動買いのように選んだのですが、自分の第六感はなかなかに正確でした。
+
+まずはいちゃいちゃ。
+
+他の子はよそよそしいところから数分～数十分かけてじっくり距離を詰めて・・・。という事が多いのですが、この子は違いました。
+会って数分内にはもういちゃいちゃな雰囲気の空間が出来上がっていました。
+
+服を脱いでシャワーを浴び、ベッドに移ってからもひたすらいちゃいちゃ・・・そして何かと褒めてくれます。
+承認欲求満たされまくります。
+
+一通りいちゃこいてから「良い？」と聞くと「G付けてね？」との事。
+それまでいちゃこきまくってたのでもう・・・ものの数分で果てました。
+
+そこからは楽しくトーク。
+
+今思い返すと、何も自分の話を否定せずに聞いてくれてまるでキャバクラ。
+本当に楽しくお話する事が出来ました。
+
+難を言えば一回目が早く終わったので個人的には二回目がしたかったというところでしょうか。
+
+2025年の姫納を無事完遂する事ができました！</pre><br><a href='https://okinilove.com/blog-entry-3097.html#moko' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='ラブココ名古屋本店|デリヘル(スタンダード/大須・金山・鶴舞)'>
@@ -1608,7 +1712,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>17:00 ~ 0:00</span></td>
           </tr>
           <tr data-report='true' data-shops='CANDY|ソープ(大衆/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/candy/girlid-60032798/?lo=1' target='_blank'>ゆら『プレミアキャスト』...</a><br><button onclick="toggleReviewRow('review-merged-38')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-38')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-38')">レビュー(NS専門 1件)</button><br><span class='shop-info'>CANDY</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/candy/girlid-60032798/?lo=1' target='_blank'>ゆら『プレミアキャスト』...</a><br><button type='button' aria-controls='review-merged-20' aria-expanded='false' onclick="toggleReviewRow('review-merged-20')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-20' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-20')">レビュー(okinilove 2件)</button><br><button type='button' aria-controls='review-ns-20' aria-expanded='false' onclick="toggleReviewRow('review-ns-20')">レビュー(NS専門 1件)</button><br><span class='shop-info'>CANDY</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1651,8 +1755,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>11:00 ~ 18:00</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>11:00 ~ 18:00</span></td>
           </tr>
-          <tr id='review-merged-38' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-20' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
                 <li><strong>顔: 75.0:</strong> 顔はそれなりに可愛らしく愛嬌があってニコニコしていい感じでした。会って嫌な気分になる事はないと思います。</li>
@@ -1663,42 +1767,11 @@
                 <li><strong>総合: 85:</strong> スタイルはそんなに良くないが好き勝手に色々出来るので満足感が高かった。</li>
                 <li><strong>リピート: 返す（リピートする）:</strong> また言葉攻めとかしながら締まりの良いマンコに中出ししたいから。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2026/06/13/post-16103/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 75.0:</strong> 顔はそれなりに可愛らしく愛嬌があってニコニコしていい感じでした。会って嫌な気分になる事はないと思います。</li>
-                <li><strong>スタイル: 65:</strong> ポッチャリやムッチリと言った感じでスレンダーをお望みの人にはあわないです。</li>
-                <li><strong>カップ: Ｄカップ:</strong> 手に収まる程よいサイズで柔らかく触り心地良かったです。</li>
-                <li><strong>パネル差: 20:</strong> 写メ通りの顔です。幼くて可愛らしい感じはそのままです。</li>
-                <li><strong>プレイ: 85:</strong> ドMを売りにしていて感度、反応は凄く良い。NGもなく沢山攻めて楽しめた。フェラも上手。攻め好きにはおすすめ。</li>
-                <li><strong>総合: 85:</strong> スタイルはそんなに良くないが好き勝手に色々出来るので満足感が高かった。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また言葉攻めとかしながら締まりの良いマンコに中出ししたいから。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2026/06/13/post-16103/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 75.0:</strong> 顔はそれなりに可愛らしく愛嬌があってニコニコしていい感じでした。会って嫌な気分になる事はないと思います。</li>
-                <li><strong>スタイル: 65.0:</strong> ポッチャリやムッチリと言った感じでスレンダーをお望みの人にはあわないです。</li>
-                <li><strong>カップ: Ｄカップ:</strong> 手に収まる程よいサイズで柔らかく触り心地良かったです。</li>
-                <li><strong>パネル差: 20.0:</strong> 写メ通りの顔です。幼くて可愛らしい感じはそのままです。</li>
-                <li><strong>プレイ: 85.0:</strong> ドMを売りにしていて感度、反応は凄く良い。NGもなく沢山攻めて楽しめた。フェラも上手。攻め好きにはおすすめ。</li>
-                <li><strong>総合: 85.0:</strong> スタイルはそんなに良くないが好き勝手に色々出来るので満足感が高かった。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また言葉攻めとかしながら締まりの良いマンコに中出ししたいから。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 75.0:</strong> 顔はそれなりに可愛らしく愛嬌があってニコニコしていい感じでした。会って嫌な気分になる事はないと思います。</li>
-                <li><strong>スタイル: 65.0:</strong> ポッチャリやムッチリと言った感じでスレンダーをお望みの人にはあわないです。</li>
-                <li><strong>カップ: Ｄカップ:</strong> 手に収まる程よいサイズで柔らかく触り心地良かったです。</li>
-                <li><strong>パネル差: 20.0:</strong> 写メ通りの顔です。幼くて可愛らしい感じはそのままです。</li>
-                <li><strong>プレイ: 85.0:</strong> ドMを売りにしていて感度、反応は凄く良い。NGもなく沢山攻めて楽しめた。フェラも上手。攻め好きにはおすすめ。</li>
-                <li><strong>総合: 85.0:</strong> スタイルはそんなに良くないが好き勝手に色々出来るので満足感が高かった。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また言葉攻めとかしながら締まりの良いマンコに中出ししたいから。</li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-38' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-20' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=25036' target='_blank'>レポートリンク (NS専門 2026-09-25)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 23歳</li>
@@ -1725,8 +1798,8 @@
 個人的にリピありでした！</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-38' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-20' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 
       ★★★★★
       →記事リンク</p>
@@ -1764,6 +1837,8 @@
 しばらくハグ状態からゆっくり引き抜くとこをいつも通り(笑)見させてもらうと思った以上にドロリとたっぷり。
 
 少なくとも僕的には相性抜群でした。帰りの際まで終始いい感じでお疲れ様、出稼ぎではないですがそう間が開かないうちにリピします。ホント反応してくれるってのは嬉しいもんですね。</pre><br><a href='http://okinilove.com/blog-entry-3002.html#kansai' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>ご無沙汰しております。風俗は少しは行っておりましたが当たりが今回１０月になってようやくでした。好みは人其々ですしもっとナイスバディの方もいるでしょうが僕的にはド満足で来月も金銭的に大丈夫ならリピ必須です。一応目当ての他の娘がむかう途中で先客ありとなり、焦らず自分の好みとマッチするかプロフを読みまくった結果ゆらちゃんのキスが好きって投稿が決め手になり予約。会ってみると確かに愛嬌ある明るい子で会話も楽しくできます。脱ぐと適度にボリュームありタレもない乳房で乳首も見せ出してからツンと立ってくるのがよくわかり、お風呂タイムの前に後ろからなでなでモミモミコロコロ始めるとソッコーで敏感な反応、同時に喘ぎ声も期待通りに出してくれるので唇も奪いにいき濃厚ベロチューしながらのモミモミプレイに突入。出発前にシャワー浴びて来たと告げるとこのままいいよってことでプレイ続行、昔彼女とホテル入ってた時以来ですが脱がして即叡智突入ってのはお風呂後に絡み出すのとはまた違った肌触りと興奮ありますね!押し倒してひとしきりベロチューとパイ攻め堪能するとハタチの若い股を全開にしてもらい、そのままズンッ！！といきたいのを堪えて若い割れ目を拡げると綺麗なピンク色と形のいい栗ちゃん発見(笑)舌と指でクリクリ可愛がりながら大事な◯穴にも軽くズボズボ＆Ｆサイズもワシワシと揉みしだくと気持ちいい声を聞かせてくれながら昇天してくれました。仕事柄自制してか慣れてかイク嬢ってのはあまりいませんがやはり逝ってくれると嬉しいですね。次はどうする聞いたら舐めさせて、との事でうっとりエロ顔を眺めながらのお◯タイム、昔みたいな回復力あれば昔の彼女の如くゴ◯クンされても気持ちよさそうな◯の中ですが失速しては元も子もないので再び下になってもらい、お待ちかねの◯入(笑)テンション低い子の時と違いギンギンなので正に突き◯す感じでゆらちゃんも一際大きく「アンッッ！！」と悶え声。身体を起こして割れ目を拡げたり脚を抱え込んで◯ボ◯ボして楽しみましたが、嬉しかったのは密着してるとベロチューは勿論ですが耳◯めも全然ＯＫとの事。これもリピ必須のポイントですね(笑)◯まりが良すぎで◯ストンが負けそうなので「勢いあるうちにゆらちゃんの◯宮で受け止めてくれる？」と告げると激しく感じながら快諾してくれて無事◯入完了。しばらくハグ状態からゆっくり引き抜くとこをいつも通り(笑)見させてもらうと思った以上にドロリとたっぷり。少なくとも僕的には相性抜群でした。帰りの際まで終始いい感じでお疲れ様、出稼ぎではないですがそう間が開かないうちにリピします。ホント反応してくれるってのは嬉しいもんですね。</pre><br><a href='https://okinilove.com/blog-entry-3002.html#kansai' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='A○女優＆人気フードルが東京からやってくる店!! 沼津ハンパじゃない東京|デリヘル(スタンダード/沼津・三島)'>
@@ -1855,7 +1930,7 @@
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>リクエスト受付中です。チャットにてご連絡ください。</span></td>
           </tr>
           <tr data-report='true' data-shops='aQua|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-53067844/?lo=1' target='_blank'>すい👑（21歳）</a><br><button onclick="toggleReviewRow('review-okinilove-44')">レビュー(okinilove)</button><br><span class='shop-info'>aQua</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-53067844/?lo=1' target='_blank'>すい👑（21歳）</a><br><button type='button' aria-controls='review-okinilove-23' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-23')">レビュー(okinilove)</button><br><span class='shop-info'>aQua</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1898,8 +1973,8 @@
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-44' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-23' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>プロフィール写真に惹かれて指名しました。
 
@@ -1924,7 +1999,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='らぶりぃ 本店|デリヘル(スタンダード/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/lori_lovely/girlid-46752614/?lo=1' target='_blank'>ゆいり（19歳）</a><br><button onclick="toggleReviewRow('review-okinilove-45')">レビュー(okinilove)</button><br><span class='shop-info'>らぶりぃ 本店</span><br><span class='shop-info'>デリヘル(スタンダード/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/lori_lovely/girlid-46752614/?lo=1' target='_blank'>ゆいり（19歳）</a><br><button type='button' aria-controls='review-okinilove-24' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-24')">レビュー(okinilove 2件)</button><br><span class='shop-info'>らぶりぃ 本店</span><br><span class='shop-info'>デリヘル(スタンダード/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -1967,8 +2042,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-45' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-24' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 
       ★★★★★
       →記事リンク</p>
@@ -2004,10 +2079,55 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 でも、いいんです！
 
 ではでは、またボッキマスターをよろしくお願いします！！</pre><br><a href='http://okinilove.com/blog-entry-2344.html#boki' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>大人気完売嬢がいたので予約してみました。
+即日完売というわけではないため比較的余裕をもって取れました。
+
+予約後に情報収集すると「目的の一つ」は無さそうかなと勝手に予測しました。
+会社の若い子から最近『風俗探偵』の称号を貰いました！別の人からは『ス〇ーカーと変わらん』と言われる始末。。。
+
+自分が深堀りする内容はこんな感じです。
+・ヘブンの口コミ内容
+・口コミの信憑性（投稿者の投稿回数や行っている店、投稿している嬢、点数の付け方）
+・日記の中身（あれば）
+・某掲示板（偽情報の見極め大事！）
+・オキニラブ情報（あれば）
+
+個人的には2番目と3番目が重要だと思ってます。4番目は話半分ぐらいのレベルで捉えてます。
+
+全てにおいて偽情報（ステマ、オキニ隠し、陥れ）を如何に排除するかが難しいですよね。
+3番目がない今回の結果は？
+
+部屋の入口でご対面、元気な感じで「こんにちわ！」とご挨拶。
+マスクをしていても可愛いオーラが滲み出てます。
+
+軽く話をしながらマスクを外すと激カワです！そしてコミュ力もすばらしい！「先に取立てしていいですか？」の言い方がイイ（笑）
+
+シャワーでもイチャイチャしながら身体を洗います。そしてベッドへ・・・
+キスは濃厚、舌も厚めでエロいです。
+
+肌もキレイで胸は小ぶりですが感度は良好。
+ウエストとヒップのバランスが良く、最近痩せたとのことでもう少しふっくらすると男性ウケ抜群かと。
+
+アンダーヘアは赤ちゃん毛のフワフワ感がありクンニしやすかったです。
+クンニで何度か逝ってもらいましたが、モモで顔をギューっと挟まれならがの痙攣たまらんです（笑）
+
+フェラはこんな可愛い子がと思うと感度高まりまくりですね！
+お互いに感度が高まったところで交渉に挑みます。結果としてはダメでした！
+
+あんな可愛い涙目の表情で「お願い、ダメです」と言われると引かざるを得ません。
+正常位スマタでフィニッシュ。
+
+終わった後もニコニコしながら話をして楽しく過ごせました。
+シャワー湯船お着替えからホテル前でお別れ。
+
+数十メートル歩いて視線を感じたので振り返ると嬢が手を振ってました・・・ラブホの前でなんてことを！恋に落ちるやつです！！みなさん気をつけてね（笑）
+
+SP重視の自分ですが、満足度はかなり高かったですね。ありなら永久指名したいと思える嬢です。</pre><br><a href='https://okinilove.com/blog-entry-2216.html#tadano3' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='桜　SAKURA|デリヘル(人妻/新栄・東新町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230104/sakura_nagya/girlid-60543178/?lo=1' target='_blank'>みなみ（32歳）</a><br><button onclick="toggleReviewRow('review-okinilove-47')">レビュー(okinilove)</button><br><span class='shop-info'>桜　SAKURA</span><br><span class='shop-info'>デリヘル(人妻/新栄・東新町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230104/sakura_nagya/girlid-60543178/?lo=1' target='_blank'>みなみ（32歳）</a><br><button type='button' aria-controls='review-okinilove-25' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-25')">レビュー(okinilove)</button><br><span class='shop-info'>桜　SAKURA</span><br><span class='shop-info'>デリヘル(人妻/新栄・東新町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2050,8 +2170,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-47' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-25' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>巨乳を求めて厳選。
 いい乳でした。間違いなく当たり乳。
@@ -2074,7 +2194,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='激安でりポッキンコ|デリヘル(スタンダード/安城)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/pokin-ko/girlid-41727877/?lo=1' target='_blank'>ゆき【激カワ巨乳娘】（2...</a><br><button onclick="toggleReviewRow('review-merged-48')">レビュー(merged)</button><br><button onclick="toggleReviewRow('review-okinilove-48')">レビュー(okinilove)</button><br><span class='shop-info'>激安でりポッキンコ</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/pokin-ko/girlid-41727877/?lo=1' target='_blank'>ゆき【激カワ巨乳娘】（2...</a><br><button type='button' aria-controls='review-merged-26' aria-expanded='false' onclick="toggleReviewRow('review-merged-26')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-26' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-26')">レビュー(okinilove)</button><br><span class='shop-info'>激安でりポッキンコ</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2117,8 +2237,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>12:00 ~ 0:00</span></td>
           </tr>
-          <tr id='review-merged-48' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-26' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：27000円</li>
                 <li><strong>顔: 50.0:</strong> メイクとコンタクト次第で可愛くなりそうな感じ。花粉症でメガネだったので、やむを得ないが老けて見えた…</li>
@@ -2128,11 +2248,12 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>プレイ: 80.0:</strong> 一生懸命で要望も聞いてくれた。業務的な淡々とした感じではなく彼女のような雰囲気だった</li>
                 <li><strong>総合: 60.0:</strong> 時間遅れて連絡無く、お釣りを忘れててこちらから指摘したので減点です</li>
                 <li><strong>リピート: 返さない（リピートしない）:</strong> スタイルがぽっちゃりで時間やお金等で不安なったから</li>
+                <li><a href='https://m.fuzoku-tokai.com/2023/05/07/post-13901/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-48' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-26' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>はじめて投稿します
 駄文章で申し訳ないです
@@ -2147,7 +2268,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='GRAND STAGE 本店|デリヘル(スタンダード/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/grandstage/girlid-60802016/?lo=1' target='_blank'>GUMI（22歳）</a><br><button onclick="toggleReviewRow('review-okinilove-49')">レビュー(okinilove)</button><br><span class='shop-info'>GRAND STAGE 本店</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/grandstage/girlid-60802016/?lo=1' target='_blank'>GUMI（22歳）</a><br><button type='button' aria-controls='review-okinilove-27' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-27')">レビュー(okinilove)</button><br><span class='shop-info'>GRAND STAGE 本店</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2190,8 +2311,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-49' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-27' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 
       ★★★★★
       →記事リンク</p>
@@ -2207,7 +2328,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='でりどす岡崎|デリヘル(スタンダード/岡崎)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/girlid-58406693/?lo=1' target='_blank'>ちい♡ 美巨乳Hグラビア...</a><br><button onclick="toggleReviewRow('review-okinilove-50')">レビュー(okinilove)</button><br><span class='shop-info'>でりどす岡崎</span><br><span class='shop-info'>デリヘル(スタンダード/岡崎)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/girlid-58406693/?lo=1' target='_blank'>ちい♡ 美巨乳Hグラビア...</a><br><button type='button' aria-controls='review-okinilove-28' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-28')">レビュー(okinilove)</button><br><span class='shop-info'>でりどす岡崎</span><br><span class='shop-info'>デリヘル(スタンダード/岡崎)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2250,8 +2371,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-50' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-28' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価
                     ★★★★★
                  →記事リンク</p>
@@ -2278,7 +2399,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='GRAND STAGE 本店|デリヘル(スタンダード/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/grandstage/girlid-58119522/?lo=1' target='_blank'>YUZUKI（23歳）</a><br><button onclick="toggleReviewRow('review-merged-51')">レビュー(merged 2件)</button><br><span class='shop-info'>GRAND STAGE 本店</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/grandstage/girlid-58119522/?lo=1' target='_blank'>YUZUKI（23歳）</a><br><button type='button' aria-controls='review-merged-29' aria-expanded='false' onclick="toggleReviewRow('review-merged-29')">レビュー(merged)</button><br><span class='shop-info'>GRAND STAGE 本店</span><br><span class='shop-info'>デリヘル(スタンダード/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2321,8 +2442,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>明日出勤！ご予約受付中！</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>12:00 ~ 2:00</span></td>
           </tr>
-          <tr id='review-merged-51' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-29' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：42000円</li>
                 <li><strong>顔: 100.0:</strong> 見る角度によって田中みな実に似ているときもあれば、トリンドル玲奈に似ていると思う時もある。まあそれくらい超絶キレカワなお顔をしている。不満に思う人は誰一人としていないだろう。</li>
@@ -2334,20 +2455,10 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>リピート: 返す（リピートする）:</strong> 町田のデリヘルとの掛け持ちで、名古屋には月に数日しか出勤しない。しかも、YUZUKIちゃんはSNSを一切しないので、予約はネットのみ。予約開始2分で完売する超予約困難嬢なので、なかなか予約が取れないが、それでも何度もトライしてでも会うべき女の子。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2025/12/07/post-15817/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：42000円</li>
-                <li><strong>顔: 100.0:</strong> 見る角度によって田中みな実に似ているときもあれば、トリンドル玲奈に似ていると思う時もある。まあそれくらい超絶キレカワなお顔をしている。不満に思う人は誰一人としていないだろう。</li>
-                <li><strong>スタイル: 100.0:</strong> 素晴らしいの一言。お腹には縦線があるくらいに引き締まっていて、ちゃんとくびれもある。筋トレでお腹とお尻を鍛えているらしく、お尻も形が良くキュッと引き締まっている。</li>
-                <li><strong>カップ: Ｆカップ:</strong> ふわふわで適度に張りのある天然のFカップ。乳首も綺麗な薄茶色。</li>
-                <li><strong>パネル差: 0.0:</strong> 写メ日記では顔の一部をぼかしているが、想像の範囲内だと思う。あまり加工している感じはしない。</li>
-                <li><strong>プレイ: 100.0:</strong> とにかくエッチに積極的。YUZUKIちゃんの方から積極的にディープキスをしてくれる。濃厚に舌を絡めたキスをずっとしてくれる。え？まだしてくれるの？というくらいにずっとキスをしながら、必ず身体のどこかをフェザータッチしてくれる。1回戦が終わった後もピッタリとくっついてお話をしてくれる。</li>
-                <li><strong>総合: 100.0:</strong> 動画オプションを付けて大正解だった。とても恥ずかしい格好もちゃんとしてくれて、こんなポーズはどう？とか、この角度から撮ると良いよ、とか色々提案もしてくれる。正常位、騎乗位、バックと一通りのハメ撮りも出来て最高にエロい動画が撮れた。YUZUKIちゃんに初めて入る人は動画オプションを絶対に付けたほうが良い。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 町田のデリヘルとの掛け持ちで、名古屋には月に数日しか出勤しない。しかも、YUZUKIちゃんはSNSを一切しないので、予約はネットのみ。予約開始2分で完売する超予約困難嬢なので、なかなか予約が取れないが、それでも何度もトライしてでも会うべき女の子。</li>
-              </ul>
             </td>
           </tr>
           <tr data-report='true' data-shops='M|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/en/girlid-44866959/?lo=1' target='_blank'>はる/羽桜（21歳）</a><br><button onclick="toggleReviewRow('review-merged-53')">レビュー(merged 2件)</button><br><button onclick="toggleReviewRow('review-okinilove-53')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-53')">レビュー(NS専門 1件)</button><br><span class='shop-info'>M</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/en/girlid-44866959/?lo=1' target='_blank'>はる/羽桜（21歳）</a><br><button type='button' aria-controls='review-merged-30' aria-expanded='false' onclick="toggleReviewRow('review-merged-30')">レビュー(merged 4件)</button><br><button type='button' aria-controls='review-okinilove-30' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-30')">レビュー(okinilove)</button><br><button type='button' aria-controls='review-ns-30' aria-expanded='false' onclick="toggleReviewRow('review-ns-30')">レビュー(NS専門 1件)</button><br><span class='shop-info'>M</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2390,8 +2501,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>10:00 ~ 20:30</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-53' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-30' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：50000円</li>
                 <li><strong>顔: 75.0:</strong> 少しポッチャリだが愛嬌がある顔 痩せていれば綺麗だと思う。</li>
@@ -2404,36 +2515,42 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><a href='https://m.fuzoku-tokai.com/2023/03/08/post-13724/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：50000円</li>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：60000円</li>
                 <li><strong>顔: 85.0:</strong> 小顔でやや色黒な感じですが、目や鼻は整っていて可愛いです。笑顔もとても印象的でした</li>
                 <li><strong>スタイル: 95.0:</strong> 肉感がある高身長で巨乳でした。足も長くて、肌もスベスベです。</li>
-                <li><strong>カップ: Ｆカップ:</strong> 胸は大きくてとても良い形をしていました。ハリもあり揉み心地も最高でした</li>
+                <li><strong>カップ: Ｆカップ:</strong> 胸は大きくて、揉み心地は最高です。乳首は普通サイズで色も特に気になりませんでした。</li>
                 <li><strong>パネル差: 20.0:</strong> ＨＰの写真と比べたらめちゃくちゃスレンダーというわけではないですが、巨乳で身長が高いのでそこまで気になりませんでした。</li>
                 <li><strong>プレイ: 85.0:</strong> 一回戦の騎乗位は極上でした。2回戦しましたが.3回戦目のお誘いもあり積極性もありました</li>
                 <li><strong>総合: 90.0:</strong> 顔も可愛く、何よりスタイルも悪くなく巨乳だったので、高身長な巨乳好きにはたまらないと思います。性格も悪くなく、積極的でとても良かったです</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> もう少し痩せてくれればなおよい。またおっぱいを見たくなったら行きます。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 何度も揉みたくなるおっぱいと積極的なプレイをもう一度体験したいです</li>
+                <li><a href='https://m.fuzoku-tokai.com/2026/04/06/post-16014/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：50000円</li>
                 <li><strong>顔: 50.0:</strong> 整っていて、きれいだなという印象です。教室にいるとしたらカーストが上位だなと思わせてくれます。</li>
                 <li><strong>スタイル: 50.0:</strong> ガッチリしています。太っているわけではありませんが、スレンダーと言われるとそれも違うかなと思います。</li>
                 <li><strong>カップ: Ｅカップ:</strong> ハリがあり大きさもあるので触り心地がよいです。何時間でも触っていたいおっぱいでした。</li>
-                <li><strong>パネル差: 50.0:</strong> パネルの若さは感じないですね。でもそこそこ美人さんでしたよ</li>
+                <li><strong>パネル差: 50.0:</strong> 写真をみていないのでわかりません。</li>
                 <li><strong>プレイ: 60.0:</strong> キスはしてくれませんでした。そこがとても残念でした。プレイは普通といったところです。絶賛のレベルではなかったです。</li>
                 <li><strong>総合: 50.0:</strong> 人気嬢ということでしたが、自分には合いませんでした。8月より昇格とのことなので、入ってハズレということはなさそうです。</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 返す要素がない</li>
+                <li><strong>リピート: 返さない（リピートしない）:</strong> 上にも書いたが、自分には合わなかった。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2025/07/27/post-15559/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：50000円</li>
                 <li><strong>顔: 60.0:</strong> あくまでも顔の印象だけですがパネル等でまた感じに比べて思ったより老けて見えるように感じました。見た目だけなら一瞬３０代かな？と思った。</li>
                 <li><strong>スタイル: 75.0:</strong> ちょっとだけお腹ぽっこりのちょいポチャな感じですがマットではそれが気持ちよかった</li>
+                <li><strong>カップ: Ｆカップ:</strong> 胸は大きくてとても良い形をしていました。ハリもあり揉み心地も最高でした</li>
+                <li><strong>パネル差: 50.0:</strong> パネルの若さは感じないですね。でもそこそこ美人さんでしたよ</li>
                 <li><strong>プレイ: 50.0:</strong> 即即からのベット、マットの流れ。私のものが小さいのかとは思いますがやたらと緩かったのでマットでは不発に終わり不完全燃焼でした。マットテクも噂ほどではなく残念。</li>
                 <li><strong>総合: 30.0:</strong> ここのレポートを見て期待をして行っただけにちょっと今回は不完全燃焼感は否めない。</li>
-                <li><strong>顔: 75.0:</strong> 少しポッチャリだが愛嬌がある顔 痩せていれば綺麗だと思う。</li>
-                <li><strong>スタイル: 84.0:</strong> 写真以上に大きいオッパイに大満足ニコニコの笑顔素敵です。ただし、お腹がだらしない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> 大きく形よし色よし張りもある理想のおっぱい。こんなおっぱいをまっていた。</li>
-                <li><strong>パネル差: 80.0:</strong> 体格が良すぎませんか？お腹がしわしわ？おっぱいはその物</li>
-                <li><strong>プレイ: 99.0:</strong> 迫力ボディーをフルに使用した洗い場は圧感でした。一回目が終わって横になっていると二回目のお誘いがありに連荘バットでしました、誘い方がエロかった。</li>
-                <li><strong>総合: 88.0:</strong> 体調が悪くフラフラだったんだけど帰る頃にはシャキッとしていました、体中が筋肉痛になるほどのプレーを受けてくれてありがとう。</li>
+                <li><strong>リピート: 返さない（リピートしない）:</strong> 返す要素がない</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/07/06/post-14925/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-53' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-30' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=11608' target='_blank'>レポートリンク (NS専門 2026-01-16)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 24歳</li>
@@ -2457,14 +2574,14 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 濃厚なえっちなら羽桜ちゃんだなって思う今日この頃。</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-53' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-30' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>お話してるととても気さくで話しやすいのですがプレイはやや事務的な感じ、即ベッド、ピンクチェア、マット、どれもとても気持ちよかったですがなにかわからない物足りなさがありました。</pre><br><a href='http://okinilove.com/blog-entry-1118.html#mago4' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='ROYALCLUB姫|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-50476855/?lo=1' target='_blank'>素人ゆき☆高級サービス（...</a><br><button onclick="toggleReviewRow('review-okinilove-55')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-55')">レビュー(NS専門 1件)</button><br><span class='shop-info'>ROYALCLUB姫</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-50476855/?lo=1' target='_blank'>素人ゆき☆高級サービス（...</a><br><button type='button' aria-controls='review-okinilove-34' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-34')">レビュー(okinilove)</button><br><button type='button' aria-controls='review-ns-34' aria-expanded='false' onclick="toggleReviewRow('review-ns-34')">レビュー(NS専門 1件)</button><br><span class='shop-info'>ROYALCLUB姫</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2507,8 +2624,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-ns-55' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-34' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=16826' target='_blank'>レポートリンク (NS専門 2026-05-11)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 24歳</li>
@@ -2538,8 +2655,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 コスパもいいしまた遊びたいが出勤がレアで短く予約が瞬間で埋まるのが難点。</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-55' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-34' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 ★★★★★ →記事リンク</p>
               <pre>仕事に余裕があったので話題のゆき嬢に入りました
 
@@ -2557,7 +2674,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='OPERA(オペラ)|ヘルス(スタンダード/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/opera/girlid-42736346/?lo=1' target='_blank'>ゆあ（21歳）</a><br><button onclick="toggleReviewRow('review-merged-56')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-56')">レビュー(okinilove)</button><br><span class='shop-info'>OPERA(オペラ)</span><br><span class='shop-info'>ヘルス(スタンダード/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/opera/girlid-42736346/?lo=1' target='_blank'>ゆあ（21歳）</a><br><button type='button' aria-controls='review-merged-35' aria-expanded='false' onclick="toggleReviewRow('review-merged-35')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-35' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-35')">レビュー(okinilove 4件)</button><br><span class='shop-info'>OPERA(オペラ)</span><br><span class='shop-info'>ヘルス(スタンダード/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2600,41 +2717,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>休み</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>休み</span></td>
           </tr>
-          <tr id='review-merged-56' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 100.0:</strong> 芸能界トップクラスにいてもおかしくない美女。 出会えたことに感謝した。</li>
-                <li><strong>スタイル: 100.0:</strong> 比較的小柄の部類だがスタイル抜群ゆえかいわゆるチンチクリン感はない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> しばし見ほれるほどの巨乳にして形のいい美乳。揉んで良し舐めて良し吸って良しの極乳。</li>
-                <li><strong>パネル差: 10.0:</strong> ほぼ本人。</li>
-                <li><strong>プレイ: 90.0:</strong> ホテルご対面で当たりを感じた。初対面のキスから簡単な世間話からシャワーできれいにしてもらいいよいよベッドに突入。とにかくきれいじゃないところがないので無我夢中で触り揉み舐め吸いの貪り。カチカチになったところでSPを持ちかけるも笑って無言スルー。ここは諦めてとフェラとスマタで2回発射した。</li>
-                <li><strong>総合: 95.0:</strong> 文句の付けどころがない極上嬢。満点－5点はSPがなかったこと。リピを重ねればもしかして…の淡い期待含み。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 上記の通り</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/05/25/post-14857/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 100.0:</strong> 芸能界トップクラスにいてもおかしくない美女。 出会えたことに感謝した。</li>
-                <li><strong>スタイル: 100.0:</strong> 比較的小柄の部類だがスタイル抜群ゆえかいわゆるチンチクリン感はない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> しばし見ほれるほどの巨乳にして形のいい美乳。揉んで良し舐めて良し吸って良しの極乳。</li>
-                <li><strong>パネル差: 10.0:</strong> ほぼ本人。</li>
-                <li><strong>プレイ: 90.0:</strong> ホテルご対面で当たりを感じた。初対面のキスから簡単な世間話からシャワーできれいにしてもらいいよいよベッドに突入。とにかくきれいじゃないところがないので無我夢中で触り揉み舐め吸いの貪り。カチカチになったところでSPを持ちかけるも笑って無言スルー。ここは諦めてとフェラとスマタで2回発射した。</li>
-                <li><strong>総合: 95.0:</strong> 文句の付けどころがない極上嬢。満点－5点はSPがなかったこと。リピを重ねればもしかして…の淡い期待含み。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 上記の通り</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/05/25/post-14857/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 100.0:</strong> 芸能界トップクラスにいてもおかしくない美女。 出会えたことに感謝した。</li>
-                <li><strong>スタイル: 100.0:</strong> 比較的小柄の部類だがスタイル抜群ゆえかいわゆるチンチクリン感はない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> しばし見ほれるほどの巨乳にして形のいい美乳。揉んで良し舐めて良し吸って良しの極乳。</li>
-                <li><strong>パネル差: 10.0:</strong> ほぼ本人。</li>
-                <li><strong>プレイ: 90.0:</strong> ホテルご対面で当たりを感じた。初対面のキスから簡単な世間話からシャワーできれいにしてもらいいよいよベッドに突入。とにかくきれいじゃないところがないので無我夢中で触り揉み舐め吸いの貪り。カチカチになったところでSPを持ちかけるも笑って無言スルー。ここは諦めてとフェラとスマタで2回発射した。</li>
-                <li><strong>総合: 95.0:</strong> 文句の付けどころがない極上嬢。満点－5点はSPがなかったこと。リピを重ねればもしかして…の淡い期待含み。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 上記の通り</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/05/25/post-14857/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
+          <tr id='review-merged-35' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：38000円</li>
                 <li><strong>顔: 100.0:</strong> 芸能界トップクラスにいてもおかしくない美女。 出会えたことに感謝した。</li>
@@ -2648,8 +2732,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-56' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-35' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>自身がパイパンなのでパイパンの女の子しか指名しないパイパン太郎です。
 
@@ -2664,10 +2748,98 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 おっぱいを堪能しクンニした後、攻守交代しフェラしてもらってる最中に手マンしているとなんと潮吹き。もっと見たいと思い再度攻守交代して手マンとクンニしているとどんどん溢れて来てベッドはびちゃびちゃです。
 
 最後は69でフィニッシュしてスッキリ満足の70分でした。</pre><br><a href='http://okinilove.com/blog-entry-2616.html#paipan' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>まず始めに投稿しようか迷いました。なぜなら今でも予約がいっぱいらしいのにさらに取りづらくなったら嫌だから。でも、ここに書きたくてたまらなかったので投稿します。
+
+少し長くなるかもしれませんがお付き合いください。
+
+まず、平日の午後、ぽっかり予定が空いていたのもあり急遽お休みを取得。
+
+最近人気嬢が増えたと噂のオペラを調べると、話題の女の子がみんな出勤になっているではありませんか。
+これはフリーでも当たりの可能性大と突撃してきました。
+
+ネット上は待機中が多かったですが、パネルを出してもらうと早くて一時間待ち
+
+電話予約が多いとのことで、まあ仕方ないと思いながら、そこにお目当ての女の子の１人、ゆあちゃんのパネルが！迷うことなく指名しました。
+
+ただ、これまでもパネルやプロフィールは好みでもイマイチ合わないこともあるので期待度を高めずに待ちました。
+
+時間になり部屋に入ってきたゆあちゃん。
+とりあえず、会った瞬間の笑顔で心の中でガッツポーズ！
+
+パネルの雰囲気よりもキレイなお姉さん感と、パネルで見た以上に大きなお胸とくびれのあるスタイルで見た目は言うことなし。
+
+さっそく、はじめましてのハグからキスの応酬。
+しょっぱなから濃厚なはじまりに興奮は高まります。
+
+シャワーをすませてベットで本格的な絡み合いに行くと、キスの続きから大きなおっぱいを揉み揉み。すごく感じてくれます。
+
+これは攻めたくなってくるので、こちらから攻めを続けると下もモジモジしながら喘ぎ声が大きくなってきます。
+
+これはもう止まりません、おっぱいを触りながら下にも手を伸ばすと、そこはもうぬるぬるに。
+指がすんなり入るので徐々に激しくしていくとあっという間にイッてしまいました。
+
+ここから攻守交代、またまた濃厚キスからフェラに移行してガンガン攻めてきます。
+
+イキそうになりかけると、まだ早いとばかりにペースを落とされ焦らされます。
+最後は69の体制になりお互い攻め合いながら放出。
+もう、大満足の70分でした。
+
+残り時間は横になってイチャイチャしながら世間話を、もう本当の恋人のような時間を過ごして終了でした。
+
+最近インペリアルに昇格したそうで、通常より料金がアップするのに加え、本指名料の上乗せが苦しいところですが、多分次は指名します。その価値のある女の子です。
+
+長文失礼いたしました。</pre><br><a href='http://okinilove.com/blog-entry-659.html#knesu2' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>前回に入った感想。なかなか予約がとれないので。
+
+写メからは偽乳の可能性があるかと思ってたら、本物でびっくり。
+
+エロ本からでてきたかのような体。
+まさにグラマラス。
+
+あとは潮吹き。本人は売りにしてないようでしたが、じゃばじゃばでてた。
+また時間を見つけて入りたい。</pre><br><a href='http://okinilove.com/blog-entry-659.html#metara5' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>仕事で名古屋に出張に行き、早めに用事が済んだので、どうせならちょっと遊んで行こうと思い、ネットで調べて突撃。
+
+ネットの写メ日記はめちゃくちゃ可愛くてナイスボディだけど、最近写メ日記詐欺の被害に遭いまくってるため、警戒モードでご対面。
+
+すると、写メ日記以上に可愛くてナイスボディの女の子が目の前に！
+満面の笑みで挨拶もそこそこに激しくベロチューをされ、一気にテンションMAX。
+
+結構長い時間ベロチューしたあと、ようやくシャワータイム。
+全裸ボディも素晴らしいです！
+
+ベットに戻りまたまたベロチューしまくりで、まずはこちらから攻めてみます。
+丁寧に乳首を攻めると、結構激しく感じてくれます（演技だとしてもOK）。
+
+そして何気に秘部に手を伸ばすと、もうすでにトロットロのグッチョグチョ。
+
+優しく指２本でピストン運動すると大きな声を出して感じ始め、その感じてる顔を間近で見ようと顔を近づけると、女の子の方からベロチューを求められ大興奮！
+
+その後、程なくしてイッてしまい、身体はピクピク痙攣してる様子（これが演技ならアッパレ）。
+
+クンニ大好き人間なので、今度は足をＭ字に広げて全力でペロペロ攻撃。
+キレイなアソコ＆無臭で最高！
+
+舐めていくにつれ声が段々と大きくなり、そして「いや、ダメ！出ちゃう！」と切なさそうな声が聞こえ「ん⁉︎何のこと？」と思ってたら、アソコから派手に潮吹きが！
+
+こちらの顔や身体も潮まみれになるくらい激しい潮吹きで、ベッドは水びたし。
+AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、我を忘れてクンニ攻撃＆指でクリを愛撫すると、潮吹きが止まりません。
+
+顔を近づけると相変わらず女の子からベロチューを求められ、口の周りはアソコからの潮と、女の子のベロチューの唾液でぐちゃぐちゃになってます。
+
+程なくして女の子から「交代するね」と言われてて身を任せると、これまたテクニシャンで唾液たっぷりフェラをしてもらい、最後は入ってると錯覚しちゃう騎乗位スマタで大量放出！
+
+終わった時にはお互いぐったりでした。
+お値段は少々高めかな…と思いますが、レベルの高い女の子と、これだけ激しい時間が過ごせれば安いと思いました。
+
+また名古屋で仕事ないかなぁ〜。</pre><br><a href='http://okinilove.com/blog-entry-659.html#netyori' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='リージェントクラブ貴公子|ソープ(高級/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-25374159/?lo=1' target='_blank'>吉乃 加恋（22歳）</a><br><button onclick="toggleReviewRow('review-merged-60')">レビュー(merged 3件)</button><br><button onclick="toggleReviewRow('review-okinilove-60')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-60')">レビュー(NS専門 1件)</button><br><span class='shop-info'>リージェントクラブ貴公子</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-25374159/?lo=1' target='_blank'>吉乃 加恋（22歳）</a><br><button type='button' aria-controls='review-merged-36' aria-expanded='false' onclick="toggleReviewRow('review-merged-36')">レビュー(merged 3件)</button><br><button type='button' aria-controls='review-okinilove-36' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-36')">レビュー(okinilove 3件)</button><br><button type='button' aria-controls='review-ns-36' aria-expanded='false' onclick="toggleReviewRow('review-ns-36')">レビュー(NS専門 1件)</button><br><span class='shop-info'>リージェントクラブ貴公子</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2710,8 +2882,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>10:00 ~ 23:59</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-60' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-36' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：150分:</strong> ◆総額：95000円</li>
                 <li><strong>顔: 50.0:</strong> 元アイドルだったようで、可愛らしい感じです。丸顔で朗らかな印象です 写真で口元見えますが、やや、本当にややアヒル口です</li>
@@ -2725,30 +2897,30 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
               </ul>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：150分:</strong> ◆総額：95000円</li>
-                <li><strong>顔: 50.0:</strong> 元アイドルだったようで、可愛らしい感じです。丸顔で朗らかな印象です 写真で口元見えますが、やや、本当にややアヒル口です</li>
-                <li><strong>スタイル: 80.0:</strong> 鳩胸で胸が大きいのは嬉しかったです　腰はしっかりとくびれて、お尻はやや大きいので、ボンキュッボンな体型でした</li>
-                <li><strong>カップ: Ｆカップ:</strong> オッパイはカレンさんの魅力のひとつです　大変に柔らかく沢山揉ませていただきましたどちらかといえば外に張り出し系のオッパイです</li>
-                <li><strong>パネル差: 0.0:</strong> 目は隠れてますが、お顔も見える範囲でそのままです　身体も肩幅が広めで胸が大きいのはそのままです　唇は柔らかくキスが楽しいです</li>
-                <li><strong>プレイ: 50.0:</strong> エロトークもいっぱいでベットが楽しいです。おっぱいも堪能できますし、柔らかい唇とのキスはなかなかの感触でした。匂いも感度も嗅ぎました。さらに入れている際に少しだけ潮を吹いてくれました。営業トークかもですが、潮吹きはいつもではないと言ってました。</li>
-                <li><strong>総合: 80.0:</strong> 顔も可愛く、プレイも積極的で、エロトークも楽しいです。唯一、マットの準備に（ややわざと感じましたが）時間を使った印象があり、厳しいかもですが、その分減点しました。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全てにレベルが高いので、楽しくお会いできました。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2023/11/30/post-14492/' target='_blank'>レポートリンク (merged)</a></li>
+                <li><strong>顔: 70.0:</strong> 丸顔でかわいい方かと思いますが、それほどとは感じませんでした。好みの差でしょうか？</li>
+                <li><strong>スタイル: 50.0:</strong> 確かにグラマーですが、全体的にガタイがいいという印象です。</li>
+                <li><strong>カップ: Ｆカップ:</strong> 胸は大きいですが、Gまであるかな？あと左右とも外側を向いた感じで乳首が離れているかな？</li>
+                <li><strong>パネル差: 40.0:</strong> まあ、想像できる感じ</li>
+                <li><strong>プレイ: 75.0:</strong> エロさ全開で始めからすごい攻めでした！騎乗位では少し潮を吹いてホントかはわからないですが、毎回吹くわけではないと言ってました。マットはまだちょっと寒い時期だったのてやめました。希望通り３回いけましたし、プレイ自体は満足でした。何もかも上手です。</li>
+                <li><strong>総合: 70.0:</strong> この店の二大看板のお一人とのことで期待しすぎたかな？本指名ランキングでは東の横綱ということで。ロイヤルコースなら最高！となるかもしれませんが、もうお一方、西の横綱さんと比べると劣る…という個人的感想です。自分アピールがけっこうあったのが疲れました。</li>
+                <li><strong>リピート: 返さない（リピートしない）:</strong> 10万か～、年１回くらいのたまになら行くかも？でも基本的にないかな？私は西の横綱の方がいいです。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2025/09/08/post-15653/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：150分:</strong> ◆総額：95000円</li>
-                <li><strong>顔: 50.0:</strong> 元アイドルだったようで、可愛らしい感じです。丸顔で朗らかな印象です 写真で口元見えますが、やや、本当にややアヒル口です</li>
-                <li><strong>スタイル: 80.0:</strong> 鳩胸で胸が大きいのは嬉しかったです　腰はしっかりとくびれて、お尻はやや大きいので、ボンキュッボンな体型でした</li>
-                <li><strong>カップ: Ｆカップ:</strong> オッパイはカレンさんの魅力のひとつです　大変に柔らかく沢山揉ませていただきましたどちらかといえば外に張り出し系のオッパイです</li>
-                <li><strong>パネル差: 0.0:</strong> 目は隠れてますが、お顔も見える範囲でそのままです　身体も肩幅が広めで胸が大きいのはそのままです　唇は柔らかくキスが楽しいです</li>
-                <li><strong>プレイ: 50.0:</strong> エロトークもいっぱいでベットが楽しいです。おっぱいも堪能できますし、柔らかい唇とのキスはなかなかの感触でした。匂いも感度も嗅ぎました。さらに入れている際に少しだけ潮を吹いてくれました。営業トークかもですが、潮吹きはいつもではないと言ってました。</li>
-                <li><strong>総合: 80.0:</strong> 顔も可愛く、プレイも積極的で、エロトークも楽しいです。唯一、マットの準備に（ややわざと感じましたが）時間を使った印象があり、厳しいかもですが、その分減点しました。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 全てにレベルが高いので、楽しくお会いできました。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2023/11/30/post-14492/' target='_blank'>レポートリンク (merged)</a></li>
+                <li><strong>プレイ時間: ◆プレイ時間：150分:</strong> ◆総額：100000円</li>
+                <li><strong>顔: 80.0:</strong> 顔は普通な印象です。綺麗と言うよりかは可愛に近い感じだと思います</li>
+                <li><strong>スタイル: 80.0:</strong> ちょいぽちゃです。写真をイメージすると少し違う印象を持つと思います。</li>
+                <li><strong>カップ: Ｆカップ:</strong> 胸は大きかったです。ただそれを使ったプレイなどはそれほどなかったかと思います。</li>
+                <li><strong>パネル差: 60.0:</strong> 顔はぼかしが入っているため判断できませんが、若干太くを感じました。</li>
+                <li><strong>プレイ: 75.0:</strong> プレイは一生懸命にやってくれます。特に問題ないと思います。ただ話をしている時間も長くプレイを求めるのであれば若干不満が残るかもしれません。</li>
+                <li><strong>総合: 75.0:</strong> サービスを求めるのであれば、若干消化不良になるかもしれません。若い女の子と話すと言う感覚であれば非常に良いと思います</li>
+                <li><strong>リピート: 返さない（リピートしない）:</strong> 話よりもサービスを求めているので</li>
+                <li><a href='https://m.fuzoku-tokai.com/2021/03/23/post-11637/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-60' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-36' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=11165' target='_blank'>レポートリンク (NS専門 2026-01-05)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 32歳</li>
@@ -2767,14 +2939,18 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
               <pre>金津園最高峰のリージェントコースでのナンバー1姫だけあって、テクがすごく、目力ある表情でグイグイサービスしてくれるので、体力ある方や隠語大好きな方はおおいに楽しめるかと思う。高級感や上品さなど、そのあたりも十分楽しめた。姫曰く、絶対に外れを引きたくないから、という理由でリピート指名したお客さんもいたらしい。当方は調子が上がりきらない日だったので、そこが悔やまれるが、リージェントコースの150分を存分に楽しめる体力をつけて事前の調整もしっかりして（それはそれでなかなか大変だが）再チャレンジできると良いなと。</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-60' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-36' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>水槽に熱帯魚がいる高級店嬢も一生懸命でした。また行きたいです</pre><br><a href='http://okinilove.com/blog-entry-2908.html#tyokoku' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★☆☆☆ →記事リンク</p>
+              <pre>小柄でぽっちゃり。目鼻立ちがはっきりしている。切れ長の目。バストはE位。乳首大きめ。バキュームフェラの吸引力が強い。積極的。淫語を使ってくる。マットではアナル舐めも積極的。常に気配りが出来ており、どうすれば客が気持ち良くなるか考えながら対応してくれる。</pre><br><a href='http://okinilove.com/blog-entry-554.html#ramu4' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>いつも参考にしてます、初投稿のトリプルhです。予約バトルに勝利し、貴公子の加恋ちゃんに会ってきたのでレポします。会ってみての印象はやっぱりアイドルやってたんだて感じで、顔は安部麻美に近いかな？接客の印象は高級店の感じはなく少し子供っぽい感じ。プレイの方は積極的で、ソフトタッチで全身をせめたら潮を吹いてました。普段からオナニーでも吹いているようでエロい子でした。巨乳好きならオススメしますが自分はリピはないかな！自分にとっては元アイドルとエッチ出来たので貴重な体験にはなりました。</pre><br><a href='http://okinilove.com/blog-entry-554.html#toripuru' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='レジーナ|ソープ(高級/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/s-romane/girlid-46278440/?lo=1' target='_blank'>恵美/Emi（22歳）</a><br><button onclick="toggleReviewRow('review-merged-63')">レビュー(merged 2件)</button><br><button onclick="toggleReviewRow('review-ns-63')">レビュー(NS専門 9件)</button><br><span class='shop-info'>レジーナ</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/s-romane/girlid-46278440/?lo=1' target='_blank'>恵美/Emi（22歳）</a><br><button type='button' aria-controls='review-merged-39' aria-expanded='false' onclick="toggleReviewRow('review-merged-39')">レビュー(merged 5件)</button><br><button type='button' aria-controls='review-ns-39' aria-expanded='false' onclick="toggleReviewRow('review-ns-39')">レビュー(NS専門 9件)</button><br><span class='shop-info'>レジーナ</span><br><span class='shop-info'>ソープ(高級/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -2817,8 +2993,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-63' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-39' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：65000円</li>
                 <li><strong>顔: 90.0:</strong> ホームページの画像とは少し違いますが、かわいいです。ロリ系のかわいさです。</li>
@@ -2832,30 +3008,52 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
               </ul>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：70000円</li>
-                <li><strong>顔: 85.0:</strong> きれいというよりかわいい感じがします。おおむねイメージどおり。</li>
-                <li><strong>スタイル: 95.0:</strong> 小柄スレンダー好きにはたまらないです本人はパネルのウエスト部分を加工してると言ってましたがわからないぐらいです</li>
-                <li><strong>カップ: Ｅカップ:</strong> とてもきれいな胸をしています。乳首はブラウン色で触り心地もよくずっと触っていられます。</li>
+                <li><strong>顔: 85.0:</strong> 小さくてとても可愛らしい顔です 綺麗より断然可愛い系です</li>
+                <li><strong>スタイル: 95.0:</strong> 身長は小さめですがかなりスタイル良いと感じました胸も大きいし文句無しです</li>
+                <li><strong>カップ: Ｅカップ:</strong> 身体は細めなのにとても大きく綺麗なふわふわおっぱいですこれでギニューな訳ないです</li>
                 <li><strong>パネル差: 40.0:</strong> ホームページやヘヴンそのままイメージでもそこそこ大丈夫です</li>
-                <li><strong>プレイ: 80.0:</strong> EVから濃厚なキスのお出迎え。部屋に入ってソファで即即でした。ベッドで鏡に向かってのバックは最高でした。プレイ内容はごく普通ですが、優しいので癒されます。不思議ちゃんで心配になるくらい声が小さいのですが、打ち解けると良くしゃべります。積極的にお誘いがあります。</li>
+                <li><strong>プレイ: 80.0:</strong> いつもの高級店らしいプレイ内容です即即でソファーで脱がされそこでインベットでイン、終わって飲み物飲んで、お風呂で潜望鏡、マットして、最後に再ベットでしたね</li>
                 <li><strong>総合: 88.0:</strong> とっても良い嬢です絶対性格良いですお客さんも大人しい方が多そうなイメージギャル男みたいなのは絶対向きません大人な男性で行きましょう注意として、声に特徴ありますかなり小さめで、声質高め、聞き取りにくいので、沢山会話したい人は合わないかも</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 費用が高いため頻繁には無理ですがサービス内容も彼女の雰囲気も好みであるため。</li>
-                <li><strong>顔: 90.0:</strong> パネルよりちょっと印象が変わりますが かなり可愛いです。目も綺麗で見つめられるとドキっとしました</li>
-                <li><strong>スタイル: 90.0:</strong> 以前より少し太ったと話していましたが、一般的にはちょうどいいかややスレンダーよりといった感じ。</li>
-                <li><strong>パネル差: 80.0:</strong> ホームページとはやや印象が違いますが、かわいいことに間違いないです。</li>
-                <li><strong>プレイ: 50.0:</strong> 部屋に入ったやいなや、激しいDKに始まり、即即プレイ。椅子からベッド、あっという間の一回戦。その後ベッドで楽しいトーク。姫からのお誘いで2回戦。お清め、アナル舐めあり夢心地の空間でした。</li>
-                <li><strong>総合: 100.0:</strong> かわいいロリ系のお顔に大人のカラダ。優しくて癒されて、満足しない人はいないでしょう。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 突いてる時の感じてる顔が最高で、またあの顔をみたいので</li>
+                <li><a href='https://m.fuzoku-tokai.com/2026/02/01/post-15910/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：70000円</li>
+                <li><strong>顔: 90.0:</strong> 写真で想像した感じとは少し違いましたが、小顔でかわいい感じです。万人受けすれかわいさだと思います。</li>
+                <li><strong>スタイル: 95.0:</strong> 小柄ですがスタイルは最高です。出るとこ出て、くびれもしっかりとあります。柔らかくて気持ちいいお体されてます。</li>
+                <li><strong>カップ: Ｅカップ:</strong> 程よい大きさで、とても柔らかく、ずっと触っていられます。</li>
                 <li><strong>パネル差: 30.0:</strong> 勝手にきれい系だと想像していましたがかわいい系でした。</li>
-                <li><strong>総合: 90.0:</strong> 顔、スタイル、プレイ、サービス良しでかなり満足しました。ただ7万円は高いかと</li>
+                <li><strong>プレイ: 80.0:</strong> EVから濃厚なキスのお出迎え。部屋に入ってソファで即即でした。ベッドで鏡に向かってのバックは最高でした。プレイ内容はごく普通ですが、優しいので癒されます。不思議ちゃんで心配になるくらい声が小さいのですが、打ち解けると良くしゃべります。積極的にお誘いがあります。</li>
+                <li><strong>総合: 90.0:</strong> かわいいしスタイルも良いので最高レベルの素材かと。人気があるのも頷けます。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 良い姫です。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/12/13/post-15217/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：70000円</li>
+                <li><strong>顔: 90.0:</strong> パネルよりちょっと印象が変わりますが かなり可愛いです。目も綺麗で見つめられるとドキっとしました</li>
+                <li><strong>スタイル: 95.0:</strong> 小柄スレンダー好きにはたまらないです本人はパネルのウエスト部分を加工してると言ってましたがわからないぐらいです</li>
                 <li><strong>カップ: Ｃカップ:</strong> 小ぶりで形の良いオッパイです乳首は薄茶で小さめでした</li>
-                <li><strong>パネル差: 10.0:</strong> パネルでイメージしていた感じは綺麗系でしたが、実際の彼女はかわいらしい感じです。</li>
+                <li><strong>パネル差: 10.0:</strong> ほぼほぼ無いです</li>
                 <li><strong>プレイ: 90.0:</strong> だいたい高級店の流れです。竿から玉からのアナル舐めの往復で悶絶しました</li>
+                <li><strong>総合: 90.0:</strong> 顔、スタイル、プレイ、サービス良しでかなり満足しました。ただ7万円は高いかと</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 返したいが高いので頻繁には行けない</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/09/07/post-15049/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：70000円</li>
+                <li><strong>顔: 85.0:</strong> きれいというよりかわいい感じがします。おおむねイメージどおり。</li>
+                <li><strong>スタイル: 90.0:</strong> 以前より少し太ったと話していましたが、一般的にはちょうどいいかややスレンダーよりといった感じ。</li>
+                <li><strong>カップ: Ｅカップ:</strong> とてもきれいな胸をしています。乳首はブラウン色で触り心地もよくずっと触っていられます。</li>
+                <li><strong>パネル差: 10.0:</strong> パネルでイメージしていた感じは綺麗系でしたが、実際の彼女はかわいらしい感じです。</li>
                 <li><strong>プレイ: 85.0:</strong> 高級店の流れでソファーでアシストありの脱衣からのフェラ。立ち上がってフェラ、ベッドに移動してNN。その後は洗い場でのマットは普通くらい(一生懸命さは伝わります)。こちらが果てた後にも手コキを続けて男の潮吹きチャレンジしてましたが不発。お客をイカせるテクニックがまだ不足してる感じ。こちらが受け身だけよりも、こちらからもせめるほうが楽しいと思います。</li>
                 <li><strong>総合: 85.0:</strong> パネルから勝手に綺麗カワなイメージを持っていましたが、実際の彼女は小動物系のかわいらしい子でした。話口調は正直好みがあると思いますので、ゆったりとした口調が苦手な人は合わないと思いますが、私の好みでしたので良かったです。時間稼ぎとかもなく、性格もよく気遣いもあり、人気なわけを感じました。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 費用が高いため頻繁には無理ですがサービス内容も彼女の雰囲気も好みであるため。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/07/21/post-14951/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-63' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-39' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=19806' target='_blank'>レポートリンク (NS専門 2026-07-07)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 31歳</li>
@@ -3073,7 +3271,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='ニュー令女|ソープ(激安/名古屋駅周辺)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/newreijo/girlid-50554655/?lo=1' target='_blank'>りあ（20歳）</a><br><button onclick="toggleReviewRow('review-okinilove-65')">レビュー(okinilove)</button><br><span class='shop-info'>ニュー令女</span><br><span class='shop-info'>ソープ(激安/名古屋駅周辺)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230101/newreijo/girlid-50554655/?lo=1' target='_blank'>りあ（20歳）</a><br><button type='button' aria-controls='review-okinilove-44' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-44')">レビュー(okinilove 3件)</button><br><span class='shop-info'>ニュー令女</span><br><span class='shop-info'>ソープ(激安/名古屋駅周辺)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3116,8 +3314,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>明後日出勤♪</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>明日出勤♪</span></td>
           </tr>
-          <tr id='review-okinilove-65' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-44' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 ★★★★★ →記事リンク</p>
               <pre>今まで全国色々なソープ系のお店を巡ってきましたが大阪の某新地やすすきのの女の子中洲の博多美人などと比べてもプチッ切りで可愛いです。
 
@@ -3133,10 +3331,14 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 
 時間内は常に明るく振る舞ってくれるのでプレイ以外でも元気を貰えるような非常によい女の子だと思います。
 ニュー令女でトップレベルに予約を取りづらいので前日予約必須です。</pre><br><a href='http://okinilove.com/blog-entry-2405.html#ano' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>今まで全国色々なソープ系のお店を巡ってきましたが大阪の某新地やすすきのの女の子中洲の博多美人などと比べてもプチッ切りで可愛いです。なぜソープで働いているのか分からないレベルです。テレビとかに出ても売れるビジュアルをしています。顔は本人プロフィールにある通り笑った顔は川口春奈に似てますが普段の顔は森香澄に似ています。スタイルはかなりよく胸は大きいがお腹は出ていない男子の理想とする体型をしています。プレイもテクニックはそこまでですが濃厚なディープキスを何度もしてくれます恋人ととの濃厚なプレイといった感じのプレイをさせてくれます。一番特質すべき特徴は愛嬌だと思います。時間内は常に明るく振る舞ってくれるのでプレイ以外でも元気を貰えるような非常によい女の子だと思います。ニュー令女でトップレベルに予約を取りづらいので前日予約必須です。</pre><br><a href='https://okinilove.com/blog-entry-2405.html#ano' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>写真は綺麗な感じですが実際は丸顔の童顔でめちゃくちゃ可愛いです。スタイルはグラビアアイドルみたいな体型でいわゆるボンキュボンのナイスバディです。おっぱいもFカップで大きくきれいです。フィリピンとのハーフみたいです。プレイの方もキスがかなり濃厚でイチャイチャプレイです。ガッツリ舌も絡ませてくれます。喘ぎ声も可愛く大きいのでこちらがテクニシャンと勘違いしてしまうほどです。オマンコも締まりよく秒で果てれます。</pre><br><a href='https://okinilove.com/blog-entry-2405.html#sasuke' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='美スタイル|デリヘル(高級/錦・栄・矢場町)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/b-style/girlid-43952936/?lo=1' target='_blank'>メロ◆ギャップ溢れる極上...</a><br><button onclick="toggleReviewRow('review-merged-68')">レビュー(merged 12件)</button><br><button onclick="toggleReviewRow('review-okinilove-68')">レビュー(okinilove)</button><br><span class='shop-info'>美スタイル</span><br><span class='shop-info'>デリヘル(高級/錦・栄・矢場町)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2301/A230103/b-style/girlid-43952936/?lo=1' target='_blank'>メロ◆ギャップ溢れる極上...</a><br><button type='button' aria-controls='review-merged-45' aria-expanded='false' onclick="toggleReviewRow('review-merged-45')">レビュー(merged 3件)</button><br><button type='button' aria-controls='review-okinilove-45' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-45')">レビュー(okinilove 6件)</button><br><span class='shop-info'>美スタイル</span><br><span class='shop-info'>デリヘル(高級/錦・栄・矢場町)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3179,8 +3381,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>💋明日出勤◇ご予約受付中💋</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>17:00 ~ 1:00</span></td>
           </tr>
-          <tr id='review-merged-68' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-45' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
                 <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
@@ -3193,190 +3395,31 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> 特にありません</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 可愛いので返したいですね身体の相性も良かったので</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> 特にありません</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 可愛いので返したいですね身体の相性も良かったので</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> 特にありません</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 可愛いので返したいですね身体の相性も良かったので</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> 特にありません</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 可愛いので返したいですね身体の相性も良かったので</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> 特にありません</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 可愛いので返したいですね身体の相性も良かったので</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/12/14/post-15829/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
+                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：35000円</li>
                 <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
                 <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
+                <li><strong>カップ: Ｇカップ:</strong> とても張りがあり、久しぶりに大きい胸を堪能しました</li>
+                <li><strong>パネル差: 50.0:</strong> 写メ日記で少し見えている感じがあるのでそれを参考にされてください</li>
                 <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
                 <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/11/24/post-15195/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
                 <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
                 <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
+                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
+                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
                 <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
                 <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
                 <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
-                <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
-                <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
-                <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
-                <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
-                <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
-                <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
-                <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
-                <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
-                <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
-                <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
-                <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
-                <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
-                <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
-                <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
-                <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
-                <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
-                <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
-                <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
-                <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
-                <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
-                <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
-                <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
-                <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
-                <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
-                <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
-                <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
-                <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
-                <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
-                <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
-                <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
-                <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
-                <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 70.0:</strong> 美人という訳ではありませんが、愛嬌はありました。顔つきは多少は好みが別れるかもしれません</li>
-                <li><strong>スタイル: 85.0:</strong> スタイルは良く安産型で美巨乳でグラマーです。肌もすべすべでした</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美巨乳だと思います。揉みがいがあり、感度も良く乳首を責めると悦びます</li>
-                <li><strong>パネル差: 50.0:</strong> パネマジというほどではありませんが、やや期待ハズレです。</li>
-                <li><strong>プレイ: 100.0:</strong> 最高のサービスでしたフェラも上手く喉奥でも受け止めてくれますサービス中は気持ち良くさせるとキスをねだってきます果てた後も丁寧に清めてくれます何度も求めてきてくれるので最奥に何度も発射出来ます喘ぎ声も可愛く「おちんちん気持ちいい大好き」と嬉しい隠語を言ってくれます</li>
-                <li><strong>総合: 90.0:</strong> やや高いテンションが嫌いでなければ最高だと思います。ハグをねだってくる甘えん坊ですが可愛いかったです。素の性格は怒りっぽく自分の感情を上手く言語化出来きずに八つ当たりするタイプですが、許せる方はハマるかと</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> また機会があれば入りたいです</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：39000円</li>
-                <li><strong>顔: 60.0:</strong> 写真より少し印象違いました 小動物系かなと思います</li>
-                <li><strong>スタイル: 80.0:</strong> とてもダイナマイトボディですなかなか素人相手では見つけられないので良かったです</li>
-                <li><strong>カップ: Ｇカップ:</strong> 写メ日記どおりの乳です。乳首は想定より小さく、勃起してもやや短いです。自分は太くて長い吸いごたえのある乳首が好きなのでやや残念です</li>
-                <li><strong>プレイ: 88.0:</strong> 会ってシャワー前にかなりチンコ弄ってきます無駄な時間ゼロなのでそこはかなり良い</li>
-                <li><strong>総合: 92.0:</strong> プレーに早めに入れるしとても良い普通なら話してーお風呂入るまでが長くてーみたいなのがないので時間いっぱい楽しめますプレーもとてもサービス抜群です絶倫の方は入ってください</li>
-                <li><strong>顔: 50.0:</strong> 顔は普通です。期待し過ぎると少しガッカリするかも。リスっぽい顔ですが嫌いな顔ではありません</li>
-                <li><strong>スタイル: 50.0:</strong> 首から下は十分合格点です。Gカップは天然でヒップは安産型です。</li>
-                <li><strong>プレイ: 80.0:</strong> 様々なサイトで醸されているNN嬢。またフェラも相当な腕前との事で口開けに呼べる日に予約。当日、対面し早々に脱衣しシャワーへ。顔は普通だがスタイルは孕ませがいのあるダイナマイトボディ。簡単にシャワーを済ませてベッドへ。ベッドでは早速自慢のフェラを体験したが、中々上手い。勃たせ、入れさせるフェラとしてはまあ合格。その後69に移行しマンコにしゃぶりつくと可愛く鳴く。合体の準備が整ったところでベロチューしながら正常位スマタへ移行。ふしだらなマンコはすでに生チンコを迎え入れる準備ができており、ヌルッと入る。過去一の名器で、中が常にウネウネとまとわりつく様に動き射精を促す。辛抱たまらずそのまま最深部で大量射精。射精中もまとわりつき、なかなか射精が止まらない。全部出し切ったところで抜き、嬢は膣の洗浄へ。物足りなかったらしく、早々に2回戦、3回戦へ。相変わらず勃たせるテクは良く、タマも刺激してくれるので復活も早く短時間で複数回の射精ができた。嬢はノリノリで自ら「奥にいっぱい出して❤️」など言ってくれたが、もっと言わせていれば4回戦も行けたかも。乳首と金額が少し残念だが概ね満足。</li>
-                <li><strong>総合: 50.0:</strong> 前述の通りで満足したが、ハマりはしないかな。もっと変態プレイができるNN嬢を探します</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 気が向いたら返すかも。もっと他の孕ませがいのある若い嬢を探したいから</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/07/08/post-14927/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-68' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-45' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 
       ★★★★★
        →記事リンク</p>
@@ -3398,10 +3441,106 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 攻守交替で、騎乗位スマタの体勢になり、亀の先っぽあたりを出し〇れしてくれます。「いいの？」と聞くと、そのまま◯でズッポリ。騎乗位から正常位で◯にたくさん放出させていただきました。
 
 大満足のお遊びになりました。</pre><br><a href='http://okinilove.com/blog-entry-2512.html#dohentai' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>レポート観てフェラが上手いとの事で体験してきました。
+
+顔は普通か可愛らしい感じ。
+明るくて性格良いので話下手な男性でもOK。
+
+フェラは普通のフェラにトントン機能が付いたような不思議な感じでそんなにはまりませんでした。
+
+プレイはレポートの通りで最上位を何回でもの感じです。
+
+ただ自分が体調落ち気味で一回逝ったら賢者になってしまって二回戦は立ちませんでした。なんで立たないのって怒ってました(笑)</pre><br><a href='https://okinilove.com/blog-entry-2512.html#0168' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★☆☆ →記事リンク</p>
+              <pre>プロフの写真通りのかわいい子です。
+
+ベッドでは、最初は攻めてもらいましたがフェラが独特。
+ベロを振動させながらストロークさせます。
+
+攻守交代で、あそこに愚息をあてがうと、、何してるの〜とのこと。
+やんわり断られたかなと思い、なすがままに攻められてると、上に乗ってきてアソコにするりと〇れてきました。
+
+慌てて、ゴム付けていい？と聞くと、「ダメ〜」と断られました。
+長年風俗通ってますがゴ〇の提案断られたの初めてです。
+
+その後もなかなか了承してくれず、こちらの立ちも良くなかったので、〇で。
+キツキツであっという間に果てました。
+
+かわいいし、ナイスボディだし、清潔だし、いい子なんだけどマイペースで天然かな。
+ゆっくりまったり癒される子ではないです。</pre><br><a href='https://okinilove.com/blog-entry-2512.html#yaki' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>以前は岐阜にいた娘ですがこのお店に移っていた為、さっそく抱きに行きました。
+
+以前と変わらずエロく自分から騎乗位でハ〇てきて最後はおねだりをされたためいつも通り遠慮なく〇〇ししました。
+
+この娘はホントに気が利いて会話も上手くそれだけでも人を惹きつけることができると思います。
+そのうえエロいため離れることができません。
+
+ずっとリピしていこうと思います。</pre><br><a href='https://okinilove.com/blog-entry-435.html#kanae' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>以前から気になっていたメロちゃんを予約。
+
+メロちゃん登場！第一印象は人懐っこくて、可愛い😍
+しかしこの子、一気に距離を縮めてくるのがスゴイ。
+
+いつもロングタイムで入っても、話が長くなってなかなかエロい雰囲気に持っていけない自分だが、メロちゃんは最初からエロい話と空気しかしてこないからホント楽^ ^
+
+いきなり息子を触ってきますw
+最初戸惑うけど、あー、こういうのっていいなぁ、すぐにエロスタート出来るじゃんって。
+
+プレイは圧巻。
+何でしょうね、あのフェラチオは。本人曰く、相当鍛えたらしいw
+奥まで咥えながら、舌が中で動いて、唾液ジュルジュルフェラ。
+
+我慢できずに攻守交代。鳴きます、鳴きます、これが。
+やっぱりさぁ、感度が良い女って最高だよね^ ^
+いくら可愛くてもナイスバディでも感度が良くないと詰まらないのが男の本音。
+
+責めを堪能してると、おやおや・・・予想外の展開に。そのまま○れてきましたよ、交渉もなしに。
+良いなぁ、交渉ってめんどくさいもんな。円だとその場はOK出しても、リピしたくなくなるんだよね〜
+
+騎乗位のあの腰の動きはセンスですね^ ^
+気持ち良すぎて、そのまま大量放出。
+
+終始、笑顔でサービスしてくれるメロちゃんは本当に最高で、もう他の嬢に入る気が無くなってしまうほど。
+卒業を考えていたデリヘルですが、メロちゃんだけは通い続けようと思わざるえないくらいの最高のプレイでした😁</pre><br><a href='https://okinilove.com/blog-entry-435.html#tama' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>以前から気になっていたメロちゃんと対戦してきました！
+当日予約しようと思ってましたがすぐにいっぱいになってしまったので前日予約でやっと入れました。
+
+初対面！
+見た目は写メ日記より ちょっと むっちり していますがそれほど変わりません。
+
+おっぱいは形がよく張りがありとても大きいです！ダイナマイトボディです！！
+
+乳首は小さく反応はとっても良いです。
+多少 強めにつまんでも喜んでくれます。
+
+先人のコメントの通りエロい雰囲気を前面に出してきます。
+軽く挨拶程度の軽い会話をしながら息子をしっかり触ってきます。
+
+サッサと服を脱ぎシャワーでキレイになったらすぐにプレイが始まります。
+
+フェラはホントにすごいです！！
+奥まで咥えられ中で何かが激しく動いています。
+とんでもなく気持ちイイです。
+
+たまらず攻守交替しましたがこれまた反応がよくて興奮してきます。
+しばらく攻めまくっていたら体勢を変えられ騎乗位からするっと〇れてきました！
+気持ちよすぎて興奮しまくりで大量発射でした。
+
+終わった後もイチャイチャしながら息子が回復したら即 2回戦開始です！
+気持ちよすぎて結局90分で3発 大量発射しました。
+
+あとから聞いたらちょっと手加減されていたらしいです。
+本気を出されたら秒殺ですね。
+
+今度は体調万全でリベンジしようと思います。</pre><br><a href='https://okinilove.com/blog-entry-435.html#tyois' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='ジュリエット|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-49169298/?lo=1' target='_blank'>茉白Mashiro♡輝く...</a><br><button onclick="toggleReviewRow('review-merged-80')">レビュー(merged)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-49169298/?lo=1' target='_blank'>茉白Mashiro♡輝く...</a><br><button type='button' aria-controls='review-merged-48' aria-expanded='false' onclick="toggleReviewRow('review-merged-48')">レビュー(merged)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3444,8 +3583,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>11:00 ~ 23:59</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>11:00 ~ 23:59</span></td>
           </tr>
-          <tr id='review-merged-80' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-48' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：45000円</li>
                 <li><strong>顔: 90.0:</strong> お人形の様な顔で和風美人、顎に黒子がありそれがエロさを醸し出している</li>
@@ -3460,7 +3599,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='スチュアーデス|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/stewardess/girlid-46872663/?lo=1' target='_blank'>まみ/愛実（高級店サービ...</a><br><button onclick="toggleReviewRow('review-merged-81')">レビュー(merged 2件)</button><br><button onclick="toggleReviewRow('review-ns-81')">レビュー(NS専門 3件)</button><br><span class='shop-info'>スチュアーデス</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/stewardess/girlid-46872663/?lo=1' target='_blank'>まみ/愛実（高級店サービ...</a><br><button type='button' aria-controls='review-merged-49' aria-expanded='false' onclick="toggleReviewRow('review-merged-49')">レビュー(merged 3件)</button><br><button type='button' aria-controls='review-ns-49' aria-expanded='false' onclick="toggleReviewRow('review-ns-49')">レビュー(NS専門 3件)</button><br><span class='shop-info'>スチュアーデス</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3503,8 +3642,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-81' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-49' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：34000円</li>
                 <li><strong>顔: 100.0:</strong> ＨＰ写真はふっくらしていて可愛らしさはあり、ある程度期待はしていましたが、エレベーターで会った瞬間に想像は全てぶっ飛びました！笑顔が素晴らしく可愛さ満点です。しばらく会話していてふと「華原ともみ」だと思いました。やはり笑顔が素敵な女の子は無敵です。 とにかく可愛いというしか表情しようがないです。</li>
@@ -3517,28 +3656,31 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><a href='https://m.fuzoku-tokai.com/2023/10/21/post-14410/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：44000円</li>
+                <li><strong>顔: 80.0:</strong> 美人ではないですが、笑顔が印象的なかわいい感じです。</li>
+                <li><strong>スタイル: 85.0:</strong> 以前よりも痩せてスリムになりました。小柄ですがダイナミックな体型です。</li>
+                <li><strong>カップ: Ｆカップ:</strong> 以前よりも痩せましたが、相変わらずオッパイは大きくて柔らかいです。揉み心地最高です。</li>
+                <li><strong>パネル差: 0.0:</strong> パネマジなしです。写メの印象そのままでした。</li>
+                <li><strong>プレイ: 100.0:</strong> 出会ってすぐにキスの嵐です。とにかくキスが濃厚で気持ちが良いです。コスプレをお願いしましたがオッパイがはみ出ていました。巨乳で柔らかく揉み心地最高です。フェラでギンギンにされ、そこからずっとキスをしながら挿入しっぱなしでした。感度も良く何回もイッてくれました。トロリ鑑賞もありました。会話も楽しいし人気のある理由がわかります。</li>
+                <li><strong>総合: 100.0:</strong> お顔やスタイルがすごく良いわけではないですが、可愛くてプレイも最高です。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 返さない理由がない</li>
+                <li><a href='https://m.fuzoku-tokai.com/2026/02/21/post-15945/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：39000円</li>
                 <li><strong>顔: 80.0:</strong> 可愛い顔立ちです。 近くで見ると、おでこに少し小さなニキビがありますが、余り気にはなりません。</li>
-                <li><strong>スタイル: 85.0:</strong> 以前よりも痩せてスリムになりました。小柄ですがダイナミックな体型です。</li>
-                <li><strong>カップ: Ｆカップ:</strong> まさに理想的な胸をしています。大きくて形が良く柔らかくて乳首も綺麗です。特に乳首が敏感なようで、触るといい表情をします。</li>
-                <li><strong>パネル差: 0.0:</strong> パネマジなしです。写メの印象そのままでした。</li>
-                <li><strong>プレイ: 100.0:</strong> 大体の要望は対応してくれます。笑顔と、感じている顔が交互に来るのでそれを楽しむのもたまりません。キスはいわゆるベロチューでとても柔らかい舌なので気持ちよく、当然その舌でのフェラも絶品でした。マットはマシュマロのような柔らかいボディ全体で包み込んでくれるので是非とも体験してください。100分でベット１回マット１回の時間配分ですが、会話重視での配分なので、プレイ重視をご希望なら最初にそのように伝えれば対応してくれると思います。喘ぎは最初演技っぽく感じましたが、時間が経つにつれ演技ではなく本当に感じやすい体質だと気づき、そこでもコーフンしました。</li>
-                <li><strong>総合: 100.0:</strong> 可愛い顔で笑顔が更に可愛く、理想的なプロポーションでプレイも申し分なく、ジワジワと締め付けてくる…満足度は200点ですね。会った瞬間に頭に出た言葉が「今日は来てよかった」</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 上記の通り、大満足です。また、姫と濃厚キス，寄り添い，すべすべ肌を味わいたい。</li>
-                <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：34000円</li>
-                <li><strong>顔: 100.0:</strong> ＨＰ写真はふっくらしていて可愛らしさはあり、ある程度期待はしていましたが、エレベーターで会った瞬間に想像は全てぶっ飛びました！笑顔が素晴らしく可愛さ満点です。しばらく会話していてふと「華原ともみ」だと思いました。やはり笑顔が素敵な女の子は無敵です。 とにかく可愛いというしか表情しようがないです。</li>
-                <li><strong>スタイル: 100.0:</strong> スタイルはちょいポチャな感じですが、ＨＰ写真のイメージそのままです。触っていて心地よいです。</li>
-                <li><strong>パネル差: 40.0:</strong> ＨＰ写真や日記の写真でも十分可愛いですが実物はその数倍可愛いです。</li>
                 <li><strong>スタイル: 80.0:</strong> 姫のスタイル：ちょいポチャとしましたが、健康体です。肌が色白ですべすべなのもあり、私にとっては、丁度よく触っても、抱いても気持ちいいです。</li>
                 <li><strong>カップ: Ｅカップ:</strong> 張りがあり、垂れておらず、柔らかく、綺麗で、ふわふわで触っていて、気持ちがいい。乳首が非常に敏感です。</li>
                 <li><strong>パネル差: 20.0:</strong> プロフィール，写メの写真と大きく違いはない。鼻，口元を隠していますが、違和感なく、可愛いです。</li>
                 <li><strong>プレイ: 90.0:</strong> 値段以上の高級感を味わえました。ＰＦにも記載していますが、濃厚キスのオンパレードです。常にぴったりと寄り添い、濃厚キスをしてくれます。気遣いもあり、また騎乗位はうまく、いかされました。大満足です。</li>
                 <li><strong>総合: 90.0:</strong> 久しぶりに言う事なしだった。他にもいい姫はいると思うが、尽くしてくれる姫が私に合っている。10点のマイナスは、途中会話が長くなり、最後バタバタしてしまった点。それ以外は、問題なし。</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 上記の通り、大満足です。また、姫と濃厚キス，寄り添い，すべすべ肌を味わいたい。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2023/09/22/post-14340/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-81' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-49' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=23446' target='_blank'>レポートリンク (NS専門 2026-08-31)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 28歳</li>
@@ -3592,7 +3734,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='リメイク|デリヘル(人妻/一宮・稲沢)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2302/A230201/wife_ichinomiya/girlid-32690596/?lo=1' target='_blank'>柚月(Ｆカップの完璧ボデ...</a><br><button onclick="toggleReviewRow('review-merged-83')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-83')">レビュー(okinilove)</button><br><span class='shop-info'>リメイク</span><br><span class='shop-info'>デリヘル(人妻/一宮・稲沢)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2302/A230201/wife_ichinomiya/girlid-32690596/?lo=1' target='_blank'>柚月(Ｆカップの完璧ボデ...</a><br><button type='button' aria-controls='review-merged-52' aria-expanded='false' onclick="toggleReviewRow('review-merged-52')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-52' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-52')">レビュー(okinilove 2件)</button><br><span class='shop-info'>リメイク</span><br><span class='shop-info'>デリヘル(人妻/一宮・稲沢)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3635,8 +3777,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-83' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-52' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：18000円</li>
                 <li><strong>顔: 90.0:</strong> 某秋葉グループの大島さんそっくでした。お客さんからも度々言われるみたいです。</li>
@@ -3647,42 +3789,11 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>総合: 100.0:</strong> こんな綺麗な子とあれやこれやが出来るというだけで満足でした、それくらい美形です。</li>
                 <li><strong>リピート: 返す（リピートする）:</strong> リピートしたいですが、なかなか都合がつかないためリピート出来てません、あと人気すぎます。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2023/09/10/post-14310/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：18000円</li>
-                <li><strong>顔: 90.0:</strong> 某秋葉グループの大島さんそっくでした。お客さんからも度々言われるみたいです。</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーまではいきませんがナイスボディです。とても気に入ってます</li>
-                <li><strong>カップ: Ｅカップ:</strong> 形もよくおおきさも小さすぎずちょうどいいサイズです。</li>
-                <li><strong>パネル差: 0.0:</strong> そのまんま、むしろ逆パネマジて感じでした。</li>
-                <li><strong>プレイ: 100.0:</strong> どこをさわってもビクビク反応してくれるので、興奮しました。あと流れでSPサービスもあります。</li>
-                <li><strong>総合: 100.0:</strong> こんな綺麗な子とあれやこれやが出来るというだけで満足でした、それくらい美形です。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> リピートしたいですが、なかなか都合がつかないためリピート出来てません、あと人気すぎます。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2023/09/10/post-14310/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：18000円</li>
-                <li><strong>顔: 90.0:</strong> 某秋葉グループの大島さんそっくでした。お客さんからも度々言われるみたいです。</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーまではいきませんがナイスボディです。とても気に入ってます</li>
-                <li><strong>カップ: Ｅカップ:</strong> 形もよくおおきさも小さすぎずちょうどいいサイズです。</li>
-                <li><strong>パネル差: 0.0:</strong> そのまんま、むしろ逆パネマジて感じでした。</li>
-                <li><strong>プレイ: 100.0:</strong> どこをさわってもビクビク反応してくれるので、興奮しました。あと流れでSPサービスもあります。</li>
-                <li><strong>総合: 100.0:</strong> こんな綺麗な子とあれやこれやが出来るというだけで満足でした、それくらい美形です。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> リピートしたいですが、なかなか都合がつかないためリピート出来てません、あと人気すぎます。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：18000円</li>
-                <li><strong>顔: 90.0:</strong> 某秋葉グループの大島さんそっくでした。お客さんからも度々言われるみたいです。</li>
-                <li><strong>スタイル: 100.0:</strong> スレンダーまではいきませんがナイスボディです。とても気に入ってます</li>
-                <li><strong>カップ: Ｅカップ:</strong> 形もよくおおきさも小さすぎずちょうどいいサイズです。</li>
-                <li><strong>パネル差: 0.0:</strong> そのまんま、むしろ逆パネマジて感じでした。</li>
-                <li><strong>プレイ: 100.0:</strong> どこをさわってもビクビク反応してくれるので、興奮しました。あと流れでSPサービスもあります。</li>
-                <li><strong>総合: 100.0:</strong> こんな綺麗な子とあれやこれやが出来るというだけで満足でした、それくらい美形です。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> リピートしたいですが、なかなか都合がつかないためリピート出来てません、あと人気すぎます。</li>
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-83' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-52' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>レポを上げるか、最大限悩んでるいたお嬢さま☆
 
@@ -3699,6 +3810,18 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 
 このサイトに感謝しての投稿でごさりまする。
 予約取りにくいのが唯一の難点‪(  ；･᷅-･᷄ )</pre><br><a href='http://okinilove.com/blog-entry-298.html#kunni2' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>少し前ですが入りました。
+
+会話も少しでシャワーに促されていざベットへ！
+
+プロフィールに書いてある通り凄い敏感でどこを責めてもビクビクしながら感じてくれます。
+
+どれくらい責めた？てくらい責めたか分からないくらい責めて益々感じていてもうそれは我を忘れているのか？てくらいでした。
+
+でもお尻が汚いのと胸が垂れているのでソコは残念ですけどサービスとあの感じ方はヤミツキになるレベルです。
+
+あとなかなか心を開いてくれないので風俗での本当の意味での発散には凄い良いと思います。</pre><br><a href='http://okinilove.com/blog-entry-298.html#waisupi' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='ラグジュアリー|ソープ(高級/川崎堀之内南町・川崎駅周辺)'>
@@ -3746,7 +3869,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>15:00 ~ 23:59</span></td>
           </tr>
           <tr data-report='true' data-shops='Color|デリヘル(スタンダード/安城)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-34492013/?lo=1' target='_blank'>おんぷ【超有名Hカップ爆...</a><br><button onclick="toggleReviewRow('review-okinilove-88')">レビュー(okinilove)</button><br><span class='shop-info'>Color</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/color/girlid-34492013/?lo=1' target='_blank'>おんぷ【超有名Hカップ爆...</a><br><button type='button' aria-controls='review-okinilove-54' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-54')">レビュー(okinilove 2件)</button><br><span class='shop-info'>Color</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3789,8 +3912,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-okinilove-88' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-54' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価
           ★★★★★
            →記事リンク</p>
@@ -3811,6 +3934,23 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 
 いつも投稿長くなるんで、今回はここまでにします💦
 病みつきになったので早めの再々訪問になるでしょいw</pre><br><a href='http://okinilove.com/blog-entry-2398.html#doragon' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>安城にあるColorに初めて利用しました。
+前から狙ってたミニチュア爆乳の(おんぷ)ちゃん絶対良い子だと信じて120分で予約‼️
+
+待つこと15分思わず手を合わせ祈る気持ちでいざ御対面(｀･ω･´)ゞ敬礼っ
+
+ショートカット(最近バッサリ切った本人談w)の超可愛い女の子で服の上からもわかる爆乳にもうテンションMAX(((o(*ﾟ▽ﾟ*)o)))
+
+プレイはアシスト有りの着衣脱がしてもらいお風呂で超密着見事綺麗な爆乳で背中つけ洗いから丁寧に洗ってくれて俺の息子はすでに爆発モードにパイズリに超濃厚なねっとりフェラもうやばい寸前で止めるテクニックも見事💦
+
+何とか鎮めてベットに移動お返しとばかりにしっかりと攻撃可愛い声で反応も最高キツキツの締りの良い秘部は洪水状態で感度良し、又交代させられ今度はパイズリからの吸い付き最高のフェラに最後に騎乗位素股と…ちょっと悪魔降臨駄目もとで〇れたいお願いしたら、まさかのゴ〇有りならとΣ(ﾟдﾟ；)
+
+フィニッシュも念の為外でと…
+本当締まりの良さに息子も早々に降参
+
+超大満足のおんぷちゃんでした(*¯꒳¯*)
+又必ずリピします！</pre><br><a href='https://okinilove.com/blog-entry-379.html#doragon' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='静岡FINAL STAGE～選ばれし者の最後のステージ～|デリヘル(スタンダード/静岡市)'>
@@ -3858,7 +3998,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr data-report='true' data-shops='ジュリエット|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-37754672/?lo=1' target='_blank'>姫香/Himek♡ハイク...</a><br><button onclick="toggleReviewRow('review-merged-91')">レビュー(merged 3件)</button><br><button onclick="toggleReviewRow('review-okinilove-91')">レビュー(okinilove)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-37754672/?lo=1' target='_blank'>姫香/Himek♡ハイク...</a><br><button type='button' aria-controls='review-merged-56' aria-expanded='false' onclick="toggleReviewRow('review-merged-56')">レビュー(merged 2件)</button><br><button type='button' aria-controls='review-okinilove-56' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-56')">レビュー(okinilove)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3901,8 +4041,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-91' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-56' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：48000円</li>
                 <li><strong>顔: 90.0:</strong> かなり可愛いらしいお顔。日本人とスペイン人のハーフだがそこまでハーフらしい感じはしない。ただエキゾチックな感じで非常に可愛い。</li>
@@ -3925,26 +4065,16 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>リピート: 返す（リピートする）:</strong> 性癖に合う人ではないがサービスがよく趣味もあったから</li>
                 <li><a href='https://m.fuzoku-tokai.com/2026/01/18/post-15903/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：50000円</li>
-                <li><strong>顔: 90.0:</strong> 誰が見ても美人だと言う顔をしている。写メの印象はそのまま変わりない</li>
-                <li><strong>スタイル: 70.0:</strong> 写真より少し肉付きを良いがぽっちゃりという程でもない。触り心地が良かった</li>
-                <li><strong>カップ: Ｆカップ:</strong> おっぱいはかなり大きく柔らかい。乳首の形がキレイでついつい舐めてしまう。</li>
-                <li><strong>パネル差: 25.0:</strong> 印象はそのまま変わりないがさすがに少し落ちるけど全然許容範囲です</li>
-                <li><strong>プレイ: 100.0:</strong> NSではないが即尺と即プレイをしてくれました。触り方がいやらしく手コキの段階でもうイきそうでした。騎乗位で挿入し腰使いと重量感ですぐに発射。休憩中も触ってくれてすぐに回復しマットへ移動。マットでは特筆することはなかったけど胸の感触が気持ち良かった。</li>
-                <li><strong>総合: 90.0:</strong> スレンダー好みの私ですがついリピしてしまう気持ち良さがある人でした</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 性癖に合う人ではないがサービスがよく趣味もあったから</li>
-              </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-91' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-56' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>久々に金津園に行きました　前から気になった「姫香」さんを指名しました日記には写真写りが悪いと書いてありますが、むしろ実物の方が良いです　清楚系というよりはクラスにいる運動得意な可愛い子系です（伝わるかなぁ？）お互いを脱がせあった後、そのまま攻めますキス好きおじさんである私の最初のキス攻撃も嫌がらず受け止めてくれましたおっぱいはFはないものの綺麗で、ベロベロ舐め回しましたそして舌を這わせクリを攻めますクリが気持ちいいらしく、クリイキしてました　そのあと帽子をつけて騎乗位で挿入締めてくれているのか中はキツキツでした　正常位に変えて1回戦終了　ベッドでたべります少しして、マットをお願いして準備いただきます　マットは気持ち良かったのですが、勃ちが悪く、手コキでフィニッシュ（情け無い）また少したべり終了おじさんの取り留めのない話にも真剣に相手してくれてありがとうございました接客の感じは、イチャイチャというのとは違い、またサバサバというのとも違う微妙な接し方でした次回はもっと振り向かせたくなる様掻き立てられました（狙いにはまってしまったか？）あと、特筆するところはお尻　ハーフという事もあるのか大きく触り心地抜群 暇さえあれば痴〇の様に触ってしまいました金津園では裏を返したことがない私ですが、絶対また行こうと思います（もともと予約が取りにくい子なので、これ書いても影響ないと思いたい）</pre><br><a href='http://okinilove.com/blog-entry-859.html#tomooji' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='ジュリエット|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-58575520/?lo=1' target='_blank'>桔梗/Kikyo💖永遠の...</a><br><button onclick="toggleReviewRow('review-merged-94')">レビュー(merged)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-58575520/?lo=1' target='_blank'>桔梗/Kikyo💖永遠の...</a><br><button type='button' aria-controls='review-merged-58' aria-expanded='false' onclick="toggleReviewRow('review-merged-58')">レビュー(merged)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -3987,8 +4117,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>11:00 ~ 18:00</span></td>
           </tr>
-          <tr id='review-merged-94' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-58' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：47000円</li>
                 <li><strong>顔: 90.0:</strong> かなり整っていて綺麗だと思う。ただ、痩せ過ぎていて少しエロさが足りない感じなので-10点。写メ日記からは可愛らしいお顔を想像していたが、実際は綺麗なお姉さんって感じ。</li>
@@ -4003,7 +4133,7 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             </td>
           </tr>
           <tr data-report='true' data-shops='ViVi|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/vivi_g/girlid-42902925/?lo=1' target='_blank'>SEINA【せいな】（2...</a><br><button onclick="toggleReviewRow('review-merged-95')">レビュー(merged 2件)</button><br><span class='shop-info'>ViVi</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/vivi_g/girlid-42902925/?lo=1' target='_blank'>SEINA【せいな】（2...</a><br><button type='button' aria-controls='review-merged-59' aria-expanded='false' onclick="toggleReviewRow('review-merged-59')">レビュー(merged)</button><br><span class='shop-info'>ViVi</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4046,8 +4176,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-95' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-59' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：38000円</li>
                 <li><strong>顔: 90.0:</strong> とても美人でかわいい。芸能人で誰かに似ているのですが思い出せない。</li>
@@ -4059,20 +4189,10 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>リピート: 返す（リピートする）:</strong> とても良嬢。ずっと完売続きのナンバー1嬢。外れなし。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2023/06/28/post-14085/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：38000円</li>
-                <li><strong>顔: 90.0:</strong> とても美人でかわいい。芸能人で誰かに似ているのですが思い出せない。</li>
-                <li><strong>スタイル: 80.0:</strong> ちょうど良いスタイル。ガリガリではなく太ってもいないのでスタイルはよかった。</li>
-                <li><strong>カップ: Ｄカップ:</strong> 胸は美乳で、柔らかく触っていてとても心地よく反応がとてもよい。</li>
-                <li><strong>パネル差: 20.0:</strong> パネル顔出しはしていないが期待通り当たり。</li>
-                <li><strong>プレイ: 100.0:</strong> ベットもマットもテクニックもDＫも全て高級店レベル。</li>
-                <li><strong>総合: 95.0:</strong> 昨年夏頃に高級店から移籍して来てヘブンネットの予約チャレンジしていましたが予約する前から完売続きで実は存在していないのでは？と思うくらい今まで一度も空きを見た事なかったので今回ヘブンネットの予約出来て初めて入りましたがリピーターでずっと完売の理由が分かりました。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> とても良嬢。ずっと完売続きのナンバー1嬢。外れなし。</li>
-              </ul>
             </td>
           </tr>
           <tr data-report='true' data-shops='GG|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-53248326/?lo=1' target='_blank'>ELENA『エレナ』（2...</a><br><button onclick="toggleReviewRow('review-merged-97')">レビュー(merged 2件)</button><br><span class='shop-info'>GG</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-53248326/?lo=1' target='_blank'>ELENA『エレナ』（2...</a><br><button type='button' aria-controls='review-merged-60' aria-expanded='false' onclick="toggleReviewRow('review-merged-60')">レビュー(merged)</button><br><span class='shop-info'>GG</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4115,8 +4235,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-97' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-60' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：33000円</li>
                 <li><strong>顔: 90.0:</strong> 目がパッチリで綺麗。 整形はしていないと思う。ナチュラルでこの顔立ちは、かなり美人の域だと思う。 身長の割に顔が小さい。 美人7：可愛い3の割合。 唇は、柔らかくプニプニ。</li>
@@ -4128,20 +4248,10 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>リピート: 返す（リピートする）:</strong> 性格、スタイル、顔、どれをとっても良いので、定期的に遭いに行っている。もう少し、イチャイチャ系のプレイが出来るとめちゃくちゃ人気嬢になると思う。</li>
                 <li><a href='https://m.fuzoku-tokai.com/2025/05/05/post-15427/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：100分:</strong> ◆総額：33000円</li>
-                <li><strong>顔: 90.0:</strong> 目がパッチリで綺麗。 整形はしていないと思う。ナチュラルでこの顔立ちは、かなり美人の域だと思う。 身長の割に顔が小さい。 美人7：可愛い3の割合。 唇は、柔らかくプニプニ。</li>
-                <li><strong>スタイル: 85.0:</strong> アスリート系（本人は、運動全くしてない）で筋肉質のナイスボディ。くびれもちゃんとあり、太ってはいない。お尻も、外人の様なプリプリのおけつ。</li>
-                <li><strong>カップ: Ｆカップ:</strong> 天然の乳。お椀型で、モチモチ。乳首は、ピンクと茶色の中間、常に乳首は立っているが、大きくも小さくも無い普通の大きさで舐め甲斐あり。巨乳であるが乳輪は、大きくない。乳の大きさにすると小さい方。</li>
-                <li><strong>パネル差: 85.0:</strong> ほぼ、パネルどおり。パッチリのお目々。</li>
-                <li><strong>プレイ: 80.0:</strong> マットは、あまり得意でないとの本人談。体がむっちりしているので、抱き心地は、最高。（太っていない、細身だが筋肉質で、アスリート系）洗い場で洗体して、風呂に一緒に入って、ベッドでプレイの流れをいつもしている。</li>
-                <li><strong>総合: 90.0:</strong> 顔、体、性格は、どれをとっても及第点です。何故かあまり人気がなく、事前予約はあまり埋まっていないので、当日、予約で入れてしまう。積極的にイチャイチャ系のプレイをしない、嬢からの積極的なキスや密着がない点がリピ客を逃していると思う。おっとりとしてガツガツしていない性格、故にね。接客は丁寧だが、客に媚びないスタイルだが、入って後悔はない。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 性格、スタイル、顔、どれをとっても良いので、定期的に遭いに行っている。もう少し、イチャイチャ系のプレイが出来るとめちゃくちゃ人気嬢になると思う。</li>
-              </ul>
             </td>
           </tr>
           <tr data-report='true' data-shops='ジュリエット|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-57031614/?lo=1' target='_blank'>蛍/Hotaru💖絶品G...</a><br><button onclick="toggleReviewRow('review-merged-99')">レビュー(merged 3件)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-57031614/?lo=1' target='_blank'>蛍/Hotaru💖絶品G...</a><br><button type='button' aria-controls='review-merged-61' aria-expanded='false' onclick="toggleReviewRow('review-merged-61')">レビュー(merged 2件)</button><br><span class='shop-info'>ジュリエット</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4184,8 +4294,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-99' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-61' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：45000円</li>
                 <li><strong>顔: 90.0:</strong> 丸顔ですが太っているわけではなく、可愛らしい印象です。鼻筋も通ってて整った顔立ちです。</li>
@@ -4208,20 +4318,10 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>リピート: 返す（リピートする）:</strong> もっと濃厚なプレイもしたい</li>
                 <li><a href='https://m.fuzoku-tokai.com/2026/02/08/post-15930/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：47000円</li>
-                <li><strong>顔: 80.0:</strong> 小顔で綺麗でカワイイ少しギャルも入っている 大体の男性に受けがいいと思う</li>
-                <li><strong>スタイル: 90.0:</strong> スレンダーですが出るところは出ていて抱き心地がよいです。</li>
-                <li><strong>カップ: Ｇカップ:</strong> ドレスに収まりきらない美巨乳です。乳首もキレイでむしゃぶりつきたいおっぱいです</li>
-                <li><strong>パネル差: 10.0:</strong> パネルより可愛いと思います</li>
-                <li><strong>プレイ: 90.0:</strong> 自己紹介にもありますがマットが得意でおっぱいを駆使しながらとても気持ちいい</li>
-                <li><strong>総合: 90.0:</strong> スタイルも良くて顔もかわいい、さらにマットも絶品です。エッチも積極的で満足度は高いです。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> もっと濃厚なプレイもしたい</li>
-              </ul>
             </td>
           </tr>
           <tr data-report='true' data-shops='GG|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-11631416/?lo=1' target='_blank'>HOTARU『ホタル』（...</a><br><button onclick="toggleReviewRow('review-merged-102')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-102')">レビュー(okinilove)</button><br><span class='shop-info'>GG</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-11631416/?lo=1' target='_blank'>HOTARU『ホタル』（...</a><br><button type='button' aria-controls='review-merged-63' aria-expanded='false' onclick="toggleReviewRow('review-merged-63')">レビュー(merged 2件)</button><br><button type='button' aria-controls='review-okinilove-63' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-63')">レビュー(okinilove 2件)</button><br><span class='shop-info'>GG</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4264,19 +4364,8 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>10:00 ~ 23:00</span></td>
           </tr>
-          <tr id='review-merged-102' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：35000円</li>
-                <li><strong>顔: 80.0:</strong> どちらかというと地味顔。 よく見かけるいわゆる「どこにでもいそう」</li>
-                <li><strong>スタイル: 90.0:</strong> 小柄だが脱がせてみるとボンキュンボンのナイスバディで驚いた。肩に10円玉サイズのいたずら書きあり。</li>
-                <li><strong>カップ: Ｅカップ:</strong> やや巨乳で形のいい美乳。乳首が感じるようで優しく舌で転がすといい声で鳴く。</li>
-                <li><strong>パネル差: 50.0:</strong> ほぼパネル通り。</li>
-                <li><strong>プレイ: 95.0:</strong> 正直、初対面時は地味な子だなと少しがっかりした。しかし、いざプレイに突入すると印象が激変。これでもかの攻勢にグイグイ圧されて上へ下への貪り合戦。2回放出して疲れ果てたが気持ちのいい時間を過ごした。帰るころには可愛く見えてきて何となく愛おしくなった。</li>
-                <li><strong>総合: 90.0:</strong> 初対面のおとなしめな印象と濃厚プレイとのギャップに驚かされた。前述した「どこにでもいそう」な子との激しいエッチ。いわゆザ・ソープとは違う体験。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 返さない理由がない。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/08/23/post-15013/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
+          <tr id='review-merged-63' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：35000円</li>
                 <li><strong>顔: 80.0:</strong> どちらかというと地味顔。 よく見かけるいわゆる「どこにでもいそう」</li>
@@ -4297,37 +4386,12 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
                 <li><strong>プレイ: 30.0:</strong> 体の相性が合わない。これにつきます。性格はいいし、一生懸命接客してくれるので、好感度は高いのですし、サービスも気持ちいいは気持ちいいです。しかしなにせ私の体が彼女にエロさを感じてくれません。マットも上手だし良かったのですが、イク気がしませんでした。挿入していて痛いと感じたのは初めてです。一生懸命やってくれるだけに逆に申し訳ない気持ちになりました。</li>
                 <li><strong>総合: 30.0:</strong> 性格はいいです。癒しもあります。若々しさは思ったよりなかったですが、その分落ち着きはあるかと。背中の一部と手元にタトゥがあり、それがきちんとした彫り師によるものでないものが一目瞭然。プレイにあたって気になることはありませんが、彼女の若かりしころの様子がそのタトゥーからしのばれてしまい、このことが私がプレイに集中できない要因になりました。満足度は低いですが、嬢に原因があるわけでなく、とにかく相性の問題だと思います。合う人にはサービスなどいいし、話していても楽しいのでとてもいい嬢だと思います。</li>
                 <li><strong>リピート: 返さない（リピートしない）:</strong> 体の相性が合わなかったから。</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：35000円</li>
-                <li><strong>顔: 80.0:</strong> どちらかというと地味顔。 よく見かけるいわゆる「どこにでもいそう」</li>
-                <li><strong>スタイル: 90.0:</strong> 小柄だが脱がせてみるとボンキュンボンのナイスバディで驚いた。肩に10円玉サイズのいたずら書きあり。</li>
-                <li><strong>カップ: Ｅカップ:</strong> やや巨乳で形のいい美乳。乳首が感じるようで優しく舌で転がすといい声で鳴く。</li>
-                <li><strong>パネル差: 50.0:</strong> ほぼパネル通り。</li>
-                <li><strong>プレイ: 95.0:</strong> 正直、初対面時は地味な子だなと少しがっかりした。しかし、いざプレイに突入すると印象が激変。これでもかの攻勢にグイグイ圧されて上へ下への貪り合戦。2回放出して疲れ果てたが気持ちのいい時間を過ごした。帰るころには可愛く見えてきて何となく愛おしくなった。</li>
-                <li><strong>総合: 90.0:</strong> 初対面のおとなしめな印象と濃厚プレイとのギャップに驚かされた。前述した「どこにでもいそう」な子との激しいエッチ。いわゆザ・ソープとは違う体験。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 返さない理由がない。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：130分:</strong> ◆総額：44000円</li>
-                <li><strong>顔: 50.0:</strong> めちゃくちゃ普通。好みはあると思いますが、ブスとは言われないと思います。かと言って美人！とか可愛い！かどうかは意見の分かれるところ。ちなみに私は好みではなかったです。</li>
-                <li><strong>スタイル: 60.0:</strong> スタイルもごく普通。太ってもおらず、かと言ってスレンダーでもなし。ややなで肩のように感じました。</li>
-                <li><strong>カップ: Ｆカップ:</strong> 胸はきれいでした。写真ではもうちょっと大きいかなと思いましたが、爆乳という感じではないです。</li>
-                <li><strong>パネル差: 0.0:</strong> HPの写真そのままでした。</li>
-                <li><strong>プレイ: 30.0:</strong> 体の相性が合わない。これにつきます。性格はいいし、一生懸命接客してくれるので、好感度は高いのですし、サービスも気持ちいいは気持ちいいです。しかしなにせ私の体が彼女にエロさを感じてくれません。マットも上手だし良かったのですが、イク気がしませんでした。挿入していて痛いと感じたのは初めてです。一生懸命やってくれるだけに逆に申し訳ない気持ちになりました。</li>
-                <li><strong>総合: 30.0:</strong> 性格はいいです。癒しもあります。若々しさは思ったよりなかったですが、その分落ち着きはあるかと。背中の一部と手元にタトゥがあり、それがきちんとした彫り師によるものでないものが一目瞭然。プレイにあたって気になることはありませんが、彼女の若かりしころの様子がそのタトゥーからしのばれてしまい、このことが私がプレイに集中できない要因になりました。満足度は低いですが、嬢に原因があるわけでなく、とにかく相性の問題だと思います。合う人にはサービスなどいいし、話していても楽しいのでとてもいい嬢だと思います。</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> 体の相性が合わなかったから。</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：35000円</li>
-                <li><strong>顔: 80.0:</strong> どちらかというと地味顔。 よく見かけるいわゆる「どこにでもいそう」</li>
-                <li><strong>スタイル: 90.0:</strong> 小柄だが脱がせてみるとボンキュンボンのナイスバディで驚いた。肩に10円玉サイズのいたずら書きあり。</li>
-                <li><strong>カップ: Ｅカップ:</strong> やや巨乳で形のいい美乳。乳首が感じるようで優しく舌で転がすといい声で鳴く。</li>
-                <li><strong>パネル差: 50.0:</strong> ほぼパネル通り。</li>
-                <li><strong>プレイ: 95.0:</strong> 正直、初対面時は地味な子だなと少しがっかりした。しかし、いざプレイに突入すると印象が激変。これでもかの攻勢にグイグイ圧されて上へ下への貪り合戦。2回放出して疲れ果てたが気持ちのいい時間を過ごした。帰るころには可愛く見えてきて何となく愛おしくなった。</li>
-                <li><strong>総合: 90.0:</strong> 初対面のおとなしめな印象と濃厚プレイとのギャップに驚かされた。前述した「どこにでもいそう」な子との激しいエッチ。いわゆザ・ソープとは違う体験。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 返さない理由がない。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2024/12/29/post-15235/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-102' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-63' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価
           ★★★★☆
            →記事リンク</p>
@@ -4344,10 +4408,12 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 通えば通うほど濃厚になっていくのでは？
 
 HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a href='http://okinilove.com/blog-entry-1208.html#mingoru' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>暫く前での事なので、思い出せる範囲内で。かわいい印象で入りましたが、キレイでオットリしています。某アイドルグループにいてもセンターレベルかと。優しい喋り方で、それがまた色気を感じます。スタイルは良くとても綺麗なカラダをされており、胸は形、大きさ、お尻やクビレとともに私にはストライクでした。プレイはしっとり、濃厚に責めてくれます。合体時はとても色っぽく、気分も高ぶりました。通えば通うほど濃厚になっていくのでは？HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a href='https://okinilove.com/blog-entry-1208.html#mingoru' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='Secret Service本店|デリヘル(スタンダード/安城)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/secret_service/girlid-31675356/?lo=1' target='_blank'>ルナ☆☆（22歳）</a><br><button onclick="toggleReviewRow('review-merged-106')">レビュー(merged 2件)</button><br><button onclick="toggleReviewRow('review-okinilove-106')">レビュー(okinilove)</button><br><span class='shop-info'>Secret Service本店</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/aichi/A2305/A230504/secret_service/girlid-31675356/?lo=1' target='_blank'>ルナ☆☆（22歳）</a><br><button type='button' aria-controls='review-merged-65' aria-expanded='false' onclick="toggleReviewRow('review-merged-65')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-65' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-65')">レビュー(okinilove)</button><br><span class='shop-info'>Secret Service本店</span><br><span class='shop-info'>デリヘル(スタンダード/安城)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4390,8 +4456,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>☆出勤確認中☆</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>☆出勤確認中☆</span></td>
           </tr>
-          <tr id='review-merged-106' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-65' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：33000円</li>
                 <li><strong>顔: 90.0:</strong> 普通に可愛い子だったので安心した。 パネルより本人の方が可愛いと思う。 写メの自撮りが確か。</li>
@@ -4403,20 +4469,10 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
                 <li><strong>リピート: 返す（リピートする）:</strong> 好みのタイプ</li>
                 <li><a href='https://m.fuzoku-tokai.com/2024/02/23/post-14676/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：33000円</li>
-                <li><strong>顔: 90.0:</strong> 普通に可愛い子だったので安心した。 パネルより本人の方が可愛いと思う。 写メの自撮りが確か。</li>
-                <li><strong>スタイル: 100.0:</strong> ボンキュッボンのナイスバディ。小柄だがいわゆるチンチクリン感はない。</li>
-                <li><strong>カップ: Ｆカップ:</strong> 美乳にして巨乳。若さゆえ垂れることもなく前に突き出している。</li>
-                <li><strong>パネル差: 20.0:</strong> いわゆる逆パネマジ</li>
-                <li><strong>プレイ: 100.0:</strong> とにかくキスが好きな嬢で入浴中もベッドでも最初から最後までずっとキスをしてくれてこちらもビンビンに。若さ弾ける美肉をむさぼり何度もイクを繰り返すほどの感度バツグン。こちらの愚息もねっとりフェラしてくれてダメもとで希望を伝えると外出汁でおこづかいお願いと言われたのでそのまま正常位でイン。激しく腰を振って寸前で外に放出。二回戦目はまったりと色んな体位を楽しんだ。</li>
-                <li><strong>総合: 100.0:</strong> 気になる点はほぼなく満足。高級サービスとしてめちゃコスパがいいとは思わないが女の子がタイプなので無問題。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 好みのタイプ</li>
-              </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-106' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-65' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
               <pre>120分で予約すると待合室で会ってから部屋に向かいます
 部屋に入ってすぐにiQOSを吸って直ぐにキスをしてお風呂が出来るまでの10分間くらいほとんどキスしてました
@@ -4482,7 +4538,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr data-report='true' data-shops='ヴィーナス|ソープ(スタンダード/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/venus/girlid-41531297/?lo=1' target='_blank'>ユキ（22歳）</a><br><button onclick="toggleReviewRow('review-merged-109')">レビュー(merged 3件)</button><br><button onclick="toggleReviewRow('review-okinilove-109')">レビュー(okinilove)</button><br><span class='shop-info'>ヴィーナス</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/venus/girlid-41531297/?lo=1' target='_blank'>ユキ（22歳）</a><br><button type='button' aria-controls='review-merged-67' aria-expanded='false' onclick="toggleReviewRow('review-merged-67')">レビュー(merged)</button><br><button type='button' aria-controls='review-okinilove-67' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-67')">レビュー(okinilove 3件)</button><br><span class='shop-info'>ヴィーナス</span><br><span class='shop-info'>ソープ(スタンダード/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4525,30 +4581,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-109' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：46000円</li>
-                <li><strong>顔: 90.0:</strong> あどけなさが残るかわいい顔立ち。瞳には知性があり、一度見たら忘れられないに違いない。</li>
-                <li><strong>スタイル: 95.0:</strong> 肉付きがよいからスレンダー好きには勧めないが、不快さはまったくなく、男からすれば、理想的なスタイルの一つに違いない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> 張りと柔らかさを両立し、しかも美乳という国宝の如き代物である。</li>
-                <li><strong>パネル差: 20.0:</strong> HPの写真より肉付きがよい。太っているという意味ではなく、情欲をそそる体つきだとおもってよい。</li>
-                <li><strong>プレイ: 80.0:</strong> 普通のソーププレイだった。もちろん満足だけれど、彼女の真価は会話にあると思う。</li>
-                <li><strong>総合: 100.0:</strong> あどけない顔と豪華なスタイルが魅力的だ。性格は珠のように非の打ち所がなく、過去未来に渡り、及ぶ者はいないのではないか。スレンダー好き、性欲を持て余した人には合わないと思う。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 現実が夢想を超えた稀有な例。予約困難だが、これからも足繁く通いたい。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/10/02/post-15690/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：46000円</li>
-                <li><strong>顔: 90.0:</strong> あどけなさが残るかわいい顔立ち。瞳には知性があり、一度見たら忘れられないに違いない。</li>
-                <li><strong>スタイル: 95.0:</strong> 肉付きがよいからスレンダー好きには勧めないが、不快さはまったくなく、男からすれば、理想的なスタイルの一つに違いない。</li>
-                <li><strong>カップ: Ｇカップ:</strong> 張りと柔らかさを両立し、しかも美乳という国宝の如き代物である。</li>
-                <li><strong>パネル差: 20.0:</strong> HPの写真より肉付きがよい。太っているという意味ではなく、情欲をそそる体つきだとおもってよい。</li>
-                <li><strong>プレイ: 80.0:</strong> 普通のソーププレイだった。もちろん満足だけれど、彼女の真価は会話にあると思う。</li>
-                <li><strong>総合: 100.0:</strong> あどけない顔と豪華なスタイルが魅力的だ。性格は珠のように非の打ち所がなく、過去未来に渡り、及ぶ者はいないのではないか。スレンダー好き、性欲を持て余した人には合わないと思う。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 現実が夢想を超えた稀有な例。予約困難だが、これからも足繁く通いたい。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2025/10/02/post-15690/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
+          <tr id='review-merged-67' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：120分:</strong> ◆総額：46000円</li>
                 <li><strong>顔: 90.0:</strong> あどけなさが残るかわいい顔立ち。瞳には知性があり、一度見たら忘れられないに違いない。</li>
@@ -4562,8 +4596,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
               </ul>
             </td>
           </tr>
-          <tr id='review-okinilove-109' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-67' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 最高評価 ★★★★★ →記事リンク</p>
               <pre>いつも楽しく拝見しております。
 
@@ -4606,6 +4640,10 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
 
 長々と書いてしまいすみません。
 ありがとうございました。</pre><br><a href='http://okinilove.com/blog-entry-681.html#feifei' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>いつも楽しく拝見しております。【予約時】数ヶ月前の訪問になります。以前から気になっていた女の子です。なぜかというと顔出しをしていないのに常に完売、日記を見ると他とは一線を画すかのような丁寧で知的な文章、エロい写メは一切無し、とにかく謎に包まれている存在だったからです。他サイトでは桜井日奈子に似ているという書き込みもあり、私の好みドンピシャでした。何度か電話をしましたが予約いっぱいですと断られる始末😅友人に話すとそれはダミーで存在しない子だよと忠告を受けました。しかし粘りに粘ってなんとか予約を取れました。その時の感動は宝くじに当たったかのような信じられない感覚でした。【当日】事前に店員さんからは、ユキちゃんは当欠も遅刻も一切しない子だと聞いていたので当日は安心して行くことができました。予定よりも少し早く案内をされました。【ご対面】緊張もあり、慌ててカーテンの向こうへ行くと、真っ白なワンピースを着た可愛いユキちゃんが立っていました。パッチリとした綺麗な瞳、艶のある黒髪、若さを感じる張りのある頬と胸、引き締まったウエスト、真っ白で透き通った肌。桜井日奈子、いやそれ以上に可愛くて天国へ来たかのようでした。小さくて可愛らしい手を伸ばされてノックダウン寸前でした。人気なのも納得です。私も緊張していましたが彼女の方もかなり緊張していたようで、顔は引きつっていてぎこちなくお部屋に案内をされました。会話を始めるとおっとりとした口調だけど真っ直ぐで芯のある素敵な女の子だということがわかり、ますますファンになりました。120分の終盤でようやく笑顔を見せてくれるようになりました。【追記】ここまで書いて振り返ると、喋って120分は地雷なんじゃないかと思われるかもしれませんが、今までの彼女やお店での経験の中で一番緊張しましたし癒やされました。顔はもちろんですが声と話し方と雰囲気が最高です。学生時代に好きな子と話すだけでドキドキしていたあの感情を思い出します。時間をかけて距離を縮めるのも恋愛育成ゲームのようで楽しいです。あまりにも目をそらすので聞いてみたら、人見知りだから新規の人は苦手だと話していて納得しました。少し心配になる発言ですが、彼女はほとんどの予約をリピーターで埋めてしまうので、今後も新規を取ることは少ないと思います。今回は120分を取りましたが話が楽しくて全然足りませんでした。次回は長い時間を取って（取れるかわかりませんが）ユキちゃんの魅力を堪能しようと思います。長々と書いてしまいすみません。ありがとうございました。</pre><br><a href='https://okinilove.com/blog-entry-681.html#feifei' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★★ →記事リンク</p>
+              <pre>【予約】数か月間予約争奪戦に参加し続けやっと予約が取れて再訪問。予約開始数分でも先着がいるのは本当に尊敬します。【ご対面】お店が混んでいてなかなか部屋が空かないためけっこう待ちました。店員さんが案内できると言った時間よりだいぶオーバーしていました。でもユキちゃんと会ってからはそんなことも吹っ飛ぶくらいの衝撃的な可愛いさです。前回の白のワンピースとは対象的な黒のミニスカートで迎えていただきました。真っ白な綺麗な足が見えていてとてもセクシー。上のニットは彼女の巨乳を際立たせるように体にみっちりフィットしている。モジモジしてスカートを伸ばそうとしながら待つ彼女がとても可愛いんです。以前よりにこやかですが目をそらしお久しぶりです。と小声の第一声を聞くとまだ人見知りをしているのだなと思いました。案内が遅れたことへの謝罪をしてきましたが、部屋が空かないのは女の子のせいではないですよね。それよりもなんでそんな服を着てきたのか聞いていいのか迷うくらいＨでした。【脱衣】部屋に入ると私も彼女も緊張していてガチゴチでした。そうなることも見越して、ユキちゃんが好きそうなプレゼントを持っていきました。とても喜んでくれて笑顔も見せてくれました。楽しそうに話すユキちゃんですが、私の目線は大きすぎる胸と短すぎるスカートからのぞく純白の太ももに奪われてしまいます。我慢しきれず服を脱いでもらえませんかと土下座する勢いで頼み込んだら恥ずかしそうにOKしてくれました。部屋を薄暗くし、そろそろと脱ぎ始めます。脱ぐと大きさ、形、乳輪の色、乳首の全てがパーフェクトなお胸があらわになります。肌も陶器のように白く美しく、なめらか。なんといってもくびれがエグいのでたわわに実ったおっぱいとの差がすごい。グラビアアイドルでもこんないい体の子はいないんじゃないかと思うくらいど迫力で息子が暴発しそうでした。【洗体】体も指の先まで丁寧に洗ってくれて気持ちがいいです。面白いのはずっとタオルを巻いているところ。本当に恥ずかしがり屋さんです。【プレイ】お風呂からベッドへ行くと不安そうに見えたので私がリードすることにしました。年齢も彼女より数個上なだけなので、お兄ちゃん気分になります。後ろから抱き締めると嬉しそうでリアルな彼女と錯覚してしまいそうな可愛さです。大きな胸を触ると呼吸が荒くなり気持ちよさそうな反応。乳首は少し突起するくらいです。クリは小さめで少し触れると突起させてくすぐったいと仰せられ、中心部分に指の第一関節をそっと入れただけでビクビクしながらイってしまい、びしょびしょになっていて驚きました。もう既にお気づきでしょう。彼女はとても感度がよくてイきやすい体質なのです。もっと攻めたかったのですが、私は裸を見たときから勃ちすぎて我慢できなかったのでＦもすっ飛ばしＧを着けて騎乗位でIN。INしようと思ったのですが先端部分からゆっくり腰を下ろし、半分入れたくらいでイっちゃいそうと小声で漏らす彼女。もうオマ◯コの締め付けがすごく、中がビクビクしてイキたそうにしてるのが伝わってきます。そんなの初めてでこちらの息子もイキたそう。根本まで挿れたところで彼女はイき、痛いくらいの締つけとビクビクする感覚、ブルンブルンと揺れるたわわなおっぱいがエロすぎて私も果てました。動かずにイったのは初めての経験です。速すぎて恥ずかしいのと気持ち良すぎた感動でしばらく放心状態＆それ以降の記憶が曖昧。いやーすごいという言葉しか出なかった気がします。さっきまで淫らに乱れていたユキちゃんはまた恥ずかしそうに私の腕の中に隠れていました（萌）一緒にイってくれて嬉しいと言っていてフォローも上手だなと思いました。早漏が好きらしいです。【追記】動かずともイけたのも、イってもらえたのも初めてで衝撃でした。見た目の可愛さに加えて賢くて優しくて性格がいい、さらに感度も相性もいい。もう骨抜きを通り越して全てを捧げたいです。すごい子を見つけてしまったため今後通いすぎてしまうんじゃないかと不安になりましたが杞憂になりそうです。そもそも予約が取れないので。今のところ姫予約はしていないと聞いたのでまた争奪戦に参加します。またすぐに会いたいです。</pre><br><a href='https://okinilove.com/blog-entry-681.html#feifei2' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='きみにメロン組|ソープ(スタンダード/金津園)'>
@@ -4653,7 +4691,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
           <tr data-report='true' data-shops='LOVE MISSILE|ソープ(大衆/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/lovemissile/girlid-14231717/?lo=1' target='_blank'>ここ❤️【１位】（22歳...</a><br><button onclick="toggleReviewRow('review-merged-113')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-113')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-113')">レビュー(NS専門 1件)</button><br><span class='shop-info'>LOVE MISSILE</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/lovemissile/girlid-14231717/?lo=1' target='_blank'>ここ❤️【１位】（22歳...</a><br><button type='button' aria-controls='review-merged-69' aria-expanded='false' onclick="toggleReviewRow('review-merged-69')">レビュー(merged 4件)</button><br><button type='button' aria-controls='review-okinilove-69' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-69')">レビュー(okinilove 2件)</button><br><button type='button' aria-controls='review-ns-69' aria-expanded='false' onclick="toggleReviewRow('review-ns-69')">レビュー(NS専門 1件)</button><br><span class='shop-info'>LOVE MISSILE</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4696,8 +4734,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/22(木)' data-date='10/22' data-day='5'><span class='cell'>-</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6'><span class='cell'>-</span></td>
           </tr>
-          <tr id='review-merged-113' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-merged-69' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
                 <li><strong>顔: 80.0:</strong> 可愛いと思います。色白で笑顔も多く企業の受け付けにいそうなタイプです。</li>
@@ -4710,68 +4748,42 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
                 <li><a href='https://m.fuzoku-tokai.com/2023/05/28/post-13973/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
+                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：29000円</li>
+                <li><strong>顔: 80.0:</strong> 数年前に通ってた時より三割増しに顔面は肥大している様子 復活した時に、すぐ入ったがその時はまぁこんな感じだったかなぁと自分の中で納得してた節もあったが、再度リピートしてまた顔の体積が増したのを感じたから間違いないと思う</li>
+                <li><strong>スタイル: 70.0:</strong> 年齢を重ねてるから、一定の劣化は仕方ないだろうしかしながら肌は白くてスベスベで触ってて気持ちいい</li>
+                <li><strong>カップ: Ｃカップ:</strong> BよりのCだろうガタイが良い分、より貧相な胸に見えてしまうのは無理ないかもしれない乳輪も乳首も小さくこじんまりとしている</li>
+                <li><strong>パネル差: 50.0:</strong> かなり前に撮ったものを黒く塗りつぶしてるから判り辛いが、あのホッソリした感じをイメージしていくと、何か違う、何か増えてる、足してるとなる</li>
+                <li><strong>プレイ: 70.0:</strong> テクニックは、テコキがかなりイヤらしく触られて気持ちいい口淫はそうでもないが、目線を合わせて何か気持ち良くなってねオーラが強くて高まりやすい騎上位も何かぎこちないんだが、一生懸命やってくれて何だか幸せになる古くから通う客はここら当たりが刺さってると思われる</li>
+                <li><strong>総合: 80.0:</strong> もう容姿とかプレイとかでなく、多幸感が得られる女性のイメージで皆さん通ってるんだろうと推察</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 気立ての良さと、また会いたいなと思わせる良嬢</li>
+                <li><a href='https://m.fuzoku-tokai.com/2023/05/19/post-13937/' target='_blank'>レポートリンク (merged)</a></li>
+              </ul>
+              <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 80.0:</strong> 可愛いと思います。色白で笑顔も多く企業の受け付けにいそうなタイプです。</li>
-                <li><strong>スタイル: 80.0:</strong> クビレが素晴らしい女性らしい体型です。胸は大きくありませんが、とてもバランスの良い体です。</li>
-                <li><strong>カップ: Ｃカップ:</strong> 小豆色の小さな乳首は優しく触るとすぐにコリコリになります。舐められるのが好きのようです。</li>
-                <li><strong>パネル差: 10.0:</strong> 顔も体型もほぼ写真のままです。安心して突撃してもらって大丈夫です。</li>
-                <li><strong>プレイ: 80.0:</strong> フェラは緩めのカポカポフェラであまり気持ち良くありませんが、アソコはキツキツで挿入中も常にキスをせがんで来ます。ただキスが独特で舌でブロックする感じですが、それなりにベロベロしてくれるのでボチボチ満足出来ました。</li>
-                <li><strong>総合: 80.0:</strong> 女性らしい体型とスベスベの肌や名器に加えて、性格の良さも加わり大満足でした。</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 返します、もっと早く入っておけば良かったです。</li>
-                <li><a href='https://m.fuzoku-tokai.com/2023/05/28/post-13973/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：19000円</li>
-                <li><strong>顔: 80.0:</strong> 数年前に通ってた時より三割増しに顔面は肥大している様子 復活した時に、すぐ入ったがその時はまぁこんな感じだったかなぁと自分の中で納得してた節もあったが、再度リピートしてまた顔の体積が増したのを感じたから間違いないと思う</li>
-                <li><strong>スタイル: 80.0:</strong> クビレが素晴らしい女性らしい体型です。胸は大きくありませんが、とてもバランスの良い体です。</li>
-                <li><strong>カップ: Ｃカップ:</strong> 体型にしては小さい。バランスが大事で、全体がでかいならバストも大きくないと。綺麗ではあります。</li>
-                <li><strong>パネル差: 10.0:</strong> 顔も体型もほぼ写真のままです。安心して突撃してもらって大丈夫です。</li>
-                <li><strong>プレイ: 80.0:</strong> フェラは緩めのカポカポフェラであまり気持ち良くありませんが、アソコはキツキツで挿入中も常にキスをせがんで来ます。ただキスが独特で舌でブロックする感じですが、それなりにベロベロしてくれるのでボチボチ満足出来ました。</li>
-                <li><strong>総合: 80.0:</strong> もう容姿とかプレイとかでなく、多幸感が得られる女性のイメージで皆さん通ってるんだろうと推察</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 相性がとても良かったからまた来たいと思う</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：29000円</li>
-                <li><strong>スタイル: 70.0:</strong> 年齢を重ねてるから、一定の劣化は仕方ないだろうしかしながら肌は白くてスベスベで触ってて気持ちいい</li>
-                <li><strong>パネル差: 50.0:</strong> パネルや日記顔を四角っぽくして目をもう少し小さくすれば近いと思うパネルより3割減くらいかな化粧が薄かったせいか素朴なあか抜けていない感じ</li>
-                <li><strong>プレイ: 70.0:</strong> テクニックは、テコキがかなりイヤらしく触られて気持ちいい口淫はそうでもないが、目線を合わせて何か気持ち良くなってねオーラが強くて高まりやすい騎上位も何かぎこちないんだが、一生懸命やってくれて何だか幸せになる古くから通う客はここら当たりが刺さってると思われる</li>
                 <li><strong>顔: 50.0:</strong> 全体的にガタイが良く大きい。顔も大きい。最初会ってがっかりレベル。これで3位の人気とは。性格のいい垢抜けない田舎の女の子って感じ。</li>
                 <li><strong>スタイル: 50.0:</strong> 肌は綺麗だったがスタイルは甘く見積もっても褒められはしない。お尻も大して色気ない。女性の美しさは曲線美です。</li>
+                <li><strong>カップ: Ｃカップ:</strong> 体型にしては小さい。バランスが大事で、全体がでかいならバストも大きくないと。綺麗ではあります。</li>
+                <li><strong>パネル差: 50.0:</strong> 写真の綺麗さはない。</li>
                 <li><strong>プレイ: 50.0:</strong> 至ってありきたりな流れで特にこれがすごい、とか際立ったポイントはない。騎乗位気持ちよかったです。</li>
                 <li><strong>総合: 45.0:</strong> 性格はいいんですが望んでいるのはそこではない。可愛くないとキスもしたくないしテンションあがらずそれが女性にも伝わりお互い嬉しくも楽しくもない。ただ出すのみ。</li>
                 <li><strong>リピート: 返さない（リピートしない）:</strong> タイプでない。</li>
-                <li><strong>顔: 60.0:</strong> 顔がきもち大きくて鼻も大きくて高い印象でほかは普通のサイズ優しそうなお姉さんという感じの顔でブスではないと思うベテランのオバサンが出てくるかと思っていたら大学でたての普通のOLみたいな感じだったのでほっとした</li>
-                <li><strong>スタイル: 65.0:</strong> 胸は小さめだが小柄で余分な肉がほぼない締まった体の普通で肌もスベスベで綺麗20代前半という感じ数年前にこの店にいたみたいだが未経験の子みたいな身体お尻が特に綺麗だと思った</li>
-                <li><strong>カップ: Ｂカップ:</strong> 胸に関しては小さめの特に特徴のない普通の胸で乳首小さめで薄茶色</li>
-                <li><strong>プレイ: 75.0:</strong> 特別なエロさや変わった特徴はないが一通りのことをしてくれて普通に満足という感想あそこが気持ちよかったからOK</li>
-                <li><strong>総合: 75.0:</strong> 古株のベテラン嬢かと思っていたら若くて楽しい子でそれにプラスレインボーだったので大変満足しました予約する時に結構迷いましたが正解でした</li>
+                <li><a href='https://m.fuzoku-tokai.com/2022/09/25/post-13321/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：19000円</li>
-                <li><strong>顔: 80.0:</strong> 数年前に通ってた時より三割増しに顔面は肥大している様子 復活した時に、すぐ入ったがその時はまぁこんな感じだったかなぁと自分の中で納得してた節もあったが、再度リピートしてまた顔の体積が増したのを感じたから間違いないと思う</li>
-                <li><strong>スタイル: 80.0:</strong> クビレが素晴らしい女性らしい体型です。胸は大きくありませんが、とてもバランスの良い体です。</li>
-                <li><strong>カップ: Ｃカップ:</strong> 体型にしては小さい。バランスが大事で、全体がでかいならバストも大きくないと。綺麗ではあります。</li>
-                <li><strong>パネル差: 10.0:</strong> 顔も体型もほぼ写真のままです。安心して突撃してもらって大丈夫です。</li>
-                <li><strong>プレイ: 80.0:</strong> フェラは緩めのカポカポフェラであまり気持ち良くありませんが、アソコはキツキツで挿入中も常にキスをせがんで来ます。ただキスが独特で舌でブロックする感じですが、それなりにベロベロしてくれるのでボチボチ満足出来ました。</li>
-                <li><strong>総合: 80.0:</strong> もう容姿とかプレイとかでなく、多幸感が得られる女性のイメージで皆さん通ってるんだろうと推察</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> 相性がとても良かったからまた来たいと思う</li>
-                <li><strong>プレイ時間: ◆プレイ時間：90分:</strong> ◆総額：29000円</li>
-                <li><strong>スタイル: 70.0:</strong> 年齢を重ねてるから、一定の劣化は仕方ないだろうしかしながら肌は白くてスベスベで触ってて気持ちいい</li>
-                <li><strong>パネル差: 50.0:</strong> パネルや日記顔を四角っぽくして目をもう少し小さくすれば近いと思うパネルより3割減くらいかな化粧が薄かったせいか素朴なあか抜けていない感じ</li>
-                <li><strong>プレイ: 70.0:</strong> テクニックは、テコキがかなりイヤらしく触られて気持ちいい口淫はそうでもないが、目線を合わせて何か気持ち良くなってねオーラが強くて高まりやすい騎上位も何かぎこちないんだが、一生懸命やってくれて何だか幸せになる古くから通う客はここら当たりが刺さってると思われる</li>
-                <li><strong>顔: 50.0:</strong> 全体的にガタイが良く大きい。顔も大きい。最初会ってがっかりレベル。これで3位の人気とは。性格のいい垢抜けない田舎の女の子って感じ。</li>
-                <li><strong>スタイル: 50.0:</strong> 肌は綺麗だったがスタイルは甘く見積もっても褒められはしない。お尻も大して色気ない。女性の美しさは曲線美です。</li>
-                <li><strong>プレイ: 50.0:</strong> 至ってありきたりな流れで特にこれがすごい、とか際立ったポイントはない。騎乗位気持ちよかったです。</li>
-                <li><strong>総合: 45.0:</strong> 性格はいいんですが望んでいるのはそこではない。可愛くないとキスもしたくないしテンションあがらずそれが女性にも伝わりお互い嬉しくも楽しくもない。ただ出すのみ。</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> タイプでない。</li>
                 <li><strong>顔: 60.0:</strong> 顔がきもち大きくて鼻も大きくて高い印象でほかは普通のサイズ優しそうなお姉さんという感じの顔でブスではないと思うベテランのオバサンが出てくるかと思っていたら大学でたての普通のOLみたいな感じだったのでほっとした</li>
                 <li><strong>スタイル: 65.0:</strong> 胸は小さめだが小柄で余分な肉がほぼない締まった体の普通で肌もスベスベで綺麗20代前半という感じ数年前にこの店にいたみたいだが未経験の子みたいな身体お尻が特に綺麗だと思った</li>
                 <li><strong>カップ: Ｂカップ:</strong> 胸に関しては小さめの特に特徴のない普通の胸で乳首小さめで薄茶色</li>
+                <li><strong>パネル差: 50.0:</strong> パネルや日記顔を四角っぽくして目をもう少し小さくすれば近いと思うパネルより3割減くらいかな化粧が薄かったせいか素朴なあか抜けていない感じ</li>
                 <li><strong>プレイ: 75.0:</strong> 特別なエロさや変わった特徴はないが一通りのことをしてくれて普通に満足という感想あそこが気持ちよかったからOK</li>
                 <li><strong>総合: 75.0:</strong> 古株のベテラン嬢かと思っていたら若くて楽しい子でそれにプラスレインボーだったので大変満足しました予約する時に結構迷いましたが正解でした</li>
+                <li><strong>リピート: 返す（リピートする）:</strong> 相性がとても良かったからまた来たいと思う</li>
+                <li><a href='https://m.fuzoku-tokai.com/2022/07/07/post-13058/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-113' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-69' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=14484' target='_blank'>レポートリンク (NS専門 2026-03-24)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 23歳</li>
@@ -4799,8 +4811,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
               <pre>嬢の対応は素晴らしいのですが、店がとても古くジメジメしてるのと、店員の愛想は人によりとても悪い。大衆店なので期待はしてないが、そこだけ残念ポイント。</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-113' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-69' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>約一年振りに、お久しぶり〜ふ！
 覚えていらっしゃいますでしょうか？
@@ -4834,10 +4846,12 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
 
 もっと、いろんな対位をしたいのでこの子なら再訪は有りですね。
 ちと遠いけどw</pre><br><a href='http://okinilove.com/blog-entry-1522.html#kimu' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>約一年振りに、お久しぶり〜ふ！覚えていらっしゃいますでしょうか？パチンコが激調子が良くタンス預金が出来ましたので、初のお風呂屋さんへ勉強に行きました。平日昼間でも、予約してからのが良いですね。結構、断られました。少し待てば女の子が空く　ラブミサイルさんへ入りました。トラブル有りでかなり待たされましたが案内された嬢の写真が好みだったので決めました。スク水でお出迎えされ軽い対話の後脱がして貰い「私も脱がして❤︎」なんて言われたらもう！可愛いおっぱいとキレイな乳首ナイスなお尻キレイなアソコ　ちょこっと惚れそうでした。すごい型の湯船に浸かりフェラーリ　普通です。ベットへ行き、たくさんキスをして69になり久しぶりに思う存分アソコを舐めました。ちなみに無味無臭でした。騎乗位の体制で生IN嬢に腰ん振ってもらうも気持ち良すぎてstopを掛けて止めてもらいます。もっと楽しみたいですからね。そのまま騎乗で覆い被さった状態でお尻を掴むと何とも言えない柔らかさが凄く良かったです。終始、騎乗位のまま腰を張り溜まったモノをマル秘へ注入して来ました♪2回目もいけそうですが自分の息子さん元気無く残りはおしゃべりして終わりました。もっと、いろんな対位をしたいのでこの子なら再訪は有りですね。ちと遠いけどw</pre><br><a href='https://okinilove.com/blog-entry-1522.html#kimu' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='true' data-shops='Sabbat|ソープ(大衆/金津園)'>
-            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-41709102/?lo=1' target='_blank'>ゆら♡【GOLD】（21...</a><br><button onclick="toggleReviewRow('review-merged-117')">レビュー(merged 4件)</button><br><button onclick="toggleReviewRow('review-okinilove-117')">レビュー(okinilove)</button><br><button onclick="toggleReviewRow('review-ns-117')">レビュー(NS専門 1件)</button><br><span class='shop-info'>Sabbat</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
+            <td class='shop-cell'><a href='https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-41709102/?lo=1' target='_blank'>ゆら♡【GOLD】（21...</a><br><button type='button' aria-controls='review-merged-73' aria-expanded='false' onclick="toggleReviewRow('review-merged-73')">レビュー(merged 2件)</button><br><button type='button' aria-controls='review-okinilove-73' aria-expanded='false' onclick="toggleReviewRow('review-okinilove-73')">レビュー(okinilove 2件)</button><br><button type='button' aria-controls='review-ns-73' aria-expanded='false' onclick="toggleReviewRow('review-ns-73')">レビュー(NS専門 1件)</button><br><span class='shop-info'>Sabbat</span><br><span class='shop-info'>ソープ(大衆/金津園)</span>
               <div class='m-cal'>
                 <ul>
                   <li data-day='0'>
@@ -4880,19 +4894,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
             <td data-label='10/22(木)' data-date='10/22' data-day='5' data-on='1'><span class='cell'>9:00 ~ 23:59</span></td>
             <td data-label='10/23(金)' data-date='10/23' data-day='6' data-on='1'><span class='cell'>9:00 ~ 23:59</span></td>
           </tr>
-          <tr id='review-merged-117' class='review-row review-merged' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：23000円</li>
-                <li><strong>顔: 90.0:</strong> 妹系？という印象を受けます．かわいらしい顔立ちです．</li>
-                <li><strong>スタイル: 90.0:</strong> ちょいぽちゃですが，巨乳です．何回かこのコで遊んだことがあるのですが，だんだんボリュームが大きくなっている印象は受けます．</li>
-                <li><strong>カップ: Ｇカップ:</strong> とてもさわり心地の良い胸をしていらっしゃいます．ふわふわでした．</li>
-                <li><strong>パネル差: 50.0:</strong> 少し太めですが，個人的には許容範囲です．</li>
-                <li><strong>プレイ: 50.0:</strong> あそこを加えていたしてもらいましたが，かなり柔らかいストロークで，独特な印象を受けました．好意的な捉え方です．</li>
-                <li><strong>総合: 90.0:</strong> 顔は少し下膨れた印象は受けますが，健康的ですし，可愛らしい妹のような印象です．そして胸が豊かで柔らくふわふわでした．</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> あの胸の感触が忘れられません．</li>
-                <li><a href='https://m.fuzoku-tokai.com/2024/11/14/post-15173/' target='_blank'>レポートリンク (merged)</a></li>
-              </ul>
+          <tr id='review-merged-73' class='review-row review-merged' style='display:none;'>
+            <td colspan='9'>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：23000円</li>
                 <li><strong>顔: 90.0:</strong> 妹系？という印象を受けます．かわいらしい顔立ちです．</li>
@@ -4906,40 +4909,19 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
               </ul>
               <ul>
                 <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 90.0:</strong> 妹系？という印象を受けます．かわいらしい顔立ちです．</li>
-                <li><strong>スタイル: 90.0:</strong> ちょいぽちゃですが，巨乳です．何回かこのコで遊んだことがあるのですが，だんだんボリュームが大きくなっている印象は受けます．</li>
-                <li><strong>カップ: Ｇカップ:</strong> 胸は大きく、形も良く、肌もすべすべなので触り心地良い。かなり満足度高いです。</li>
-                <li><strong>パネル差: 50.0:</strong> 少し太めですが，個人的には許容範囲です．</li>
-                <li><strong>プレイ: 50.0:</strong> あそこを加えていたしてもらいましたが，かなり柔らかいストロークで，独特な印象を受けました．好意的な捉え方です．</li>
-                <li><strong>総合: 90.0:</strong> 顔は少し下膨れた印象は受けますが，健康的ですし，可愛らしい妹のような印象です．そして胸が豊かで柔らくふわふわでした．</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> あの胸の感触が忘れられません．</li>
                 <li><strong>顔: 75.0:</strong> 少しポチャではあるが、愛嬌はあって可愛らしい。目鼻立ちはハッキリしている。</li>
                 <li><strong>スタイル: 80.0:</strong> ちょいポチャですが、巨乳なので問題なし。肌質も良いので、気持ちいいです。</li>
+                <li><strong>カップ: Ｇカップ:</strong> 胸は大きく、形も良く、肌もすべすべなので触り心地良い。かなり満足度高いです。</li>
                 <li><strong>パネル差: 80.0:</strong> HP写真よりはすこし丸顔。</li>
                 <li><strong>プレイ: 80.0:</strong> エッチ好きなので、ほぼNGなしです。感度も良い方で中出しできるので満足できます。</li>
                 <li><strong>総合: 80.0:</strong> 顔、性格、おっぱいはほぼ問題なし。すこしポチャなので、それを許容できるかで満足度は変わります。</li>
                 <li><strong>リピート: 返さない（リピートしない）:</strong> スレンダー好きのため、裏を返すまでにはならない。</li>
-              </ul>
-              <ul>
-                <li><strong>プレイ時間: ◆プレイ時間：60分:</strong> ◆総額：20000円</li>
-                <li><strong>顔: 90.0:</strong> 妹系？という印象を受けます．かわいらしい顔立ちです．</li>
-                <li><strong>スタイル: 90.0:</strong> ちょいぽちゃですが，巨乳です．何回かこのコで遊んだことがあるのですが，だんだんボリュームが大きくなっている印象は受けます．</li>
-                <li><strong>カップ: Ｇカップ:</strong> 胸は大きく、形も良く、肌もすべすべなので触り心地良い。かなり満足度高いです。</li>
-                <li><strong>パネル差: 50.0:</strong> 少し太めですが，個人的には許容範囲です．</li>
-                <li><strong>プレイ: 50.0:</strong> あそこを加えていたしてもらいましたが，かなり柔らかいストロークで，独特な印象を受けました．好意的な捉え方です．</li>
-                <li><strong>総合: 90.0:</strong> 顔は少し下膨れた印象は受けますが，健康的ですし，可愛らしい妹のような印象です．そして胸が豊かで柔らくふわふわでした．</li>
-                <li><strong>リピート: 返す（リピートする）:</strong> あの胸の感触が忘れられません．</li>
-                <li><strong>顔: 75.0:</strong> 少しポチャではあるが、愛嬌はあって可愛らしい。目鼻立ちはハッキリしている。</li>
-                <li><strong>スタイル: 80.0:</strong> ちょいポチャですが、巨乳なので問題なし。肌質も良いので、気持ちいいです。</li>
-                <li><strong>パネル差: 80.0:</strong> HP写真よりはすこし丸顔。</li>
-                <li><strong>プレイ: 80.0:</strong> エッチ好きなので、ほぼNGなしです。感度も良い方で中出しできるので満足できます。</li>
-                <li><strong>総合: 80.0:</strong> 顔、性格、おっぱいはほぼ問題なし。すこしポチャなので、それを許容できるかで満足度は変わります。</li>
-                <li><strong>リピート: 返さない（リピートしない）:</strong> スレンダー好きのため、裏を返すまでにはならない。</li>
+                <li><a href='https://m.fuzoku-tokai.com/2022/09/07/post-13245/' target='_blank'>レポートリンク (merged)</a></li>
               </ul>
             </td>
           </tr>
-          <tr id='review-ns-117' class='review-row review-ns' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-ns-73' class='review-row review-ns' style='display:none;'>
+            <td colspan='9'>
               <p><a href='https://ns-senmon.com/?p=10948' target='_blank'>レポートリンク (NS専門 2026-01-01)</a></p>
               <ul>
                 <li><strong>推定年齢:</strong> 23歳</li>
@@ -4974,8 +4956,8 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br><a
 若くて可愛い子と2回も中〇しを楽しめて、コスパも良いのでしっかりとリピートしたいです。</pre>
             </td>
           </tr>
-          <tr id='review-okinilove-117' class='review-row review-okinilove' style='display:none;'>
-            <td colspan='3' style='text-align: left;'>
+          <tr id='review-okinilove-73' class='review-row review-okinilove' style='display:none;'>
+            <td colspan='9'>
               <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
               <pre>信号待ちで通りすがりの女性を見るだけで股間がうずく症状が出始めたのでこりゃいかん！と予約の電話をしました。
 
@@ -5017,6 +4999,8 @@ M字で待ち受ける嬢へと挿入しながらクリを弄るとすごい反�
 
 体をあらい服を着たあともすぐにムラムラするほどいやらしいボディラインで人気の理由も納得です。
 気持ちのいい疲労感浸りながら帰路につきました。</pre><br><a href='http://okinilove.com/blog-entry-1436.html#hanaru4' target='_blank'>レポートリンク (okinilove)</a>
+              <p><strong>評価 (okinilove):</strong> 評価 ★★★★☆ →記事リンク</p>
+              <pre>信号待ちで通りすがりの女性を見るだけで股間がうずく症状が出始めたのでこりゃいかん！と予約の電話をしました。いつかそのうち入ろうと先延ばしにしていたナンバー1のゆら嬢の空きがあったので予約完了。予定時間の10分前に入店しますが珍しく時間を前倒して案内となり階段上の嬢とご対面。軽い挨拶から部屋に通されベッドに腰かけてから改めてルックスチェック。目鼻立ちがはっきりしたフィギアスケート系の綺麗なお顔とドレスの胸元よりこれでもかと谷間が強調されています。笑顔もあり会話も問題ないのでやはりナンバー1の安定感に納得。すぐに服を脱いでいただくと白い肌に超美巨乳があらわになりむっちむちのドスケベボディに私のフランクフルトはギンギンにいきり立ちはやく突撃させろ！と紳士を装う私にはお構いなしに主張してしまいます。軽く洗体をしていただき湯船につかるとここではじめて嬢からキスの誘いがあり濃厚に舌を絡めつつ巨乳ちゃんに手を伸ばします。スベスベで柔らかくも重量がある至宝は何時間でも揉んでいられそうです。しかしながら水面下ではバカになった一角獣が常に嬢に当たっておりそれを察したようにベッドへの移動を促されます。誘導のまま私が仰向けに寝転ぶと覆いかぶさるようにキス→乳首舐め→フェラへと丁寧に進んでいきます。フェラはいい吸引力でジュポジュポとバキュームでしゃぶってくれ嬢がギンギンのフランクから口を離すと手をついて私の顔の方へ移動してきます。再度濃厚なディープキスをされ並行して下半身はフランクフルトの裏筋に嬢の柔らかなワレメちゃんを前後に滑らせ素股にて焦られたのちいきり立つフランクには手の誘導などいらずグラインドの流れでそのままズブリと嬢の中に入ってしまいます。やっぱ生は最高っ！と締まりのいいおマンコを騎乗位にて味わい揺れる至宝を揉んだり吸ったり欲望の赴くままに楽しみます。ムッチリボディを堪能するためバックをオーダーし四つん這いになっていただきますが真っ白なデカ尻からピンクの綺麗なワレメちゃんが口を開いているので遠慮なしにノーハンドで突き刺します。反応もよく尻を鷲掴みにしてピストンしたのち正常位へと移行。M字で待ち受ける嬢へと挿入しながらクリを弄るとすごい反応で声を上げてアッという間に昇天されました。その後もピストンやクリいじりで大絶叫の中なんどもイッていただき最後は恒例の"中に出して"を絶叫してもらい放出いたしました。果てたフランクがダランと穴から滑り出るとパックリ開いたワレメちゃんからダラダラと精液が滝のように流れでます。体をあらい服を着たあともすぐにムラムラするほどいやらしいボディラインで人気の理由も納得です。気持ちのいい疲労感浸りながら帰路につきました。</pre><br><a href='https://okinilove.com/blog-entry-1436.html#hanaru4' target='_blank'>レポートリンク (okinilove)</a>
             </td>
           </tr>
           <tr data-report='false' data-shops='Excellent Royal|ソープ(高級/中区)'>
