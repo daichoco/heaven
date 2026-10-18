@@ -1,4 +1,4 @@
-"""3レポート全体の横断順位と、上位者の本日から7日間のCityHeaven予定。既定はオフライン。"""
+"""3レポート横断の7日間予定。保存予定を使い、不足画像は自動取得。--offline で通信なし。"""
 import argparse
 import asyncio
 import json
@@ -554,13 +554,14 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collect", action="store_true", help="Sの公開CityHeaven週間予定を取得")
-    parser.add_argument("--collect-images", action="store_true", help="予定を変更せず不足画像のみ取得")
-    parser.add_argument("--image-limit", type=int, default=20, help="不足画像取得上限（既定20人）")
+    parser.add_argument("--collect-images", action="store_true", help="互換オプション（不足画像は既定で取得）")
+    parser.add_argument("--offline", action="store_true", help="画像も予定も取得せず保存データだけで生成")
+    parser.add_argument("--image-limit", type=int, help="明示的に不足画像取得対象数を制限（既定は対象全員）")
     parser.add_argument("--include-a", action="store_true", help="取得対象にSに続いてAも追加")
     args = parser.parse_args(argv)
-    if args.include_a and not (args.collect or args.collect_images):
-        parser.error("--include-a は --collect または --collect-images と併用してください")
-    if args.image_limit < 1:
+    if args.offline and (args.collect or args.collect_images):
+        parser.error("--offline と収集オプションは併用できません")
+    if args.image_limit is not None and args.image_limit < 1:
         parser.error("--image-limit は1以上で指定してください")
     now = datetime.now(JST)
     dates = schedule_dates(now)
@@ -575,17 +576,34 @@ def main(argv=None):
         save_cache(cache)
         failures = sum(bool(result["error"]) for result in results.values())
     images = saved_images(schedules)
-    if args.collect_images:
+    if not args.offline:
+        eligible = [
+            person for person in people if person["profile_url"] and (
+                person["tier"] == "S"
+                or (person["tier"] == "A" and args.include_a)
+                or person["profile_url"] in schedules
+            )
+        ]
         pending = [
-            person for person in selected_people(people, args.include_a)
+            person for person in eligible
             if not images.get(person["profile_url"], {}).get("image_url")
-        ][:args.image_limit]
+        ]
+        requested = pending[:args.image_limit] if args.image_limit is not None else pending
         fetched = fetch_profile_images(
-            {person["profile_url"]: (person["names"] or [""])[0] for person in pending},
+            {person["profile_url"]: (person["names"] or [""])[0] for person in requested},
             path=IMAGE_CACHE,
         )
         images.update(fetched)
-        failures += sum(entry.get("status") == "error" for entry in fetched.values())
+        missing = [person for person in pending if not images.get(person["profile_url"], {}).get("image_url")]
+        counts = {
+            state: sum(images.get(person["profile_url"], {}).get("status", "pending") == state for person in missing)
+            for state in ["error", "not_found", "no_image", "pending"]
+        }
+        print(
+            f"画像対象 {len(eligible)}人 / 既存画像 {len(eligible) - len(pending)}人 / "
+            f"今回補完 {len(pending) - len(missing)}人 / 残り {len(missing)}人: {counts}"
+        )
+        failures += counts["error"] + counts["not_found"] + counts["pending"]
     write_html(OUTPUT, render_html(people, dates, schedules, removed, now, images))
     print(f"出力: {OUTPUT} / {len(people)}人 / 取得エラー {failures}件")
     return 1 if failures else 0

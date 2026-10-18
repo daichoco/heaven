@@ -84,17 +84,20 @@ Neither command collects data or makes network requests.
 | コマンド | 機能 |
 | --- | --- |
 | `py -3 src\generate_booking_difficulty_report.py` | 保存済みのNS専門・オキニラブ・東海レポートから `docs\reservation_difficulty.html` を生成します。オンラインデータの収集は行いません。 |
-| `py -3 src\generate_weekly_schedule_report.py` | 3レポート全体の横断順位と、保存済みの本日から7日間の予定から `docs\weekly_schedule.html` を生成します。既定ではネットワーク通信しません。 |
+| `py -3 src\generate_weekly_schedule_report.py --offline` | 3レポート全体の横断順位と、保存済みの本日から7日間の予定から `docs\weekly_schedule.html` を生成します。画像も含めネットワーク通信しません。 |
 
 ### 3レポート横断の7日間出勤カレンダー
 
 ```powershell
 py -3 src\generate_weekly_schedule_report.py
+py -3 src\generate_weekly_schedule_report.py --offline
 py -3 src\generate_weekly_schedule_report.py --collect
 py -3 src\generate_weekly_schedule_report.py --collect --include-a
 ```
 
-最初のコマンドはオフライン生成、2番目はSを取得、3番目はSに続いてAも取得します。
+通常生成は保存済み予定を保持し、不足画像だけを自動取得します。
+`--offline` は画像も取得せず保存データだけで生成します。
+`--collect` はSの予定を取得し、`--collect --include-a` はSに続いてAの予定も取得します。
 取得にはPlaywright Chromium（未導入なら `py -3 -m playwright install chromium`）が必要です。
 公開プロフィールの月間予定を読みます。ログイン・年齢確認・アクセス制限などで
 予定が読めない場合は取得エラーとして表示し、認証や制限を回避しません。
@@ -172,16 +175,26 @@ HTMLはエスケープして表示します。週間ページのアコーディ�
 画像は既存NSプロフィール画像キャッシュ、統合カレンダー、週間予定内の画像を優先再利用し、
 オフライン生成だけでも既存画像を表示できます。今後の `--collect` は同じプロフィール応答から
 画像URLと状態も取得・予定内に保存します。旧キャッシュに画像キーがなくても表示できます。
-不足画像だけ取得する場合（保存済み予定は変更しません）:
+通常生成時に不足画像を自動取得します（保存済み予定は変更しません）:
 
 ```powershell
-py -3 src\generate_weekly_schedule_report.py --collect-images --image-limit 20
+py -3 src\generate_weekly_schedule_report.py
+# 通信せず生成したい場合
+py -3 src\generate_weekly_schedule_report.py --offline
 ```
 
-Sの画像未取得者を順位順に最大20人、既存プロフィール画像取得ヘルパーで収集し、
-`data\cityheaven_weekly_images.json` に保存します。Aを含める場合は `--include-a` を追加します。
-件数は `--image-limit` で指定し、取得処理の時間上限は既存ヘルパーの120秒です。
-画像なし・エラーの再試行待ちは既存規則の7日です。画像なし／未取得／取得失敗／
+対象はCityHeaven URLのあるSと、対象期間の保存済み予定がある掲載者です。
+未取得のAも対象にする場合は `--include-a` を追加します。
+画像がある人は再取得せず、不足者全員を既存プロフィール画像取得ヘルパーへ渡し、
+`data\cityheaven_weekly_images.json` に保存します。全4,639人へのアクセスは行いません。
+小さな既定件数制限はありません。任意で `--image-limit N` を指定できますが、
+制限・時間切れで未処理の不足者が残る場合は件数を報告し終了コード1を返します。
+旧 `--collect-images` も互換オプションとして使用できます。
+取得処理の時間上限は既存ヘルパーの120秒です。
+画像なし・エラーの再試行待ちは既存規則の7日、404/410は再取得しません。
+実行結果には対象／再利用／今回補完／残り（失敗・掲載なし・画像なし・未処理）を表示します。
+失敗・掲載なし・未処理があればHTMLを保存したうえで終了コード1を返します。
+画像なし／未取得／取得失敗／
 表示時の読込失敗を明示します。画像URLを保存し、画像本体は表示時に読み込みます。
 画像・代替表示は97×97pxを予約し、読込時に後続の位置が移動しないようにしています。
 

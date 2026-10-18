@@ -337,14 +337,16 @@ class WeeklyCalendarTests(unittest.TestCase):
             patch.object(weekly, "collect_schedules", new_callable=AsyncMock) as collect,
             patch.object(weekly, "write_html") as write,
             patch.object(weekly, "save_cache") as save,
+            patch.object(weekly, "fetch_profile_images") as image_fetch,
         ):
-            self.assertEqual(weekly.main([]), 0)
+            self.assertEqual(weekly.main(["--offline"]), 0)
             collect.assert_not_called()
             save.assert_not_called()
+            image_fetch.assert_not_called()
             self.assertNotIn("must not be displayed", write.call_args.args[1])
             self.assertIn("未取得", write.call_args.args[1])
         with self.assertRaises(SystemExit):
-            weekly.main(["--include-a"])
+            weekly.main(["--offline", "--collect-images"])
 
     def test_cli_collect_persists_errors_and_a_follows_s(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(20)]))
@@ -366,6 +368,7 @@ class WeeklyCalendarTests(unittest.TestCase):
                          return_value=results) as collect,
             patch.object(weekly, "write_html") as write,
             patch.object(weekly, "save_cache") as save,
+            patch.object(weekly, "fetch_profile_images", return_value={}),
         ):
             self.assertEqual(weekly.main(["--collect", "--include-a"]), 1)
             self.assertEqual([p["tier"] for p in collect.call_args.args[0]],
@@ -426,11 +429,65 @@ class WeeklyCalendarTests(unittest.TestCase):
             patch.object(weekly, "save_cache") as save,
             patch.object(weekly, "write_html"),
         ):
-            self.assertEqual(weekly.main(["--collect-images", "--image-limit", "2"]), 0)
+            self.assertEqual(weekly.main(["--collect-images", "--image-limit", "2"]), 1)
             self.assertEqual(len(fetch.call_args.args[0]), 2)
             self.assertEqual(fetch.call_args.kwargs["path"], weekly.IMAGE_CACHE)
             collect.assert_not_called()
             save.assert_not_called()
+
+    def test_normal_generation_fills_all_eligible_missing_images_without_schedule_collection(self):
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(40)]))
+        dates = weekly.schedule_dates()
+        saved_a = next(person for person in people if person["tier"] == "A")
+        schedules = {saved_a["profile_url"]: {
+            "days": weekly.daily_states(dates, "off"), "error": "", "fetched_at": "saved",
+        }}
+        existing = {people[0]["profile_url"]: {"status": "ok", "image_url": "https://img.invalid/a.jpg"}}
+        expected = {
+            person["profile_url"] for person in people
+            if person["tier"] == "S" or person["profile_url"] in schedules
+        } - existing.keys()
+        results = {url: {"status": "ok", "image_url": "https://img.invalid/new.jpg"} for url in expected}
+        with (
+            patch.object(weekly, "load_ranking", return_value=(people, {})),
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {dates[0]: schedules}}),
+            patch.object(weekly, "saved_images", return_value=existing),
+            patch.object(weekly, "fetch_profile_images", return_value=results) as fetch,
+            patch.object(weekly, "collect_schedules", new_callable=AsyncMock) as collect,
+            patch.object(weekly, "save_cache") as save,
+            patch.object(weekly, "write_html"),
+        ):
+            self.assertEqual(weekly.main([]), 0)
+            self.assertEqual(set(fetch.call_args.args[0]), expected)
+            collect.assert_not_called()
+            save.assert_not_called()
+
+    def test_image_failure_cache_throttles_repeat_generation(self):
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(i) for i in range(3)]))
+        entries = {
+            person["profile_url"]: {
+                "status": status, "image_url": "",
+                "checked_at": datetime.now(timezone.utc).isoformat(), "shop_checked": True,
+            }
+            for person, status in zip(people, ["no_image", "error", "not_found"])
+        }
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "images.json"
+            path.write_text(json.dumps(entries), encoding="utf-8")
+            original = path.read_bytes()
+            with (
+                patch.object(weekly, "load_ranking", return_value=(people, {})),
+                patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
+                patch.object(weekly, "saved_images", return_value=copy.deepcopy(entries)),
+                patch.object(weekly, "IMAGE_CACHE", path),
+                patch("ns_senmon.profile_images._fetch") as fetch,
+                patch.object(weekly, "save_cache") as save,
+                patch.object(weekly, "write_html"),
+            ):
+                self.assertEqual(weekly.main([]), 1)
+                fetch.assert_not_called()
+                save.assert_not_called()
+                self.assertEqual(path.read_bytes(), original)
 
 
 class BrowserFixtureTests(unittest.TestCase):
