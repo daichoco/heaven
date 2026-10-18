@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import generate_weekly_schedule_report as weekly
+from ns_senmon import profile_images
 from generate_booking_difficulty_report import TOTAL_KEY
 
 
@@ -469,6 +470,39 @@ class WeeklyCalendarTests(unittest.TestCase):
             '<img data-echo="/img/noimage.jpg"><img data-echo="/img/banner.jpg">',
             profile(1), "人物1",
         ))
+
+    def test_shared_http_image_fetch_and_targeted_failure_cache_reprocessing(self):
+        response = Mock(
+            status_code=200, url=profile(1), headers={"content-type": "text/html"},
+            content=b'<img data-echo="//img2.cityheaven.net/img/girls/t/shop/grpb1.jpg">',
+        )
+        now = datetime.now(timezone.utc).isoformat()
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "images.json"
+            path.write_text(json.dumps({
+                profile(1): {"status": "no_image", "checked_at": now, "shop_checked": True},
+                profile(2): {"status": "not_found", "checked_at": now},
+            }), encoding="utf-8")
+            original_needs_fetch = profile_images._needs_fetch
+            with (
+                patch.object(profile_images.requests, "get", return_value=response) as get,
+                patch.object(profile_images, "_needs_fetch",
+                             side_effect=lambda entry, time: entry.get("status") == "no_image"
+                             or original_needs_fetch(entry, time)),
+            ):
+                results = profile_images.fetch_profile_images({profile(1): "人物1", profile(2): "人物2"}, path)
+            get.assert_called_once()
+            self.assertEqual(results[profile(1)]["status"], "ok")
+            self.assertEqual(profile_images.load_cache(path)[profile(1)]["image_url"],
+                             "https://img2.cityheaven.net/img/girls/t/shop/grpb1.jpg")
+            self.assertEqual(results[profile(2)]["status"], "not_found")
+            self.assertFalse(original_needs_fetch(results[profile(2)], datetime.now(timezone.utc)))
+        response.url = "http://img.cityheaven.net/cs/nenrei/"
+        with patch.object(profile_images.requests, "get", return_value=response):
+            result = profile_images._fetch(profile(1), "人物1")
+        self.assertEqual(result["status"], "error")
+        self.assertIn("転送", result["error"])
+        self.assertEqual(result["image_url"], "")
 
     def test_images_only_command_is_bounded_and_never_writes_schedules(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, 100-i) for i in range(30)]))

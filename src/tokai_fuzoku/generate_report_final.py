@@ -110,7 +110,10 @@ def extract_profile_image_url(page_html, page_url, girl_name=""):
     for image in soup.find_all("img"):
         if image.find_parent(id="mitayoguid") or image.find_parent(class_="mitayoimg"):
             continue
-        image_url = image.get("src") or image.get("data-src") or image.get("data-original")
+        image_url = (
+            image.get("src") or image.get("data-src") or image.get("data-original")
+            or image.get("data-echo")
+        )
         if not image_url and image.get("srcset"):
             image_url = image["srcset"].split(",", 1)[0].strip().split()[0]
         if not image_url:
