@@ -18,15 +18,22 @@ from generate_booking_difficulty_report import (
     candidate_person_key,
     filter_unavailable_records,
     relative_scores,
+    rating_value,
+    record_fields,
+    record_url_key,
+    safe_http_url,
     unavailable_article_markers,
 )
 from html_format import write_html
+from okinilove.render_people_summary import extract_profile_image_url
+from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs" / "weekly_schedule.html"
 CACHE = ROOT / "data" / "cityheaven_weekly_schedules.json"
+IMAGE_CACHE = ROOT / "data" / "cityheaven_weekly_images.json"
 JST = timezone(timedelta(hours=9))
 STATE_LABELS = {
     "working": "出勤予定",
@@ -95,7 +102,32 @@ def rank_people(datasets):
                 "names": [],
                 "shops": [],
                 "ratings": {},
+                "reported_ages": [],
+                "reports": [],
             })
+            source = record.get("url") or record.get("report_url") or ""
+            article_key = (label, record_url_key(source) if source else row_number)
+            if not any(report["identity"] == article_key for report in person["reports"]):
+                fields = record_fields(dataset, record)
+                if dataset == "tokai_fuzoku":
+                    known = {key for key, _ in fields}
+                    fields += [
+                        (key, str(value)) for key, value in record.items()
+                        if value is not None and key not in known and key.endswith(("_comment", "_score", "_point"))
+                    ]
+                person["reports"].append({
+                    "identity": article_key, "source": source, "database": label,
+                    "date": str(record.get("date") or "保存日付なし"),
+                    "score": rating_value(dataset, record), "fields": fields,
+                })
+            age_value = (
+                (record.get("details") or {}).get("推定年齢")
+                if dataset == "ns_senmon" else
+                record.get("age") if dataset == "okinilove" else record.get("predict_age")
+            )
+            match = re.fullmatch(r"\s*(\d{1,2})(?:\.0)?\s*(?:歳|才)?\s*", str(age_value or ""))
+            if match and 0 < int(match[1]) < 100 and int(match[1]) not in person["reported_ages"]:
+                person["reported_ages"].append(int(match[1]))
             for field, value in (
                 ("names", record.get("name") or record.get("girl_name")),
                 ("shops", record.get("shop_name")),
@@ -200,12 +232,17 @@ async def fetch_person(context, person, dates):
 
     page = await context.new_page()
     error = ""
+    image = {"status": "error", "image_url": ""}
     try:
         response = await page.goto(person["profile_url"], wait_until="domcontentloaded")
         if response is None or response.status >= 400:
             raise ValueError(f"HTTP {response.status if response else '応答なし'}")
         if cityheaven_profile_url(page.url) != person["profile_url"]:
             raise ValueError("別ページに転送されました（認証・掲載状況を確認）")
+        image_url = extract_profile_image_url(
+            await page.content(), page.url, (person.get("names") or [""])[0]
+        )
+        image = {"status": "ok" if image_url else "no_image", "image_url": image_url or ""}
         await page.wait_for_selector("#syukin_month .girlitem_waku", state="attached")
         days = parse_month_calendar(await page.content(), dates)
     except (PlaywrightError, ValueError) as exc:
@@ -219,7 +256,90 @@ async def fetch_person(context, person, dates):
         "fetched_at": datetime.now(JST).isoformat(timespec="seconds"),
         "days": days,
         "error": error,
+        "image": image,
     }
+
+
+def saved_images(schedules):
+    """Read existing profile caches without fetching or modifying schedule snapshots."""
+    images = {}
+    for filename in ["ns_senmon_profile_image_cache.json", IMAGE_CACHE.name]:
+        path = ROOT / "data" / filename
+        if path.exists():
+            for url, entry in json.loads(path.read_text(encoding="utf-8")).items():
+                key = cityheaven_profile_url(url)
+                if key:
+                    images[key] = entry
+    calendar_path = ROOT / "docs" / "calendar_report.html"
+    if calendar_path.exists():
+        soup = BeautifulSoup(calendar_path.read_text(encoding="utf-8"), "html.parser")
+        for row in soup.select("tr"):
+            link = row.select_one(".shop-cell a[href]")
+            img = row.select_one("img[src]")
+            key = cityheaven_profile_url(link["href"]) if link else ""
+            if key and img and not images.get(key, {}).get("image_url"):
+                images[key] = {"status": "ok", "image_url": img["src"]}
+    for url, result in schedules.items():
+        image = result.get("image")
+        if image and (image.get("image_url") or not images.get(url, {}).get("image_url")):
+            images[url] = image
+    return images
+
+
+def image_html(person, images):
+    image = images.get(person["profile_url"], {})
+    url = image.get("image_url") or ""
+    try:
+        valid = urlsplit(url).scheme in {"http", "https"}
+    except ValueError:
+        valid = False
+    status = image.get("status")
+    label = (
+        "画像取得失敗" if status in {"error", "not_found"}
+        else "画像なし" if status == "no_image" else "画像未取得"
+    )
+    if valid:
+        return (
+            '<div class="profile-photo">'
+            f'<img src="{escape(url, quote=True)}" alt="{escape(" / ".join(person["names"]), quote=True)}" '
+            'width="97" height="97" loading="lazy" decoding="async">'
+            '<span class="image-error" hidden>画像読込失敗</span></div>'
+            + ('<small>画像再取得失敗・保存画像を表示</small>' if status == "error" else "")
+        )
+    return f'<div class="profile-photo image-placeholder">{label}</div>'
+
+
+def render_reports(person):
+    def saved_text(text):
+        return re.sub(
+            r"[ \t]+(?=\r?$)",
+            lambda match: "".join(f"&#{ord(char)};" for char in match[0]),
+            escape(text),
+            flags=re.MULTILINE,
+        )
+
+    reports = []
+    for report in person.get("reports", []):
+        score = report["score"]
+        scale = "/5（星）" if report["database"] == "オキニラブ" else "/100点"
+        score_text = f"{score:g}{scale}" if score is not None else "未評価"
+        url = safe_http_url(report["source"])
+        source = (
+            f'<a href="{escape(url, quote=True)}" target="_blank" rel="noopener">元レポート</a>'
+            if url else "出典URLなし"
+        )
+        body = "".join(
+            f'<div class="saved-field"><strong>{escape(label)}</strong>'
+            f'<p>{saved_text(text)}</p></div>' for label, text in report["fields"]
+        ) or "<p>保存済み本文なし（外部から追加取得していません）</p>"
+        reports.append(
+            f'<details class="saved-report"><summary>{escape(report["database"])} / '
+            f'{escape(report["date"])} / 元評価 {score_text}</summary>{source}{body}</details>'
+        )
+    return (
+        f'<details class="saved-reports"><summary>個別レポートのスコア・本文（{len(reports)}件）</summary>'
+        f'{"".join(reports)}</details>'
+    )
 
 
 async def collect_schedules(people, dates):
@@ -285,8 +405,9 @@ def person_schedule(person, dates, schedules):
     return {"fetched_at": "", "days": daily_states(dates, state), "error": ""}
 
 
-def render_html(people, dates, schedules, removed, now=None):
+def render_html(people, dates, schedules, removed, now=None, images=None):
     now = now or datetime.now(JST)
+    images = images or {}
     labels = [
         f'{day}（{"月火水木金土日"[datetime.fromisoformat(day).weekday()]}）'
         for day in dates
@@ -306,8 +427,16 @@ def render_html(people, dates, schedules, removed, now=None):
             f'<br><small>{profile}</small>' if profile else f"{name}<br>CityHeaven URL未突合"
         )
         rating_items = "".join(
-            f'<li>{escape(label)}: {rating["score"]:.2f} '
-            f'（原評価平均 {rating["mean"]:.2f} / {rating["count"]}件）</li>'
+            f'<li>{escape(label)}: 元評価平均 '
+            f'{"★" if label == "オキニラブ" else ""}{rating["mean"]:.2f}'
+            f'{"/5" if label == "オキニラブ" else "/100点"} '
+            f'（評価 {rating["count"]}件） / 相対スコア {rating["score"]:.2f}/100</li>'
+            for label, rating in person["ratings"].items()
+        )
+        original_ratings = "".join(
+            f'<div>{escape(label)}: 元評価平均 '
+            f'{"★" if label == "オキニラブ" else ""}{rating["mean"]:.2f}'
+            f'{"/5" if label == "オキニラブ" else "/100点"}（{rating["count"]}件）</div>'
             for label, rating in person["ratings"].items()
         )
         result = person_schedule(person, dates, schedules)
@@ -330,15 +459,21 @@ def render_html(people, dates, schedules, removed, now=None):
             )
         error = f'<p role="alert">{escape(result["error"])}</p>' if result["error"] else ""
         provisional = " / 暫定" if person["provisional"] else ""
+        ages = person.get("reported_ages", [])
+        age_text = " / ".join(f"{age}歳" for age in ages) or "不明"
         hidden = "" if working_days else " hidden"
         visible_count += bool(working_days)
         rows.append(
-            f'<tr class="person-row" data-working="{",".join(working_days)}"{hidden}>'
-            f'<td class="shop-cell">{identity}<br><span class="shop-info">{shop}</span>'
-            f'<p class="rank-info">{person["rank"]}位 / {person["score"]:.2f}点 / '
+            f'<tr class="person-row" data-working="{",".join(working_days)}" '
+            f'data-ages="{",".join(map(str, ages))}"{hidden}>'
+            f'<td class="shop-cell">{image_html(person, images)}{identity}<br><span class="shop-info">{shop}</span>'
+            f'<p class="rank-info">{person["rank"]}位 / 横断相対スコア {person["score"]:.2f}/100 / '
             f'{person["tier"]}{provisional}<br>{person["source_count"]}元 / {person["review_count"]}件</p>'
+            f'<div class="original-ratings">{original_ratings}</div>'
+            f'<div class="reported-age">保存レポート年齢: {age_text}（現在年齢とは限りません）</div>'
             f'<details><summary>評価内訳・取得状況</summary><ul>{rating_items}</ul>'
             f'<p>取得日時: {escape(result["fetched_at"]) or "未取得"}</p>{error}</details>'
+            f'{render_reports(person)}'
             f'<div class="m-cal"><ul>{"".join(mobile_days)}</ul></div></td>'
             f'{"".join(cells)}</tr>'
         )
@@ -347,13 +482,16 @@ def render_html(people, dates, schedules, removed, now=None):
         f'<th class="day-col {day_classes[index]}" data-day="{index}">{label}</th>'
         for index, label in enumerate(labels)
     )
+    date_options = "".join(
+        f'<option value="{day}">{label}</option>' for day, label in zip(dates, labels)
+    )
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8">{HEAD_COMMON}
 <title>3レポート横断・7日間出勤カレンダー</title>
 <link rel="stylesheet" href="weekly_schedule.css">
 <script src="weekly_schedule.js" defer></script></head>
-<body>{BACK_NAV}
+<body data-details-scroll="native">{BACK_NAV}
 <h1>3レポート横断・7日間出勤カレンダー</h1>
 <p>対象期間: {labels[0]}〜{labels[-1]} 日本時間（生成時の本日から7日間）。レポート生成日時:
 {escape(now.astimezone(JST).isoformat(timespec="seconds"))}。評価あり {len(people)}人。</p>
@@ -376,12 +514,20 @@ def render_html(people, dates, schedules, removed, now=None):
 <option value="working" selected>予定ありのみ（7日間）</option>
 <option value="today">本日出勤</option>
 <option value="weekend">土日出勤</option>
+<option value="date">日付指定</option>
 <option value="all">全表示（未取得・休み等も含む）</option>
 </select></div>
+<div class="day-picker"><label for="daySelect">日付指定</label>
+<select id="daySelect">{date_options}</select></div>
+<div class="day-picker"><label for="ageFilter">保存レポート年齢</label>
+<select id="ageFilter" aria-label="年齢区分">
+<option value="" selected>絞り込みなし</option>
+<option value="under30">30歳未満</option><option value="over30">30歳以上</option>
+<option value="unknown">年齢不明</option></select></div>
 <p class="filter-count" id="dayCount" aria-live="polite">予定ありのみ（7日間）: 表示 {visible_count}名 / 母集団 {len(people)}名（順位・S/Aは固定）</p>
 </div>
 <p class="no-results" id="noResults" {"" if visible_count == 0 else "hidden"} role="status">条件に合う出勤予定はありません。
-未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」で取得状況を確認してください。</p>
+未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」と年齢「絞り込みなし」で取得状況を確認してください。</p>
 <p id="staleNotice" hidden role="status">本日は保存期間に含まれません。ページを再生成・再取得してください。</p>
 <noscript><p>JavaScriptが無効です。生成時の7日間に予定がある人物のみ表示しています。
 セレクタを使うにはJavaScriptを有効にしてください。</p></noscript>
@@ -393,10 +539,14 @@ def render_html(people, dates, schedules, removed, now=None):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--collect", action="store_true", help="Sの公開CityHeaven週間予定を取得")
-    parser.add_argument("--include-a", action="store_true", help="--collect でSに続いてAも取得")
+    parser.add_argument("--collect-images", action="store_true", help="予定を変更せず不足画像のみ取得")
+    parser.add_argument("--image-limit", type=int, default=20, help="不足画像取得上限（既定20人）")
+    parser.add_argument("--include-a", action="store_true", help="取得対象にSに続いてAも追加")
     args = parser.parse_args(argv)
-    if args.include_a and not args.collect:
-        parser.error("--include-a は --collect と併用してください")
+    if args.include_a and not (args.collect or args.collect_images):
+        parser.error("--include-a は --collect または --collect-images と併用してください")
+    if args.image_limit < 1:
+        parser.error("--image-limit は1以上で指定してください")
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking()
@@ -409,7 +559,19 @@ def main(argv=None):
         cache["windows"][dates[0]] = schedules
         save_cache(cache)
         failures = sum(bool(result["error"]) for result in results.values())
-    write_html(OUTPUT, render_html(people, dates, schedules, removed, now))
+    images = saved_images(schedules)
+    if args.collect_images:
+        pending = [
+            person for person in selected_people(people, args.include_a)
+            if not images.get(person["profile_url"], {}).get("image_url")
+        ][:args.image_limit]
+        fetched = fetch_profile_images(
+            {person["profile_url"]: (person["names"] or [""])[0] for person in pending},
+            path=IMAGE_CACHE,
+        )
+        images.update(fetched)
+        failures += sum(entry.get("status") == "error" for entry in fetched.values())
+    write_html(OUTPUT, render_html(people, dates, schedules, removed, now, images))
     print(f"出力: {OUTPUT} / {len(people)}人 / 取得エラー {failures}件")
     return 1 if failures else 0
 

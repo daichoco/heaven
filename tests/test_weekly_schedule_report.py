@@ -121,6 +121,40 @@ class RankingTests(unittest.TestCase):
         ]:
             self.assertEqual(weekly.cityheaven_profile_url(value), "")
 
+    def test_original_ratings_and_historical_ages(self):
+        people = weekly.rank_people(datasets(
+            ns=[{"url": "ns", "cityheaven_url": profile(1),
+                 "details": {TOTAL_KEY: "80点", "推定年齢": "29歳"}}],
+            oki=[{"report_url": "oki", "girl_url": profile(1), "age": "31",
+                  "evaluations": "★★★★☆"}],
+            tokai_rows=[tokai(1, 0, predict_age=None), tokai(2, predict_age=0)],
+        ))
+        first = next(p for p in people if p["profile_url"] == profile(1))
+        self.assertEqual(first["reported_ages"], [29, 31])
+        self.assertEqual(next(p for p in people if p["profile_url"] == profile(2))["reported_ages"], [])
+        html = weekly.render_html(people, weekly.schedule_dates(), {}, {})
+        self.assertIn("元評価平均 80.00/100点（1件）", html)
+        self.assertIn("元評価平均 ★4.00/5（1件）", html)
+        self.assertIn("元評価平均 0.00/100点（1件）", html)
+        self.assertIn("現在年齢とは限りません", html)
+
+    def test_individual_saved_reports_scores_bodies_and_safe_links(self):
+        row = tokai(1, 90, total_comment="<script>本文</script> \n次の行", date="2026-01-02")
+        people = weekly.rank_people(datasets(tokai_rows=[
+            row, {**row, "url": row["url"].replace("https:", "http:")},
+            tokai(1, None, url="javascript:alert(1)", total_comment="未評価本文"),
+        ]))
+        self.assertEqual(len(people[0]["reports"]), 2)
+        page = BeautifulSoup(weekly.render_reports(people[0]), "html.parser")
+        self.assertEqual(len(page.select(".saved-report")), 2)
+        self.assertIn("元評価 90/100点", page.get_text())
+        self.assertIn("2026-01-02", page.get_text())
+        self.assertIn("<script>本文</script>", page.get_text())
+        self.assertEqual(page.select_one(".saved-field p").get_text(), row["total_comment"])
+        self.assertIn("未評価本文", page.get_text())
+        self.assertFalse(page.select("script"))
+        self.assertTrue(all(link["href"].startswith("https:") for link in page.select("a")))
+
     def test_percentile_boundaries_and_small_populations(self):
         for size, expected_s, expected_a in [
             (0, 0, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0),
@@ -336,14 +370,128 @@ class WeeklyCalendarTests(unittest.TestCase):
         self.assertIn("土日出勤カレンダー", html)
         self.assertIn("10/24(土)", html)
 
+    def test_saved_images_reuse_and_old_snapshot_compatibility(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "data").mkdir()
+            (root / "data" / "ns_senmon_profile_image_cache.json").write_text(json.dumps({
+                profile(1): {"status": "ok", "image_url": "https://img.invalid/saved.jpg"}
+            }), encoding="utf-8")
+            with patch.object(weekly, "ROOT", root):
+                images = weekly.saved_images({profile(1): {"days": []}})
+            self.assertEqual(images[profile(1)]["image_url"], "https://img.invalid/saved.jpg")
+        person = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))[0]
+        html = weekly.image_html(person, images)
+        self.assertIn('width="97" height="97"', html)
+        self.assertIn("saved.jpg", html)
+        self.assertIn("画像未取得", weekly.image_html(person, {}))
+        self.assertIn("画像なし", weekly.image_html(person, {profile(1): {"status": "no_image"}}))
+        self.assertIn("画像取得失敗", weekly.image_html(person, {profile(1): {"status": "error"}}))
+
+    def test_images_only_command_is_bounded_and_never_writes_schedules(self):
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(i, 100-i) for i in range(30)]))
+        with (
+            patch.object(weekly, "load_ranking", return_value=(people, {})),
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
+            patch.object(weekly, "saved_images", return_value={}),
+            patch.object(weekly, "fetch_profile_images", return_value={}) as fetch,
+            patch.object(weekly, "collect_schedules", new_callable=AsyncMock) as collect,
+            patch.object(weekly, "save_cache") as save,
+            patch.object(weekly, "write_html"),
+        ):
+            self.assertEqual(weekly.main(["--collect-images", "--image-limit", "2"]), 0)
+            self.assertEqual(len(fetch.call_args.args[0]), 2)
+            self.assertEqual(fetch.call_args.kwargs["path"], weekly.IMAGE_CACHE)
+            collect.assert_not_called()
+            save.assert_not_called()
+
 
 class BrowserFixtureTests(unittest.TestCase):
+    def test_accordion_heading_stays_in_place_on_open_and_close(self):
+        async def run():
+            now = datetime(2026, 10, 18, 20, tzinfo=weekly.JST)
+            dates = weekly.schedule_dates(now)
+            people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(30)]))
+            schedules = {
+                person["profile_url"]: {
+                    "fetched_at": now.isoformat(), "error": "",
+                    "days": weekly.daily_states(dates, "working", "10:00 - 18:00"),
+                }
+                for person in people
+            }
+            html = weekly.render_html(people, dates, schedules, {}, now, images={
+                person["profile_url"]: {"status": "ok", "image_url": "https://report.invalid/broken.jpg"}
+                for person in people
+            })
+            async with async_playwright() as playwright:
+                for browser_type in [playwright.chromium, playwright.webkit]:
+                    browser = await browser_type.launch()
+                    try:
+                        for width in [390, 820, 1440]:
+                            context = await browser.new_context(viewport={"width": width, "height": 900})
+                            page = await context.new_page()
+                            await page.clock.install(time=now)
+                            async def route_handler(route):
+                                filename = route.request.url.rsplit("/", 1)[-1]
+                                if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css"}:
+                                    await route.fulfill(path=ROOT / "docs" / filename)
+                                else:
+                                    await route.fulfill(content_type="text/html; charset=utf-8", body=html)
+                            await context.route("**/*", route_handler)
+                            await page.goto("https://report.invalid/weekly_schedule.html")
+                            for mode in ["working", "today", "weekend", "date", "all"]:
+                                await page.select_option("#scheduleFilter", mode)
+                                for selector in [
+                                    ".method > summary",
+                                    ".person-row:nth-child(10) details:not(.saved-reports):not(.saved-report) > summary",
+                                    ".person-row:nth-child(10) .saved-reports > summary",
+                                ]:
+                                    summary = page.locator(selector)
+                                    await summary.evaluate("""element => {
+                                        window.scrollBy(0, element.getBoundingClientRect().top - 350);
+                                    }""")
+                                    for action in ["open", "close"]:
+                                        before = await summary.bounding_box()
+                                        await summary.click()
+                                        await page.evaluate("""() => new Promise(resolve =>
+                                            requestAnimationFrame(() => requestAnimationFrame(() =>
+                                                requestAnimationFrame(resolve))))""")
+                                        after = await summary.bounding_box()
+                                        self.assertLessEqual(
+                                            abs(after["y"] - before["y"]), 2,
+                                            (browser_type.name, width, mode, selector, action, before, after),
+                                        )
+                                        self.assertEqual(await summary.evaluate("el => el.parentElement.open"), action == "open")
+                                    await summary.focus()
+                                    for key in ["Enter", "Space"]:
+                                        before = await summary.bounding_box()
+                                        await summary.press(key)
+                                        await page.evaluate("() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+                                        after = await summary.bounding_box()
+                                        self.assertLessEqual(abs(after["y"] - before["y"]), 2)
+                                    self.assertFalse(await summary.evaluate("el => el.parentElement.open"))
+                                await page.locator(".person-row:nth-child(10) .saved-reports").evaluate("el => el.open = true")
+                                nested = page.locator(".person-row:nth-child(10) .saved-report > summary")
+                                await nested.evaluate("el => window.scrollBy(0, el.getBoundingClientRect().top - 350)")
+                                for _ in range(2):
+                                    before = await nested.bounding_box()
+                                    await nested.click()
+                                    await page.evaluate("() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+                                    after = await nested.bounding_box()
+                                    self.assertLessEqual(abs(after["y"] - before["y"]), 2)
+                                await page.locator(".person-row:nth-child(10) .saved-reports").evaluate("el => el.open = false")
+                            await context.close()
+                    finally:
+                        await browser.close()
+        asyncio.run(run())
+
     def test_calendar_filters_layout_and_zero_states_preserve_ranking(self):
         async def run():
             now = datetime(2026, 10, 21, 0, 30, tzinfo=weekly.JST)
             dates = weekly.schedule_dates(now)
             people = weekly.rank_people(datasets(tokai_rows=[
-                tokai(i, 100 - i) for i in range(1, 8)
+                tokai(i, 100 - i, predict_age=29 if i == 1 else 31 if i == 2 else None)
+                for i in range(1, 8)
             ]))
             original = copy.deepcopy(people)
             schedules = {}
@@ -392,6 +540,24 @@ class BrowserFixtureTests(unittest.TestCase):
                         rows = page.locator(".person-row")
                         before = await rows.locator(".rank-info").all_text_contents()
                         self.assertEqual(await page.locator(".person-row:visible").count(), 3)
+                        await page.select_option("#ageFilter", "under30")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 1)
+                        await page.select_option("#scheduleFilter", "weekend")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
+                        self.assertTrue(await page.locator("#noResults").is_visible())
+                        await page.select_option("#ageFilter", "over30")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 1)
+                        await page.select_option("#ageFilter", "unknown")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
+                        await page.select_option("#ageFilter", "")
+                        await page.select_option("#daySelect", dates[1])
+                        self.assertEqual(await page.input_value("#scheduleFilter"), "date")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 1)
+                        await page.select_option("#ageFilter", "under30")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
+                        await page.select_option("#ageFilter", "")
+                        await page.select_option("#daySelect", dates[2])
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
                         await page.select_option("#scheduleFilter", "today")
                         self.assertEqual(await page.locator(".person-row:visible").count(), 1)
                         self.assertFalse(await page.locator("#staleNotice").is_visible())
@@ -445,7 +611,7 @@ class BrowserFixtureTests(unittest.TestCase):
                         else:
                             await route.fulfill(
                                 content_type="text/html; charset=utf-8",
-                                body=calendar_html([("10/19(月)", "10:00 - 18:00"),
+                                body='<meta property="og:image" content="https://img.invalid/photo.jpg">' + calendar_html([("10/19(月)", "10:00 - 18:00"),
                                                     ("10/20(火)", "休み")]),
                             )
                     await context.route("**/*", route_handler)
@@ -459,6 +625,9 @@ class BrowserFixtureTests(unittest.TestCase):
                             self.assertEqual(result["days"][1]["state"], "off")
                             self.assertEqual(result["days"][6]["state"], "unpublished")
                             self.assertEqual(result["error"], "")
+                            self.assertEqual(result["image"], {
+                                "status": "ok", "image_url": "https://img.invalid/photo.jpg"
+                            })
                         else:
                             self.assertTrue(result["error"])
                             self.assertTrue(all(day["state"] == "error" for day in result["days"]))
