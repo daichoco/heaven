@@ -23,6 +23,17 @@ SCORE_FIELDS = (
     ("panel_point", "panel", "パネル差"),
 )
 
+REPORT_DETAIL_FIELDS = (
+    ("play_time", "total_cost", "プレイ時間"),
+    ("face_score", "face_feature", "顔"),
+    ("style_score", "style_comment", "スタイル"),
+    ("cup", "pie_comment", "カップ"),
+    ("panel_point", "panel_gap", "パネル差"),
+    ("play_score", "play_comment", "プレイ"),
+    ("total_point", "total_comment", "総合"),
+    ("repeat", "repeat_comment", "リピート"),
+)
+
 
 def sort_attributes(row):
     attributes = {}
@@ -123,27 +134,7 @@ def group_reports(df):
 
 
 def render_report_entry(row, i, shop_price_class=""):
-    detail_columns = {
-        "play_time":"total_cost",
-        "face_score": "face_feature",
-        "style_score": "style_comment",
-        "cup": "pie_comment",
-        "panel_point": "panel_gap",
-        "play_score": "play_comment",
-        "total_point": "total_comment",
-        "repeat": "repeat_comment"
-    }
-
-    score_labels = {
-        "play_time":"プレイ時間",
-        "face_score": "顔",
-        "style_score": "スタイル",
-        "cup": "カップ",
-        "panel_point": "パネル差",
-        "play_score": "プレイ",
-        "total_point": "総合",
-        "repeat": "リピート"
-    }
+    score_labels = {key: label for key, _, label in REPORT_DETAIL_FIELDS}
     overview_keys = ["face_score", "style_score", "panel_point", "play_score", "total_point"]
 
     shop = _text(row, "shop_name")
@@ -196,10 +187,9 @@ def render_report_entry(row, i, shop_price_class=""):
         f'<summary class="report-heading">{summary}{overview_html}</summary>'
         f'<div class="report-details">'
     )
-    for key, detail_column in detail_columns.items():
+    for key, detail_column, label in REPORT_DETAIL_FIELDS:
         score = row.get(key, "")
         detail = row.get(detail_column, "")
-        label = score_labels.get(key, key)
         html += render_score_detail(score, detail, label)
     html += '</div></details>'
     return html

@@ -266,6 +266,34 @@ class RankingTests(unittest.TestCase):
         self.assertNotIn(source_link["href"], page.get_text())
         self.assertEqual(page.select_one(".saved-field p").get_text(), body)
 
+    def test_tokai_details_match_calendar_labels_order_scores_and_comments(self):
+        from tokai_fuzoku.html_render import REPORT_DETAIL_FIELDS, render_report_entry
+
+        record = tokai(1, 88, date="2026-02-01", play_time="120分", total_cost="70000円",
+                       face_score=85, face_feature="顔の説明\n改行を維持",
+                       style_score=95, style_comment="スタイル",
+                       cup="Eカップ", pie_comment="胸", panel_point=40, panel_gap="パネル",
+                       play_score=80, play_comment="<script>unsafe</script>",
+                       total_comment="総合本文", repeat="返す（リピートする）", repeat_comment="理由")
+        person = weekly.rank_people(datasets(tokai_rows=[record]))[0]
+        page = BeautifulSoup(weekly.render_reports(person), "html.parser")
+        reference = BeautifulSoup(render_report_entry(record, 0), "html.parser")
+        fields = page.select(".tokai-evaluations > li")
+        labels = [item.select_one("strong").get_text().removesuffix(":") for item in fields]
+        self.assertEqual(labels, [item.get_text() for item in reference.select(".score-label")])
+        self.assertEqual([item.p.get_text() for item in fields],
+                         [item.get_text() for item in reference.select(".report-comment p")])
+        self.assertEqual(len(fields), len(REPORT_DETAIL_FIELDS))
+        self.assertFalse(page.select("script"))
+        self.assertIn("元評価 88/100点", page.h3.get_text())
+        self.assertEqual(page.select_one("a")["href"], record["url"])
+        self.assertNotIn("face_feature", page.get_text())
+        record["face_score"] = None
+        person = weekly.rank_people(datasets(tokai_rows=[record]))[0]
+        missing_score = BeautifulSoup(weekly.render_reports(person), "html.parser")
+        self.assertIn("顔の説明\n改行を維持", missing_score.get_text())
+        self.assertNotIn("None", missing_score.get_text())
+
     def test_person_card_separates_identity_ranking_badges_and_original_ratings(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))
         page = BeautifulSoup(
