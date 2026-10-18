@@ -707,6 +707,13 @@ class FillDetailsTests(CollectorTestBase):
 
 
 class GeneratorTests(unittest.TestCase):
+    def test_cityheaven_echo_profile_image(self):
+        self.assertEqual(tokai.extract_profile_image_url(
+            '<meta property="og:image" content="/img/favicon.png">'
+            '<img data-echo="//img2.cityheaven.net/img/girls/t/shop/la_grpb1.jpg" alt="あや">',
+            GIRL_A, "あや",
+        ), "https://img2.cityheaven.net/img/girls/t/shop/la_grpb1.jpg")
+
     def test_offline_generation_uses_stored_details_and_profile_status(self):
         records = [
             legacy_record(article_url(1, 1)),

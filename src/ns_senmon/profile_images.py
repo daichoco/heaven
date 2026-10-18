@@ -116,6 +116,10 @@ def _fetch(url, name):
     if not 200 <= response.status_code < 400:
         print(f"プロフィール画像取得失敗 ({url}): HTTP {response.status_code}")
         return {"status": "error", "image_url": ""}
+    if normalize_profile_url(response.url).split("://")[-1] != normalize_profile_url(url).split("://")[-1]:
+        message = "別ページに転送されました（認証・掲載状況を確認）"
+        print(f"プロフィール画像取得失敗 ({url}): {message}")
+        return {"status": "error", "image_url": "", "error": message}
     # Content-Type に charset が無いと requests は ISO-8859-1 とみなすため、UTF-8 で読む
     encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "utf-8"
     page_html = response.content[:PROFILE_IMAGE_HTML_LIMIT].decode(encoding, errors="replace")
@@ -161,7 +165,7 @@ def fetch_profile_images(people, path=CACHE_PATH, time_budget=TIME_BUDGET_SECOND
             old = cache.get(url) or {}
             if result["status"] == "error":
                 # 取り直しに失敗したときは、前回までに分かっている写真・店舗種別を使い続ける
-                result = {**{k: v for k, v in old.items() if k != "checked_at"}, "status": "error",
+                result = {**{k: v for k, v in old.items() if k != "checked_at"}, **result,
                           "image_url": old.get("image_url", "")}
             cache[url] = {"checked_at": checked_at, **result}
         found = sum(1 for f in done if cache[futures[f]].get("image_url"))
