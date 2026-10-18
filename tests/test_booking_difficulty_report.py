@@ -1,6 +1,7 @@
 import json
 import sys
 import unittest
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.parse import quote, urlsplit
@@ -14,7 +15,8 @@ sys.path.insert(0, str(ROOT / "src"))
 from generate_booking_difficulty_report import (
     DATASETS, ReportViews, booking_matches, candidate_matches, candidate_person_key,
     analyze_record, extract_people, highlight_booking_text,
-    rating_value, record_url_key, relative_scores, render_html,
+    filter_unavailable_records, rating_value, record_url_key, relative_scores,
+    render_html, unavailable_article_markers,
 )
 
 
@@ -130,6 +132,54 @@ class BookingDifficultyReportTests(unittest.TestCase):
             person["sources"][0]["database"] = "NS専門"
             with self.assertRaisesRegex(ValueError, "matching review not found"):
                 ReportViews(docs).render(person)
+
+    def test_ended_articles_are_filtered_using_each_database_status(self):
+        now = datetime(2026, 10, 18, tzinfo=timezone.utc)
+        tokai_ended_url = "https://www.cityheaven.net/gifu/A2101/shop/girlid-101/"
+        tokai_active_url = "https://www.cityheaven.net/gifu/A2101/shop/girlid-102/"
+        okinilove_ended_url = "https://www.cityheaven.net/gifu/A2101/shop/girlid-201/"
+        ns_ended_url = "https://www.cityheaven.net/gifu/A2101/shop/girlid-301/"
+        datasets = [
+            ("東海風俗", "tokai_fuzoku", [
+                {"url": "tokai-ended", "girl_url": tokai_ended_url,
+                 "profile_status": "unavailable", "profile_checked_at": "2026-10-17T00:00:00+00:00"},
+                {"url": "tokai-active", "girl_url": tokai_active_url,
+                 "profile_status": "published", "profile_checked_at": "2026-10-17T00:00:00+00:00"},
+            ]),
+            ("オキニラブ", "okinilove", [
+                {"report_url": "oki-ended", "girl_url": okinilove_ended_url},
+                {"report_url": "oki-active", "girl_url": "https://example.invalid/active"},
+            ]),
+            ("NS専門", "ns_senmon", [
+                {"url": "ns-ended", "cityheaven_url": ns_ended_url, "match_confidence": "exact"},
+                {"url": "ns-not-listed", "match_confidence": "not_listed"},
+                {"url": "ns-active", "match_confidence": "exact"},
+            ]),
+        ]
+        markers = unavailable_article_markers(
+            datasets,
+            now=now,
+            okinilove_cache={
+                okinilove_ended_url: {
+                    "checked_at": (now - timedelta(days=2)).isoformat(),
+                    "status": 410,
+                },
+                "https://example.invalid/stale": {
+                    "checked_at": (now - timedelta(days=8)).isoformat(),
+                    "status": 404,
+                },
+            },
+            ns_profile_cache={
+                ns_ended_url: {"status": "not_found"},
+                "https://www.cityheaven.net/gifu/A2101/shop/girlid-302/": {"status": "ok"},
+            },
+            ns_unmatched=[{"status": "not_listed", "url": "ns-not-listed"}],
+        )
+        retained, removed = filter_unavailable_records(datasets, markers)
+        self.assertEqual(removed, {"東海風俗": 1, "オキニラブ": 1, "NS専門": 2})
+        self.assertEqual([row["url"] for row in retained[0][2]], ["tokai-active"])
+        self.assertEqual([row["report_url"] for row in retained[1][2]], ["oki-active"])
+        self.assertEqual([row["url"] for row in retained[2][2]], ["ns-active"])
 
     def test_tokai_saved_body_is_highlighted_in_place_without_duplicate_copy(self):
         fragment = BeautifulSoup(

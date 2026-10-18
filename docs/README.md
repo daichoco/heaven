@@ -185,10 +185,13 @@ Okinilove records missing from its existing docs are rendered offline with
 its existing person-summary renderer and saved review bodies.
 Tokai records excluded from its normal report are rendered from the matching
 JSONL records using the same person/report HTML renderer, without applying
-that report's age or availability filters. Their profile images are reused from
-the generated Tokai report when the profile URL matches. The full saved JSON
-and source links remain available as secondary information. The databases do
-not retain original external-page HTML. Generation requires the three existing docs
+that report's age filter. Records marked unavailable are excluded using the
+latest Tokai person status, fresh Okinilove 404/410 status-cache entries, and
+NS「掲載終了?」or cached profile 404/410 results. Unknown or stale Okinilove
+status results are retained. Their profile images are reused from the generated
+Tokai report when the profile URL matches. The full saved JSON and source links
+remain available as secondary information. The databases do not retain original
+external-page HTML. Generation requires the three existing docs
 reports and `docs/okinilove_review_bodies.json`; it never collects online data.
 Regenerate it with:
 

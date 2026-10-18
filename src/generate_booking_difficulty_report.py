@@ -5,7 +5,7 @@ import re
 import sys
 from bisect import bisect_left, bisect_right
 from collections import defaultdict
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
 from urllib.parse import quote, urlsplit
@@ -20,9 +20,18 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl_records
 from html_format import write_html
-from tokai_fuzoku.report_store import normalize_profile_url
+from tokai_fuzoku.report_store import (
+    latest_profile_status_by_person,
+    normalize_profile_url,
+    person_key,
+)
 from tokai_fuzoku.html_render import group_reports, render_person_entry
 from okinilove.render_people_summary import build_people_summary
+from okinilove.scrape_okinilove import (
+    PROFILE_STATUS_CACHE_TTL,
+    profile_check_url,
+)
+from ns_senmon.profile_images import CACHE_PATH as NS_PROFILE_IMAGE_CACHE_PATH
 from ns_senmon.generate_ns_senmon_report import TOTAL_KEY, number
 
 DATASETS = (
@@ -31,6 +40,8 @@ DATASETS = (
     ("東海風俗", "tokai_fuzoku_reports.jsonl", "tokai_fuzoku", "tokai_final_report.html"),
 )
 OUTPUT_HTML = ROOT_DIR / "docs" / "reservation_difficulty.html"
+OKINILOVE_PROFILE_STATUS_PATH = ROOT_DIR / "data" / "okinilove_profile_status.json"
+NS_UNMATCHED_PATH = ROOT_DIR / "data" / "ns_senmon_unmatched.json"
 CATEGORY_LABELS = {"difficulty": "予約困難", "soldout": "完売の記述あり", "popular": "人気の記述あり"}
 SCORE_PRIOR_WEIGHT = 3
 BOOKING_DIFFICULTY = re.compile(
@@ -281,6 +292,88 @@ def relative_scores(dataset, records):
     return results
 
 
+def _read_optional_json(path, default):
+    path = Path(path)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
+
+
+def unavailable_article_markers(datasets, *, now=None, okinilove_cache=None,
+                                ns_profile_cache=None, ns_unmatched=None):
+    """Return saved, affirmative profile-unavailability markers for each report DB."""
+    now = now or datetime.now(timezone.utc)
+    records_by_dataset = {dataset: rows for _, dataset, rows in datasets}
+    tokai_statuses = latest_profile_status_by_person(records_by_dataset["tokai_fuzoku"])
+    tokai_people = {
+        key for key, status in tokai_statuses.items() if status == "unavailable"
+    }
+
+    if okinilove_cache is None:
+        okinilove_cache = _read_optional_json(OKINILOVE_PROFILE_STATUS_PATH, {})
+    unavailable_okinilove_profiles = set()
+    for url, entry in okinilove_cache.items():
+        if not isinstance(entry, dict) or str(entry.get("status")) not in {"404", "410"}:
+            continue
+        try:
+            checked_at = datetime.fromisoformat(entry["checked_at"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if checked_at.tzinfo is None:
+            checked_at = checked_at.replace(tzinfo=timezone.utc)
+        if now - checked_at < PROFILE_STATUS_CACHE_TTL:
+            unavailable_okinilove_profiles.add(profile_check_url(url))
+
+    if ns_profile_cache is None:
+        ns_profile_cache = _read_optional_json(NS_PROFILE_IMAGE_CACHE_PATH, {})
+    unavailable_ns_profiles = {
+        normalize_profile_url(url)
+        for url, entry in ns_profile_cache.items()
+        if isinstance(entry, dict) and entry.get("status") == "not_found"
+    }
+    if ns_unmatched is None:
+        ns_unmatched = _read_optional_json(NS_UNMATCHED_PATH, [])
+    unavailable_ns_articles = {
+        row.get("url")
+        for row in ns_unmatched
+        if row.get("status") == "not_listed" and row.get("url")
+    }
+    unavailable_ns_articles.update(
+        row.get("url")
+        for row in records_by_dataset["ns_senmon"]
+        if row.get("match_confidence") == "not_listed" and row.get("url")
+    )
+    return {
+        "tokai_people": tokai_people,
+        "okinilove_profiles": unavailable_okinilove_profiles,
+        "ns_profiles": {url for url in unavailable_ns_profiles if url},
+        "ns_articles": unavailable_ns_articles,
+    }
+
+
+def filter_unavailable_records(datasets, markers):
+    filtered = []
+    removed_counts = {}
+    for label, dataset, records in datasets:
+        retained = []
+        for record in records:
+            if dataset == "tokai_fuzoku":
+                unavailable = person_key(record) in markers["tokai_people"]
+            elif dataset == "okinilove":
+                unavailable = profile_check_url(record.get("girl_url") or "") in markers[
+                    "okinilove_profiles"
+                ]
+            else:
+                profile = normalize_profile_url(record.get("cityheaven_url"))
+                unavailable = (
+                    record.get("url") in markers["ns_articles"]
+                    or profile in markers["ns_profiles"]
+                )
+            if not unavailable:
+                retained.append(record)
+        filtered.append((label, dataset, retained))
+        removed_counts[label] = len(records) - len(retained)
+    return filtered, removed_counts
+
+
 def extract_people():
     people = {}
     source_counts = defaultdict(int)
@@ -289,6 +382,10 @@ def extract_people():
         (label, dataset, read_jsonl_records(ROOT_DIR / "data" / filename))
         for label, filename, dataset, _ in DATASETS
     ]
+    markers = unavailable_article_markers(datasets)
+    datasets, removed_counts = filter_unavailable_records(datasets, markers)
+    removed_summary = " / ".join(f"{label} {count}件" for label, count in removed_counts.items())
+    print(f"掲載終了扱いの記事を候補対象外にしました: {removed_summary}")
     shop_names = {
         record["shop_name"] for _, _, rows in datasets for record in rows if record.get("shop_name")
     }
