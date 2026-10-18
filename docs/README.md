@@ -84,6 +84,54 @@ Neither command collects data or makes network requests.
 | コマンド | 機能 |
 | --- | --- |
 | `py -3 src\generate_booking_difficulty_report.py` | 保存済みのNS専門・オキニラブ・東海レポートから `docs\reservation_difficulty.html` を生成します。オンラインデータの収集は行いません。 |
+| `py -3 src\generate_weekly_schedule_report.py` | 3レポート全体の横断順位と、保存済みの翌週予定から `docs\weekly_schedule.html` を生成します。既定ではネットワーク通信しません。 |
+
+### 3レポート横断の翌週出勤予定
+
+```powershell
+py -3 src\generate_weekly_schedule_report.py
+py -3 src\generate_weekly_schedule_report.py --collect
+py -3 src\generate_weekly_schedule_report.py --collect --include-a
+```
+
+最初のコマンドはオフライン生成、2番目はSを取得、3番目はSに続いてAも取得します。
+取得にはPlaywright Chromium（未導入なら `py -3 -m playwright install chromium`）が必要です。
+公開プロフィールの月間予定を読みます。ログイン・年齢確認・アクセス制限などで
+予定が読めない場合は取得エラーとして表示し、認証や制限を回避しません。
+`CITYHEAVEN_HEADLESS=0`、`CITYHEAVEN_BLOCK_RESOURCES=0` は既存収集と同様に使用できます。
+1人ずつ取得し、対象者のエラーは保存・表示して残りを処理します。
+対象者の取得エラーが1件以上あれば、HTMLとJSONを保存したうえで終了コード1を返します。
+ブラウザー起動失敗など実行基盤のエラーは例外で停止します。
+
+母集団は掲載終了扱いを既存ルールで除外した3レポートの全評価人物です。
+予約困難・人気の文言、年齢、3件未満では除外しません。NS専門・東海の総合満足度と
+オキニラブの星を既存の相対スコア方式（同点平均順位のパーセンタイル、3件分の50点への平均回帰）
+で補正し、評価のある元のみを等重み平均します。欠けた元は0点にしません。
+無評価は順位対象外。1評価元は「暫定」とし、排除しません。
+評価元数と、各元で同一人物・記事URLを重複除去した評価件数を表示します。
+記事URLのHTTP/HTTPS違いは同一、口コミフラグメント違いは別件です。
+
+正規化したCityHeavenプロフィールURL（`girlid-N`まで、クエリ・フラグメント除去、
+www有無を統一）だけで同一人物を統合します。外部サイトURL・URLなしは記事単位で残し、
+同姓同名や移籍を推測で統合しません。未突合者も順位の分母に含め、取得対象の繰り上げはしません。
+区分は人数切り上げの上位10%がS、その次から上位25%がA。
+丸め前スコアの同点は競技順位（1, 1, 3）とし、境界同点は全員上位区分へ入れます。
+このため割合を超える場合があり、少人数ではAが存在しない場合があります。
+
+期間は実行時の日本時間を基準に**翌週の月曜〜日曜**です（月曜実行でも7日後の月曜開始）。
+平日を含む7日間をISO日付で保存し、年末年始も対象週の日付と照合します。
+ページにない日は「未公開」、空欄も「未公開」、明示された「休み」は休み、
+「未定」は未定、不明な文言は原文付きの「要確認」として扱います。
+HTTPエラー・別ページ転送・DOM変更は「取得エラー」であり、休みとは扱いません。
+月間予定が対象週の一部しか公開していなくても推測や別日の転用はしません。
+翌月への追加ナビゲーションは行わないため、対象日がページにない場合は未公開のままです。
+
+取得結果は `data\cityheaven_weekly_schedules.json` に週開始日・プロフィールURL別に
+取得日時、7日間の状態と原文、エラーを保存します。再実行は同じ対象者の結果を更新し、
+今回取得しなかったAや過去週は保持します。オフライン生成では対象週だけを表示し、
+取得日時を併記します（自動的な鮮度保証はしません）。
+データがなければ「未取得」、URLがなければ「CityHeaven URL未突合」です。
+一覧と予約困難ページから移動でき、既存の土日カレンダーは変更しません。
 
 上記に記載していない `src` 内のファイルは、共通ヘルパー、レンダラー、
 データアクセス用モジュールです。単独で実行するのではなく、各エントリーポイントから読み込まれます。
@@ -101,6 +149,7 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 | `tokai_final_report.html` | `src/tokai_fuzoku/generate_report_final.py` |
 | `okinilove_remove_unknown.html` | `src/okinilove/render_people_summary.py`, including intermediate updates in `src/okinilove/scrape_okinilove.py` |
 | `reservation_difficulty.html` | `src/generate_booking_difficulty_report.py` |
+| `weekly_schedule.html` | `src/generate_weekly_schedule_report.py` |
 
 Calendar review buttons retain the collapsed-by-default behavior. Open rows use
 CSS to switch between cards (up to 1100 CSS pixels, or coarse-pointer touch
