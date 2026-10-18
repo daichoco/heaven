@@ -36,6 +36,7 @@ from report_store import (
     person_key,
 )
 from profile_signals import classify_profile_page, decode_html
+from wait_for_name_parts import name_in_text
 
 INPUT_JSONL = REPORTS_JSONL
 OUTPUT_HTML = ROOT_DIR / "docs" / "tokai_final_report.html"
@@ -221,16 +222,23 @@ def is_unavailable_aqua_profile(url, session, roster_state):
         return False
 
 
-def is_unavailable_o_ren_profile(url, final_url):
+def o_ren_unavailable_reason(url, final_url, page_html, girl_name):
     parsed = urlparse(url)
     final = urlparse(final_url)
     is_o_ren_host = parsed.netloc.lower() in {"o-ren-group.com", "www.o-ren-group.com"}
     is_profile_path = re.search(r"/castid-\d+/?$", parsed.path) is not None
+    if not (is_o_ren_host and is_profile_path):
+        return None
     is_roster_redirect = (
         final.netloc.lower() in {"o-ren-group.com", "www.o-ren-group.com"}
         and final.path.rstrip("/") == "/cast"
     )
-    return is_o_ren_host and is_profile_path and is_roster_redirect
+    if is_roster_redirect:
+        return f"店舗キャスト一覧へ転送: {final_url}"
+    page_text = BeautifulSoup(page_html or "", "html.parser").get_text(" ")
+    if is_missing(girl_name) or not name_in_text(page_text, str(girl_name)):
+        return "個人プロフィール上で名前を確認できない"
+    return None
 
 
 def filter_unavailable_girl_urls(df, session):
@@ -265,9 +273,6 @@ def filter_unavailable_girl_urls(df, session):
                     unavailable_urls.add(key)
                     continue
                 if 200 <= response.status_code < 400:
-                    if is_unavailable_o_ren_profile(url, response.url):
-                        unavailable_urls.add(key)
-                        continue
                     chunks = []
                     size = 0
                     for chunk in response.iter_content(chunk_size=64 * 1024):
@@ -279,6 +284,11 @@ def filter_unavailable_girl_urls(df, session):
                         if size >= PROFILE_HTML_LIMIT:
                             break
                     page_html = decode_html(b"".join(chunks), response.encoding)
+                    o_ren_reason = o_ren_unavailable_reason(url, response.url, page_html, girl_name)
+                    if o_ren_reason:
+                        tqdm.write(f"プロフィール掲載終了（{o_ren_reason}）: {url}")
+                        unavailable_urls.add(key)
+                        continue
                     status, reason = classify_profile_page(url, response.url, response.status_code, page_html)
                     if status == "unavailable":
                         tqdm.write(f"プロフィール掲載終了（{reason}）: {url}")

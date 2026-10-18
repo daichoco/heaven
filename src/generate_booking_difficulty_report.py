@@ -382,6 +382,7 @@ def record_url_key(value):
 class ReportViews:
     def __init__(self, docs_dir):
         self.indexes = {}
+        self.tokai_profile_images = {}
         for label, _, dataset, filename in DATASETS:
             page = BeautifulSoup((docs_dir / filename).read_text(encoding="utf-8"), "html.parser")
             selector = (
@@ -392,6 +393,14 @@ class ReportViews:
             for link in page.select(selector):
                 index[record_url_key(link["href"])] = link
             self.indexes[label] = index
+            if dataset == "tokai_fuzoku":
+                for person in page.select("details.report-entry"):
+                    profile_link = person.select_one(".person-heading a.link-button")
+                    image = person.select_one(".profile-thumbnail")
+                    if profile_link and image and image.get("src"):
+                        profile_key = normalize_profile_url(profile_link.get("href"))
+                        if profile_key:
+                            self.tokai_profile_images[profile_key] = image["src"]
         self.okinilove_bodies = json.loads(
             (docs_dir / "okinilove_review_bodies.json").read_text(encoding="utf-8")
         )
@@ -444,58 +453,124 @@ class ReportViews:
         return fragment
 
     def append_saved_evidence(self, fragment, entry, sources):
+        original_text = "".join(entry.get_text().split())
+        is_tokai_entry = "article-entry" in entry.get("class", [])
+        displayed_comments = {}
+        if is_tokai_entry:
+            for paragraph in entry.select(".report-comment p"):
+                displayed_comments.setdefault("".join(paragraph.get_text().split()), []).append(paragraph)
+
+        def add_highlights(paragraph, field):
+            text = paragraph.get_text()
+            normalized_text = "".join(text.split())
+            normalized_field = "".join(field["text"].split())
+            if normalized_text != normalized_field or paragraph.find(True):
+                return False
+            paragraph.clear()
+            text_positions = [index for index, char in enumerate(text) if not char.isspace()]
+            field_positions = [index for index, char in enumerate(field["text"]) if not char.isspace()]
+            spans = []
+            for match in sorted(field["matches"], key=lambda item: (item["start"], -item["end"])):
+                start = sum(index < match["start"] for index in field_positions)
+                end = sum(index < match["end"] for index in field_positions)
+                spans.append((text_positions[start], text_positions[end - 1] + 1, match))
+            position = 0
+            for start, end, match in spans:
+                if start < position:
+                    continue
+                if start > position:
+                    paragraph.append(text[position:start])
+                category = match["category"]
+                mark = fragment.new_tag("mark", attrs={
+                    "class": f"booking-highlight highlight-{category}",
+                    "title": CATEGORY_LABELS[category] + (
+                        f'（要確認：{match["reason"]}）' if match["reason"] else ""
+                    ),
+                })
+                mark.string = text[start:end]
+                paragraph.append(mark)
+                position = end
+            paragraph.append(text[position:])
+            return True
+
+        fields = []
+        missing_labels = set()
+        for source in sources:
+            for field in source.get("fields", []):
+                normalized_text = "".join(field["text"].split())
+                paragraphs = displayed_comments.get(normalized_text, []) if is_tokai_entry else []
+                if paragraphs:
+                    paragraph = next(
+                        (paragraph for paragraph in paragraphs if not paragraph.select_one("mark.booking-highlight")),
+                        None,
+                    )
+                    if paragraph is not None and add_highlights(paragraph, field):
+                        continue
+                    if paragraph is None:
+                        continue
+                fields.append(field)
+                if normalized_text not in original_text:
+                    missing_labels.add(field["label"])
+
+        if not fields:
+            return
         block = fragment.new_tag("div", attrs={"class": "saved-evidence"})
         heading = fragment.new_tag("h4")
         heading.string = "抽出に使用した保存本文"
         block.append(heading)
-        original_text = "".join(entry.get_text().split())
-        missing_labels = sorted({
-            field["label"] for source in sources for field in source.get("fields", [])
-            if "".join(field["text"].split()) not in original_text
-        })
         if missing_labels:
             notice = fragment.new_tag("p", attrs={"class": "evidence-discrepancy"})
             notice.string = (
                 "既存docsの表示内に同一本文を確認できません（"
-                + " / ".join(missing_labels)
+                + " / ".join(sorted(missing_labels))
                 + "）。抽出根拠は以下の保存本文です。表示省略・保存時点の違いに注意してください。"
             )
             block.append(notice)
         seen_fields = set()
-        for source in sources:
-            for field in source.get("fields", []):
-                key = (field["label"], field["text"])
-                if key in seen_fields:
+        for field in fields:
+            key = (field["label"], field["text"])
+            if key in seen_fields:
+                continue
+            seen_fields.add(key)
+            section = fragment.new_tag("section", attrs={"class": "evidence-field"})
+            title = fragment.new_tag("h5")
+            title.string = field["label"]
+            section.append(title)
+            paragraph = fragment.new_tag("p", attrs={"class": "review-text saved-evidence-text"})
+            text = field["text"]
+            position = 0
+            for match in sorted(field["matches"], key=lambda item: (item["start"], -item["end"])):
+                if match["start"] < position:
                     continue
-                seen_fields.add(key)
-                section = fragment.new_tag("section", attrs={"class": "evidence-field"})
-                title = fragment.new_tag("h5")
-                title.string = field["label"]
-                section.append(title)
-                paragraph = fragment.new_tag("p", attrs={"class": "review-text saved-evidence-text"})
-                text = field["text"]
-                position = 0
-                for match in sorted(field["matches"], key=lambda item: (item["start"], -item["end"])):
-                    if match["start"] < position:
-                        continue
-                    paragraph.append(text[position:match["start"]])
-                    category = match["category"]
-                    mark = fragment.new_tag("mark", attrs={
-                        "class": f"booking-highlight highlight-{category}",
-                        "title": CATEGORY_LABELS[category] + (
-                            f'（要確認：{match["reason"]}）' if match["reason"] else ""
-                        ),
-                    })
-                    mark.string = text[match["start"]:match["end"]]
-                    paragraph.append(mark)
-                    position = match["end"]
-                paragraph.append(text[position:])
-                section.append(paragraph)
-                block.append(section)
-        if not seen_fields:
-            return
+                paragraph.append(text[position:match["start"]])
+                category = match["category"]
+                mark = fragment.new_tag("mark", attrs={
+                    "class": f"booking-highlight highlight-{category}",
+                    "title": CATEGORY_LABELS[category] + (
+                        f'（要確認：{match["reason"]}）' if match["reason"] else ""
+                    ),
+                })
+                mark.string = text[match["start"]:match["end"]]
+                paragraph.append(mark)
+                position = match["end"]
+            paragraph.append(text[position:])
+            section.append(paragraph)
+            block.append(section)
         target = entry.select_one(".review-detail, .report-details")
         target.insert(0, block)
+
+    def render_missing_tokai(self, records):
+        records = [dict(record) for record in records]
+        for record in records:
+            profile_key = normalize_profile_url(record.get("girl_url"))
+            image_url = self.tokai_profile_images.get(profile_key)
+            if image_url:
+                record["profile_image_url"] = image_url
+        fragments = {}
+        for group in group_reports(pd.DataFrame(records)):
+            markup = render_person_entry(group, {})
+            fragments[group["first_index"]] = BeautifulSoup(markup, "html.parser")
+        return fragments
 
     def render(self, person):
         blocks = []
@@ -531,9 +606,10 @@ class ReportViews:
                 if dataset == "okinilove":
                     fragments["missing"] = self.render_missing_okinilove(missing)
                 else:
-                    for group in group_reports(pd.DataFrame(missing)):
-                        markup = render_person_entry(group, {})
-                        fragments[("missing", group["first_index"])] = BeautifulSoup(markup, "html.parser")
+                    fragments.update({
+                        ("missing", index): fragment
+                        for index, fragment in self.render_missing_tokai(missing).items()
+                    })
             keys = defaultdict(list)
             for source in sources:
                 keys[record_url_key(source["source_url"])].append(source)

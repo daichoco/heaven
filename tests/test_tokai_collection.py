@@ -355,6 +355,41 @@ class ProfileSignalTests(unittest.TestCase):
             list(filtered["url"]), [article_url(1, 1), article_url(4, 4), article_url(6, 6)]
         )
 
+    def test_o_ren_cast_url_without_person_profile_is_unavailable(self):
+        class StreamResponse(FakeResponse):
+            encoding = "utf-8"
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def iter_content(self, chunk_size):
+                yield self.text.encode("utf-8")
+
+        ended_url = "https://www.o-ren-group.com/kanazuen/vivi/castid-5001486101/"
+        active_url = "https://www.o-ren-group.com/kanazuen/vivi/castid-5001486102/"
+
+        class StreamSession(FakeSession):
+            def get(self, url, **kwargs):
+                self.calls.append(url)
+                return StreamResponse(
+                    url,
+                    "<html><body>キャスト一覧</body></html>"
+                    if url == ended_url
+                    else "<html><body><h1>るか</h1>プロフィール</body></html>",
+                )
+
+        frame = pd.DataFrame(
+            [
+                legacy_record(article_url(1, 1), name="るか", girl_url=ended_url),
+                legacy_record(article_url(2, 2), name="るか", girl_url=active_url),
+            ]
+        )
+        filtered = tokai.filter_unavailable_girl_urls(frame, StreamSession({}))
+        self.assertEqual(list(filtered["girl_url"]), [active_url])
+
 
 class NameMatchTests(unittest.TestCase):
     def test_rank_tags_decorations_and_readings(self):

@@ -16,6 +16,78 @@ On systems without the Windows Python launcher, use `python` instead of `py -3`.
 does not write files and exits nonzero if any file needs formatting.
 Neither command collects data or makes network requests.
 
+## srcスクリプトの機能とオプション
+
+以下のコマンドはリポジトリのルートで実行します。オプションの記載がない
+スクリプトはコマンドライン引数を受け取りません。ネットワークを利用する
+スクリプトは、生成ページに加えて `data` 内のファイルも更新する場合があります。
+
+### CityHeaven・統合カレンダー
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\cityheaven\cityheaven_month_schedule.py` | ChromiumでCityHeavenを開いて土日出勤情報を収集し、`docs\index.html` を生成します。`CITYHEAVEN_USER` と `CITYHEAVEN_PASS` が必要です。 |
+| `py -3 src\cityheaven\exists_merge.py` | CityHeavenのプロフィール・出勤情報を収集し、`data\cityheaven_profiles.json` に保存します。上記のCityHeaven認証情報が必要です。 |
+| `py -3 src\integrations\report_left_merge.py` | CityHeavenの出勤・プロフィール情報を取得し、保存済みの東海・オキニラブ・NS専門レポートと結合して `docs\calendar_report.html` を生成します。上記のCityHeaven認証情報が必要です。東海レポート履歴も更新し、オキニラブ・NS専門のURL突合結果を更新する場合があります。 |
+
+統合カレンダーのCityHeavenブラウザー動作は、環境変数で変更できます。
+`CITYHEAVEN_HEADLESS=0` でブラウザーを表示し、
+`CITYHEAVEN_BLOCK_RESOURCES=0` で画像・フォント・動画の読み込みを許可します。
+オキニラブの時間がかかる保守処理は既定でスキップされます。
+`OKINILOVE_CHECK_UNAVAILABLE=1` で掲載終了確認、
+`OKINILOVE_SEARCH_ENRICH=1` で不足しているCityHeavenプロフィールURLの検索補完を行います。
+
+### NS専門レポート
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\ns_senmon\collect_ns_senmon.py` | 新しいNS専門記事を収集し、`data\ns_senmon_reports.jsonl` に保存します。`NS_SENMON_USER` と `NS_SENMON_PASS` が必要です。`NS_SENMON_FULL=1` を設定すると、最新保存日以降に限らず全履歴を走査します。`NS_SENMON_MAX_PAGES` で一覧の最大ページ数を指定できます（既定値: 200）。 |
+| `py -3 src\ns_senmon\ns_senmon_login.py` | NS専門のログイン認証情報を確認します。ログインに失敗するとエラーを表示します。 |
+| `py -3 src\ns_senmon\match_cityheaven.py` | 手動マップ、既存レポート、店舗ページ検索を使って、保存済みNS専門記事とCityHeavenプロフィールを突合します。記事JSONLを更新し、未突合データを `data\ns_senmon_unmatched.json` に出力します。 |
+| `py -3 src\ns_senmon\generate_ns_senmon_report.py` | 保存済みNS専門JSONLから `docs\ns_senmon_report.html` を生成し、取得可能なプロフィール画像を取得します。 |
+
+### 東海レポート
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\tokai_fuzoku\collect_fuzoku_tokai.py` | 新しい記事を差分収集し、`data\tokai_fuzoku_reports.jsonl` に保存します。最新保存記事から `--overlap-days N` 日さかのぼって確認します（既定値: 3）。`FUZOKU_TOKAI_PASSWORD` が必要です。 |
+| `py -3 src\tokai_fuzoku\generate_report_final.py` | `docs\tokai_final_report.html` を生成します。既定ではログインし、プロフィール掲載状況を再確認し、不足しているレポート詳細とプロフィール画像を取得します。O-ren Groupの個人ページURLが個人プロフィールではなく一覧などを返し、対象者の名前を確認できない場合は掲載終了として除外します。`--offline` を指定すると、保存済みの詳細・掲載状況のみを使い、ログインやネットワーク通信を行いません。オンライン実行には `FUZOKU_TOKAI_PASSWORD` が必要です。 |
+
+収集スクリプトでは、次のモードは同時に指定できません。
+
+| オプション | 機能 |
+| --- | --- |
+| `--backfill` | 過去の一覧ページを走査し、未保存の記事を取り込みます。中断した補完を再開するには `--resume` を併用します。 |
+| `--fill-details` | 保存済み記事のうち未保存の点数・コメント・時間・費用を補完します。 |
+| `--recheck-profiles` | ログインせず、保存済みのプロフィール掲載状況を人物単位で再確認します。既定では、前回掲載終了と判定された人物が対象です。 |
+
+その他の収集オプション: `--recheck-profiles` と併用する `--status published`、
+`--status unavailable`、`--status unknown` は複数指定でき、再確認する保存状態を選べます。
+`--max-pages N` は一覧の最大ページ数です（既定値: `FUZOKU_TOKAI_MAX_PAGES`
+または75）。`--limit N` は処理する記事数の上限です（`--recheck-profiles` の場合は人物数）。
+`--resume` は `--backfill` と併用してください。
+
+### オキニラブレポート
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\okinilove\scrape_okinilove.py` | オキニラブの記事・口コミデータを更新し、`docs\okinilove_remove_unknown.html` を再生成します。 |
+| `py -3 src\okinilove\scrape_okinilove.py --recover-numbered-profile-article URL` | 指定したオキニラブ記事から、番号付きの `www` プロフィールURLを探して取り込みます。 |
+| `py -3 src\okinilove\maintain_okinilove.py --check-unavailable` | 保存済みプロフィールのHTTP 404/410を確認し、掲載終了プロフィールを削除します。保存済みCityHeaven出勤カレンダーに掲載中のプロフィールは対象外です。 |
+| `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
+| `py -3 src\okinilove\render_people_summary.py` | 既存ページから人物別オキニラブHTMLと口コミ本文JSONを再生成します。不足しているプロフィール画像や業種情報を取得する場合があります。 |
+
+保守オプションは併用できます。`--time-budget N` は検索補完に使う時間の上限を秒数で指定します（既定値: 20）。`--enrich` に適用されます。`--check-unavailable` または `--enrich` のいずれかを指定してください。
+
+### オフラインでのレポート生成
+
+| コマンド | 機能 |
+| --- | --- |
+| `py -3 src\generate_booking_difficulty_report.py` | 保存済みのNS専門・オキニラブ・東海レポートから `docs\reservation_difficulty.html` を生成します。オンラインデータの収集は行いません。 |
+
+上記に記載していない `src` 内のファイルは、共通ヘルパー、レンダラー、
+データアクセス用モジュールです。単独で実行するのではなく、各エントリーポイントから読み込まれます。
+
 ## Generated output
 
 `src/html_format.py` calls the same `scripts/format-html.cjs` formatter used by
@@ -74,10 +146,12 @@ details are expanded. Person-level ratings retain all reviews in the source
 docs, including those without booking-difficulty wording.
 Every matching entry includes a separate **抽出に使用した保存本文** block
 containing the complete, exact saved fields that supplied accepted or uncertain
-matches, with their field labels. Highlights use the extraction's exact character
-ranges, not a second search against a possibly different docs body. Text is escaped;
-the original docs body remains unchanged for comparison. A notice identifies
-fields whose complete text cannot be found in the existing docs display (ignoring
+matches, with their field labels, when those fields are not already visible.
+Tokai comment text already displayed in its report is highlighted in place
+instead of being copied a second time. Highlights use the extraction's exact
+character ranges, not a second search against a possibly different docs body.
+Text is escaped; the source docs remain unchanged. A notice identifies fields
+whose complete text cannot be found in the existing docs display (ignoring
 whitespace), including omitted comments and different saved versions.
 HTTP/HTTPS-equivalent article links share a rendered entry, but all distinct
 saved evidence fields and raw records remain available.
@@ -111,9 +185,10 @@ Okinilove records missing from its existing docs are rendered offline with
 its existing person-summary renderer and saved review bodies.
 Tokai records excluded from its normal report are rendered from the matching
 JSONL records using the same person/report HTML renderer, without applying
-that report's age or availability filters. The full saved JSON and source
-links remain available as secondary information. The databases do not retain
-original external-page HTML. Generation requires the three existing docs
+that report's age or availability filters. Their profile images are reused from
+the generated Tokai report when the profile URL matches. The full saved JSON
+and source links remain available as secondary information. The databases do
+not retain original external-page HTML. Generation requires the three existing docs
 reports and `docs/okinilove_review_bodies.json`; it never collects online data.
 Regenerate it with:
 

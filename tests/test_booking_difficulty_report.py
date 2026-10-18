@@ -107,6 +107,14 @@ class BookingDifficultyReportTests(unittest.TestCase):
             for _, _, _, filename in DATASETS:
                 (docs / filename).write_text("<html><body></body></html>", encoding="utf-8")
             (docs / "okinilove_review_bodies.json").write_text("[]", encoding="utf-8")
+            (docs / "tokai_final_report.html").write_text(
+                '<details class="report-entry"><summary class="person-heading">'
+                '<img class="profile-thumbnail" src="https://img.example/person.jpg">'
+                '<a class="link-button" href="https://example.invalid/person">Example</a>'
+                '</summary><details class="article-entry"><summary><a class="link-button" '
+                'href="https://example.invalid/other-article">レポート</a></summary></details></details>',
+                encoding="utf-8",
+            )
             record = {
                 "name": "Example", "shop_name": "Shop", "predict_age": "45",
                 "url": "https://example.invalid/article", "girl_url": "https://example.invalid/person",
@@ -116,11 +124,29 @@ class BookingDifficultyReportTests(unittest.TestCase):
             fragment = BeautifulSoup(ReportViews(docs).render(person), "html.parser")
             self.assertEqual(fragment.select_one(".person-identity").get_text().strip(), "(Shop) Example 45才")
             self.assertEqual(fragment.select_one(".report-comment p").get_text(), record["total_comment"])
+            self.assertEqual(fragment.select_one(".profile-thumbnail")["src"], "https://img.example/person.jpg")
             self.assertIsNotNone(fragment.select_one(".evidence-record"))
             self.assertFalse(fragment.select("script, pre"))
             person["sources"][0]["database"] = "NS専門"
             with self.assertRaisesRegex(ValueError, "matching review not found"):
                 ReportViews(docs).render(person)
+
+    def test_tokai_saved_body_is_highlighted_in_place_without_duplicate_copy(self):
+        fragment = BeautifulSoup(
+            '<details class="article-entry"><div class="report-details">'
+            '<div class="score-item"><div class="report-comment">'
+            '<p>人気なので予約困難です。</p></div></div></div></details>',
+            "html.parser",
+        )
+        record = {"name": "例", "total_comment": "人気なので予約困難です。"}
+        sources = [{"fields": analyze_record("tokai_fuzoku", record)}]
+        views = ReportViews.__new__(ReportViews)
+        entry = fragment.select_one(".article-entry")
+        views.append_saved_evidence(fragment, entry, sources)
+        self.assertEqual(len(fragment.select(".report-comment p")), 1)
+        self.assertEqual(fragment.select_one(".report-comment p").get_text(), record["total_comment"])
+        self.assertIsNotNone(fragment.select_one(".report-comment mark.booking-highlight"))
+        self.assertFalse(fragment.select(".saved-evidence"))
 
     def test_highlighting_preserves_text_and_ignores_negated_difficulty(self):
         fragment = BeautifulSoup(
@@ -256,19 +282,42 @@ class BookingDifficultyReportTests(unittest.TestCase):
     def test_saved_evidence_is_exact_safe_and_covers_every_entry(self):
         for person, card in zip(self.people, self.page.select("#people > .person")):
             for entry in card.select(".evidence-record"):
-                expected = {
-                    (field["label"], field["text"])
-                    for source in person["sources"]
+                entry_sources = [
+                    source for source in person["sources"]
                     if source["database"] == entry.find_parent(class_="source-report")["data-database"]
                     and record_url_key(source["source_url"]) == record_url_key(entry["data-source-url"])
+                ]
+                expected = {
+                    (field["label"], field["text"])
+                    for source in entry_sources
                     for field in source["fields"]
                 }
                 actual = {
                     (field.h5.get_text(), field.select_one(".saved-evidence-text").get_text())
                     for field in entry.select(".evidence-field")
                 }
+                if entry.find_parent(class_="source-report")["data-database"] == "東海風俗":
+                    visible_comments = {
+                        "".join(paragraph.get_text().split())
+                        for paragraph in entry.select(".report-comment p")
+                    }
+                    displayed = {
+                        (field["label"], field["text"])
+                        for source in entry_sources
+                        for field in source["fields"]
+                        if "".join(field["text"].split()) in visible_comments
+                    }
+                    expected -= displayed
+                    for _, text in displayed:
+                        paragraph = next(
+                            paragraph for paragraph in entry.select(".report-comment p")
+                            if "".join(paragraph.get_text().split()) == "".join(text.split())
+                        )
+                        self.assertIsNotNone(paragraph.select_one("mark.booking-highlight"))
                 self.assertEqual(actual, expected, person["name"])
-                self.assertIsNotNone(entry.select_one(".saved-evidence mark"), person["name"])
+                self.assertIsNotNone(
+                    entry.select_one(".saved-evidence mark, .report-comment mark"), person["name"]
+                )
         fragment = BeautifulSoup('<div><div class="review-detail"></div></div>', "html.parser")
         record = {"girl_name": "例", "report_text": '<script>alert("x")</script>人気です。'}
         sources = [{"fields": analyze_record("okinilove", record)}]
