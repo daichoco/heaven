@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from bs4 import BeautifulSoup
 
@@ -74,7 +74,34 @@ def schedule_dates(now=None):
     return [(today + timedelta(days=offset)).isoformat() for offset in range(7)]
 
 
+def external_person_key(value):
+    try:
+        parsed = urlsplit(str(value or ""))
+        if (
+            parsed.scheme in {"http", "https"}
+            and parsed.hostname in {"www.yoasobi.co.jp", "yoasobi.co.jp"}
+            and parsed.username is None and parsed.password is None
+            and parsed.port in {None, 80, 443}
+        ):
+            if re.fullmatch(r"/tokai/[^/]+/shop/\d+/girl/\d+/?", parsed.path):
+                return parsed.path.rstrip("/")
+            ids = parse_qs(parsed.query).get("ii", [])
+            if parsed.path == "/mb/st_item.cfm" and len(ids) == 1 and ids[0].isdigit():
+                return f"/mb/st_item.cfm?ii={ids[0]}"
+    except ValueError:
+        return ""
+    return ""
+
+
 def rank_people(datasets):
+    datasets = [(label, dataset, list(records)) for label, dataset, records in datasets]
+    profile_aliases = {}
+    for _, _, records in datasets:
+        for record in records:
+            alias = external_person_key(record.get("girl_url"))
+            profile = cityheaven_profile_url(record.get("cityheaven_url"))
+            if alias and profile:
+                profile_aliases.setdefault(alias, set()).add(profile)
     people = {}
     for label, dataset, records in datasets:
         prepared = []
@@ -83,7 +110,10 @@ def rank_people(datasets):
                 url for value in (record.get("cityheaven_url"), record.get("girl_url"))
                 if (url := cityheaven_profile_url(value))
             ), "")
-            # External/missing profiles remain article-specific, never name-matched.
+            aliases = profile_aliases.get(external_person_key(record.get("girl_url")), set())
+            if not profile and len(aliases) == 1:
+                profile = next(iter(aliases))
+            # Unresolved profiles remain article-specific, never name-matched.
             source = record.get("url") or record.get("report_url") or ""
             if source:
                 parsed = urlsplit(source)

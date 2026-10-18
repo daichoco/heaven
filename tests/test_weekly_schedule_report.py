@@ -74,6 +74,73 @@ class RankingTests(unittest.TestCase):
         self.assertEqual(people[1]["score"], 37.5)
         self.assertTrue(people[1]["provisional"])
 
+    def test_unambiguous_saved_external_person_link_recovers_missing_cityheaven_link(self):
+        url = "https://www.yoasobi.co.jp/tokai/deli/shop/9946/girl/1159164/"
+        rows = [
+            {"girl_name": "まき", "girl_url": url + "?aid=ad_001", "cityheaven_url": profile(38228220),
+             "report_url": "https://okinilove.com/blog-entry-1470.html#pow", "evaluations": "★★★★★"},
+            {"girl_name": "まき", "girl_url": url, "cityheaven_url": None,
+             "report_url": "https://okinilove.com/blog-entry-2278.html#makoto", "evaluations": "★★★★☆"},
+        ]
+        people = weekly.rank_people(datasets(oki=rows))
+        self.assertEqual(len(people), 1)
+        self.assertEqual(people[0]["review_count"], 2)
+        self.assertEqual(people[0]["ratings"]["オキニラブ"]["mean"], 4.5)
+        self.assertEqual(people, weekly.rank_people(datasets(oki=[
+            rows[0], {**rows[1], "cityheaven_url": profile(38228220)},
+        ])))
+        self.assertEqual(len(people[0]["reports"]), 2)
+        self.assertIsNone(rows[1]["cityheaven_url"])
+        page = BeautifulSoup(weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser")
+        self.assertEqual(len(page.select(".saved-report")), 2)
+        self.assertIn("オキニラブ 2件", page.select_one(".review-toggle").get_text())
+        for other_url in [
+            url.replace("1159164", "9999999"), "https://example.invalid/girl/1159164/",
+            "https://www.yoasobi.co.jp/tokai/deli/shop/9946/",
+        ]:
+            separate = [rows[0], {**rows[1], "girl_url": other_url}]
+            self.assertEqual(len(weekly.rank_people(datasets(oki=separate))), 2)
+        conflicting = rows + [{
+            **rows[0], "cityheaven_url": profile(2),
+            "report_url": "https://okinilove.com/blog-entry-3.html",
+        }]
+        self.assertEqual(len(weekly.rank_people(datasets(oki=conflicting))), 3)
+
+    def test_external_aliases_apply_across_sources_before_scores_and_deduplication(self):
+        external = "https://www.yoasobi.co.jp/tokai/fuzoku/shop/10579/girl/850638/"
+        oki = {"girl_name": "別名", "girl_url": external + "?aid=ad_001",
+               "cityheaven_url": profile(7), "report_url": "https://okinilove.com/blog-entry-7.html",
+               "evaluations": "★★★★★", "report_text": "保存本文"}
+        review = tokai(7, 80, girl_url=external, total_comment="別評価元の本文")
+        people = weekly.rank_people(datasets(oki=[oki], tokai_rows=[
+            review, {**review, "url": review["url"].replace("https:", "http:")},
+        ]))
+        self.assertEqual(len(people), 1)
+        person = people[0]
+        self.assertEqual(person["source_count"], 2)
+        self.assertEqual(person["review_count"], 2)
+        self.assertEqual(len(person["reports"]), 2)
+        self.assertEqual(person["ratings"]["東海風俗"]["mean"], 80)
+        self.assertEqual(person["ratings"]["東海風俗"]["count"], 1)
+        self.assertEqual(person["score"], 50)
+        self.assertEqual((person["rank"], person["tier"]), (1, "S"))
+        ambiguous = weekly.rank_people(datasets(oki=[oki], tokai_rows=[
+            {**review, "cityheaven_url": profile(8)}, {**review, "url": "https://example.invalid/other"},
+        ]))
+        self.assertEqual(len(ambiguous), 3)
+        self.assertFalse(weekly.external_person_key("https://www.yoasobi.co.jp/tokai/fuzoku/shop/10579/"))
+        mobile = "http://www.yoasobi.co.jp/mb/st_item.cfm?ii=895736&aid=ad_001"
+        mobile_people = weekly.rank_people(datasets(oki=[
+            {**oki, "girl_url": mobile},
+            {**oki, "girl_url": mobile.replace("&aid=ad_001", ""), "cityheaven_url": None,
+             "report_url": "https://okinilove.com/blog-entry-8.html", "evaluations": "★★★☆☆"},
+        ]))
+        self.assertEqual(len(mobile_people), 1)
+        self.assertEqual(mobile_people[0]["review_count"], 2)
+        self.assertEqual(mobile_people[0]["ratings"]["オキニラブ"]["mean"], 4)
+        self.assertFalse(weekly.external_person_key("http://www.yoasobi.co.jp/mb/st_item.cfm"))
+        self.assertFalse(weekly.external_person_key("http://www.yoasobi.co.jp/mb/st_item.cfm?ii=1&ii=2"))
+
     def test_missing_sources_are_not_zero_and_review_fragments_remain_distinct(self):
         rows = [
             tokai(1, 100, url="http://example.invalid/a#one"),
