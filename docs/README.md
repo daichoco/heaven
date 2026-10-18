@@ -77,6 +77,9 @@ Neither command collects data or makes network requests.
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
 | `py -3 src\okinilove\render_people_summary.py` | 既存ページから人物別オキニラブHTMLと口コミ本文JSONを再生成します。不足しているプロフィール画像や業種情報を取得する場合があります。 |
 
+オキニラブのスタイル語句「デブ」はネガティブ分類とし、ネガ含有率・おすすめ順・本文の語句表示に反映します。
+他の語句分類や補正の重みは変更せず、週間カレンダーの星評価ベースの横断スコアには影響しません。
+
 保守オプションは併用できます。`--time-budget N` は検索補完に使う時間の上限を秒数で指定します（既定値: 20）。`--enrich` に適用されます。`--check-unavailable` または `--enrich` のいずれかを指定してください。
 
 ### オフラインでのレポート生成
@@ -115,7 +118,12 @@ py -3 src\generate_weekly_schedule_report.py --collect --include-a
 記事URLのHTTP/HTTPS違いは同一、口コミフラグメント違いは別件です。
 
 正規化したCityHeavenプロフィールURL（`girlid-N`まで、クエリ・フラグメント除去、
-www有無を統一）だけで同一人物を統合します。外部サイトURL・URLなしは記事単位で残し、
+www有無を統一）で同一人物を統合します。3レポート全体でCityHeaven URLが欠ける記事は、
+同じ夜遊び個人URL（`/tokai/業種/shop/店舗ID/girl/人物ID/` または `/mb/st_item.cfm?ii=人物ID`）から一意のCityHeaven URLが
+掲載終了除外後の保存済み他記事に確認できる場合のみ、相対スコア集計前に補完します。
+広告クエリは無視しますが、複数のCityHeaven URLへの対応や店舗一覧URLは補完しません。
+それ以外の外部サイトURL・URLなしは原則記事単位で残し、
+未確認の外部サイトのURL構造を個人ページと推測しません。
 同姓同名や移籍を推測で統合しません。未突合者も順位の分母に含め、取得対象の繰り上げはしません。
 区分は人数切り上げの上位10%がS、その次から上位25%がA。
 丸め前スコアの同点は競技順位（1, 1, 3）とし、境界同点は全員上位区分へ入れます。
