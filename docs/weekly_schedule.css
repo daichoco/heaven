@@ -53,6 +53,9 @@ td.shop-cell { width: 280px; min-width: 280px; text-align: left; max-width: 360p
   .review-source-2 { background: #1d2125; }
 }
 .saved-field p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 4px 0 12px; }
+.tokai-evaluations { padding-left: 24px; }
+.tokai-evaluations .saved-field { margin: 6px 0; }
+.tokai-evaluations .saved-field p { display: inline; margin: 0; }
 summary { cursor: pointer; font-weight: bold; min-height: 44px; }
 .day-picker { display: flex; align-items: center; gap: 8px; }
 .day-picker select { flex: 1; min-width: 0; max-width: 320px; min-height: 44px; padding: 6px 9px; border: 1px solid var(--input-border); border-radius: 4px; background: var(--input-bg); color: var(--fg); font-weight: 700; }

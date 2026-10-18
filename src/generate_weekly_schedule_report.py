@@ -28,6 +28,7 @@ from html_format import write_html
 from okinilove.render_people_summary import extract_profile_image_url
 from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
+from tokai_fuzoku.html_render import REPORT_DETAIL_FIELDS
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,6 +150,7 @@ def rank_people(datasets):
                     "identity": article_key, "source": source, "database": label,
                     "date": str(record.get("date") or "保存日付なし"),
                     "score": rating_value(dataset, record), "fields": fields,
+                    **({"record": record} if dataset == "tokai_fuzoku" else {}),
                 })
             age_value = (
                 (record.get("details") or {}).get("推定年齢")
@@ -364,9 +366,28 @@ def render_reports(person, database=None):
             f'<div class="saved-field"><strong>{escape(label)}</strong>'
             f'<p>{saved_text(text)}</p></div>' for label, text in report["fields"]
         ) or "<p>保存済み本文なし（外部から追加取得していません）</p>"
+        if report["database"] == "東海風俗" and "record" in report:
+            items = []
+            for key, comment_key, label in REPORT_DETAIL_FIELDS:
+                record = report["record"]
+                value = record.get(key)
+                comment = record.get(comment_key)
+                value = "" if value is None else str(value)
+                comment = "" if comment is None else str(comment)
+                if not value and not comment:
+                    continue
+                heading = f"{label}: {value}" if value else label
+                items.append(
+                    f'<li class="saved-field"><strong>{escape(heading)}:</strong> '
+                    f'<p>{saved_text(comment)}</p></li>'
+                )
+            body = f'<ul class="tokai-evaluations">{"".join(items)}</ul>' if items else (
+                "<p>保存済み本文なし（外部から追加取得していません）</p>"
+            )
         reports.append(
             f'<section class="saved-report"><h3>{escape(report["database"])} / '
-            f'{escape(report["date"])} / 元評価 {score_text}</h3>{source}{body}</section>'
+            f'{escape(report["date"])} / 元評価 {score_text}</h3>'
+            f'{body + source if report["database"] == "東海風俗" else source + body}</section>'
         )
     return "".join(reports)
 
