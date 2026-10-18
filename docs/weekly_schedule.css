@@ -22,6 +22,19 @@ td.shop-cell { min-width: 220px; text-align: left; max-width: 360px; overflow-wr
 .image-error { position: absolute; inset: 0; display: grid; place-items: center; }
 .original-ratings { font-size: 12px; margin: 6px 0; }
 .saved-report { margin: 8px 0; padding: 6px; border: 1px solid var(--border-soft); }
+.saved-report h3 { font-size: 1em; margin: 4px 0 8px; }
+.review-buttons { margin: 6px 0; }
+.review-toggle { display: block; width: 100%; min-height: 44px; margin: 4px 0; padding: 8px 12px; border-radius: 4px; color: var(--fg); background: var(--chip); border: 1px solid var(--border); cursor: pointer; }
+.review-toggle:active { background: var(--border-soft); }
+.review-row td { text-align: left; overflow-wrap: anywhere; }
+.review-source-0 { background: #fff8f0; }
+.review-source-1 { background: #f0f9ff; }
+.review-source-2 { background: #f9f9f9; }
+@media (prefers-color-scheme: dark) {
+  .review-source-0 { background: #2a2219; }
+  .review-source-1 { background: #172431; }
+  .review-source-2 { background: #1d2125; }
+}
 .saved-field p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 4px 0 12px; }
 summary { cursor: pointer; font-weight: bold; min-height: 44px; }
 .day-picker { display: flex; align-items: center; gap: 8px; }
@@ -44,6 +57,7 @@ td[data-on="1"] .cell, .m-box.on { display: inline-block; padding: 2px 8px; bord
   .person-row td.shop-cell { display: block; min-width: 0; max-width: none; }
   .shop-cell > a { font-size: 16px; }
   .person-row td[data-day] { display: none; }
+  .review-row, .review-row td { display: block; width: 100%; box-sizing: border-box; }
   .m-cal { display: block; margin: 5px 0 0; overflow-x: auto; }
   .m-cal ul { display: flex; margin: 0; padding: 0; list-style: none; width: max-content; }
   .m-cal li { width: 110px; margin: 4px; color: var(--muted); }

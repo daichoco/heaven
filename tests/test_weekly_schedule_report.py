@@ -155,6 +155,33 @@ class RankingTests(unittest.TestCase):
         self.assertFalse(page.select("script"))
         self.assertTrue(all(link["href"].startswith("https:") for link in page.select("a")))
 
+    def test_calendar_style_review_buttons_group_sources_in_full_width_rows(self):
+        people = weekly.rank_people(datasets(
+            ns=[{"url": "https://ns.invalid/1", "cityheaven_url": profile(1),
+                 "details": {TOTAL_KEY: "80点", "総合コメント": "NS本文"}}],
+            oki=[{"report_url": "https://oki.invalid/1", "girl_url": profile(1),
+                  "evaluations": "★★★★☆", "report_text": "星の本文"}],
+            tokai_rows=[tokai(1, 90, total_comment="東海本文"),
+                        tokai(1, 80, url="https://tokai.invalid/2", total_comment="二件目")],
+        ))
+        page = BeautifulSoup(weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser")
+        buttons = page.select(".review-toggle")
+        self.assertEqual(len(buttons), 3)
+        self.assertEqual(len(page.select(".person-row")), 1)
+        self.assertEqual(len(page.select(".review-row")), 3)
+        for button, label, count in zip(buttons, ["NS専門", "オキニラブ", "東海風俗"], [1, 1, 2]):
+            self.assertIn(label, button.get_text())
+            self.assertIn(f"{count}件", button.get_text())
+            self.assertEqual(button["aria-expanded"], "false")
+            row = page.find(id=button["aria-controls"])
+            self.assertTrue(row.has_attr("hidden"))
+            self.assertEqual(row.td["colspan"], "8")
+            self.assertEqual(len(row.select(".saved-report")), count)
+            self.assertFalse(row.select("details"))
+            for heading in row.select("h3"):
+                self.assertIn(label, heading.get_text())
+        self.assertIn("二件目", page.get_text())
+
     def test_percentile_boundaries_and_small_populations(self):
         for size, expected_s, expected_a in [
             (0, 0, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0),
@@ -443,8 +470,7 @@ class BrowserFixtureTests(unittest.TestCase):
                                 await page.select_option("#scheduleFilter", mode)
                                 for selector in [
                                     ".method > summary",
-                                    ".person-row:nth-child(10) details:not(.saved-reports):not(.saved-report) > summary",
-                                    ".person-row:nth-child(10) .saved-reports > summary",
+                                    ".person-row:nth-of-type(19) details > summary",
                                 ]:
                                     summary = page.locator(selector)
                                     await summary.evaluate("""element => {
@@ -470,16 +496,38 @@ class BrowserFixtureTests(unittest.TestCase):
                                         after = await summary.bounding_box()
                                         self.assertLessEqual(abs(after["y"] - before["y"]), 2)
                                     self.assertFalse(await summary.evaluate("el => el.parentElement.open"))
-                                await page.locator(".person-row:nth-child(10) .saved-reports").evaluate("el => el.open = true")
-                                nested = page.locator(".person-row:nth-child(10) .saved-report > summary")
-                                await nested.evaluate("el => window.scrollBy(0, el.getBoundingClientRect().top - 350)")
-                                for _ in range(2):
-                                    before = await nested.bounding_box()
-                                    await nested.click()
-                                    await page.evaluate("() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
-                                    after = await nested.bounding_box()
-                                    self.assertLessEqual(abs(after["y"] - before["y"]), 2)
-                                await page.locator(".person-row:nth-child(10) .saved-reports").evaluate("el => el.open = false")
+                                button = page.locator(".review-toggle").nth(9)
+                                await button.evaluate("el => window.scrollBy(0, el.getBoundingClientRect().top - 350)")
+                                review = page.locator("#" + await button.get_attribute("aria-controls"))
+                                for method in ["click", "Enter", "Space"]:
+                                    for opening in [True, False]:
+                                        before = await button.bounding_box()
+                                        if method == "click":
+                                            await button.click()
+                                        else:
+                                            await button.press(method)
+                                        await page.evaluate("() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))")
+                                        after = await button.bounding_box()
+                                        self.assertLessEqual(abs(after["y"] - before["y"]), 2)
+                                        self.assertEqual(await button.get_attribute("aria-expanded"), str(opening).lower())
+                                        self.assertEqual(await review.is_visible(), opening)
+                                        if opening:
+                                            self.assertEqual(await review.locator(".saved-report").count(), 1)
+                                            self.assertFalse(await review.locator("details").count())
+                                            self.assertEqual(await review.locator("td").get_attribute("colspan"), "8")
+                                await button.click()
+                                other = page.locator(".review-toggle").nth(10)
+                                await other.evaluate("el => window.scrollBy(0, el.getBoundingClientRect().top - 350)")
+                                before = await other.bounding_box()
+                                await other.click()
+                                after = await other.bounding_box()
+                                self.assertLessEqual(abs(after["y"] - before["y"]), 2)
+                                self.assertFalse(await review.is_visible())
+                                self.assertEqual(await page.locator(".review-row:visible").count(), 1)
+                                await page.select_option("#ageFilter", "unknown")
+                                self.assertEqual(await page.locator(".review-row:visible").count(), 0)
+                                self.assertEqual(await page.locator('.review-toggle[aria-expanded="true"]').count(), 0)
+                                await page.select_option("#ageFilter", "")
                             await context.close()
                     finally:
                         await browser.close()

@@ -309,7 +309,7 @@ def image_html(person, images):
     return f'<div class="profile-photo image-placeholder">{label}</div>'
 
 
-def render_reports(person):
+def render_reports(person, database=None):
     def saved_text(text):
         return re.sub(
             r"[ \t]+(?=\r?$)",
@@ -320,6 +320,8 @@ def render_reports(person):
 
     reports = []
     for report in person.get("reports", []):
+        if database is not None and report["database"] != database:
+            continue
         score = report["score"]
         scale = "/5（星）" if report["database"] == "オキニラブ" else "/100点"
         score_text = f"{score:g}{scale}" if score is not None else "未評価"
@@ -333,13 +335,10 @@ def render_reports(person):
             f'<p>{saved_text(text)}</p></div>' for label, text in report["fields"]
         ) or "<p>保存済み本文なし（外部から追加取得していません）</p>"
         reports.append(
-            f'<details class="saved-report"><summary>{escape(report["database"])} / '
-            f'{escape(report["date"])} / 元評価 {score_text}</summary>{source}{body}</details>'
+            f'<section class="saved-report"><h3>{escape(report["database"])} / '
+            f'{escape(report["date"])} / 元評価 {score_text}</h3>{source}{body}</section>'
         )
-    return (
-        f'<details class="saved-reports"><summary>個別レポートのスコア・本文（{len(reports)}件）</summary>'
-        f'{"".join(reports)}</details>'
-    )
+    return "".join(reports)
 
 
 async def collect_schedules(people, dates):
@@ -418,7 +417,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
     ]
     rows = []
     visible_count = 0
-    for person in people:
+    for person_index, person in enumerate(people):
         name = escape(" / ".join(person["names"]) or "名前不明")
         shop = escape(" / ".join(person["shops"]) or "店舗不明")
         profile = escape(person["profile_url"], quote=True)
@@ -463,6 +462,21 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         age_text = " / ".join(f"{age}歳" for age in ages) or "不明"
         hidden = "" if working_days else " hidden"
         visible_count += bool(working_days)
+        review_buttons = []
+        review_rows = []
+        for source_index, (label, _, _, _) in enumerate(DATASETS):
+            count = sum(report["database"] == label for report in person.get("reports", []))
+            if not count:
+                continue
+            row_id = f"review-{person_index}-{source_index}"
+            review_buttons.append(
+                f'<button type="button" class="review-toggle" aria-controls="{row_id}" '
+                f'aria-expanded="false">レビュー（{escape(label)} {count}件）</button>'
+            )
+            review_rows.append(
+                f'<tr id="{row_id}" class="review-row review-source-{source_index}" hidden>'
+                f'<td colspan="{len(dates) + 1}">{render_reports(person, label)}</td></tr>'
+            )
         rows.append(
             f'<tr class="person-row" data-working="{",".join(working_days)}" '
             f'data-ages="{",".join(map(str, ages))}"{hidden}>'
@@ -473,9 +487,10 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
             f'<div class="reported-age">保存レポート年齢: {age_text}（現在年齢とは限りません）</div>'
             f'<details><summary>評価内訳・取得状況</summary><ul>{rating_items}</ul>'
             f'<p>取得日時: {escape(result["fetched_at"]) or "未取得"}</p>{error}</details>'
-            f'{render_reports(person)}'
+            f'<div class="review-buttons">{"".join(review_buttons)}</div>'
             f'<div class="m-cal"><ul>{"".join(mobile_days)}</ul></div></td>'
             f'{"".join(cells)}</tr>'
+            f'{"".join(review_rows)}'
         )
     removed_text = " / ".join(f"{label}: {count}件" for label, count in removed.items())
     headers = "".join(
