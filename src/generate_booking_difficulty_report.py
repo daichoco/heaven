@@ -928,7 +928,7 @@ h1 {{ font-size: 1.5rem; }}
     </style>
   </head>
   <body>
-    <nav class="page-nav"><a href="index.html">← 一覧</a> / <a href="weekly_schedule.html">3レポート横断・翌週出勤予定</a></nav>
+    <nav class="page-nav"><a href="index.html">← 一覧</a> / <a href="weekly_schedule.html">3レポート横断・7日間出勤カレンダー</a></nav>
     <h1>予約困難・完売・人気の人物候補</h1>
     <p class="summary">該当する記述が見つかった人物: {len(people)}人（根拠レコード {database_total}件）</p>
     <p class="summary">{counts_html}</p>

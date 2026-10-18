@@ -1,4 +1,6 @@
 import asyncio
+import copy
+import json
 import sys
 import unittest
 from datetime import datetime, timezone
@@ -156,17 +158,17 @@ class RankingTests(unittest.TestCase):
 
 class WeeklyCalendarTests(unittest.TestCase):
     def setUp(self):
-        self.dates = weekly.next_week(datetime(2026, 10, 18, 19, tzinfo=weekly.JST))
+        self.dates = weekly.schedule_dates(datetime(2026, 10, 19, 19, tzinfo=weekly.JST))
 
-    def test_next_monday_jst_including_monday_and_year_rollover(self):
+    def test_today_jst_including_monday_and_year_rollover(self):
         self.assertEqual(self.dates, [f"2026-10-{day}" for day in range(19, 26)])
-        monday = weekly.next_week(datetime(2026, 10, 19, tzinfo=weekly.JST))
-        self.assertEqual(monday[0], "2026-10-26")
+        sunday = weekly.schedule_dates(datetime(2026, 10, 18, tzinfo=weekly.JST))
+        self.assertEqual(sunday, [f"2026-10-{day}" for day in range(18, 25)])
         # Sunday UTC already Monday in Japan.
-        self.assertEqual(weekly.next_week(datetime(2026, 10, 18, 15, tzinfo=timezone.utc)), monday)
-        self.assertEqual(weekly.next_week(datetime(2026, 12, 27, tzinfo=weekly.JST))[-1], "2027-01-03")
+        self.assertEqual(weekly.schedule_dates(datetime(2026, 10, 18, 15, tzinfo=timezone.utc)), self.dates)
+        self.assertEqual(weekly.schedule_dates(datetime(2026, 12, 28, tzinfo=weekly.JST))[-1], "2027-01-03")
         with self.assertRaises(ValueError):
-            weekly.next_week(datetime(2026, 10, 18))
+            weekly.schedule_dates(datetime(2026, 10, 18))
 
     def test_explicit_daily_states_and_weekdays_are_preserved(self):
         days = weekly.parse_month_calendar(calendar_html([
@@ -186,7 +188,7 @@ class WeeklyCalendarTests(unittest.TestCase):
         self.assertEqual(weekly.schedule_state("22:00 ～ LAST"), "working")
 
     def test_month_and_year_boundary_no_inferred_shifts(self):
-        dates = weekly.next_week(datetime(2026, 12, 27, tzinfo=weekly.JST))
+        dates = weekly.schedule_dates(datetime(2026, 12, 28, tzinfo=weekly.JST))
         days = weekly.parse_month_calendar(calendar_html([
             ("12/28(月)", "10:00 - 18:00"), ("1/1(金)", "休み"),
             ("2026/1/2", "10:00 - 18:00"), ("2027年1月3日", "調整中"),
@@ -218,16 +220,16 @@ class WeeklyCalendarTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "cache.json"
             cache = weekly.load_cache(path)
-            cache["weeks"][self.dates[0]] = schedules
+            cache["windows"][self.dates[0]] = schedules
             weekly.save_cache(cache, path)
             loaded = weekly.load_cache(path)
-            self.assertEqual(loaded["weeks"][self.dates[0]], schedules)
+            self.assertEqual(loaded["windows"][self.dates[0]], schedules)
             self.assertFalse(path.with_name(".cache.json.tmp").exists())
             path.write_text('{"version": 2}', encoding="utf-8")
             with self.assertRaises(ValueError):
                 weekly.load_cache(path)
         page = BeautifulSoup(weekly.render_html(people, self.dates, schedules, {}), "html.parser")
-        self.assertEqual(len(page.select(".days li")), 7)
+        self.assertEqual(len(page.select(".m-cal li")), 7)
         self.assertFalse(page.select("td script"))
         self.assertIn("<script>name</script>", page.get_text())
         self.assertIn("2026-10-18T19:00:00+09:00", page.get_text())
@@ -244,11 +246,31 @@ class WeeklyCalendarTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             weekly.person_schedule(person, self.dates, {"": {"days": []}})
 
-    def test_cli_offline_has_no_collection_and_ignores_other_weeks(self):
+    def test_legacy_cache_migration_preserves_exact_dates_not_shifted(self):
+        result = {
+            "fetched_at": "2026-10-18T19:00:00+09:00", "error": "",
+            "days": weekly.daily_states(self.dates, "working", "10:00 - 18:00"),
+        }
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "cache.json"
+            legacy = {"version": 1, "weeks": {self.dates[0]: {profile(1): result}}}
+            path.write_text(json.dumps(legacy), encoding="utf-8")
+            migrated = weekly.load_cache(path)
+            self.assertEqual(migrated, {"version": 2, "windows": legacy["weeks"]})
+            # Offline loading must not rewrite the legacy file.
+            self.assertEqual(json.loads(path.read_text(encoding="utf-8")), legacy)
+            sunday = weekly.schedule_dates(datetime(2026, 10, 18, tzinfo=weekly.JST))
+            self.assertEqual(migrated["windows"].get(sunday[0], {}), {})
+            weekly.save_cache(migrated, path)
+            self.assertEqual(weekly.load_cache(path), migrated)
+        person = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))[0]
+        self.assertEqual(weekly.person_schedule(person, self.dates, {profile(1): result}), result)
+
+    def test_cli_offline_has_no_collection_and_ignores_other_windows(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))
         with (
             patch.object(weekly, "load_ranking", return_value=(people, {})),
-            patch.object(weekly, "load_cache", return_value={"version": 1, "weeks": {
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {
                 "1999-01-01": {"unexpected": "must not be displayed"}
             }}),
             patch.object(weekly, "collect_schedules", new_callable=AsyncMock) as collect,
@@ -265,15 +287,20 @@ class WeeklyCalendarTests(unittest.TestCase):
 
     def test_cli_collect_persists_errors_and_a_follows_s(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(20)]))
-        dates = weekly.next_week()
+        dates = weekly.schedule_dates()
         failed_url = people[0]["profile_url"]
         results = {failed_url: {
             "profile_url": failed_url, "fetched_at": "2026-10-18T19:00:00+09:00",
             "days": weekly.daily_states(dates, "error"), "error": "HTTP 403",
         }}
+        unselected = {"retained": "unselected profile"}
+        cache = {"version": 2, "windows": {
+            "1999-01-01": {"past": "retained"},
+            dates[0]: {"unselected": unselected},
+        }}
         with (
             patch.object(weekly, "load_ranking", return_value=(people, {})),
-            patch.object(weekly, "load_cache", return_value={"version": 1, "weeks": {}}),
+            patch.object(weekly, "load_cache", return_value=cache),
             patch.object(weekly, "collect_schedules", new_callable=AsyncMock,
                          return_value=results) as collect,
             patch.object(weekly, "write_html") as write,
@@ -282,7 +309,9 @@ class WeeklyCalendarTests(unittest.TestCase):
             self.assertEqual(weekly.main(["--collect", "--include-a"]), 1)
             self.assertEqual([p["tier"] for p in collect.call_args.args[0]],
                              ["S", "S", "A", "A", "A"])
-            self.assertEqual(save.call_args.args[0]["weeks"][dates[0]], results)
+            self.assertEqual(save.call_args.args[0]["windows"][dates[0]],
+                             {**results, "unselected": unselected})
+            self.assertEqual(save.call_args.args[0]["windows"]["1999-01-01"], {"past": "retained"})
             self.assertIn("HTTP 403", write.call_args.args[1])
 
     def test_redirect_to_login_is_explicit_error(self):
@@ -309,9 +338,100 @@ class WeeklyCalendarTests(unittest.TestCase):
 
 
 class BrowserFixtureTests(unittest.TestCase):
+    def test_calendar_filters_layout_and_zero_states_preserve_ranking(self):
+        async def run():
+            now = datetime(2026, 10, 21, 0, 30, tzinfo=weekly.JST)
+            dates = weekly.schedule_dates(now)
+            people = weekly.rank_people(datasets(tokai_rows=[
+                tokai(i, 100 - i) for i in range(1, 8)
+            ]))
+            original = copy.deepcopy(people)
+            schedules = {}
+            for i, person in enumerate(people):
+                days = weekly.daily_states(dates, "unpublished")
+                if i < 3:
+                    day_index = [0, 3, 1][i]  # today (Wed), Saturday, Thursday
+                    days[day_index] = {"date": dates[day_index], "state": "working",
+                                       "text": "10:00 - 18:00"}
+                elif i == 3:
+                    days = weekly.daily_states(dates, "off")
+                elif i == 4:
+                    days = weekly.daily_states(dates, "undecided", "未定 10:00 - 18:00")
+                elif i == 5:
+                    days = weekly.daily_states(dates, "error")
+                else:
+                    continue  # not_fetched
+                schedules[person["profile_url"]] = {
+                    "fetched_at": now.isoformat(), "days": days,
+                    "error": "HTTP 403" if i == 5 else "",
+                }
+            html = weekly.render_html(people, dates, schedules, {}, now)
+            self.assertEqual(people, original)
+            soup = BeautifulSoup(html, "html.parser")
+            self.assertIn("2026-10-21（水）", soup.get_text())
+            self.assertIn("2026-10-27（火）", soup.get_text())
+            self.assertEqual(len(soup.select(".person-row:not([hidden])")), 3)
+            async with async_playwright() as playwright:
+                browser = await playwright.chromium.launch()
+                try:
+                    for width in [390, 820, 1440]:
+                        context = await browser.new_context(
+                            viewport={"width": width, "height": 900},
+                            timezone_id="Pacific/Honolulu",
+                        )
+                        page = await context.new_page()
+                        await page.clock.install(time=now)
+                        async def route_handler(route):
+                            filename = route.request.url.rsplit("/", 1)[-1]
+                            if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css"}:
+                                await route.fulfill(path=ROOT / "docs" / filename)
+                            else:
+                                await route.fulfill(content_type="text/html; charset=utf-8", body=html)
+                        await context.route("**/*", route_handler)
+                        await page.goto("https://report.invalid/weekly_schedule.html")
+                        rows = page.locator(".person-row")
+                        before = await rows.locator(".rank-info").all_text_contents()
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 3)
+                        await page.select_option("#scheduleFilter", "today")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 1)
+                        self.assertFalse(await page.locator("#staleNotice").is_visible())
+                        await page.select_option("#scheduleFilter", "weekend")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 1)
+                        visible_days = await page.locator(".person-row:visible .m-cal li:not([hidden])").count()
+                        self.assertEqual(visible_days, 2)
+                        if width < 1100:
+                            self.assertEqual(await page.locator(".person-row:visible td[data-day]:visible").count(), 0)
+                            self.assertTrue(await page.locator(".person-row:visible .m-cal").is_visible())
+                            self.assertTrue(await page.evaluate(
+                                "document.documentElement.scrollWidth <= window.innerWidth"
+                            ))
+                        else:
+                            self.assertEqual(await page.locator(".person-row:visible td[data-day]:visible").count(), 2)
+                        await page.select_option("#scheduleFilter", "all")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 7)
+                        self.assertEqual(await rows.locator(".rank-info").all_text_contents(), before)
+                        # A saved snapshot viewed after its date range must not call day 0 'today'.
+                        await page.clock.set_fixed_time(datetime(2026, 11, 1, tzinfo=weekly.JST))
+                        await page.select_option("#scheduleFilter", "today")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
+                        self.assertTrue(await page.locator("#noResults").is_visible())
+                        self.assertTrue(await page.locator("#staleNotice").is_visible())
+                        self.assertIn("全表示", await page.locator("#noResults").inner_text())
+                        # With only unknown/off/error data, the default must show an explicit empty state.
+                        await page.evaluate("""() => {
+                            document.querySelectorAll('.person-row').forEach(row => row.dataset.working = '');
+                        }""")
+                        await page.select_option("#scheduleFilter", "working")
+                        self.assertEqual(await page.locator(".person-row:visible").count(), 0)
+                        self.assertTrue(await page.locator("#noResults").is_visible())
+                        await context.close()
+                finally:
+                    await browser.close()
+        asyncio.run(run())
+
     def test_real_browser_dom_collection_and_failure_states_without_network(self):
         async def run():
-            dates = weekly.next_week(datetime(2026, 10, 18, tzinfo=weekly.JST))
+            dates = weekly.schedule_dates(datetime(2026, 10, 19, tzinfo=weekly.JST))
             async with async_playwright() as playwright:
                 browser = await playwright.chromium.launch()
                 try:

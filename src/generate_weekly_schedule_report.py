@@ -1,4 +1,4 @@
-"""3レポート全体の横断順位と、上位者の翌週CityHeaven予定。既定はオフライン。"""
+"""3レポート全体の横断順位と、上位者の本日から7日間のCityHeaven予定。既定はオフライン。"""
 import argparse
 import asyncio
 import json
@@ -59,13 +59,12 @@ def cityheaven_profile_url(value):
     return normalized.replace("https://cityheaven.net/", "https://www.cityheaven.net/")
 
 
-def next_week(now=None):
+def schedule_dates(now=None):
     now = now or datetime.now(JST)
     if now.tzinfo is None:
         raise ValueError("日時にはタイムゾーンが必要です")
     today = now.astimezone(JST).date()
-    monday = today + timedelta(days=7 - today.weekday())
-    return [(monday + timedelta(days=offset)).isoformat() for offset in range(7)]
+    return [(today + timedelta(days=offset)).isoformat() for offset in range(7)]
 
 
 def rank_people(datasets):
@@ -255,9 +254,12 @@ async def collect_schedules(people, dates):
 def load_cache(path=CACHE):
     path = Path(path)
     if not path.exists():
-        return {"version": 1, "weeks": {}}
+        return {"version": 2, "windows": {}}
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if payload.get("version") != 1 or not isinstance(payload.get("weeks"), dict):
+    if payload.get("version") == 1 and isinstance(payload.get("weeks"), dict):
+        # Legacy Monday windows retain their exact dates, never shift to today.
+        return {"version": 2, "windows": payload["weeks"]}
+    if payload.get("version") != 2 or not isinstance(payload.get("windows"), dict):
         raise ValueError(f"週間予定キャッシュの形式が不正です: {path}")
     return payload
 
@@ -285,7 +287,16 @@ def person_schedule(person, dates, schedules):
 
 def render_html(people, dates, schedules, removed, now=None):
     now = now or datetime.now(JST)
+    labels = [
+        f'{day}（{"月火水木金土日"[datetime.fromisoformat(day).weekday()]}）'
+        for day in dates
+    ]
+    day_classes = [
+        {5: "saturday", 6: "sunday"}.get(datetime.fromisoformat(day).weekday(), "")
+        for day in dates
+    ]
     rows = []
+    visible_count = 0
     for person in people:
         name = escape(" / ".join(person["names"]) or "名前不明")
         shop = escape(" / ".join(person["shops"]) or "店舗不明")
@@ -299,48 +310,54 @@ def render_html(people, dates, schedules, removed, now=None):
             f'（原評価平均 {rating["mean"]:.2f} / {rating["count"]}件）</li>'
             for label, rating in person["ratings"].items()
         )
-        schedule_html = ""
-        if person["tier"] in {"S", "A"}:
-            result = person_schedule(person, dates, schedules)
-            days_html = "".join(
-                f'<li><time datetime="{day["date"]}">{day["date"]}'
-                f'（{"月火水木金土日"[index]}）</time>: '
-                f'<strong>{STATE_LABELS[day["state"]]}</strong> '
-                f'{escape(day["text"])}</li>'
-                for index, day in enumerate(result["days"])
+        result = person_schedule(person, dates, schedules)
+        mobile_days = []
+        cells = []
+        working_days = []
+        for index, day in enumerate(result["days"]):
+            working = day["state"] == "working" and not result["error"]
+            if working:
+                working_days.append(day["date"])
+            day_class = day_classes[index]
+            text = f'<strong>{STATE_LABELS[day["state"]]}</strong><br>{escape(day["text"])}'
+            cells.append(
+                f'<td data-day="{index}" data-state="{day["state"]}" '
+                f'data-on="{int(working)}" class="{day_class}"><span class="cell">{text}</span></td>'
             )
-            error = f'<p role="alert">{escape(result["error"])}</p>' if result["error"] else ""
-            schedule_html = (
-                f'<p>取得日時: {escape(result["fetched_at"]) or "未取得"}</p>'
-                f'{error}<ul class="days">{days_html}</ul>'
+            mobile_days.append(
+                f'<li data-day="{index}"><div class="m-date {day_class}">{labels[index]}</div>'
+                f'<div class="m-box {"on" if working else "off"}">{text}</div></li>'
             )
+        error = f'<p role="alert">{escape(result["error"])}</p>' if result["error"] else ""
         provisional = " / 暫定" if person["provisional"] else ""
+        hidden = "" if working_days else " hidden"
+        visible_count += bool(working_days)
         rows.append(
-            f'<tr><td>{person["rank"]}</td><td>{person["score"]:.2f}</td>'
-            f'<td>{person["tier"]}{provisional}</td>'
-            f'<td>{person["source_count"]}元 / {person["review_count"]}件</td>'
-            f'<td>{identity}<br>{shop}</td>'
-            f'<td><details><summary>評価内訳・週間予定</summary>'
-            f'<ul>{rating_items}</ul>{schedule_html}</details></td></tr>'
+            f'<tr class="person-row" data-working="{",".join(working_days)}"{hidden}>'
+            f'<td class="shop-cell">{identity}<br><span class="shop-info">{shop}</span>'
+            f'<p class="rank-info">{person["rank"]}位 / {person["score"]:.2f}点 / '
+            f'{person["tier"]}{provisional}<br>{person["source_count"]}元 / {person["review_count"]}件</p>'
+            f'<details><summary>評価内訳・取得状況</summary><ul>{rating_items}</ul>'
+            f'<p>取得日時: {escape(result["fetched_at"]) or "未取得"}</p>{error}</details>'
+            f'<div class="m-cal"><ul>{"".join(mobile_days)}</ul></div></td>'
+            f'{"".join(cells)}</tr>'
         )
     removed_text = " / ".join(f"{label}: {count}件" for label, count in removed.items())
+    headers = "".join(
+        f'<th class="day-col {day_classes[index]}" data-day="{index}">{label}</th>'
+        for index, label in enumerate(labels)
+    )
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8">{HEAD_COMMON}
-<title>3レポート横断・翌週出勤予定</title>
-<style>
-body {{ max-width: 1400px; font-family: sans-serif; line-height: 1.6; }}
-.table-scroll {{ overflow-x: auto; }}
-table {{ width: 100%; border-collapse: collapse; }}
-th, td {{ padding: 10px; border: 1px solid var(--border); vertical-align: top; }}
-td small {{ overflow-wrap: anywhere; }}
-summary {{ cursor: pointer; min-height: 44px; }}
-.days {{ min-width: 22em; padding-left: 1.2em; }}
-</style></head>
+<title>3レポート横断・7日間出勤カレンダー</title>
+<link rel="stylesheet" href="weekly_schedule.css">
+<script src="weekly_schedule.js" defer></script></head>
 <body>{BACK_NAV}
-<h1>3レポート横断・翌週出勤予定</h1>
-<p>対象期間: {dates[0]}（月）〜{dates[-1]}（日）日本時間。レポート生成日時:
+<h1>3レポート横断・7日間出勤カレンダー</h1>
+<p>対象期間: {labels[0]}〜{labels[-1]} 日本時間（生成時の本日から7日間）。レポート生成日時:
 {escape(now.astimezone(JST).isoformat(timespec="seconds"))}。評価あり {len(people)}人。</p>
+<details class="method"><summary>ランキング・取得方針</summary>
 <p>全評価人物が母集団です（予約困難・人気の文言、年齢、3件未満で除外しません）。
 掲載終了扱いの保存記事は除外: {escape(removed_text)}。</p>
 <p>各評価元の人物平均を同点平均順位の0〜100パーセンタイルに変換し、
@@ -350,12 +367,26 @@ summary {{ cursor: pointer; min-height: 44px; }}
 <p>Sは上位10%（人数切り上げ）、Aはその次から上位25%（人数切り上げ）。
 同点は競技順位（1, 1, 3）とし、境界同点は全員を上位区分に含めるため割合を超える場合があります。
 少人数ではSのみとなる場合があります。表示は小数2桁ですが区分判定は丸め前のスコアです。</p>
-<p>予定取得はS優先、Aは追加指定。評価内訳・週間予定を開くと平日を含む7日間を表示します。
+<p>予定取得はS優先、Aは追加指定。表示フィルタでは順位・母集団・S/A選定を変更しません。
 未取得・未公開・未定・休み・要確認・取得エラーは区別します。空欄や欠けた日を休みと推測しません。
-予定は取得日時点の公開情報であり、予約可能性を保証しません。</p>
+予定は取得日時点の公開情報であり、予約可能性を保証しません。</p></details>
+<div class="sticky-toolbar" id="toolbar">
+<div class="day-picker"><label for="scheduleFilter">表示条件</label>
+<select id="scheduleFilter">
+<option value="working" selected>予定ありのみ（7日間）</option>
+<option value="today">本日出勤</option>
+<option value="weekend">土日出勤</option>
+<option value="all">全表示（未取得・休み等も含む）</option>
+</select></div>
+<p class="filter-count" id="dayCount" aria-live="polite">予定ありのみ（7日間）: 表示 {visible_count}名 / 母集団 {len(people)}名（順位・S/Aは固定）</p>
+</div>
+<p class="no-results" id="noResults" {"" if visible_count == 0 else "hidden"} role="status">条件に合う出勤予定はありません。
+未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」で取得状況を確認してください。</p>
+<p id="staleNotice" hidden role="status">本日は保存期間に含まれません。ページを再生成・再取得してください。</p>
+<noscript><p>JavaScriptが無効です。生成時の7日間に予定がある人物のみ表示しています。
+セレクタを使うにはJavaScriptを有効にしてください。</p></noscript>
 <div class="table-scroll" role="region" aria-label="横断順位と週間予定" tabindex="0">
-<table><thead><tr><th>順位</th><th>横断スコア</th><th>区分</th><th>評価元数／件数</th>
-<th>氏名／店舗／プロフィールURL</th><th>詳細</th></tr></thead>
+<table data-dates="{",".join(dates)}"><thead><tr><th>氏名・店舗／順位・評価</th>{headers}</tr></thead>
 <tbody>{"".join(rows)}</tbody></table></div>{BACK_TO_TOP}</body></html>"""
 
 
@@ -367,15 +398,15 @@ def main(argv=None):
     if args.include_a and not args.collect:
         parser.error("--include-a は --collect と併用してください")
     now = datetime.now(JST)
-    dates = next_week(now)
+    dates = schedule_dates(now)
     people, removed = load_ranking()
     cache = load_cache()
-    schedules = cache["weeks"].get(dates[0], {})
+    schedules = cache["windows"].get(dates[0], {})
     failures = 0
     if args.collect:
         results = asyncio.run(collect_schedules(selected_people(people, args.include_a), dates))
         schedules.update(results)
-        cache["weeks"][dates[0]] = schedules
+        cache["windows"][dates[0]] = schedules
         save_cache(cache)
         failures = sum(bool(result["error"]) for result in results.values())
     write_html(OUTPUT, render_html(people, dates, schedules, removed, now))
