@@ -184,6 +184,7 @@
   document.addEventListener("keydown", event => {
     if (event.key !== "Enter" && event.key !== " ") return;
     if (!(event.target instanceof Element)) return;
+    if (event.target.closest('[data-details-scroll="native"] summary')) return;
     const row = event.target.closest("tr.person-row");
     if (!row || event.target.closest(interactiveSelector)) return;
     event.preventDefault();
@@ -195,6 +196,7 @@
 
     const summary = event.target.closest("summary");
     const details = summary?.parentElement;
+    if (summary && details?.closest('[data-details-scroll="native"]')) return;
     if (summary && details?.tagName === "DETAILS" && !event.target.closest(interactiveSelector)) {
       const wasOpen = details.open;
       if (wasOpen) return;

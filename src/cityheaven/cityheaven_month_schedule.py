@@ -188,6 +188,7 @@ async def scrape_cityheaven():
 
 
 REPORT_LINKS = [
+    ("weekly_schedule.html", "3レポート横断・7日間出勤カレンダー"),
     ("reservation_difficulty.html", "予約困難な人物"),
     ("calendar_report.html", "カレンダー形式レポート"),
     ("tokai_final_report.html", "最終レポート"),
