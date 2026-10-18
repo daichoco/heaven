@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from okinilove.render_people_summary import build_people_summary
+from okinilove.render_people_summary import NEGATIVE, NEUTRAL, _tone, build_people_summary
 
 
 # Execute the real sorting/filtering code with a small DOM, without a browser or network.
@@ -139,6 +139,37 @@ class RecommendationTests(unittest.TestCase):
             self.assertAlmostEqual(result["scores"][0]["neg"], 0.2)
             self.assertAlmostEqual(result["scores"][0]["pos"], 0.7)
         self.run_scripts([person(5, 1, posn=1), person(3, 9, posn=3, negn=4)], check)
+
+    def test_style_classification_updates_negative_rate_body_and_recommendation(self):
+        self.assertNotIn("デブ", NEUTRAL["style"])
+        self.assertIn("デブ", NEGATIVE["style"])
+        self.assertEqual(_tone("style", "デブ"), "neg")
+        for word in ["ちょいぽちゃ", "ガリガリ", "ムッチリ", "普通", "普通体型", "細い", "色白", "色黒"]:
+            self.assertEqual(_tone("style", word), "", word)
+        source = '<table id="girlsTable"><tbody>' + "".join(
+            f'<tr><td>店舗</td><td><a href="https://okinilove.com/blog-entry-{i}.html">記事</a></td>'
+            f'<td><a href="https://example.invalid/{i}">人物{i}</a></td><td></td><td>★★★★☆</td></tr>'
+            for i in [1, 2]
+        ) + '</tbody></table>'
+        with (
+            patch("okinilove.render_people_summary._load_review_details", return_value=({
+                "https://okinilove.com/blog-entry-1.html": {"style": "デブ"},
+                "https://okinilove.com/blog-entry-2.html": {"style": "普通"},
+            }, {})),
+            patch("requests.get", side_effect=AssertionError("Unexpected network request")),
+        ):
+            page, bodies = build_people_summary(source, {}, fetch_missing_industries=False)
+        rows = page.select(".person-row")
+        self.assertEqual([row["data-negn"] for row in rows], ["1", "0"])
+        self.assertEqual([row["data-vals"] for row in rows], ["1", "1"])
+        self.assertIn("ネガ含有率100%", rows[0].get_text("", strip=True))
+        self.assertIn(["デブ", "neg"], json.loads(bodies)[0]["s"])
+        data = [
+            person(float(row["data-average"]), int(row["data-rated"]),
+                   vals=int(row["data-vals"]), posn=int(row["data-posn"]), negn=int(row["data-negn"]))
+            for row in rows
+        ]
+        self.run_scripts(data, lambda result: self.assertEqual(result["order"], [1, 0]))
 
     def test_single_review_can_overtake_established_person(self):
         def check(result):
