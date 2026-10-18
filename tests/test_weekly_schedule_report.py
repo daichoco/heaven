@@ -449,8 +449,26 @@ class WeeklyCalendarTests(unittest.TestCase):
         self.assertIn('width="160" height="180"', html)
         self.assertIn("saved.jpg", html)
         self.assertIn("画像未取得", weekly.image_html(person, {}))
-        self.assertIn("画像なし", weekly.image_html(person, {profile(1): {"status": "no_image"}}))
+        self.assertIn("画像URL未検出", weekly.image_html(person, {profile(1): {"status": "no_image"}}))
         self.assertIn("画像取得失敗", weekly.image_html(person, {profile(1): {"status": "error"}}))
+
+    def test_cityheaven_lazy_echo_image_is_extracted_without_javascript(self):
+        html = """
+            <meta property="og:image" content="https://img.cityheaven.net/img/icon/favicon.png">
+            <img id="nowGirlImage" src="">
+            <img data-echo="//img2.cityheaven.net/img/girls/t/shop/la_grpb0035197447_0000000000pc.jpg?imgopt=y"
+                 alt="店舗の智永 なみ" itemprop="image">
+            <img data-echo="//img2.cityheaven.net/img/girls/t/shop/la_grpb0035197447_0000000001pc.jpg"
+                 alt="店舗の智永 なみ">
+        """
+        self.assertEqual(
+            weekly.extract_profile_image_url(html, profile(35197447), "智永なみ"),
+            "https://img2.cityheaven.net/img/girls/t/shop/la_grpb0035197447_0000000000pc.jpg?imgopt=y",
+        )
+        self.assertIsNone(weekly.extract_profile_image_url(
+            '<img data-echo="/img/noimage.jpg"><img data-echo="/img/banner.jpg">',
+            profile(1), "人物1",
+        ))
 
     def test_images_only_command_is_bounded_and_never_writes_schedules(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, 100-i) for i in range(30)]))
