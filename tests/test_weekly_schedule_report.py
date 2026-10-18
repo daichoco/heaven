@@ -182,6 +182,22 @@ class RankingTests(unittest.TestCase):
                 self.assertIn(label, heading.get_text())
         self.assertIn("二件目", page.get_text())
 
+    def test_ui_links_have_labels_without_raw_urls_and_saved_body_is_unchanged(self):
+        body = "本文のURLは残す https://example.invalid/body"
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(1, total_comment=body)]))
+        page = BeautifulSoup(
+            weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser"
+        )
+        profile_link = page.select_one(".shop-cell > a")
+        self.assertEqual(profile_link["href"], profile(1))
+        self.assertEqual(profile_link.get_text(), "人物1")
+        self.assertNotIn(profile(1), page.get_text())
+        source_link = page.select_one(".saved-report a")
+        self.assertEqual(source_link.get_text(), "元レポート")
+        self.assertEqual(source_link["href"], "https://example.invalid/article-1")
+        self.assertNotIn(source_link["href"], page.get_text())
+        self.assertEqual(page.select_one(".saved-field p").get_text(), body)
+
     def test_percentile_boundaries_and_small_populations(self):
         for size, expected_s, expected_a in [
             (0, 0, 0), (1, 1, 0), (2, 1, 0), (3, 1, 0),

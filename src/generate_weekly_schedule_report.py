@@ -423,7 +423,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         profile = escape(person["profile_url"], quote=True)
         identity = (
             f'<a href="{profile}" target="_blank" rel="noopener">{name}</a>'
-            f'<br><small>{profile}</small>' if profile else f"{name}<br>CityHeaven URL未突合"
+            if profile else f"{name}<br>CityHeaven URL未突合"
         )
         rating_items = "".join(
             f'<li>{escape(label)}: 元評価平均 '
