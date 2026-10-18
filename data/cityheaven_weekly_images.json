@@ -1677,9 +1677,9 @@
   "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-35197447/": {
-  "checked_at": "2026-10-18T12:00:47.636179+00:00",
-  "status": "no_image",
-  "image_url": "",
+  "checked_at": "2026-10-18T12:27:53.035281+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/kikoushi/la_grpb0035197447_0000000000pc.jpg?cache02=1791979488&imgopt=y",
   "shop_checked": true,
   "shop_kind": "ソープ(高級/金津園)",
   "price_class": "高級"

@@ -296,7 +296,7 @@ def image_html(person, images):
     status = image.get("status")
     label = (
         "画像取得失敗" if status in {"error", "not_found"}
-        else "画像なし" if status == "no_image" else "画像未取得"
+        else "画像URL未検出" if status == "no_image" else "画像未取得"
     )
     if valid:
         return (

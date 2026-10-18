@@ -244,7 +244,7 @@ def extract_profile_image_url(page_html, page_url, person_name=""):
         alt = image.get("alt", "")
         image_urls = [
             image.get(attribute)
-            for attribute in ("src", "data-src", "data-original", "data-lazy-src")
+            for attribute in ("src", "data-src", "data-original", "data-lazy-src", "data-echo")
             if image.get(attribute)
         ]
         for attribute in ("srcset", "data-srcset"):
