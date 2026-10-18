@@ -302,7 +302,7 @@ def image_html(person, images):
         return (
             '<div class="profile-photo">'
             f'<img src="{escape(url, quote=True)}" alt="{escape(" / ".join(person["names"]), quote=True)}" '
-            'width="97" height="97" loading="lazy" decoding="async">'
+            'width="160" height="180" loading="lazy" decoding="async">'
             '<span class="image-error" hidden>画像読込失敗</span></div>'
             + ('<small>画像再取得失敗・保存画像を表示</small>' if status == "error" else "")
         )
@@ -457,7 +457,8 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
                 f'<div class="m-box {"on" if working else "off"}">{text}</div></li>'
             )
         error = f'<p role="alert">{escape(result["error"])}</p>' if result["error"] else ""
-        provisional = " / 暫定" if person["provisional"] else ""
+        provisional = '<span class="status-badge">暫定</span>' if person["provisional"] else ""
+        tier_class = {"S": "tier-s", "A": "tier-a"}.get(person["tier"], "tier-other")
         ages = person.get("reported_ages", [])
         age_text = " / ".join(f"{age}歳" for age in ages) or "不明"
         hidden = "" if working_days else " hidden"
@@ -480,10 +481,17 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         rows.append(
             f'<tr class="person-row" data-working="{",".join(working_days)}" '
             f'data-ages="{",".join(map(str, ages))}"{hidden}>'
-            f'<td class="shop-cell">{image_html(person, images)}{identity}<br><span class="shop-info">{shop}</span>'
-            f'<p class="rank-info">{person["rank"]}位 / 横断相対スコア {person["score"]:.2f}/100 / '
-            f'{person["tier"]}{provisional}<br>{person["source_count"]}元 / {person["review_count"]}件</p>'
-            f'<div class="original-ratings">{original_ratings}</div>'
+            f'<td class="shop-cell">{image_html(person, images)}'
+            f'<div class="person-identity"><div class="person-name">{identity}</div>'
+            f'<div class="shop-info">{shop}</div></div>'
+            f'<div class="rank-info"><dl class="ranking-metrics">'
+            f'<div><dt>横断順位</dt><dd>{person["rank"]}<small>位</small></dd></div>'
+            f'<div><dt>横断相対スコア</dt><dd>{person["score"]:.2f}<small>/100</small></dd></div></dl>'
+            f'<div class="ranking-badges"><span class="tier-badge {tier_class}">'
+            f'区分 {person["tier"]}</span>{provisional}</div>'
+            f'<dl class="rating-counts"><div><dt>評価元</dt><dd>{person["source_count"]}サイト</dd></div>'
+            f'<div><dt>評価</dt><dd>{person["review_count"]}件</dd></div></dl></div>'
+            f'<div class="original-ratings"><strong>元レポートの評価</strong>{original_ratings}</div>'
             f'<div class="reported-age">保存レポート年齢: {age_text}（現在年齢とは限りません）</div>'
             f'<details><summary>評価内訳・取得状況</summary><ul>{rating_items}</ul>'
             f'<p>取得日時: {escape(result["fetched_at"]) or "未取得"}</p>{error}</details>'

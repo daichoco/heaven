@@ -188,7 +188,7 @@ class RankingTests(unittest.TestCase):
         page = BeautifulSoup(
             weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser"
         )
-        profile_link = page.select_one(".shop-cell > a")
+        profile_link = page.select_one(".person-name > a")
         self.assertEqual(profile_link["href"], profile(1))
         self.assertEqual(profile_link.get_text(), "人物1")
         self.assertNotIn(profile(1), page.get_text())
@@ -197,6 +197,24 @@ class RankingTests(unittest.TestCase):
         self.assertEqual(source_link["href"], "https://example.invalid/article-1")
         self.assertNotIn(source_link["href"], page.get_text())
         self.assertEqual(page.select_one(".saved-field p").get_text(), body)
+
+    def test_person_card_separates_identity_ranking_badges_and_original_ratings(self):
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))
+        page = BeautifulSoup(
+            weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser"
+        )
+        cell = page.select_one(".shop-cell")
+        self.assertEqual(cell.select_one(".person-name").get_text(), "人物1")
+        metrics = cell.select(".ranking-metrics > div")
+        self.assertEqual([metric.dt.get_text() for metric in metrics], ["横断順位", "横断相対スコア"])
+        self.assertEqual([metric.dd.get_text() for metric in metrics], ["1位", "50.00/100"])
+        self.assertEqual(cell.select_one(".tier-badge").get_text(), "区分 S")
+        self.assertEqual(cell.select_one(".status-badge").get_text(), "暫定")
+        counts = cell.select(".rating-counts > div")
+        self.assertEqual([(item.dt.get_text(), item.dd.get_text()) for item in counts],
+                         [("評価元", "1サイト"), ("評価", "1件")])
+        self.assertEqual(cell.select_one(".original-ratings > strong").get_text(), "元レポートの評価")
+        self.assertNotIn(" / ", cell.select_one(".rank-info").get_text())
 
     def test_percentile_boundaries_and_small_populations(self):
         for size, expected_s, expected_a in [
@@ -428,7 +446,7 @@ class WeeklyCalendarTests(unittest.TestCase):
             self.assertEqual(images[profile(1)]["image_url"], "https://img.invalid/saved.jpg")
         person = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))[0]
         html = weekly.image_html(person, images)
-        self.assertIn('width="97" height="97"', html)
+        self.assertIn('width="160" height="180"', html)
         self.assertIn("saved.jpg", html)
         self.assertIn("画像未取得", weekly.image_html(person, {}))
         self.assertIn("画像なし", weekly.image_html(person, {profile(1): {"status": "no_image"}}))
@@ -539,6 +557,19 @@ class BrowserFixtureTests(unittest.TestCase):
                                     await route.fulfill(content_type="text/html; charset=utf-8", body=html)
                             await context.route("**/*", route_handler)
                             await page.goto("https://report.invalid/weekly_schedule.html")
+                            photo = await page.locator(".profile-photo").first.bounding_box()
+                            self.assertEqual((photo["width"], photo["height"]), (160, 180))
+                            self.assertEqual(
+                                await page.locator(".profile-photo img").first.evaluate(
+                                    "el => getComputedStyle(el).objectFit"), "contain"
+                            )
+                            self.assertLessEqual(
+                                await page.evaluate("document.documentElement.scrollWidth"), width
+                            )
+                            if width == 1440:
+                                self.assertGreaterEqual(
+                                    (await page.locator(".shop-cell").first.bounding_box())["width"], 280
+                                )
                             for mode in ["working", "today", "weekend", "date", "all"]:
                                 await page.select_option("#scheduleFilter", mode)
                                 for selector in [
