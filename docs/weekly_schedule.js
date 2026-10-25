@@ -52,7 +52,8 @@
       const ageMatches = !ageSelect.value || (ageSelect.value === "unknown"
         ? ages.length === 0
         : ages.some(age => ageSelect.value === "under30" ? age < 30 : age >= 30));
-      row.hidden = !ageMatches || (mode !== "all" && !targets.some(day => working.includes(day)));
+      row.hidden = !ageMatches || (typeof shopPriceMatches === "function" && !shopPriceMatches(row))
+        || (mode !== "all" && !targets.some(day => working.includes(day)));
       if (!row.hidden) shown += 1;
       if (row.hidden) row.querySelectorAll(".review-toggle").forEach(button => {
         document.getElementById(button.getAttribute("aria-controls")).hidden = true;
@@ -74,6 +75,7 @@
   }
   select.addEventListener("change", changeFilter);
   ageSelect.addEventListener("change", changeFilter);
+  document.addEventListener("shop-prices-change", changeFilter);
   daySelect.addEventListener("change", () => {
     select.value = "date";
     changeFilter();

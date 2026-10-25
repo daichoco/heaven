@@ -14,6 +14,7 @@ if str(SRC_DIR) not in sys.path:
 from web_common import BACK_NAV, BACK_TO_TOP, FILTER_TOGGLE_SCRIPT, HEAD_COMMON
 from ns_senmon.profile_images import classify_price_class, load_cache, normalize_profile_url
 from tokai_fuzoku.report_store import is_missing, person_key
+from shop_prices import attach_prices
 
 SCORE_FIELDS = (
     ("total_point", "total", "総合"),
@@ -290,7 +291,7 @@ def generate_html(df):
         for url, entry in cache.items()
     }
     entries = "".join(render_person_entry(person, prices_by_url) for person in group_reports(df))
-    return render_page(option_tags(shops), option_tags(types), entries)
+    return attach_prices(render_page(option_tags(shops), option_tags(types), entries))
 
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
@@ -369,6 +370,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
             articles.forEach(article => {
                 const total = numericValue(article, "total");
                 const matches = article.dataset.search.includes(query)
+                    && (typeof shopPriceMatches !== "function" || shopPriceMatches(entry))
                     && (!shop || article.dataset.shop === shop)
                     && (!type || article.dataset.type === type)
                     && (!shopType || article.dataset.shopType === shopType)
@@ -398,6 +400,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         document.getElementById("shopTypeFilter").value = "";
         document.getElementById("repeatFilter").value = "";
         document.getElementById("scoreFilter").value = "0";
+        if (window.resetShopPrices) resetShopPrices();
         if (window.resetShopSearches) resetShopSearches();
         applyFilters();
     }

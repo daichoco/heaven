@@ -1,3 +1,4 @@
+import argparse
 import hashlib
 import html
 import json
@@ -22,6 +23,7 @@ from okinilove.shop_filters import is_chubby_shop
 from html_format import write_html
 from okinilove.scrape_okinilove import profile_check_url
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
+from shop_prices import attach_prices
 
 RAW_HTML_PATH = ROOT_DIR / "docs" / "okinilove_remove_unknown.html"
 # 人物ページから分離したレビュー本文 (顔・スタイル・サービス・本文)。HTML と同じフォルダに置く。
@@ -68,6 +70,8 @@ def _cell_segments(cell):
 
 
 def _extract_rows(source_soup):
+    for price in source_soup.select(".shop-price"):
+        price.decompose()
     records = []
     for row in source_soup.select("#girlsTable tbody tr, #reviews tbody tr"):
         if "detail-row" in (row.get("class") or []):
@@ -857,7 +861,7 @@ function applySort() {{
   pairs.forEach(p=>{{tbody.appendChild(p[0]);tbody.appendChild(p[1]);}});
 }}
 sortSelect.addEventListener('change',applySort);negFilter.addEventListener('change',applyFilters);
-function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:ageFilter.value==='under30'?age>0&&age<30:age>=30), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
+function applyFilters() {{ let shown=0; document.querySelectorAll('#reviews tbody tr.person-row').forEach(row=>{{const ageText=row.cells[1].querySelector('.age')?.textContent||'', age=Number(ageText.match(/\\d+/)?.[0]||0), ageMatch=!ageFilter.value||(ageFilter.value==='unknown'?!age:ageFilter.value==='under30'?age>0&&age<30:age>=30), serviceTypes=row.dataset.serviceTypes.split('|'), serviceTypeMatch=!serviceTypeFilter.value||(serviceTypeFilter.value==='either'?serviceTypes.includes('sp')||serviceTypes.includes('super-sp'):serviceTypes.includes(serviceTypeFilter.value)), match=(typeof shopPriceMatches!=='function'||shopPriceMatches(row))&&(includeChubbyFilter.checked||row.dataset.chubby!=='true')&&row.dataset.search.includes(searchInput.value.trim().toLocaleLowerCase())&&(!shopFilter.value||row.dataset.shop===shopFilter.value)&&(!industryFilter.value||row.dataset.industry===industryFilter.value)&&Number(row.dataset.average)>=Number(minFilter.value)&&(!faceFilter.value||row.dataset.faces.split('|').includes(faceFilter.value))&&(!gapFilter.value||row.dataset.gaps.split('|').includes(gapFilter.value))&&(negFilter.value===''||Number(row.dataset.neg)<=Number(negFilter.value))&&Number(row.dataset.reports)>=Number(reportsFilter.value)&&ageMatch&&serviceTypeMatch;row.hidden=!match;row.nextElementSibling.hidden=!match||!row.classList.contains('open');if(match)shown++;}});document.getElementById('visible-count').textContent=shown;document.getElementById('empty').hidden=shown!==0; }}
 let bodiesPromise=null;
 const loadBodies=()=>bodiesPromise||(bodiesPromise=fetch('{bodies_url}').then(r=>{{if(!r.ok)throw new Error(r.status);return r.json();}}).catch(e=>{{bodiesPromise=null;throw e;}}));
 const el=(tag,cls,text)=>{{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}};
@@ -886,17 +890,17 @@ function fillBodies(detailRow) {{
     status.append(retry);
   }});
 }}
-document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;fillBodies(row.nextElementSibling);}}}}));
+document.querySelectorAll('#reviews tr.person-row').forEach(row=>row.addEventListener('click',event=>{{if(event.target.closest('a, details, input, select, button'))return;const shouldOpen=!row.classList.contains('open');originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});if(shouldOpen){{row.classList.add('open');row.nextElementSibling.hidden=false;fillBodies(row.nextElementSibling);}}}}));
 document.querySelectorAll('#reviews details.review-body').forEach(detail=>detail.addEventListener('toggle',()=>{{if(detail.open)document.querySelectorAll('#reviews details.review-body[open]').forEach(other=>{{if(other!==detail)other.open=false;}});}}));
 const linkedRecord=new URLSearchParams(location.search).get('record');
 if(linkedRecord){{const normalizeRecordUrl=value=>{{const url=new URL(value,location.href);if(url.protocol==='http:')url.protocol='https:';return url.href;}};includeChubbyFilter.checked=true;document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';applyFilters();const target=[...document.querySelectorAll('.review-item .review-meta a')].find(link=>normalizeRecordUrl(link.href)===normalizeRecordUrl(linkedRecord)),detailRow=target?.closest('.detail-row'),personRow=detailRow?.previousElementSibling;if(target&&detailRow&&personRow){{originalPairs.forEach(([person,detail])=>{{person.classList.remove('open');detail.hidden=true;}});personRow.classList.add('open');detailRow.hidden=false;fillBodies(detailRow);target.closest('details.review-body').open=true;target.scrollIntoView({{block:'center'}});}}}}
 searchInput.addEventListener('input',applyFilters);shopFilter.addEventListener('change',applyFilters);minFilter.addEventListener('change',applyFilters);faceFilter.addEventListener('change',applyFilters);gapFilter.addEventListener('change',applyFilters);serviceTypeFilter.addEventListener('change',applyFilters);includeChubbyFilter.addEventListener('change',applyFilters);
-document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;if(window.resetShopSearches)resetShopSearches();applySort();applyFilters();}});
+document.getElementById('reset-filters').addEventListener('click',()=>{{document.getElementById('filters')?.querySelectorAll('select').forEach(select=>select.selectedIndex=0);searchInput.value='';includeChubbyFilter.checked=false;if(window.resetShopPrices)resetShopPrices();if(window.resetShopSearches)resetShopSearches();applySort();applyFilters();}});
 applySort();applyFilters();
 </script>
 {BACK_TO_TOP}
 </body></html>'''
-    return BeautifulSoup(page, "html.parser"), bodies_json
+    return BeautifulSoup(attach_prices(page), "html.parser"), bodies_json
 
 
 def render_people_summary_file(
@@ -923,8 +927,16 @@ def render_people_summary_file(
     return len(page.select("#reviews tbody tr.person-row"))
 
 
-def main():
-    summary_count = render_people_summary_file(RAW_HTML_PATH)
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="保存済みオキニラブ人物一覧を再生成")
+    parser.add_argument("--offline", action="store_true", help="画像・業種・料金の取得なしで生成")
+    args = parser.parse_args(argv)
+    summary_count = render_people_summary_file(
+        RAW_HTML_PATH,
+        profile_images={} if args.offline else None,
+        fetch_missing_images=not args.offline,
+        fetch_missing_industries=not args.offline,
+    )
     print(f"人物別UIを生成: {summary_count}人")
 
 

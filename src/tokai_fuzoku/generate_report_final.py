@@ -22,7 +22,7 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl_records
 from html_format import write_html
-from html_render import generate_html
+from html_render import generate_html, PAGE_TEMPLATE
 from report_store import (
     COMMENT_COLUMNS,
     DETAIL_COLUMNS,
@@ -37,6 +37,7 @@ from report_store import (
 )
 from profile_signals import classify_profile_page, decode_html
 from wait_for_name_parts import name_in_text
+from shop_prices import refresh_saved_prices
 
 INPUT_JSONL = REPORTS_JSONL
 OUTPUT_HTML = ROOT_DIR / "docs" / "tokai_final_report.html"
@@ -364,6 +365,20 @@ def prepare_offline_data(df):
     for column in DETAIL_LABELS:
         if column not in df.columns:
             df[column] = None
+    if "profile_image_url" not in df.columns:
+        df["profile_image_url"] = None
+    if OUTPUT_HTML.exists() and "girl_url" in df.columns:
+        saved_page = BeautifulSoup(OUTPUT_HTML.read_text(encoding="utf-8"), "lxml")
+        saved_images = {}
+        for person in saved_page.select(".report-entry"):
+            link = person.select_one(".person-heading a.link-button")
+            image = person.select_one(".profile-thumbnail[src]")
+            if link and image:
+                saved_images[normalize_profile_url(link["href"])] = image["src"]
+        missing_images = df["profile_image_url"].isna() | df["profile_image_url"].eq("")
+        df.loc[missing_images, "profile_image_url"] = df.loc[missing_images, "girl_url"].map(
+            lambda value: saved_images.get(normalize_profile_url(value))
+        )
     missing = int((~has_stored_details(df)).sum()) if len(df) else 0
     if missing:
         tqdm.write(
@@ -380,11 +395,24 @@ def parse_args(argv):
         action="store_true",
         help="ネット接続なしで保存済みデータから生成する（プロフィール再確認・画像取得なし）",
     )
-    return parser.parse_args(argv)
+    parser.add_argument(
+        "--refresh-prices", action="store_true",
+        help="--offline専用。保存HTMLの人物・記事・掲載確認を保持して料金とフィルタだけ更新",
+    )
+    args = parser.parse_args(argv)
+    if args.refresh_prices and not args.offline:
+        parser.error("--refresh-prices は --offline と併用してください")
+    return args
 
 
 def main(argv=()):
     args = parse_args(list(argv))
+    if args.refresh_prices:
+        write_html(OUTPUT_HTML, refresh_saved_prices(
+            OUTPUT_HTML.read_text(encoding="utf-8"), PAGE_TEMPLATE, "function applySort()",
+        ))
+        print(f"保存HTMLの人物・記事を保持して料金を更新しました: {OUTPUT_HTML}")
+        return
     df = load_input_data()
     if args.offline:
         df = prepare_offline_data(df)

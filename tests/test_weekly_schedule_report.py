@@ -424,7 +424,7 @@ class WeeklyCalendarTests(unittest.TestCase):
         self.assertFalse(page.select("td script"))
         self.assertIn("<script>name</script>", page.get_text())
         self.assertIn("2026-10-18T19:00:00+09:00", page.get_text())
-        self.assertEqual(page.select_one('[role="alert"]').get_text(), "<error>")
+        self.assertEqual(page.select_one('.shop-cell [role="alert"]').get_text(), "<error>")
         self.assertIn("暫定", page.get_text())
 
     def test_unfetched_and_unmatched_are_not_unpublished_or_errors(self):
@@ -698,7 +698,7 @@ class BrowserFixtureTests(unittest.TestCase):
                             await page.clock.install(time=now)
                             async def route_handler(route):
                                 filename = route.request.url.rsplit("/", 1)[-1]
-                                if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css"}:
+                                if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css", "shop_prices.js", "shop_prices.css"}:
                                     await route.fulfill(path=ROOT / "docs" / filename)
                                 else:
                                     await route.fulfill(content_type="text/html; charset=utf-8", body=html)
@@ -721,7 +721,8 @@ class BrowserFixtureTests(unittest.TestCase):
                                 await page.select_option("#scheduleFilter", mode)
                                 for selector in [
                                     ".method > summary",
-                                    ".person-row:nth-of-type(19) details > summary",
+                                    ".person-row:nth-of-type(19) details:not(.shop-price-evidence) > summary",
+                                    ".person-row:nth-of-type(19) details.shop-price-evidence > summary",
                                 ]:
                                     summary = page.locator(selector)
                                     await summary.evaluate("""element => {

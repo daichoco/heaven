@@ -1,0 +1,33 @@
+.shop-price-filters {
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid var(--border, #8b959e);
+  border-radius: 6px;
+  background: var(--panel, var(--surface, transparent));
+}
+.shop-price-inputs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.shop-price-inputs label { display: grid; flex: 1 1 160px; min-width: 0; gap: 4px; font-size: .85rem; }
+.shop-price-inputs input, .shop-price-inputs select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px;
+  color: inherit;
+  background: var(--input-bg, var(--panel, transparent));
+  border: 1px solid var(--border, #8b959e);
+  border-radius: 4px;
+  font: inherit;
+}
+.shop-price-filters p { font-size: .8rem; margin: 8px 0 0; }
+.shop-price { margin: 8px 0; font-size: .8rem; font-weight: normal; white-space: normal; overflow-wrap: anywhere; }
+.shop-price-value { display: block; font-weight: 600; }
+.shop-price-evidence { font-size: .8rem; text-align: left; }
+.shop-price-evidence summary { cursor: pointer; min-height: 32px; padding: 5px 0; }
+.shop-price-evidence p { margin: 5px 0; }
+.shop-price-brief { display: block; width: 100%; font-size: .8rem; font-weight: normal; }
+@media (max-width: 700px) {
+  .shop-price-inputs label { flex-basis: calc(50% - 10px); }
+  .shop-price-inputs label:last-child { flex-basis: 100%; }
+  .shop-price-evidence summary { min-height: 44px; }
+}

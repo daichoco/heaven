@@ -1,4 +1,5 @@
 #%%
+import argparse
 import ast
 import asyncio
 import json
@@ -28,6 +29,7 @@ from cityheaven.exists_merge import (
 )
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 from tokai_fuzoku.report_store import canonical_article_url
+from shop_prices import attach_prices, refresh_saved_prices
 
 DOCS_DIR = ROOT_DIR / "docs"
 DATA_DIR = ROOT_DIR / "data"
@@ -399,7 +401,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         let shown = 0;
 
         document.querySelectorAll('tbody tr:not(.review-row)').forEach(row => {
-          const shopMatches = !selectedShop || row.dataset.shops.split("|").includes(selectedShop);
+          const shopMatches = (!selectedShop || row.dataset.shops.split("|").includes(selectedShop))
+            && (typeof shopPriceMatches !== "function" || shopPriceMatches(row));
           const hasReport = row.getAttribute("data-report");
           const showByReport = shopMatches && (reportSelected === "all"
             || (reportSelected === "has" && hasReport === "true")
@@ -707,7 +710,7 @@ def build_calendar_html(merged):
     html += "</tbody></table></div>"
     html += "<p class='no-results' id='noResults' hidden>条件に合う人はいません。</p>"
     html += BACK_TO_TOP + "</body></html>"
-    return html
+    return attach_prices(html)
 
 
 def write_calendar_html(merged, path=None):
@@ -715,7 +718,21 @@ def write_calendar_html(merged, path=None):
     write_html(output_path, build_calendar_html(merged))
 
 
+def refresh_saved_calendar(path=None):
+    """Keep the saved date/profile/review DOM and refresh only scripts and price data."""
+    path = Path(path) if path else DOCS_DIR / "calendar_report.html"
+    write_html(path, refresh_saved_prices(
+        load_html(path), CALENDAR_PAGE_HEAD, "function applyCombinedFilter()",
+    ))
+
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="統合カレンダーを生成")
+    parser.add_argument("--offline", action="store_true", help="保存カレンダーの予定・本文を保持し、料金とフィルタを更新")
+    args = parser.parse_args()
     _total_start = time.perf_counter()
-    write_calendar_html(main())
+    if args.offline:
+        refresh_saved_calendar()
+    else:
+        write_calendar_html(main())
     _log_elapsed("report_left_merge 合計", _total_start)

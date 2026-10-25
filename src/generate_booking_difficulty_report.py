@@ -1,4 +1,5 @@
 """予約困難に関する明示的な記述を3つのレポートDBから抽出する。"""
+import argparse
 import json
 import math
 import re
@@ -33,6 +34,7 @@ from okinilove.scrape_okinilove import (
 )
 from ns_senmon.profile_images import CACHE_PATH as NS_PROFILE_IMAGE_CACHE_PATH
 from ns_senmon.generate_ns_senmon_report import TOTAL_KEY, number
+from shop_prices import attach_prices, refresh_saved_prices
 
 DATASETS = (
     ("NS専門", "ns_senmon_reports.jsonl", "ns_senmon", "ns_senmon_report.html"),
@@ -852,7 +854,7 @@ def render_html(people, source_counts, views=None):
         f"{escape(label)} {source_counts.get(label, 0)}件"
         for label, _, _, _ in DATASETS
     )
-    return f"""<!DOCTYPE html>
+    return attach_prices(f"""<!DOCTYPE html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
@@ -1016,7 +1018,7 @@ h1 {{ font-size: 1.5rem; }}
         const detail = row.nextElementSibling;
         const button = row.querySelector("button.toggle");
         row.addEventListener("click", event => {{
-          if (event.target.closest("a")) return;
+          if (event.target.closest("a, .shop-price")) return;
           const open = !row.classList.contains("open");
           row.classList.toggle("open", open);
           detail.hidden = !open;
@@ -1061,7 +1063,9 @@ h1 {{ font-size: 1.5rem; }}
           const ageMatch = !ageFilter.value || (ageFilter.value === "unknown"
             ? ages.length === 0
             : ages.some(age => ageFilter.value === "under30" ? age < 30 : age >= 30));
-          const matches = reviewMatch && categoryMatch && ageMatch && person.textContent.toLocaleLowerCase().includes(query);
+          const matches = reviewMatch && categoryMatch && ageMatch
+            && (typeof shopPriceMatches !== "function" || shopPriceMatches(person))
+            && person.textContent.toLocaleLowerCase().includes(query);
           person.hidden = !matches;
           if (matches) visible += 1;
         }});
@@ -1076,10 +1080,19 @@ h1 {{ font-size: 1.5rem; }}
     </script>
   </body>
 </html>
-"""
+""")
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--refresh-prices", action="store_true", help="保存HTMLの人物・根拠を保持して料金とフィルタだけ更新")
+    args = parser.parse_args(argv)
+    if args.refresh_prices:
+        write_html(OUTPUT_HTML, refresh_saved_prices(
+            OUTPUT_HTML.read_text(encoding="utf-8"), render_html([], {}), "function filterPeople()",
+        ))
+        print(f"保存HTMLの人物・根拠を保持して料金を更新しました: {OUTPUT_HTML}")
+        return
     people, source_counts = extract_people()
     write_html(OUTPUT_HTML, render_html(people, source_counts))
     print(
