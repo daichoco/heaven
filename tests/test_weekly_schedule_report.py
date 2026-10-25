@@ -50,6 +50,30 @@ def calendar_html(rows):
     ) + "</div>"
 
 
+def expanded_saved_output(*args, **kwargs):
+    """Inspect persisted listing/body payloads without relying on initial DOM pagination."""
+    assets = {}
+    page = BeautifulSoup(weekly.render_html(*args, **kwargs, assets=assets), "html.parser")
+    page.tbody.clear()
+    for name, content in assets.items():
+        if name.startswith("list-"):
+            for html in json.loads(content)["rows"].values():
+                page.tbody.append(BeautifulSoup(html, "html.parser").tr)
+    for person in page.select(".person-row"):
+        url = person["data-body-url"]
+        if not url:
+            continue
+        bodies = json.loads(assets[url.rsplit("/", 1)[-1]])["sources"]
+        for button in person.select(".review-toggle"):
+            row = BeautifulSoup(
+                f'<tr id="{button["aria-controls"]}" class="review-row" hidden><td colspan="8"></td></tr>',
+                "html.parser",
+            ).tr
+            row.td.append(BeautifulSoup(bodies[button["data-source"]], "html.parser"))
+            page.tbody.append(row)
+    return str(page)
+
+
 class RankingTests(unittest.TestCase):
     def test_all_reviews_not_just_booking_candidates_and_equal_source_weight(self):
         one = tokai(1, 100)
@@ -91,7 +115,7 @@ class RankingTests(unittest.TestCase):
         ])))
         self.assertEqual(len(people[0]["reports"]), 2)
         self.assertIsNone(rows[1]["cityheaven_url"])
-        page = BeautifulSoup(weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser")
+        page = BeautifulSoup(expanded_saved_output(people, weekly.schedule_dates(), {}, {}), "html.parser")
         self.assertEqual(len(page.select(".saved-report")), 2)
         self.assertIn("オキニラブ 2件", page.select_one(".review-toggle").get_text())
         for other_url in [
@@ -200,7 +224,7 @@ class RankingTests(unittest.TestCase):
         first = next(p for p in people if p["profile_url"] == profile(1))
         self.assertEqual(first["reported_ages"], [29, 31])
         self.assertEqual(next(p for p in people if p["profile_url"] == profile(2))["reported_ages"], [])
-        html = weekly.render_html(people, weekly.schedule_dates(), {}, {})
+        html = expanded_saved_output(people, weekly.schedule_dates(), {}, {})
         self.assertIn("元評価平均 80.00/100点（1件）", html)
         self.assertIn("元評価平均 ★4.00/5（1件）", html)
         self.assertIn("元評価平均 0.00/100点（1件）", html)
@@ -232,7 +256,7 @@ class RankingTests(unittest.TestCase):
             tokai_rows=[tokai(1, 90, total_comment="東海本文"),
                         tokai(1, 80, url="https://tokai.invalid/2", total_comment="二件目")],
         ))
-        page = BeautifulSoup(weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser")
+        page = BeautifulSoup(expanded_saved_output(people, weekly.schedule_dates(), {}, {}), "html.parser")
         buttons = page.select(".review-toggle")
         self.assertEqual(len(buttons), 3)
         self.assertEqual(len(page.select(".person-row")), 1)
@@ -254,7 +278,7 @@ class RankingTests(unittest.TestCase):
         body = "本文のURLは残す https://example.invalid/body"
         people = weekly.rank_people(datasets(tokai_rows=[tokai(1, total_comment=body)]))
         page = BeautifulSoup(
-            weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser"
+            expanded_saved_output(people, weekly.schedule_dates(), {}, {}), "html.parser"
         )
         profile_link = page.select_one(".person-name > a")
         self.assertEqual(profile_link["href"], profile(1))
@@ -297,7 +321,7 @@ class RankingTests(unittest.TestCase):
     def test_person_card_separates_identity_ranking_badges_and_original_ratings(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))
         page = BeautifulSoup(
-            weekly.render_html(people, weekly.schedule_dates(), {}, {}), "html.parser"
+            expanded_saved_output(people, weekly.schedule_dates(), {}, {}), "html.parser"
         )
         cell = page.select_one(".shop-cell")
         self.assertEqual(cell.select_one(".person-name").get_text(), "人物1")
@@ -350,6 +374,11 @@ class RankingTests(unittest.TestCase):
 class WeeklyCalendarTests(unittest.TestCase):
     def setUp(self):
         self.dates = weekly.schedule_dates(datetime(2026, 10, 19, 19, tzinfo=weekly.JST))
+        self.assets_directory = TemporaryDirectory()
+        self.addCleanup(self.assets_directory.cleanup)
+        output_patch = patch.object(weekly, "OUTPUT", Path(self.assets_directory.name) / "weekly.html")
+        output_patch.start()
+        self.addCleanup(output_patch.stop)
 
     def test_today_jst_including_monday_and_year_rollover(self):
         self.assertEqual(self.dates, [f"2026-10-{day}" for day in range(19, 26)])
@@ -419,7 +448,7 @@ class WeeklyCalendarTests(unittest.TestCase):
             path.write_text('{"version": 2}', encoding="utf-8")
             with self.assertRaises(ValueError):
                 weekly.load_cache(path)
-        page = BeautifulSoup(weekly.render_html(people, self.dates, schedules, {}), "html.parser")
+        page = BeautifulSoup(expanded_saved_output(people, self.dates, schedules, {}), "html.parser")
         self.assertEqual(len(page.select(".m-cal li")), 7)
         self.assertFalse(page.select("td script"))
         self.assertIn("<script>name</script>", page.get_text())
@@ -506,7 +535,9 @@ class WeeklyCalendarTests(unittest.TestCase):
             self.assertEqual(save.call_args.args[0]["windows"][dates[0]],
                              {**results, "unselected": unselected})
             self.assertEqual(save.call_args.args[0]["windows"]["1999-01-01"], {"past": "retained"})
-            self.assertIn("HTTP 403", write.call_args.args[1])
+            self.assertIn("weeklyIndex", write.call_args.args[1])
+            saved_lists = list((weekly.OUTPUT.parent / weekly.ASSET_DIRECTORY).glob("list-*.json"))
+            self.assertTrue(any("HTTP 403" in path.read_text(encoding="utf-8") for path in saved_lists))
 
     def test_redirect_to_login_is_explicit_error(self):
         page = Mock(
@@ -684,7 +715,8 @@ class BrowserFixtureTests(unittest.TestCase):
                 }
                 for person in people
             }
-            html = weekly.render_html(people, dates, schedules, {}, now, images={
+            assets = {}
+            html = weekly.render_html(people, dates, schedules, {}, now, assets=assets, images={
                 person["profile_url"]: {"status": "ok", "image_url": "https://report.invalid/broken.jpg"}
                 for person in people
             })
@@ -698,7 +730,9 @@ class BrowserFixtureTests(unittest.TestCase):
                             await page.clock.install(time=now)
                             async def route_handler(route):
                                 filename = route.request.url.rsplit("/", 1)[-1]
-                                if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css", "shop_prices.js", "shop_prices.css"}:
+                                if filename in assets:
+                                    await route.fulfill(content_type="application/json", body=assets[filename])
+                                elif filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css", "shop_prices.js", "shop_prices.css"}:
                                     await route.fulfill(path=ROOT / "docs" / filename)
                                 else:
                                     await route.fulfill(content_type="text/html; charset=utf-8", body=html)
@@ -764,6 +798,7 @@ class BrowserFixtureTests(unittest.TestCase):
                                         self.assertEqual(await button.get_attribute("aria-expanded"), str(opening).lower())
                                         self.assertEqual(await review.is_visible(), opening)
                                         if opening:
+                                            await review.locator(".saved-report").wait_for()
                                             self.assertEqual(await review.locator(".saved-report").count(), 1)
                                             self.assertFalse(await review.locator("details").count())
                                             self.assertEqual(await review.locator("td").get_attribute("colspan"), "8")
@@ -813,7 +848,8 @@ class BrowserFixtureTests(unittest.TestCase):
                     "fetched_at": now.isoformat(), "days": days,
                     "error": "HTTP 403" if i == 5 else "",
                 }
-            html = weekly.render_html(people, dates, schedules, {}, now)
+            assets = {}
+            html = weekly.render_html(people, dates, schedules, {}, now, assets=assets)
             self.assertEqual(people, original)
             soup = BeautifulSoup(html, "html.parser")
             self.assertIn("2026-10-21（水）", soup.get_text())
@@ -831,7 +867,9 @@ class BrowserFixtureTests(unittest.TestCase):
                         await page.clock.install(time=now)
                         async def route_handler(route):
                             filename = route.request.url.rsplit("/", 1)[-1]
-                            if filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css"}:
+                            if filename in assets:
+                                await route.fulfill(content_type="application/json", body=assets[filename])
+                            elif filename in {"weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css", "shop_prices.js", "shop_prices.css"}:
                                 await route.fulfill(path=ROOT / "docs" / filename)
                             else:
                                 await route.fulfill(content_type="text/html; charset=utf-8", body=html)
@@ -874,8 +912,9 @@ class BrowserFixtureTests(unittest.TestCase):
                         else:
                             self.assertEqual(await page.locator(".person-row:visible td[data-day]:visible").count(), 2)
                         await page.select_option("#scheduleFilter", "all")
+                        await page.wait_for_function("document.querySelectorAll('.person-row').length === 7")
                         self.assertEqual(await page.locator(".person-row:visible").count(), 7)
-                        self.assertEqual(await rows.locator(".rank-info").all_text_contents(), before)
+                        self.assertEqual((await rows.locator(".rank-info").all_text_contents())[:3], before)
                         # A saved snapshot viewed after its date range must not call day 0 'today'.
                         await page.clock.set_fixed_time(datetime(2026, 11, 1, tzinfo=weekly.JST))
                         await page.select_option("#scheduleFilter", "today")
@@ -884,10 +923,7 @@ class BrowserFixtureTests(unittest.TestCase):
                         self.assertTrue(await page.locator("#staleNotice").is_visible())
                         self.assertIn("全表示", await page.locator("#noResults").inner_text())
                         # With only unknown/off/error data, the default must show an explicit empty state.
-                        await page.evaluate("""() => {
-                            document.querySelectorAll('.person-row').forEach(row => row.dataset.working = '');
-                        }""")
-                        await page.select_option("#scheduleFilter", "working")
+                        await page.select_option("#daySelect", dates[6])
                         self.assertEqual(await page.locator(".person-row:visible").count(), 0)
                         self.assertTrue(await page.locator("#noResults").is_visible())
                         await context.close()

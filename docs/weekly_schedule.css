@@ -66,6 +66,10 @@ summary { cursor: pointer; font-weight: bold; min-height: 44px; }
 td[data-on="1"] .cell, .m-box.on { display: inline-block; padding: 2px 8px; border-radius: 4px; background: var(--surface-open); color: var(--link); font-weight: 700; }
 .no-results { padding: 16px; color: var(--muted); }
 .m-cal { display: none; }
+.weekly-pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.weekly-pagination button, #weeklyRetry, #weeklyReset, .review-row button { min-height: 44px; padding: 8px 12px; }
+#weeklySearch { box-sizing: border-box; width: 100%; max-width: 480px; min-height: 44px; padding: 8px; }
+#fileNotice, #weeklyLoadStatus { overflow-wrap: anywhere; }
 [hidden] { display: none !important; }
 @media (max-width: 1100px), (pointer: coarse) {
   :root { --page-pad: 12px; }
