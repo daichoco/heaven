@@ -3,6 +3,7 @@ import io
 import json
 import sys
 import unittest
+from html import escape
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import MagicMock, Mock, patch
@@ -39,6 +40,66 @@ def sample_cache():
 
 
 class PriceParserTests(unittest.TestCase):
+    def test_cached_five_shop_evidence_and_supported_dom_rows_agree(self):
+        fixtures = json.loads((FIXTURE.parent / "shop_prices_cached_rows.json").read_text(encoding="utf-8"))
+        expected = {
+            "alamode": (90, 14000, 14000 * 60 / 90),
+            "alicejogakuin_n": (100, 29000, 17400),
+            "alicejogakuin_nayabashi": (90, 27000, 18000),
+        }
+        for slug, fixture in fixtures.items():
+            with self.subTest(shop=slug):
+                entry = prices.empty_result("unknown", "old parser")
+                entry.update(checked_at="2026-10-25T00:00:00+00:00", source_kind="http")
+                entry["candidates"] = [
+                    {key: fixture[key] for key in ("course_name", "section", "conditions")}
+                    | {"label": label, "price_text": amount, "minutes": None, "yen": None,
+                       "eligible": False, "reason": "old parser"}
+                    for label, amount in fixture["rows"]
+                ]
+                before = copy.deepcopy(entry)
+                result = prices.reprocess_cached_entry(entry)
+                self.assertEqual(entry, before)
+                self.assertEqual(result["checked_at"], entry["checked_at"])
+                self.assertIn("reprocessed_at", result)
+                if slug in expected:
+                    minutes, yen, converted = expected[slug]
+                    self.assertEqual(result["status"], "ok")
+                    self.assertEqual(result["selected"]["minutes"], minutes)
+                    self.assertEqual(result["selected"]["yen"], yen)
+                    self.assertAlmostEqual(result["selected"]["yen_per_60"], converted)
+                    self.assertEqual(result["tax"], "unknown")
+                    self.assertIn(fixture["conditions"], [fee["text"] for fee in result["additional_fees"]])
+                    markup = table(fixture["rows"], escape(fixture["course_name"])).replace(
+                        "</table>", '<tr><td colspan="2">' + escape(fixture["conditions"]) + "</td></tr></table>",
+                    )
+                    parsed = prices.parse_system_html('<div id="shopcontent">' + markup + '</div>')
+                    self.assertEqual(parsed["status"], "ok")
+                    self.assertEqual(parsed["selected"]["yen_per_60"], result["selected"]["yen_per_60"])
+                else:
+                    self.assertEqual(result["status"], "unknown")
+                    self.assertIsNone(result["selected"])
+                    self.assertEqual([c["price_text"] for c in result["candidates"]],
+                                     [amount for _, amount in fixture["rows"]])
+
+    def test_fee_notes_do_not_authorize_promotions_special_courses_or_ranges(self):
+        for title, label, amount, conditions in [
+            ("システム料金 初回限定", "90分", "1,000円", ""),
+            ("通常料金", "90分", "1,000円", "WEB予約限定"),
+            ("基本料金", "80分 ★オススメ 新人限定", "1,000円", ""),
+            ("通常料金", "90分", "10,000円〜", "別途指名料"),
+            ("システム料金", "90分", "基本料金 12000円 入場料金 2000円 14000円", ""),
+            ("通常料金", "90分", "1,000円", "団体割をご利用の場合"),
+        ]:
+            with self.subTest(title=title, label=label, conditions=conditions):
+                markup = table([(label, amount)], title).replace(
+                    "</table>", '<tr><td colspan="2">' + conditions + "</td></tr></table>",
+                )
+                self.assertIsNone(prices.parse_system_html('<div id="shopcontent">' + markup + "</div>")["selected"])
+        for title in ("延長", "特殊コース", "クーポン", "広告"):
+            result = parse([("90分", "27,000円")], extra=table([("90分", "1,000円")], title))
+            self.assertEqual(result["selected"]["yen"], 27000)
+
     def test_provided_menu_only_normal_courses_and_separate_fees(self):
         result = sample_cache()["shops"][SHOP]
         self.assertEqual(result["status"], "ok")
@@ -143,6 +204,40 @@ class PriceParserTests(unittest.TestCase):
             self.assertEqual(prices.main(["--shop-url", SHOP]), 0)
             fetch.assert_not_called()
             save.assert_not_called()
+
+    def test_explicit_cache_reprocessing_preserves_source_cache_and_other_states(self):
+        entry = prices.empty_result("unknown", "old parser")
+        entry.update(
+            checked_at="2026-10-25T00:00:00+00:00", source_kind="http",
+            source_url=SHOP + "system/",
+            candidates=[{
+                "course_name": "システム料金", "section": "", "conditions": "別途サービス料",
+                "label": "90分", "price_text": "14,000円",
+            }],
+        )
+        other = SHOP.replace("airabugakuen", "other")
+        current = {"version": 1, "shops": {other: prices.empty_result("not_found", "HTTP 410")}}
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "user.json"
+            prices.save_cache({"version": 1, "shops": {SHOP: entry}}, path)
+            original = path.read_bytes()
+            with (
+                patch.object(prices, "CACHE", Path(directory) / "out.json"),
+                patch.object(prices, "load_cache", side_effect=[copy.deepcopy(current),
+                    {"version": 1, "shops": {SHOP: entry}}]),
+                patch.object(prices, "save_cache") as save,
+                patch.object(prices, "fetch_price") as fetch,
+            ):
+                self.assertEqual(prices.main(["--reprocess-cache", str(path), "--shop-url", SHOP]), 0)
+                fetch.assert_not_called()
+                result = save.call_args.args[0]["shops"]
+                self.assertEqual(result[other], current["shops"][other])
+                self.assertEqual(result[SHOP]["checked_at"], entry["checked_at"])
+                self.assertEqual(result[SHOP]["selected"]["yen"], 14000)
+            self.assertEqual(path.read_bytes(), original)
+        for status in ("ok", "not_found", "restricted", "error", "redirect"):
+            with self.subTest(status=status), self.assertRaises(ValueError):
+                prices.reprocess_cached_entry(dict(entry, status=status))
 
     def test_deduplication_and_limit_apply_to_shops_not_people(self):
         another = SHOP.replace("airabugakuen", "another")
