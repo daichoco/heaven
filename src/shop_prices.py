@@ -212,13 +212,19 @@ def known_shops():
 PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" aria-label="店舗料金">
 <strong>店舗の通常料金（60分換算・参考）</strong>
 <div class="shop-price-inputs">
-<label>下限（円）<input id="shopPriceMin" type="number" min="0" step="any" inputmode="numeric" placeholder="指定なし"></label>
-<label>上限（円）<input id="shopPriceMax" type="number" min="0" step="any" inputmode="numeric" placeholder="指定なし"></label>
-<label>料金の確認状態<select id="shopPriceMode"><option value="">絞り込みなし</option><option value="unknown">料金不明のみ</option></select></label>
+<label>価格帯<select id="shopPriceBand">
+<option value="">すべて</option>
+<option value="0-10000">1万円未満</option>
+<option value="10000-15000">1万〜1.5万円未満</option>
+<option value="15000-20000">1.5万〜2万円未満</option>
+<option value="20000-25000">2万〜2.5万円未満</option>
+<option value="25000-30000">2.5万〜3万円未満</option>
+<option value="30000">3万円以上</option>
+<option value="unknown">料金不明</option>
+</select></label>
 </div>
 <p>通常90分を優先し、なければ最も近い時間（同距離は長い方）を60分換算。実際の60分コース料金・確定支払総額ではありません。
 指名料・交通費・別途必須料金は加算していません。税込・税別・税不明は根拠欄を確認してください。未取得を安価とは扱いません。</p>
-<p id="shopPriceError" role="alert" hidden></p>
 </section>"""
 
 
