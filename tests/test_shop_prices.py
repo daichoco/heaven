@@ -213,6 +213,9 @@ class PriceParserTests(unittest.TestCase):
             candidates=[{
                 "course_name": "システム料金", "section": "", "conditions": "別途サービス料",
                 "label": "90分", "price_text": "14,000円",
+            }, {
+                "course_name": "システム料金", "section": "", "conditions": "別途サービス料",
+                "label": "70分", "price_text": "11,000円",
             }],
         )
         other = SHOP.replace("airabugakuen", "other")
@@ -235,7 +238,7 @@ class PriceParserTests(unittest.TestCase):
                 self.assertEqual(result[SHOP]["checked_at"], entry["checked_at"])
                 self.assertEqual(result[SHOP]["selected"]["yen"], 14000)
             self.assertEqual(path.read_bytes(), original)
-        for status in ("ok", "not_found", "restricted", "error", "redirect"):
+        for status in ("not_found", "restricted", "error", "redirect"):
             with self.subTest(status=status), self.assertRaises(ValueError):
                 prices.reprocess_cached_entry(dict(entry, status=status))
 

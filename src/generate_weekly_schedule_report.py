@@ -1,6 +1,7 @@
 """3レポート横断の7日間予定。保存予定を使い、不足画像は自動取得。--offline で通信なし。"""
 import argparse
 import asyncio
+import hashlib
 import json
 import math
 import re
@@ -37,6 +38,8 @@ OUTPUT = ROOT / "docs" / "weekly_schedule.html"
 CACHE = ROOT / "data" / "cityheaven_weekly_schedules.json"
 IMAGE_CACHE = ROOT / "data" / "cityheaven_weekly_images.json"
 JST = timezone(timedelta(hours=9))
+PAGE_SIZE = 50
+ASSET_DIRECTORY = "weekly_schedule_assets"
 STATE_LABELS = {
     "working": "出勤予定",
     "off": "休み",
@@ -456,9 +459,39 @@ def person_schedule(person, dates, schedules):
     return {"fetched_at": "", "days": daily_states(dates, state), "error": ""}
 
 
-def render_html(people, dates, schedules, removed, now=None, images=None):
+def json_script(value):
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+
+
+def add_asset(assets, kind, value):
+    content = json_script(value)
+    name = f"{kind}-{hashlib.sha256(content.encode('utf-8')).hexdigest()[:24]}.json"
+    assets[name] = content
+    return f"{ASSET_DIRECTORY}/{name}"
+
+
+def write_weekly_assets(assets, output):
+    directory = output.parent / ASSET_DIRECTORY
+    directory.mkdir(parents=True, exist_ok=True)
+    for name, content in assets.items():
+        path = directory / name
+        if not path.exists():
+            temporary = path.with_suffix(".tmp")
+            temporary.write_text(content, encoding="utf-8")
+            temporary.replace(path)
+
+
+def prune_weekly_assets(assets, output):
+    directory = output.parent / ASSET_DIRECTORY
+    for path in directory.iterdir():
+        if re.fullmatch(r"(?:list|review)-[0-9a-f]{24}\.json", path.name) and path.name not in assets:
+            path.unlink()
+
+
+def render_html(people, dates, schedules, removed, now=None, images=None, assets=None):
     now = now or datetime.now(JST)
     images = images or {}
+    assets = assets if assets is not None else {}
     prices = shop_prices.load_cache()
     period_note = (
         "生成時の本日から7日間" if dates[0] == now.astimezone(JST).date().isoformat()
@@ -473,8 +506,14 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         for day in dates
     ]
     rows = []
+    listing_index = []
+    person_ids = set()
     visible_count = 0
-    for person_index, person in enumerate(people):
+    for person in people:
+        person_id = hashlib.sha256(person["key"].encode("utf-8")).hexdigest()[:24]
+        if person_id in person_ids:
+            raise ValueError("週間人物IDが重複しています")
+        person_ids.add(person_id)
         name = escape(" / ".join(person["names"]) or "名前不明")
         shop = escape(" / ".join(person["shops"]) or "店舗不明")
         profile = escape(person["profile_url"], quote=True)
@@ -522,27 +561,25 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         tier_class = {"S": "tier-s", "A": "tier-a"}.get(person["tier"], "tier-other")
         ages = person.get("reported_ages", [])
         age_text = " / ".join(f"{age}歳" for age in ages) or "不明"
-        hidden = "" if working_days else " hidden"
         visible_count += bool(working_days)
         review_buttons = []
-        review_rows = []
+        bodies = {}
         for source_index, (label, _, _, _) in enumerate(DATASETS):
             count = sum(report["database"] == label for report in person.get("reports", []))
             if not count:
                 continue
-            row_id = f"review-{person_index}-{source_index}"
+            row_id = f"review-{person_id}-{source_index}"
             review_buttons.append(
                 f'<button type="button" class="review-toggle" aria-controls="{row_id}" '
-                f'aria-expanded="false">レビュー（{escape(label)} {count}件）</button>'
+                f'data-source="{source_index}" aria-expanded="false">レビュー（{escape(label)} {count}件）</button>'
             )
-            review_rows.append(
-                f'<tr id="{row_id}" class="review-row review-source-{source_index}" hidden>'
-                f'<td colspan="{len(dates) + 1}">{render_reports(person, label)}</td></tr>'
-            )
+            bodies[str(source_index)] = render_reports(person, label)
+        body_url = add_asset(assets, "review", {"id": person_id, "sources": bodies}) if bodies else ""
         rows.append(
-            f'<tr class="person-row" data-working="{",".join(working_days)}" '
+            f'<tr class="person-row" data-person-id="{person_id}" data-body-url="{body_url}" '
+            f'data-working="{",".join(working_days)}" '
             f'data-shop-price="{price_amount}" data-shop-price-status="{escape(price_entry.get("status", "not_fetched"), quote=True)}" '
-            f'data-ages="{",".join(map(str, ages))}"{hidden}>'
+            f'data-ages="{",".join(map(str, ages))}">'
             f'<td class="shop-cell">{image_html(person, images)}'
             f'<div class="person-identity"><div class="person-name">{identity}</div>'
             f'<div class="shop-info">{shop}</div></div>{shop_prices.price_info(price_entry, price_url)}'
@@ -560,8 +597,19 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
             f'<div class="review-buttons">{"".join(review_buttons)}</div>'
             f'<div class="m-cal"><ul>{"".join(mobile_days)}</ul></div></td>'
             f'{"".join(cells)}</tr>'
-            f'{"".join(review_rows)}'
         )
+        listing_index.append({
+            "id": person_id, "working": working_days, "ages": ages,
+            "price": price_amount, "priceStatus": price_entry.get("status", "not_fetched"),
+            "search": " ".join(person["names"] + person["shops"] + [person["profile_url"]]).casefold(),
+        })
+    for start in range(0, len(rows), PAGE_SIZE):
+        url = add_asset(assets, "list", {
+            "rows": {listing_index[i]["id"]: rows[i] for i in range(start, min(start + PAGE_SIZE, len(rows)))},
+        })
+        for item in listing_index[start:start + PAGE_SIZE]:
+            item["url"] = url
+    initial = [rows[i] for i, item in enumerate(listing_index) if item["working"]][:PAGE_SIZE]
     removed_text = " / ".join(f"{label}: {count}件" for label, count in removed.items())
     headers = "".join(
         f'<th class="day-col {day_classes[index]}" data-day="{index}">{label}</th>'
@@ -597,6 +645,8 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 予定は取得日時点の公開情報であり、予約可能性を保証しません。</p></details>
 {shop_prices.PRICE_CONTROLS}
 <div class="sticky-toolbar" id="toolbar">
+<label for="weeklySearch">名前・店舗・プロフィールURLで検索（全員対象）</label>
+<input id="weeklySearch" type="search" autocomplete="off">
 <div class="day-picker"><label for="scheduleFilter">表示条件</label>
 <select id="scheduleFilter">
 <option value="working" selected>予定ありのみ（7日間）</option>
@@ -612,16 +662,29 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 <option value="" selected>絞り込みなし</option>
 <option value="under30">30歳未満</option><option value="over30">30歳以上</option>
 <option value="unknown">年齢不明</option></select></div>
+<button type="button" id="weeklyReset">条件をリセット</button>
 <p class="filter-count" id="dayCount" aria-live="polite">予定ありのみ（7日間）: 表示 {visible_count}名 / 母集団 {len(people)}名（順位・S/Aは固定）</p>
 </div>
 <p class="no-results" id="noResults" {"" if visible_count == 0 else "hidden"} role="status">条件に合う出勤予定はありません。
 未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」と年齢「絞り込みなし」、料金条件を確認してください。</p>
 <p id="staleNotice" hidden role="status">本日は保存期間に含まれません。ページを再生成・再取得してください。</p>
-<noscript><p>JavaScriptが無効です。対象7日間に予定がある人物のみ表示しています。
-セレクタを使うにはJavaScriptを有効にしてください。</p></noscript>
+<p id="fileNotice" hidden role="status">ファイル直開きでは別ファイルの取得が制限されます。
+初期の一覧のみ閲覧できます。レビュー・ページ移動はGitHub Pages、またはリポジトリで
+<code>py -3 -m http.server 8000 --directory docs</code> を実行し
+<code>http://localhost:8000/weekly_schedule.html</code> で閲覧してください。</p>
+<noscript><p>JavaScriptが無効です。予定ありの先頭50人のみ表示します。全員の検索・ページ移動・本文にはJavaScriptとHTTP配信が必要です。</p></noscript>
+<nav class="weekly-pagination" aria-label="人物一覧のページ">
+<button id="weeklyPrevious" type="button" disabled>前の50人</button>
+<span id="weeklyPage" role="status" aria-live="polite"></span>
+<button id="weeklyNext" type="button">次の50人</button>
+</nav>
+<p id="weeklyLoadStatus" role="status" aria-live="polite"></p>
+<button id="weeklyRetry" type="button" hidden>一覧の読み込みを再試行</button>
 <div class="table-scroll" role="region" aria-label="横断順位と週間予定" tabindex="0">
 <table data-dates="{",".join(dates)}"><thead><tr><th>氏名・店舗／順位・評価</th>{headers}</tr></thead>
-<tbody>{"".join(rows)}</tbody></table></div>{BACK_TO_TOP}</body></html>"""
+<tbody>{"".join(initial)}</tbody></table></div>
+<script type="application/json" id="weeklyIndex">{json_script({"version": 1, "pageSize": PAGE_SIZE, "people": listing_index})}</script>
+{BACK_TO_TOP}</body></html>"""
 
 
 def main(argv=None):
@@ -688,7 +751,12 @@ def main(argv=None):
             f"今回補完 {len(pending) - len(missing)}人 / 残り {len(missing)}人: {counts}"
         )
         failures += counts["error"] + counts["not_found"] + counts["pending"]
-    write_html(OUTPUT, render_html(people, dates, schedules, removed, now, images))
+    assets = {}
+    markup = render_html(people, dates, schedules, removed, now, images, assets)
+    write_weekly_assets(assets, OUTPUT)
+    write_html(OUTPUT, markup)
+    # Remove only this generator's obsolete content-addressed artifacts after publishing HTML.
+    prune_weekly_assets(assets, OUTPUT)
     print(f"出力: {OUTPUT} / {len(people)}人 / 取得エラー {failures}件")
     return 1 if failures else 0
 

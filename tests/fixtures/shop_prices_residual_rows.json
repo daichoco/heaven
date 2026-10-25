@@ -1,0 +1,58 @@
+[
+  {
+    "source_url": "https://www.cityheaven.net/aichi/A2301/A230104/loveboat-s/system/",
+    "course_name": "通常コース",
+    "section": "料金システム",
+    "conditions": "18時以降・土日祝日+1,000円UP",
+    "rows": [["90分", "￥29,000"], ["70分 オススメ！", "￥22,000"], ["60分", "￥19,000"], ["45分", "￥16,000"]],
+    "expected": [90, 29000]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/aichi/A2305/A230502/dolce_okazaki/system/",
+    "course_name": "基本料金",
+    "section": "",
+    "conditions": "延長 30min 11,000yen/指名料 2,000yen 派遣料 一律 3,000yen/キャンセル料 一律 15,000yen ※派遣料についての詳細はお問い合わせください。",
+    "rows": [["60min", "18,000yen"], ["90min", "25,000yen"], ["120min", "34,000yen"], ["※180min以上もご用意しております。", "※180min以上もご用意しております。"]],
+    "expected": [90, 25000]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/gifu/A2101/A210101/yatubosi/system/",
+    "course_name": "通常コース",
+    "section": "",
+    "conditions": "",
+    "rows": [["120分", "￥42,000-"], ["100分", "￥37,000-"], ["80分", "￥26,000-"]],
+    "expected": [100, 37000]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/osaka/A2702/A270202/arisuschool/system/",
+    "course_name": "基本料金",
+    "section": "料金システム",
+    "conditions": "【入会金】1,100円 【指名料・予約料】1,100円 【本指名料】2,200円 【延長30分】12,100円 ※特別指名料・ホテル代別途",
+    "rows": [["60分", "18,700円 (税込)"], ["80分", "24,200円 (税込)"], ["おすすめコース 100分", "29,700円 (税込)"], ["120分", "35,200円 (税込)"]],
+    "expected": [100, 29700]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/aichi/A2301/A230103/cinderellabust/system/",
+    "course_name": "料金システム",
+    "section": "",
+    "conditions": "※トクトクプランのご利用場所についてはお問い合わせくださいませ",
+    "rows": [["60分", "17,000円"], ["90分", "25,000円"], ["120分", "33,000円"], ["トクトクプラン", "+3,500円～"]],
+    "expected": [90, 25000]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/gifu/A2103/A210301/chanko_gmkk/system/",
+    "course_name": "基本プレイ",
+    "section": "デリバリー料金",
+    "conditions": "・ホテル（美濃加茂可児推奨エリアは交通費無料） or 自宅交通費2,000円から",
+    "rows": [["60分", "10,000円+出張費"], ["80分", "14,000円+出張費"], ["100分", "18,000円+出張費"], ["120分", "22,000円+出張費"]],
+    "expected": [100, 18000]
+  },
+  {
+    "source_url": "https://www.cityheaven.net/aichi/A2305/A230504/i-f/system/",
+    "course_name": "料金システム",
+    "section": "",
+    "conditions": "※週末（金・土・日・祝）は＋1,000円",
+    "rows": [["60分", "16,000円(10pt)"], ["90分", "24,000円(15pt)"]],
+    "expected": null
+  }
+]

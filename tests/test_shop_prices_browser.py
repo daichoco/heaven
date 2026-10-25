@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import pandas as pd
+from bs4 import BeautifulSoup
 from playwright.sync_api import expect, sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,6 +65,28 @@ def pages():
 
 
 class ShopPriceBrowserTests(unittest.TestCase):
+    def test_status_labels_consistent_in_all_six_generators(self):
+        entry = shop_prices.parse_system_html(
+            (ROOT / "tests" / "fixtures" / "shop_prices_airabugakuen.html").read_text(encoding="utf-8"))
+        states = [
+            ({}, "未取得"),
+            (dict(entry, status="unknown", selected=None), "候補あり・判定保留"),
+            (shop_prices.empty_result("unknown", "unsupported structure"), "候補未抽出・判定保留"),
+            (shop_prices.empty_result("error", "timeout"), "取得失敗"),
+            (shop_prices.empty_result("restricted", "403"), "アクセス制限"),
+            (shop_prices.empty_result("redirect", "302"), "転送"),
+        ]
+        for pending, expected in states:
+            cache = {"version": 1, "shops": {
+                SHOP: entry, shop_prices.shop_url(PROFILES[1]): pending,
+            }}
+            with patch.object(shop_prices, "load_cache", return_value=cache):
+                generated, _ = pages()
+            for name, markup in generated.items():
+                with self.subTest(state=expected, page=name):
+                    values = BeautifulSoup(markup, "html.parser").select(".shop-price-value")
+                    self.assertTrue(any(expected in value.get_text() for value in values))
+
     def test_band_boundaries_missing_values_and_reset(self):
         with sync_playwright() as playwright:
             for engine in ("chromium", "webkit"):

@@ -1,10 +1,12 @@
 """Shared, conservative CityHeaven shop-course prices (never report-body analysis)."""
 import argparse
 import copy
+import hashlib
 import json
 import re
-import sys
 import time
+import unicodedata
+from collections import Counter
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
@@ -17,17 +19,20 @@ from data_store import read_jsonl_records
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "data" / "cityheaven_shop_prices.json"
-NORMAL_TITLE = re.compile(r"^(?:料金システム|システム料金|基本料金|通常料金|通常コース|基本コース)(?:\s|$)")
-EXCLUDED = re.compile(
-    r"初回|初めて|新規|限定|割|クーポン|延長|特殊|オプション|ポイント|"
-    r"イベント|キャンペーン|セット|パック|VIP|プレミア|指名|交通|出張|入会|"
-    r"早朝|深夜|モーニング|ネット予約割|ネット予約限定", re.I,
+DECISION_VERSION = 3
+PROMOTION = re.compile(
+    r"初回|初めて|新規|新人|限定|割引|割り|クーポン|イベント|キャンペーン|"
+    r"最安|お得|特価|口コミ|割(?!増)|会員様|会員価格|会員料金|フリー|おまかせ|お任せ|お試し|"
+    r"モーニング|早朝|深夜割|期間|事前予約|予約必須|予約のみ|予約専用|OFF", re.I,
 )
-CONDITION_EXCLUDED = re.compile(
-    EXCLUDED.pattern.replace("|指名|交通|出張|入会", ""), re.I,
+EXTRA_COURSE = re.compile(
+    r"延長|オプション|ポイント|利用可能|指名料|入場料|入泉料|入浴料|交通費|出張料|"
+    r"サービス料|入会|ホテル代|広告|特殊|VIP|プレミア|パック|総額|コミコミ|"
+    r"[23456３４５６]人|[23456３４５６]P|ダブル|Wコース|動画|撮影", re.I,
 )
+TIME_CONTEXT = re.compile(r"\d{1,2}\s*[:：時]\s*\d{0,2}\s*(?:分)?\s*[~〜～\-]|平日|土日|祝日|ランク|クラス")
 STATUSES = {
-    "ok": "確認済み", "unknown": "判別不可", "not_fetched": "未取得",
+    "ok": "基本料金判定済み", "unknown": "判定保留", "not_fetched": "未取得",
     "error": "取得失敗", "restricted": "アクセス制限", "redirect": "転送",
     "not_found": "HTTP 404/410",
 }
@@ -69,55 +74,160 @@ def text(node):
     return " ".join(node.get_text(" ", strip=True).split()) if node else ""
 
 
-def ordinary_title(title, section):
-    return bool(NORMAL_TITLE.match(title)) and not EXCLUDED.search(title + " " + section)
+def normalized(value):
+    return " ".join(unicodedata.normalize("NFKC", value or "").split())
+
+
+def context_role(title, section, conditions):
+    heading = normalized(title + " " + section)
+    note = normalized(conditions)
+    # A surcharge or an optional reservation link does not turn base prices into a coupon.
+    note = re.sub(r"割増(?:料金)?|プラチナメール会員登録|ネット予約をする|ネット予約も可", "", note)
+    if PROMOTION.search(heading):
+        return "promotion", "限定・割引・会員等の対象コース"
+    if TIME_CONTEXT.search(heading):
+        return "conditional", "時間帯・曜日・ランク別の体系は選択しません"
+    if EXTRA_COURSE.search(heading):
+        return "extra", "追加料金・特殊・総額等の別体系"
+    if PROMOTION.search(note):
+        return "conditional", "注記に限定・割引・会員等の適用条件があります"
+    if TIME_CONTEXT.search(note) and not re.search(r"[+＋]|別途|加算|追加|割増|アップ|\bup\b", note, re.I):
+        return "conditional", "注記の時間帯・曜日・ランク条件を基本料金から分離できません"
+    if re.search(r"通常|基本|標準|スタンダード|レギュラー", normalized(title)):
+        return "base", "基本・通常の文脈と時間/単一金額の対応"
+    bare_title = re.sub(r"[^一-龥ぁ-んァ-ヶーa-zA-Z]", "", normalized(title).split("※", 1)[0]).lower()
+    bare_title = bare_title.strip("ー")
+    if bare_title and re.fullmatch(r"(?:料金|価格|システム|system|コース|表|ご利用|利用|案内|プラン)+", bare_title):
+        return "structural", "料金表の文脈と複数時間/単一金額の対応"
+    if not normalized(title):
+        return "unlabeled", "見出しなしの表はDOMの表境界と複数行の確認が必要"
+    return "unresolved", "名称だけでは通常と特殊・別体系を区別できません"
 
 
 def classify_candidate(candidate):
     """Re-read raw row evidence, never trust a previously inferred amount."""
     title, section = candidate["course_name"], candidate["section"]
     label = candidate["label"]
-    clean_label = re.sub(r"\s*[★☆]\s*オススメ\s*$", "", label)
-    duration = re.fullmatch(r"(\d{1,3})\s*分(?:\s*コース)?", clean_label)
+    clean_label = normalized(label)
+    recommendation = r"(?:当店)?(?:超)?(?:オススメ|おすすめ|人気)(?:コース)?"
+    clean_label = re.sub(rf"^[★☆!【\[\s]*{recommendation}[★☆!】\]\s]*", "", clean_label)
+    clean_label = re.sub(rf"\s*[★☆!【\[\s]*{recommendation}[★☆!】\]\s]*$", "", clean_label)
+    duration = re.fullmatch(
+        r"(\d{1,3})\s*(?:分|mins?|minutes?)(?:\s*[.]?\s*(?:コース|course))?", clean_label, re.I,
+    )
+    price_text = normalized(candidate["price_text"])
     amount = re.fullmatch(
-        r"([1-9]\d*(?:,\d{3})*)\s*円(?:\s*[（(]税込(?:み)?[）)])?",
-        candidate["price_text"],
+        r"(?:[¥￥]\s*([1-9]\d*(?:,\d{3})*)\s*-?|([1-9]\d*(?:,\d{3})*)\s*(?:円|yen))"
+        r"(?:\s*\((税込(?:み)?|\d+\s*pt)\))?"
+        r"(?:\s*\+\s*(出張費|交通費|指名料|サービス料))?",
+        price_text, re.I,
+    )
+    annotations = []
+    if amount:
+        if amount[3]:
+            annotations.append(amount[3])
+        if amount[4]:
+            annotations.append("別途 " + amount[4] + "（金額未確認）")
+    points_unclear = bool(amount and amount[3] and re.fullmatch(r"\d+\s*pt", amount[3], re.I))
+    role, context_reason = context_role(title, section, candidate["conditions"])
+    row_extra = bool(
+        EXTRA_COURSE.search(normalized(label))
+        or re.match(r"^\+\s*[1-9][\d,]*\s*(?:円|yen)", price_text, re.I)
+    )
+    row_promotion = bool(PROMOTION.search(clean_label))
+    row_information = (
+        normalized(label) == price_text and not re.search(r"円|yen|[¥￥]", price_text, re.I)
+        and bool(re.fullmatch(
+            r"※\s*\d+\s*(?:分|mins?|minutes?)以上.*ご用意しております[。.!！]?", price_text, re.I,
+        ))
     )
     eligible = bool(
-        ordinary_title(title, section)
-        and not CONDITION_EXCLUDED.search(candidate["conditions"])
-        and duration and 1 <= int(duration[1]) <= 300 and amount
+        role in {"base", "structural", "unlabeled"}
+        and not row_extra and not row_promotion
+        and duration and 1 <= int(duration[1]) <= 300 and amount and not points_unclear
     )
     return {
         **candidate,
         "minutes": int(duration[1]) if duration else None,
-        "yen": int(amount[1].replace(",", "")) if amount else None,
+        "yen": int((amount[1] or amount[2]).replace(",", "")) if amount else None,
         "eligible": eligible,
-        "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
-        if eligible else "通常コースと確認できない条件・表記",
+        "amount_annotations": annotations,
+        "context_role": role, "row_role": (
+            "extra" if row_extra else "promotion" if row_promotion else "information" if row_information else "course"
+        ),
+        "reason": context_reason if eligible else (
+            "追加・限定行は基本料金に採用しません" if row_extra or row_promotion else
+            context_reason if role not in {"base", "structural", "unlabeled"} else
+            "金額併記のptが支払条件か特定できません" if points_unclear else
+            "時間と単一基本金額の対応を特定できません（範囲・内訳・複数金額等）"
+        ),
     }
 
 
-def select_ordinary_course(result, normal_tables):
-    if len(normal_tables) > 1:
-        result["reason"] = "通常料金表が複数あり料金体系を一意に判別できません"
-        return result
-    if not normal_tables:
-        if any("基本料金" in item["price_text"] and "入場料金" in item["price_text"]
-               for item in result["candidates"]):
-            result["reason"] = "明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています"
-        elif any(re.match(r"\d+\s*分コース", item["course_name"])
-                 and CONDITION_EXCLUDED.search(item["conditions"]) for item in result["candidates"]):
-            result["reason"] = "通常見出しのない時間コースと限定・割引注記があり、通常体系を確定できません"
+def select_ordinary_course(result, tables):
+    viable = []
+    unresolved = []
+    decisions = []
+    for table in tables:
+        first = table[0]
+        role, reason = context_role(first["course_name"], first["section"], first["conditions"])
+        courses = [item for item in table if item["row_role"] == "course"]
+        has_duration = any(item["minutes"] is not None or re.search(
+            r"\d+\s*(?:分|mins?|minutes?)", normalized(item["label"]), re.I,
+        ) for item in courses)
+        if role in {"promotion", "extra", "conditional"}:
+            decision = "excluded" if role != "conditional" else "hold"
+            if role == "extra" and re.search(r"入浴料|入泉料", normalized(first["course_name"] + " " + first["label"])):
+                reason = "入浴・入泉料のみの部分料金で通常基本料金全体を特定できません"
+            if role == "conditional" and TIME_CONTEXT.search(normalized(
+                first["course_name"] + " " + first["section"] + " " + first["conditions"]
+            )):
+                unresolved.append(table)
+        elif not courses or not has_duration:
+            decision, reason = "excluded", "時間コースではない追加情報の表"
+            if any(re.search(r"入浴料|入泉料", normalized(item["label"])) for item in table):
+                reason = "入浴・入泉料のみの部分料金で通常基本料金全体を特定できません"
+        elif role == "unresolved":
+            decision = "hold"
+            unresolved.append(table)
+        elif any(not item["eligible"] for item in courses):
+            decision, reason = "hold", "表内に未対応の時間・範囲・複数金額・条件行があります"
+            unresolved.append(table)
+        elif any(len({item["yen"] for item in courses if item["minutes"] == duration}) > 1
+                 for duration in {item["minutes"] for item in courses}):
+            decision, reason = "hold", "同じ時間に異なる基本料金があり体系を一意に特定できません"
+            unresolved.append(table)
+        elif role in {"structural", "unlabeled"} and len({item["minutes"] for item in courses}) < 2:
+            decision, reason = "hold", "通常の文脈が弱く、複数時間の料金対応を確認できません"
+            unresolved.append(table)
+        elif role == "unlabeled" and first.get("table_index") is None:
+            decision, reason = "hold", "保存候補だけでは見出しなし表のDOM境界を復元できません"
+            unresolved.append(table)
+        elif first.get("table_index") is None and len({item["minutes"] for item in courses}) != len(courses):
+            decision, reason = "hold", "旧保存候補の重複行から元の表境界を復元できません"
+            unresolved.append(table)
         else:
-            result["reason"] = "明示的な通常料金表がありません"
+            decision = "eligible"
+            viable.append(courses)
+        decisions.append({
+            "table_index": first.get("table_index"), "course_name": first["course_name"],
+            "section": first["section"], "role": role, "decision": decision, "reason": reason,
+        })
+    result["table_decisions"] = decisions
+    if len(viable) != 1 or unresolved:
+        result["reason"] = (
+            "候補表の複数体系・未解決の表があり通常基本料金を一意に特定できません"
+            if len(viable) > 1 or (viable and unresolved) else
+            "候補あり・判定保留: " + " / ".join(dict.fromkeys(
+                item["reason"] for item in decisions if item["decision"] == "hold"
+            )) if any(item["decision"] == "hold" for item in decisions) else
+            "入浴・入泉料等の部分料金のみで、別途サービス料を含む基本体系を特定できません"
+            if any("部分料金" in item["reason"] for item in decisions) else
+            "候補は限定・追加料金等のみで通常基本料金を特定できません"
+            if result["candidates"] else "料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）"
+        )
         return result
-    candidates = [
-        item for item in normal_tables[0] if not EXCLUDED.search(item["label"])
-    ]
-    if not candidates or any(not item["eligible"] for item in candidates):
-        result["reason"] = "通常料金表に範囲料金・条件付き料金・未対応表記があります"
-        return result
+    candidates = viable[0]
     minutes = min((item["minutes"] for item in candidates), key=lambda value: (abs(value - 90), -value))
     if len({item["yen"] for item in candidates if item["minutes"] == minutes}) != 1:
         result["reason"] = "採用時間の通常料金が複数あり一意に判別できません"
@@ -132,54 +242,81 @@ def select_ordinary_course(result, normal_tables):
     }
     result["status"] = "ok"
     result["reason"] = result["selected"]["selection_reason"]
+    result["decision_version"] = DECISION_VERSION
     return result
 
 
 def reprocess_cached_entry(entry):
-    """Re-evaluate saved extraction failures without claiming a new page fetch."""
-    if entry.get("status") != "unknown" or not entry.get("candidates"):
-        raise ValueError("再解析は候補が保存された unknown の店舗に限ります")
+    """Re-evaluate saved candidates without claiming a new page fetch."""
+    if entry.get("evidence_conflict"):
+        raise ValueError("矛盾する保存証拠は自動再判定できません")
+    if entry.get("status") not in {"ok", "unknown"}:
+        raise ValueError("再解析は抽出済みの ok / unknown の店舗に限ります")
     result = copy.deepcopy(entry)
     result.update(status="unknown", selected=None, candidates=[])
     groups = {}
     for raw in entry["candidates"]:
         candidate = classify_candidate(raw)
         result["candidates"].append(candidate)
-        if ordinary_title(candidate["course_name"], candidate["section"]):
-            key = (candidate.get("table_index"), candidate["course_name"],
-                   candidate["section"], candidate["conditions"])
-            groups.setdefault(key, []).append(candidate)
+        key = (candidate.get("table_index"), candidate["course_name"],
+               candidate["section"], candidate["conditions"])
+        groups.setdefault(key, []).append(candidate)
     for group in groups.values():
         conditions = group[0]["conditions"]
         fee = {"section": group[0]["course_name"], "label": "料金表の条件（加算なし）", "text": conditions}
         if conditions and fee not in result["additional_fees"]:
             result["additional_fees"].append(fee)
+        for candidate in group:
+            remember_candidate_fee(result, candidate)
     result["reprocessed_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    result["decision_version"] = DECISION_VERSION
     return select_ordinary_course(result, list(groups.values()))
+
+
+def remember_candidate_fee(result, candidate):
+    if (
+        candidate["row_role"] == "extra" or any(
+            note not in {"税込", "税込み"} for note in candidate["amount_annotations"]
+        )
+        or re.search(r"指名|姫予約|入会|交通|出張|別途|追加|ホテル|ルーム代|必須|サービス料",
+                     candidate["course_name"] + " " + candidate["label"])
+    ):
+        fee = {"section": candidate["course_name"], "label": candidate["label"], "text": candidate["price_text"]}
+        if fee not in result["additional_fees"]:
+            result["additional_fees"].append(fee)
 
 
 def parse_system_html(markup):
     """Support the observed feesmart table schema; unknown layouts stay unknown."""
     soup = BeautifulSoup(markup, "html.parser")
     root = soup.select_one("#shopcontent")
+    diagnostics = {
+        "root_found": root is not None,
+        "table_count": len(root.select("table.feesmart")) if root else 0,
+        "image_count": len(root.select("img")) if root else 0,
+    }
     if root is None or not root.select("table.feesmart"):
-        return empty_result("unknown", "対応する #shopcontent table.feesmart がありません（画像のみ・構造変更等）")
+        return dict(
+            empty_result("unknown", "対応する #shopcontent table.feesmart がありません（画像のみ・構造変更等）"),
+            extraction_diagnostics=diagnostics,
+        )
     tabs = {
         tab.get("id", "")[4:]: text(tab)
         for tab in soup.select(".fee_system_menu li[id^=menu]")
     }
     result = empty_result("unknown", "明示的な通常料金表がありません")
-    normal_tables = []
+    result["extraction_diagnostics"] = diagnostics
+    result["unpaired_tables"] = []
+    tables = []
     for table_index, table in enumerate(root.select("table.feesmart")):
         title = text(table.select_one("label.feetitle, td.feetitle"))
         section = table.find_parent(class_="osusume")
         section_title = tabs.get(section.get("id", ""), "") if section else ""
-        normal = ordinary_title(title, section_title)
         conditions = " / ".join(
             text(cell) for cell in table.select("td[colspan]") if not cell.select_one(".feetitle")
             and "feetitle" not in cell.get("class", [])
         )
-        if normal and conditions:
+        if conditions:
             result["additional_fees"].append({"section": title, "label": "料金表の条件（加算なし）", "text": conditions})
         table_candidates = []
         for row in table.select("tr"):
@@ -188,27 +325,27 @@ def parse_system_html(markup):
             if name is None or price is None:
                 continue
             label, raw_price = text(name), text(price)
-            if re.search(r"指名|姫予約|入会|交通|出張|別途|追加|ホテル|ルーム代|必須|サービス料", title + " " + label):
-                result["additional_fees"].append({
-                    "section": title, "label": label, "text": raw_price,
-                })
             candidate = classify_candidate({
                 "course_name": title, "label": label, "price_text": raw_price,
                 "conditions": conditions, "section": section_title,
                 "table_index": table_index,
             })
-            # Retain time/price evidence, not unrelated option descriptions.
-            if candidate["minutes"] or normal:
-                result["candidates"].append(candidate)
-            if normal:
-                table_candidates.append(candidate)
-        if normal:
-            normal_tables.append(table_candidates)
+            remember_candidate_fee(result, candidate)
+            result["candidates"].append(candidate)
+            table_candidates.append(candidate)
+        if table_candidates:
+            tables.append(table_candidates)
+        elif title or conditions:
+            result["unpaired_tables"].append({
+                "table_index": table_index, "course_name": title,
+                "section": section_title, "conditions": conditions,
+            })
     table_text = text(root)
     inclusive = bool(re.search(r"税込|消費税.*含", table_text))
     exclusive = bool(re.search(r"税別|税抜", table_text))
     result["tax"] = "ambiguous" if inclusive and exclusive else "included" if inclusive else "excluded" if exclusive else "unknown"
-    return select_ordinary_course(result, normal_tables)
+    result["decision_version"] = DECISION_VERSION
+    return select_ordinary_course(result, tables)
 
 
 def load_cache(path=CACHE):
@@ -231,6 +368,91 @@ def save_cache(payload, path=CACHE):
     temporary.replace(path)
 
 
+def merge_saved_evidence(current, incoming, source_digest):
+    """Prefer a newer observation, but retain competing originals and their provenance."""
+    merged = copy.deepcopy(current)
+    conflicts = []
+    for url, entry in incoming["shops"].items():
+        if shop_url(url) != url:
+            raise ValueError(f"保存店舗URLが正規形式ではありません: {url}")
+        old = merged["shops"].get(url)
+        if old == entry:
+            continue
+        imported = copy.deepcopy(entry)
+        imported["imported_evidence_sha256"] = source_digest
+        if old is None:
+            merged["shops"][url] = imported
+            continue
+        old_time = datetime.fromisoformat(old["checked_at"])
+        new_time = datetime.fromisoformat(entry["checked_at"])
+        if old_time.tzinfo is None or new_time.tzinfo is None:
+            raise ValueError(f"取得日時にタイムゾーンがないため証拠の新旧を判断できません: {url}")
+        observation_keys = ("candidates", "tax", "additional_fees", "source_url")
+        old_raw = [{key: c.get(key) for key in ("course_name", "section", "conditions", "label", "price_text", "table_index")} for c in old.get("candidates", [])]
+        new_raw = [{key: c.get(key) for key in ("course_name", "section", "conditions", "label", "price_text", "table_index")} for c in entry.get("candidates", [])]
+        same_evidence = old_raw == new_raw and all(old.get(key) == entry.get(key) for key in observation_keys if key != "candidates")
+        if same_evidence:
+            if new_time > old_time:
+                imported["previous_evidence"] = old
+                merged["shops"][url] = imported
+            continue
+        conflicts.append(url)
+        if new_time > old_time:
+            imported["previous_evidence"] = old
+            imported["evidence_merge_reason"] = "新しい取得日時を採用し、異なる旧証拠を保持"
+            merged["shops"][url] = imported
+        else:
+            kept = merged["shops"][url]
+            alternatives = kept.setdefault("alternate_evidence", [])
+            if imported not in alternatives:
+                alternatives.append(imported)
+            kept["evidence_merge_reason"] = "新しいローカル証拠を保持。異なる取り込み証拠も保管"
+            if new_time == old_time:
+                kept.update(
+                    status="unknown", selected=None, evidence_conflict=True,
+                    reason="同一取得日時で保存証拠が矛盾するため自動選択しません",
+                )
+    return merged, conflicts
+
+
+def reprocess_snapshot(path=CACHE, source=None):
+    """Re-evaluate an explicit snapshot once, refusing to overwrite a concurrent writer."""
+    path = Path(path)
+    before = path.read_bytes() if path.exists() else None
+    payload = json.loads(before) if before is not None else {"version": 1, "shops": {}}
+    if payload.get("version") != 1 or not isinstance(payload.get("shops"), dict):
+        raise ValueError("料金キャッシュの形式が不正です")
+    conflicts = []
+    source_bytes = None
+    if source is not None:
+        source = Path(source)
+        source_bytes = source.read_bytes()
+        incoming = json.loads(source_bytes)
+        if incoming.get("version") != 1 or not isinstance(incoming.get("shops"), dict):
+            raise ValueError("取り込み元料金キャッシュの形式が不正です")
+        payload, conflicts = merge_saved_evidence(
+            payload, incoming, hashlib.sha256(source_bytes).hexdigest(),
+        )
+    transitions = {}
+    for url, entry in list(payload["shops"].items()):
+        if entry.get("evidence_conflict") or entry.get("status") not in {"ok", "unknown"}:
+            continue
+        result = reprocess_cached_entry(entry)
+        payload["shops"][url] = result
+        key = entry["status"] + " -> " + result["status"]
+        transitions[key] = transitions.get(key, 0) + 1
+    if (path.read_bytes() if path.exists() else None) != before:
+        raise RuntimeError("料金キャッシュが処理中に更新されたため保存を中止しました。収集完了後に再実行してください")
+    if source is not None and source.read_bytes() != source_bytes:
+        raise RuntimeError("取り込み元が処理中に更新されたため保存を中止しました")
+    payload["analysis_inputs"] = {
+        "destination_sha256": hashlib.sha256(before).hexdigest() if before is not None else None,
+        "imported_sha256": hashlib.sha256(source_bytes).hexdigest() if source_bytes is not None else None,
+    }
+    save_cache(payload, path)
+    return payload, transitions, conflicts
+
+
 def fetch_price(session, url):
     """One request per shop; never follow access/age-check redirects."""
     try:
@@ -240,7 +462,7 @@ def fetch_price(session, url):
             if response.status_code in {401, 403, 429}:
                 return empty_result("restricted", f"HTTP {response.status_code}（回避しません）")
             if 300 <= response.status_code < 400:
-                return empty_result("redirect", f"HTTP {response.status_code}（転送先へ移動しません）")
+                return redirect_result(response.status_code, response.headers.get("Location", ""))
             response.raise_for_status()
             body = bytearray()
             for chunk in response.iter_content(65536):
@@ -254,6 +476,18 @@ def fetch_price(session, url):
         return empty_result("error", str(error))
 
 
+def redirect_result(status, location):
+    location = location if isinstance(location, str) else ""
+    age_gate = bool(re.match(
+        r"^https?://(?:img\.|www\.)?cityheaven\.net/cs/nenrei/", location, re.I,
+    ))
+    return {
+        **empty_result("redirect", f"HTTP {status}（{'年齢確認への転送・' if age_gate else ''}転送先へ移動しません）"),
+        "http_status": status, "redirect_location": location,
+        "redirect_kind": "age_verification" if age_gate else "unverified",
+    }
+
+
 def known_shops():
     urls = set()
     for filename in ("ns_senmon_reports.jsonl", "okinilove_reviews.jsonl", "tokai_fuzoku_reports.jsonl"):
@@ -263,6 +497,46 @@ def known_shops():
                 if normalized:
                     urls.add(normalized)
     return sorted(urls)
+
+
+def unresolved_categories(entry):
+    """Evidence categories may overlap; absence of extraction is not absence of prices."""
+    if entry.get("status") == "ok":
+        return []
+    if entry.get("status") == "redirect":
+        return ["年齢確認への転送" if entry.get("redirect_kind") == "age_verification" else "転送先未確認"]
+    if entry.get("status") != "unknown":
+        return [STATUSES.get(entry.get("status"), "未取得")]
+    if not entry.get("candidates"):
+        return ["候補未抽出・原DOM不足"]
+    categories = set()
+    for decision in entry.get("table_decisions", []):
+        if decision["role"] == "unresolved":
+            categories.add("通常・商品体系の識別不足")
+        if decision["role"] == "conditional":
+            categories.add("時間帯・会員等の適用条件")
+        if "部分料金" in decision["reason"]:
+            categories.add("入浴・入泉料のみ・基本体系不足")
+    for candidate in entry["candidates"]:
+        if candidate.get("context_role") not in {"base", "structural", "unlabeled"}:
+            continue
+        if candidate.get("row_role") != "course" or candidate.get("eligible"):
+            continue
+        value = normalized(candidate["price_text"])
+        amount_count = len(re.findall(r"(?:[¥￥]\s*\d[\d,]*|\d[\d,]*\s*(?:円|yen))", value, re.I))
+        if amount_count > 1:
+            categories.add("複数金額・内訳・税込併記")
+        elif re.search(r"[~〜～]|以上|から", value):
+            categories.add("範囲・下限料金")
+        elif re.search(r"\d+\s*pt", value, re.I):
+            categories.add("ポイントと金額の関係不明")
+        else:
+            categories.add("時間・単一金額表記未対応")
+    if "複数体系" in entry.get("reason", ""):
+        categories.add("複数体系・競合表")
+    if "DOM" in entry.get("reason", "") or "表境界" in entry.get("reason", ""):
+        categories.add("旧候補の表境界不足")
+    return sorted(categories) or ["限定・追加料金等のみ"]
 
 
 PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" aria-label="店舗料金">
@@ -294,7 +568,11 @@ def price_info(entry, url):
             f'（{selected["course_name"]} / {selected["label"]}）'
         )
     else:
-        heading = f'料金不明（{STATUSES.get(status, "判別不可")}）'
+        state = (
+            "候補あり・判定保留" if status == "unknown" and entry.get("candidates") else
+            "候補未抽出・判定保留" if status == "unknown" else STATUSES.get(status, "判定保留")
+        )
+        heading = f'料金不明（{state}）'
         evidence = entry.get("reason") or "通常コース料金は未取得です"
     tax = {
         "included": "税込表記", "excluded": "税別表記（税を加算していません）",
@@ -315,13 +593,24 @@ def price_info(entry, url):
         f' / 保存候補の再解析 {entry["reprocessed_at"]}（ページ再取得なし・税条件は元記録を保持）'
         if entry.get("reprocessed_at") else ""
     )
+    redirect_evidence = (
+        f'<p>観測した転送先（未追跡・店舗URLは変更しません）: {escape(entry["redirect_location"])}</p>'
+        if entry.get("redirect_location") else ""
+    )
+    decisions = entry.get("table_decisions", [])
+    decision_html = (
+        '<ul class="shop-price-decisions">' + "".join(
+            f'<li>{escape(item["course_name"] or "見出しなし")} / '
+            f'{escape(item["section"])}: {escape(item["reason"])}</li>' for item in decisions
+        ) + "</ul>" if decisions else ""
+    )
     return (
         f'<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">{escape(heading)}</span>'
         f'<details class="shop-price-evidence"><summary>料金の根拠・別途費用</summary>'
         f'<p>{escape(evidence)}</p><p>{escape(tax)}</p>'
         f'<p>条件: {escape((selected or {}).get("conditions") or "詳細な適用条件は出典を確認してください")}</p>'
         f'<p>基本料金に加算しない別情報: {escape(fee_text)}</p>'
-        f'<p>{escape(entry.get("reason", ""))}</p>'
+        f'<p>{escape(entry.get("reason", ""))}</p>{decision_html}{redirect_evidence}'
         f'<p>確認日時: {escape(checked + saved + reprocessed)}</p>{origin}</details></div>'
     )
 
@@ -406,12 +695,25 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="CityHeaven店舗料金の限定取得／保存HTML取り込み（通常生成は通信なし）")
     parser.add_argument("--shop-url", action="append", default=[], help="取得対象店舗URL。複数指定可")
     parser.add_argument("--html-file", type=Path, help="1店舗の保存HTMLを取り込む（通信なし）")
-    parser.add_argument("--reprocess-cache", type=Path, help="指定JSONの保存候補だけ再解析（通信なし・--shop-url必須）")
+    parser.add_argument("--reprocess-cache", type=Path, help="保存候補の入力JSON（通信なし・--shop-url または --reprocess-all と併用）")
+    parser.add_argument("--reprocess-all", action="store_true", help="現在の全保存候補を通信なしで再判定。--reprocess-cache指定で証拠を読取統合")
     parser.add_argument("--all", action="store_true", help="3レポート保存URLの全店舗を明示的に取得")
     parser.add_argument("--limit", type=int, help="全店舗取得の上限")
     parser.add_argument("--refresh", action="store_true", help="既存の取得結果も更新（既定は未取得店舗だけ）")
     parser.add_argument("--summary", action="store_true", help="保存料金の数値分布と状態を表示")
     args = parser.parse_args(argv)
+    if args.reprocess_all:
+        if args.all or args.shop_url or args.html_file or args.limit or args.refresh:
+            parser.error("--reprocess-all は取得・店舗選択・limit・refreshと併用できません")
+        payload, transitions, conflicts = reprocess_snapshot(source=args.reprocess_cache)
+        print(f"保存候補の再判定 {transitions} / 証拠の相違 {len(conflicts)}件（別証拠を保持）")
+        print(f"保存店舗 {len(payload['shops'])} / 状態 " + str({
+            status: sum(entry["status"] == status for entry in payload["shops"].values()) for status in STATUSES
+        }))
+        print("未解決理由（重複あり）: " + str(dict(Counter(
+            reason for entry in payload["shops"].values() for reason in unresolved_categories(entry)
+        ))))
+        return int(any(entry["status"] != "ok" for entry in payload["shops"].values()))
     if args.limit is not None and args.limit < 1:
         parser.error("--limit は1以上です")
     if args.all and (args.shop_url or args.html_file or args.reprocess_cache):
@@ -473,6 +775,9 @@ def main(argv=None):
     )
     states = {status: sum(entry["status"] == status for entry in cache["shops"].values()) for status in STATUSES}
     print(f"保存店舗 {len(cache['shops'])} / 状態 {states}")
+    print("未解決理由（重複あり）: " + str(dict(Counter(
+        reason for entry in cache["shops"].values() for reason in unresolved_categories(entry)
+    ))))
     print(f"保存サンプルの60分換算分布（全店舗の代表性なし）: {values} 円")
     return int(bool(failures))
 
