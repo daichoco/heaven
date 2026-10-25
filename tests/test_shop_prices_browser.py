@@ -26,6 +26,13 @@ SHOP = "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/"
 PROFILES = [SHOP + "girlid-123/", SHOP.replace("airabugakuen", "unknown") + "girlid-456/"]
 
 
+def known_course():
+    soup = BeautifulSoup(
+        (ROOT / "tests" / "fixtures" / "shop_prices_airabugakuen.html").read_text(encoding="utf-8"), "html.parser")
+    return shop_prices.parse_system_html(
+        '<div id="shopcontent">' + str(soup.select("table.feesmart")[1]) + "<p>税込</p></div>")
+
+
 def pages():
     records = [{
         "shop_name": f"Shop{index}", "name": f"Person{index}", "girl_url": profile,
@@ -66,8 +73,7 @@ def pages():
 
 class ShopPriceBrowserTests(unittest.TestCase):
     def test_status_labels_consistent_in_all_six_generators(self):
-        entry = shop_prices.parse_system_html(
-            (ROOT / "tests" / "fixtures" / "shop_prices_airabugakuen.html").read_text(encoding="utf-8"))
+        entry = known_course()
         states = [
             ({}, "未取得"),
             (dict(entry, status="unknown", selected=None), "候補あり・判定保留"),
@@ -125,9 +131,7 @@ class ShopPriceBrowserTests(unittest.TestCase):
                     browser.close()
 
     def test_native_filter_composition_unknown_empty_reset_and_disclosure(self):
-        entry = shop_prices.parse_system_html(
-            (ROOT / "tests" / "fixtures" / "shop_prices_airabugakuen.html").read_text(encoding="utf-8")
-        )
+        entry = known_course()
         cache = {"version": 1, "shops": {SHOP: entry}}
         with patch.object(shop_prices, "load_cache", return_value=cache):
             generated, people = pages()

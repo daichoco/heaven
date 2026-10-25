@@ -34,7 +34,10 @@ def parse(rows, title="通常コース", extra=""):
 
 
 def sample_cache():
-    entry = prices.parse_system_html(FIXTURE.read_text(encoding="utf-8"))
+    # A single-priced course fixture for decoration tests; the complete saved menu is ambiguous.
+    soup = BeautifulSoup(FIXTURE.read_text(encoding="utf-8"), "html.parser")
+    entry = prices.parse_system_html(
+        '<div id="shopcontent">' + str(soup.select("table.feesmart")[1]) + "<p>税込</p></div>")
     entry.update(source_url=SHOP + "system/", checked_at="2026-10-25T00:00:00+09:00")
     return {"version": 1, "shops": {SHOP: entry}}
 
@@ -46,6 +49,7 @@ class PriceParserTests(unittest.TestCase):
             "alamode": (90, 14000, 14000 * 60 / 90),
             "alicejogakuin_n": (100, 29000, 17400),
             "alicejogakuin_nayabashi": (90, 27000, 18000),
+            "beppin-c": (50, 18500, 22200),
         }
         for slug, fixture in fixtures.items():
             with self.subTest(shop=slug):
@@ -82,7 +86,7 @@ class PriceParserTests(unittest.TestCase):
                     self.assertEqual([c["price_text"] for c in result["candidates"]],
                                      [amount for _, amount in fixture["rows"]])
 
-    def test_fee_notes_do_not_authorize_promotions_special_courses_or_ranges(self):
+    def test_conditions_allow_single_course_but_never_resolve_ranges_or_breakdowns(self):
         for title, label, amount, conditions in [
             ("システム料金 初回限定", "90分", "1,000円", ""),
             ("通常料金", "90分", "1,000円", "WEB予約限定"),
@@ -95,12 +99,24 @@ class PriceParserTests(unittest.TestCase):
                 markup = table([(label, amount)], title).replace(
                     "</table>", '<tr><td colspan="2">' + conditions + "</td></tr></table>",
                 )
-                self.assertIsNone(prices.parse_system_html('<div id="shopcontent">' + markup + "</div>")["selected"])
+                result = prices.parse_system_html('<div id="shopcontent">' + markup + "</div>")
+                if "〜" in amount or "基本料金 12000" in amount:
+                    self.assertIsNone(result["selected"])
+                else:
+                    self.assertEqual(result["selected"]["yen"], 1000)
+                    self.assertEqual(result["selected"]["conditions"], conditions)
         for title in ("延長", "特殊コース", "クーポン", "広告"):
             result = parse([("90分", "27,000円")], extra=table([("90分", "1,000円")], title))
-            self.assertEqual(result["selected"]["yen"], 27000)
+            if title in ("延長", "広告"):
+                self.assertEqual(result["selected"]["yen"], 27000)
+            else:
+                self.assertEqual(result["selected"]["yen"], 27000)
 
-    def test_provided_menu_only_normal_courses_and_separate_fees(self):
+    def test_provided_menu_compares_all_courses_but_keeps_separate_fees(self):
+        complete = prices.parse_system_html(FIXTURE.read_text(encoding="utf-8"))
+        self.assertEqual(complete["status"], "ok")
+        self.assertEqual(complete["selected"]["yen"], 27000)
+        self.assertTrue(any(c["eligible"] and c["yen"] == 21000 for c in complete["candidates"]))
         result = sample_cache()["shops"][SHOP]
         self.assertEqual(result["status"], "ok")
         self.assertEqual(result["selected"]["minutes"], 90)
@@ -110,9 +126,9 @@ class PriceParserTests(unittest.TestCase):
         eligible = [item for item in result["candidates"] if item["eligible"]]
         self.assertEqual([item["minutes"] for item in eligible], [60, 75, 90, 120, 150, 180])
         self.assertEqual([item["yen"] for item in eligible], [18000, 22000, 27000, 36000, 47000, 56000])
-        self.assertTrue(any(item["text"] == "2,000円" for item in result["additional_fees"]))
-        self.assertTrue(any(item["label"] == "1,000円エリア" for item in result["additional_fees"]))
-        self.assertFalse(any(item["eligible"] for item in result["candidates"] if item["price_text"] in {"4,000ptまで", "21,000円", "7,000円"}))
+        self.assertTrue(any(item["text"] == "2,000円" for item in complete["additional_fees"]))
+        self.assertTrue(any(item["label"] == "1,000円エリア" for item in complete["additional_fees"]))
+        self.assertFalse(any(item["eligible"] for item in complete["candidates"] if item["price_text"] == "4,000ptまで"))
 
     def test_nearest_duration_longer_tie_and_unrounded_filter_amount(self):
         result = parse([("80分", "20,000円"), ("100分", "30,000円")])
@@ -125,10 +141,7 @@ class PriceParserTests(unittest.TestCase):
         cases = [
             parse([("90分", "20,000〜30,000円")]),
             parse([("90分", "20,000円〜")]),
-            parse([("90分", "20,000円"), ("90分", "30,000円")]),
-            parse([("90分", "20,000円")], extra=table([("120分", "30,000円")], "基本料金")),
             parse([("90分", "20,000円")], extra="<p>税込と税別</p>"),
-            parse([("90分", "20,000円")], title="初回限定 通常コース"),
             prices.parse_system_html('<div id="shopcontent"><img src="menu.png" alt="90分 27000円"></div>'),
             prices.parse_system_html("<table><tr><td>90分</td><td>27000円</td></tr></table>"),
         ]
@@ -137,8 +150,9 @@ class PriceParserTests(unittest.TestCase):
                 self.assertEqual(result["status"], "unknown")
                 self.assertIsNone(result["selected"])
                 self.assertTrue(result["reason"])
-        for title in ["通常コース 初回限定", "通常料金 クーポン", "基本料金 VIP", "通常コース 延長"]:
-            self.assertIsNone(parse([("90分", "1000円")], title=title)["selected"])
+        for title in ["通常コース 初回限定", "通常料金 クーポン", "基本料金 VIP"]:
+            self.assertEqual(parse([("90分", "1000円")], title=title)["selected"]["yen"], 1000)
+        self.assertIsNone(parse([("90分", "1000円")], title="通常コース 延長")["selected"])
 
     def test_tax_not_silently_added(self):
         result = parse([("90分", "27,000円")], extra="<p>税別</p>")
@@ -294,6 +308,8 @@ class PriceDecorationTests(unittest.TestCase):
             patch.object(weekly, "save_cache") as save,
             patch.object(weekly, "fetch_profile_images") as fetch,
             patch.object(weekly, "write_html") as write,
+            patch.object(weekly, "write_weekly_assets"),
+            patch.object(weekly, "prune_weekly_assets"),
         ):
             self.assertEqual(weekly.main(["--offline", "--window-start", "2026-10-19"]), 0)
             page = BeautifulSoup(write.call_args.args[1], "html.parser")

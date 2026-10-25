@@ -61,8 +61,11 @@ class ResidualPriceTests(unittest.TestCase):
                 with self.subTest(label=label, value=value):
                     result = prices.reprocess_cached_entry(entry("通常コース", [(label, value)]))
                     self.assertEqual(result["selected"]["yen"], 27000)
-        for label in ("90min～", "90分以上", "90分会員限定", "90分(会員100分)", "A90分", "90分要予約"):
+        for label in ("90min～", "90分以上", "90分(会員100分)"):
             self.assertIsNone(prices.reprocess_cached_entry(entry("通常コース", [(label, "27,000円")]))["selected"], label)
+        for label in ("90分会員限定", "A90分", "90分要予約"):
+            result = prices.reprocess_cached_entry(entry("通常コース", [(label, "27,000円")]))
+            self.assertEqual(result["selected"]["label"], label)
         for value in ("¥27,000～", "27,000円→20,000円", "27,000円(税込29,700円)",
                       "27,000円(15pt)", "27,000円+交通費2,000円", "27,000円〜37,000円", "27,000円 会員限定"):
             self.assertIsNone(prices.reprocess_cached_entry(entry("通常コース", [("90分", value)]))["selected"], value)
@@ -90,7 +93,7 @@ class ResidualPriceTests(unittest.TestCase):
             (ROOT / "tests" / "fixtures" / "shop_prices_partial_fee.html").read_text(encoding="utf-8"))
         self.assertEqual(result["status"], "unknown")
         self.assertIn("部分料金", result["reason"])
-        self.assertIn("入浴・入泉料のみ・基本体系不足", prices.unresolved_categories(result))
+        self.assertIn("入浴・入泉料のみ・掲載コース不足", prices.unresolved_categories(result))
         self.assertEqual(len(result["candidates"]), 6)
         self.assertTrue(any("別途サービス料金" in item["text"] for item in result["additional_fees"]))
         for rows in ([("ご入浴料 70分", "13,200円"), ("指名料", "3,000円")],

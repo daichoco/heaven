@@ -202,7 +202,7 @@
     <nav aria-label="ページ移動" class="page-nav"><a href="index.html">← 一覧</a></nav>
     <h1>出勤カレンダーとレビュー一覧</h1>
     <section aria-label="店舗料金" class="shop-price-filters" id="shopPriceFilters">
-      <strong>店舗の通常料金（60分換算・参考）</strong>
+      <strong>掲載コースの60分換算目安（利用条件あり）</strong>
       <div class="shop-price-inputs">
         <label>価格帯<select id="shopPriceBand">
             <option value="">すべて</option>
@@ -215,8 +215,9 @@
             <option value="unknown">料金不明</option>
           </select></label>
       </div>
-      <p>通常90分を優先し、なければ最も近い時間（同距離は長い方）を60分換算。実際の60分コース料金・確定支払総額ではありません。
-指名料・交通費・別途必須料金は加算していません。税込・税別・税不明は根拠欄を確認してください。未取得を安価とは扱いません。</p>
+      <p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
+選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
+指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
     </section>
     <div class="filter-group">
       <strong>表示条件：</strong><br />
@@ -334,10 +335,12 @@
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/tokyo/A1317/A131703/aromatiger/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -385,24 +388,32 @@
             <td data-date="10/22" data-day="5" data-label="10/22(木)"><span class="cell">-</span></td>
             <td data-date="10/23" data-day="6" data-label="10/23(金)"><span class="cell">-</span></td>
           </tr>
-          <tr data-report="false" data-shop-price="" data-shop-price-status="unknown" data-shops="Sabbat|ソープ(大衆/金津園)">
+          <tr data-report="false" data-shop-price="23333.333333333332" data-shop-price-status="ok" data-shops="Sabbat|ソープ(大衆/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-68963674/?lo=1" target="_blank">かぐら♡【新人】（22歳...</a><br /><span class="shop-info">Sabbat</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 23,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
+                  <p>掲載コース 90分 35,000円（⚜️ゴールドキャスト⚜️ / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
-                  <ul class="shop-price-decisions">
-                    <li>★総額料金（指名料込み）★ / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>比較対象: ★総額料金（指名料込み）★ / 料金システム / 90分 / 32,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: ★おまかせ割引（総額）★ / 料金システム / 90分 / 31,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: 🌈レインボーキャスト🌈 / キャスト別料金表✨ / 90分 / 33,000円 — 条件: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可</li>
+                    <li>比較対象: 💠プラチナキャスト💠 / キャスト別料金表✨ / 90分 / 34,000円 — 条件: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
+                    <li>採用金額: ⚜️ゴールドキャスト⚜️ / キャスト別料金表✨ / 90分 / 35,000円 — 条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載金額に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>★総額料金（指名料込み）★ / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -453,10 +464,12 @@
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/osaka/A2701/A270101/valentine_osaka/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -511,10 +524,12 @@
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: パネル指名: 2,000円 / 本指名(2回目以降): 2,000円 / 週末・祝日料金: 2,000円 / にゃんにゃんスタイル(コスプレ): 5,000円 / パネル指名: 2000円 / 本指名(2回目以降): 2,000円 / にゃんにゃんスタイル(コスプレ): 5,000円</p>
+                  <p>掲載金額に加算しない別情報: パネル指名: 2,000円 / 本指名(2回目以降): 2,000円 / 週末・祝日料金: 2,000円 / にゃんにゃんスタイル(コスプレ): 5,000円 / パネル指名: 2000円 / 本指名(2回目以降): 2,000円 / にゃんにゃんスタイル(コスプレ): 5,000円</p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:34:21+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/romane/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:34:21+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/romane/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(高級/金津園)</span>
@@ -567,13 +582,15 @@
                   <summary>料金の根拠・別途費用</summary>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <ul class="shop-price-decisions">
                     <li>料金システム / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:56+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/eddies/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:56+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/eddies/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -647,10 +664,12 @@
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:30:47+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/mobius/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:30:47+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/mobius/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ヘルス(人妻/錦・栄・矢場町)</span>
@@ -730,21 +749,23 @@
 リピも全然有りだと思います。</pre><br /><a href="http://okinilove.com/blog-entry-2994.html#supa2" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="18000.0" data-shop-price-status="ok" data-shops="名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)">
+          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-52941618/?lo=1" target="_blank">ことり♡圧倒的本指名率№...</a><br /><button aria-controls="review-okinilove-6" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-6')" type="button">レビュー(okinilove 5件)</button><br /><span class="shop-info">名古屋デリヘル GOLDニット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 18,000円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 30,000円（基本コース / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税の扱い不明</p>
-                  <p>条件: ※指名料、交通費、ホテル代別途</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ※指名料、交通費、ホテル代別途 / 交通費: 1,000円～ / 料金表の条件（加算なし）: ※交通費、ホテル代別途 ※※詳細はお電話にてお問い合わせください。</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ※指名料、交通費、ホテル代別途 / 交通費: 1,000円～ / 料金表の条件（加算なし）: ※交通費、ホテル代別途 ※※詳細はお電話にてお問い合わせください。</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>基本コース / 料金システム: 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>3Pコース / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                    <li>基本コース / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>3Pコース / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:29:39+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:29:39+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -862,20 +883,24 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
 でも、いい子です。オススメです。</pre><br /><a href="https://okinilove.com/blog-entry-2766.html#yaki" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="26666.666666666668" data-shop-price-status="ok" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-56112055/?lo=1" target="_blank">楓/Kaede💖刺激的な...</a><br /><button aria-controls="review-merged-7" aria-expanded="false" onclick="toggleReviewRow('review-merged-7')" type="button">レビュー(merged)</button><br /><span class="shop-info">ジュリエット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 26,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 40,000円（システム(総額) / 90分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>システム(総額) / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: システム(総額) / 料金システム / 90分コース / 40,000円 — 条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>システム(総額) / 料金システム: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -936,21 +961,23 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               </ul>
             </td>
           </tr>
-          <tr data-report="false" data-shop-price="21600.0" data-shop-price-status="ok" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
+          <tr data-report="false" data-shop-price="" data-shop-price-status="unknown" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-57033346/?lo=1" target="_blank">めい🔐（21歳）</a><br /><span class="shop-info">きみにメロン組</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 21,600円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 36,000円（－SYSTEM－ / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>－SYSTEM－ / : 料金表の文脈と複数時間/単一金額の対応</li>
-                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 限定・割引・会員等の対象コース</li>
+                    <li>－SYSTEM－ / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -1003,10 +1030,12 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 180分 ネット予約→ 190分: 36,000円 ネット予約 → 35,000円 / 150分 ネット予約→ 160分: 30,000円 ネット予約 → 29,000円 / 120分 ネット予約→ 130分: 24,000円 ネット予約 → 23,000円 / 90分 ネット予約→ 100分: 18,000円 ネット予約 → 17,000円 / 60分 ネット予約→ 70分: 12,000円 ネット予約 → 11,000円 / 名古屋市内: 1,000円～ / 2,000円: </p>
+                  <p>掲載金額に加算しない別情報: 180分 ネット予約→ 190分: 36,000円 ネット予約 → 35,000円 / 150分 ネット予約→ 160分: 30,000円 ネット予約 → 29,000円 / 120分 ネット予約→ 130分: 24,000円 ネット予約 → 23,000円 / 90分 ネット予約→ 100分: 18,000円 ネット予約 → 17,000円 / 60分 ネット予約→ 70分: 12,000円 ネット予約 → 11,000円 / 名古屋市内: 1,000円～ / 2,000円: </p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:29:57+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/siroutom_n/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:29:57+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/siroutom_n/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -1106,21 +1135,23 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
 また時間見て今度は長い時間楽しもうと思います！</pre><br /><a href="https://okinilove.com/blog-entry-2768.html#siroto" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="18000.0" data-shop-price-status="ok" data-shops="名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)">
+          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="名古屋デリヘル GOLDニット|デリヘル(スタンダード/名古屋駅周辺)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/girlid-63052627/?lo=1" target="_blank">りず♡完未!えっちに貪欲...</a><br /><button aria-controls="review-okinilove-10" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-10')" type="button">レビュー(okinilove)</button><br /><span class="shop-info">名古屋デリヘル GOLDニット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 18,000円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 30,000円（基本コース / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税の扱い不明</p>
-                  <p>条件: ※指名料、交通費、ホテル代別途</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ※指名料、交通費、ホテル代別途 / 交通費: 1,000円～ / 料金表の条件（加算なし）: ※交通費、ホテル代別途 ※※詳細はお電話にてお問い合わせください。</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ※指名料、交通費、ホテル代別途 / 交通費: 1,000円～ / 料金表の条件（加算なし）: ※交通費、ホテル代別途 ※※詳細はお電話にてお問い合わせください。</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>基本コース / 料金システム: 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>3Pコース / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                    <li>基本コース / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>3Pコース / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:29:39+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:29:39+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/moedeli/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -1207,10 +1238,12 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:30:47+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/mobius/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:30:47+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/mobius/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ヘルス(人妻/錦・栄・矢場町)</span>
@@ -1299,10 +1332,12 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/hyogo/A2801/A280102/koisuru_bunny/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -1352,18 +1387,22 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
           </tr>
           <tr data-report="true" data-shop-price="39000.0" data-shop-price-status="ok" data-shops="シャトールーブル|ソープ(高級/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-65339206/?lo=1" target="_blank">環　かんな（21歳）</a><br /><button aria-controls="review-merged-13" aria-expanded="false" onclick="toggleReviewRow('review-merged-13')" type="button">レビュー(merged)</button><br /><button aria-controls="review-ns-13" aria-expanded="false" onclick="toggleReviewRow('review-ns-13')" type="button">レビュー(NS専門 2件)</button><br /><span class="shop-info">シャトールーブル</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 39,000円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 39,000円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 65,000円（料金システム / 100分コース）</p>
+                  <p>掲載コース 100分 65,000円（料金システム / 100分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: ※130・160コースでのご指名は＋3,000円になります。 ※延長コースもご用意しております。</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ※130・160コースでのご指名は＋3,000円になります。 ※延長コースもご用意しております。</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
-                  <ul class="shop-price-decisions">
-                    <li>料金システム / : 料金表の文脈と複数時間/単一金額の対応</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 料金システム / / 100分コース / 65,000円 — 条件: ※130・160コースでのご指名は＋3,000円になります。 ※延長コースもご用意しております。</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:23+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/rubul/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※130・160コースでのご指名は＋3,000円になります。 ※延長コースもご用意しております。</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ※130・160コースでのご指名は＋3,000円になります。 ※延長コースもご用意しております。</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>料金システム / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:23+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/rubul/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(高級/金津園)</span>
@@ -1469,13 +1508,15 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <summary>料金の根拠・別途費用</summary>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 安城: 無料 / 刈谷/知立: 1,000円 / 岡崎/高浜/東浦: 2,000円 / 豊田/大府/碧南/三好/ 半田/西尾/東郷/幸田: 3,000円</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 安城: 無料 / 刈谷/知立: 1,000円 / 岡崎/高浜/東浦: 2,000円 / 豊田/大府/碧南/三好/ 半田/西尾/東郷/幸田: 3,000円</p>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <ul class="shop-price-decisions">
                     <li>基本料金 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:22+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/color/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:22+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/color/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/安城)</span>
@@ -1563,21 +1604,23 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
 多くは語らず。ご自身で確認して下さい🙇</pre><br /><a href="https://okinilove.com/blog-entry-2840.html#nikorasu" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="21600.0" data-shop-price-status="ok" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-60067302/?lo=1" target="_blank">あい🔐（20歳）</a><br /><button aria-controls="review-ns-15" aria-expanded="false" onclick="toggleReviewRow('review-ns-15')" type="button">レビュー(NS専門 2件)</button><br /><span class="shop-info">きみにメロン組</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 21,600円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 36,000円（－SYSTEM－ / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>－SYSTEM－ / : 料金表の文脈と複数時間/単一金額の対応</li>
-                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 限定・割引・会員等の対象コース</li>
+                    <li>－SYSTEM－ / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -1679,26 +1722,28 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません / 注記の時間帯・曜日・ランク条件を基本料金から分離できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 公式アプリダウンロードで お得な特典GET さらにメルマガ登録でお得な情報をゲット！ Android の方はｺﾁﾗ iPhone・ガラケ― の方はｺﾁﾗ / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ▼0yen(UPなし) ・平日(月〜金)16時55分迄の到着 ▼1,000yenUP ・平日(月〜金)17時以降の到着 ▼2,000yenUP ・平日(月〜木)22時以降の到着 ・土曜日/日曜日/祝日 ▼3,000yenUP ・金曜日、土曜日、日曜日、祝日の22時以降の到着 / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 ※状況により派遣が出来ない場合が御座いますm(._.)m / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ※ご予約状況によりお断りする場合も御座います。ご了承下さい。 / 料金表の条件（加算なし）: ※プレミア料の女の子のプロフィールをご確認下さいませ。 ★が付いてる女の子が対象です。 ※プレミアの女の子をご指名する場合は指名料＋プレミア料となりますのでご了承下さいm(_ _)m / フリー: 0yen / 指名料: 2,000yen / プレミア料（★星1つ）: 2,000yen / 料金表の条件（加算なし）: ※先行予約は、総額コースのみの受付となります。（岡崎IC周辺） ※基本、3日前以上のご予約・受付は行っておりません。 ※ネット予約は毎朝6:00に受付日が切り替わります。 システムの仕様上、毎朝6:00～7:59の間は、電話予約より先に**2日前の先行予約（仮予約）**をネット予約からお申し込みいただけます。 ※📞電話予約は、毎朝8:30より受付開始となります。 ※キャンセルの場合は、キャンセル料金が発生いたしますので、あらかじめご了承ください。 / 料金表の条件（加算なし）: ※1 一部ホテル除く。 詳しくの場所はお気軽にお問合せ下さい。 ※交通費有料エリアは状況により派遣出来ない場合も御座います。 今からスグの派遣希望であれば派遣確率アップです♪ / ホテル(岡崎ＩＣ周辺*1）: 無料 / 岡崎市 （一部除く）: 1,000yen / 岡崎市外: 2,000yen～ / 料金表の条件（加算なし）: ※コスプレ種類はお電話にてご確認下さい。 ※女の子により対応出来ない場合も御座います。 / 料金表の条件（加算なし）: ※ご予約の際はご注意下さい。 ※女の子がお休み、遅刻でのキャンセルはキャンセル料は発生致しません。 尚、その際はお店側からキャンセル料をお支払いする事も出来ませんのでご了承下さい。 大変申し訳ございません。</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません / 注記の時間帯・曜日・ランク条件を基本料金から分離できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 公式アプリダウンロードで お得な特典GET さらにメルマガ登録でお得な情報をゲット！ Android の方はｺﾁﾗ iPhone・ガラケ― の方はｺﾁﾗ / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ▼0yen(UPなし) ・平日(月〜金)16時55分迄の到着 ▼1,000yenUP ・平日(月〜金)17時以降の到着 ▼2,000yenUP ・平日(月〜木)22時以降の到着 ・土曜日/日曜日/祝日 ▼3,000yenUP ・金曜日、土曜日、日曜日、祝日の22時以降の到着 / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 ※状況により派遣が出来ない場合が御座いますm(._.)m / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ※ご予約状況によりお断りする場合も御座います。ご了承下さい。 / 料金表の条件（加算なし）: ※プレミア料の女の子のプロフィールをご確認下さいませ。 ★が付いてる女の子が対象です。 ※プレミアの女の子をご指名する場合は指名料＋プレミア料となりますのでご了承下さいm(_ _)m / フリー: 0yen / 指名料: 2,000yen / プレミア料（★星1つ）: 2,000yen / 料金表の条件（加算なし）: ※先行予約は、総額コースのみの受付となります。（岡崎IC周辺） ※基本、3日前以上のご予約・受付は行っておりません。 ※ネット予約は毎朝6:00に受付日が切り替わります。 システムの仕様上、毎朝6:00～7:59の間は、電話予約より先に**2日前の先行予約（仮予約）**をネット予約からお申し込みいただけます。 ※📞電話予約は、毎朝8:30より受付開始となります。 ※キャンセルの場合は、キャンセル料金が発生いたしますので、あらかじめご了承ください。 / 料金表の条件（加算なし）: ※1 一部ホテル除く。 詳しくの場所はお気軽にお問合せ下さい。 ※交通費有料エリアは状況により派遣出来ない場合も御座います。 今からスグの派遣希望であれば派遣確率アップです♪ / ホテル(岡崎ＩＣ周辺*1）: 無料 / 岡崎市 （一部除く）: 1,000yen / 岡崎市外: 2,000yen～ / 料金表の条件（加算なし）: ※コスプレ種類はお電話にてご確認下さい。 ※女の子により対応出来ない場合も御座います。 / 料金表の条件（加算なし）: ※ご予約の際はご注意下さい。 ※女の子がお休み、遅刻でのキャンセルはキャンセル料は発生致しません。 尚、その際はお店側からキャンセル料をお支払いする事も出来ませんのでご了承下さい。 大変申し訳ございません。</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>お試し【総額】コース / : 限定・割引・会員等の対象コース</li>
-                    <li>オススメ【総額】コース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>ロング【総額】コース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>お試しコース / : 限定・割引・会員等の対象コース</li>
-                    <li>オススメ★コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>ロング★コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>【延長】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【指名料】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【先行予約】 / : 注記の時間帯・曜日・ランク条件を基本料金から分離できません</li>
-                    <li>【交通費】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【オプション】 / : 追加料金・特殊・総額等の別体系</li>
+                    <li>お試し【総額】コース / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>オススメ【総額】コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>ロング【総額】コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>お試しコース / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>オススメ★コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>ロング★コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>【延長】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【指名料】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【先行予約】 / : 時間コースではない追加情報の表</li>
+                    <li>【交通費】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【オプション】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
                     <li>【チェンジ・キャンセル】 / : 時間コースではない追加情報の表</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:58:53+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:58:53+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/岡崎)</span>
@@ -1760,20 +1805,24 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
           </tr>
           <tr data-report="true" data-shop-price="16200.0" data-shop-price-status="ok" data-shops="AVANCE|デリヘル(人妻/錦・栄・矢場町)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230103/avance/girlid-48193857/?lo=1" target="_blank">なみ（28歳）</a><br /><button aria-controls="review-merged-17" aria-expanded="false" onclick="toggleReviewRow('review-merged-17')" type="button">レビュー(merged)</button><br /><button aria-controls="review-okinilove-17" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-17')" type="button">レビュー(okinilove 4件)</button><br /><span class="shop-info">AVANCE</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 16,200円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 16,200円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 27,000円（通常コース / 100分）</p>
+                  <p>掲載コース 100分 27,000円（通常コース / 100分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 待合せ・デリバリー: 2,000円～ / 70分【初回指名】: 16,000円 / 70分【リピート指名】: 17,000円 / 人気コース 100分【初回指名】: 24,000円 / 人気コース 100分【リピート指名】: 25,000円 / 130分【初回指名】: 30,000円 / 130分【リピート指名】: 31,000円 / 指名料: 2,000円 / 待合せ・デリバリー: 2,000円～ / 料金表の条件（加算なし）: ※アヴァンスグループ各店にてご利用できる上限ポイントが異なります。 / 延長30分: 11,000円 / 延長60分: 22,000円</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
-                  <ul class="shop-price-decisions">
-                    <li>通常コース / 通常料金: 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>利用可能ポイント / 通常料金: 追加料金・特殊・総額等の別体系</li>
-                    <li>利用可能ポイント / 🏆最安値ネット予約: 限定・割引・会員等の対象コース</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 通常コース / 通常料金 / 100分 / 27,000円 — 条件: 記載条件は出典で確認してください</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:30:13+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/avance/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 待合せ・デリバリー: 2,000円～ / 70分【初回指名】: 16,000円 / 70分【リピート指名】: 17,000円 / 人気コース 100分【初回指名】: 24,000円 / 人気コース 100分【リピート指名】: 25,000円 / 130分【初回指名】: 30,000円 / 130分【リピート指名】: 31,000円 / 指名料: 2,000円 / 待合せ・デリバリー: 2,000円～ / 料金表の条件（加算なし）: ※アヴァンスグループ各店にてご利用できる上限ポイントが異なります。 / 延長30分: 11,000円 / 延長60分: 22,000円</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>通常コース / 通常料金: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>利用可能ポイント / 通常料金: 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>利用可能ポイント / 🏆最安値ネット予約: 延長・追加料金・部分料金のみの表は換算対象外</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:30:13+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/avance/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(人妻/錦・栄・矢場町)</span>
@@ -1918,21 +1967,23 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 60分: 10,000～20,000円 / 90分: 60分×1.5倍 / 120分: 60分×2倍 / 30分延長: 7,500円～ / 指名料: 無料 / 中区 納屋橋エリア: 1,500円 / 中村区 昭和区 熱田区 東区 千種区 中川区 瑞穂区 北区 南区 西区: 2,500円 / 名東区 港区 天白区 市内庄内川外 緑区 守山区 市外: 3,500円～ / 一宮市 稲沢市 あま市 蟹江市 春日井市 小牧市 瀬戸市 刈谷市 東海市 大府市 尾張・三河・愛知郡方面まで: 4,500円〜 / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: ※詳細は女の子 ※フリーイベントコースも有り ※交通費別 ※トータルコースは4,000円～ / 料金表の条件（加算なし）: ※指名も可能</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載金額に加算しない別情報: 60分: 10,000～20,000円 / 90分: 60分×1.5倍 / 120分: 60分×2倍 / 30分延長: 7,500円～ / 指名料: 無料 / 中区 納屋橋エリア: 1,500円 / 中村区 昭和区 熱田区 東区 千種区 中川区 瑞穂区 北区 南区 西区: 2,500円 / 名東区 港区 天白区 市内庄内川外 緑区 守山区 市外: 3,500円～ / 一宮市 稲沢市 あま市 蟹江市 春日井市 小牧市 瀬戸市 刈谷市 東海市 大府市 尾張・三河・愛知郡方面まで: 4,500円〜 / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: トータルコースは4,000円〜（交通費無料） 金土日祝＋1,000円UP〜（交通費無料） / 料金表の条件（加算なし）: ※詳細は女の子 ※フリーイベントコースも有り ※交通費別 ※トータルコースは4,000円～ / 料金表の条件（加算なし）: ※指名も可能</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>プレミアムフリーイベント / : 限定・割引・会員等の対象コース</li>
-                    <li>ラブココ(通常)フリーイベント / : 限定・割引・会員等の対象コース</li>
-                    <li>ぷちフリーイベント / : 限定・割引・会員等の対象コース</li>
-                    <li>ぽちゃ(衝撃)フリーイベント / : 限定・割引・会員等の対象コース</li>
-                    <li>通常コース （交通費別） ※詳細は女の子 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>Wコース（女2×男1）・逆Wコース（女1×男2） / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【期間限定】独占貸切コース / : 限定・割引・会員等の対象コース</li>
+                    <li>プレミアムフリーイベント / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ラブココ(通常)フリーイベント / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ぷちフリーイベント / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ぽちゃ(衝撃)フリーイベント / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>通常コース （交通費別） ※詳細は女の子 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>Wコース（女2×男1）・逆Wコース（女1×男2） / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>【期間限定】独占貸切コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:31:48+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230105/love_coco/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:31:48+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230105/love_coco/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/大須・金山・鶴舞)</span>
@@ -1983,23 +2034,25 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>ネット予約限定コース / ネット予約限定: 限定・割引・会員等の対象コース</li>
-                    <li>ネット予約限定コース / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>GRAND STAGE / 料金システム: 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>Wコース料金表 / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                    <li>ネット予約限定コース / ネット予約限定: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ネット予約限定コース / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>GRAND STAGE / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>Wコース料金表 / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
                     <li>基本料金 / 料金システム: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>ロングコース / ロングコース: 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>ポイントシステム 利用可能ポイント / 料金システム: 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>ロングコース / ロングコース: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                     <li>基本料金 / ロングコース: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / ロングコース: 追加料金・特殊・総額等の別体系</li>
+                    <li>ポイントシステム 利用可能ポイント / ロングコース: 延長・追加料金・部分料金のみの表は換算対象外</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -2045,21 +2098,26 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
             <td data-date="10/22" data-day="5" data-label="10/22(木)" data-on="1"><span class="cell">14:00 ~ 20:00</span></td>
             <td data-date="10/23" data-day="6" data-label="10/23(金)" data-on="1"><span class="cell">17:00 ~ 0:00</span></td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="CANDY|ソープ(大衆/金津園)">
+          <tr data-report="true" data-shop-price="20666.666666666668" data-shop-price-status="ok" data-shops="CANDY|ソープ(大衆/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/candy/girlid-60032798/?lo=1" target="_blank">ゆら『プレミアキャスト』...</a><br /><button aria-controls="review-merged-20" aria-expanded="false" onclick="toggleReviewRow('review-merged-20')" type="button">レビュー(merged)</button><br /><button aria-controls="review-okinilove-20" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-20')" type="button">レビュー(okinilove 2件)</button><br /><button aria-controls="review-ns-20" aria-expanded="false" onclick="toggleReviewRow('review-ns-20')" type="button">レビュー(NS専門 1件)</button><br /><span class="shop-info">CANDY</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 20,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載コース 90分 31,000円（ノーマル / ９０分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 本指名: １，０００円</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>フリー / : 限定・割引・会員等の対象コース</li>
-                    <li>ノーマル / : 名称だけでは通常と特殊・別体系を区別できません</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>比較対象: フリー / / ９０分 / ２９，０００円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>採用金額: ノーマル / / ９０分 / ３１，０００円 — 条件: 記載条件は出典で確認してください</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:52+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/candy/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 本指名: １，０００円</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>フリー / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ノーマル / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:33:52+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/candy/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -2196,10 +2254,12 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/shizuoka/A2203/A220303/hanpajyanai_n/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -2252,10 +2312,12 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/tokyo/A1303/A130301/attrait-tokyo/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -2305,18 +2367,22 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
           </tr>
           <tr data-report="true" data-shop-price="22666.666666666668" data-shop-price-status="ok" data-shops="aQua|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-53067844/?lo=1" target="_blank">すい👑（21歳）</a><br /><button aria-controls="review-okinilove-23" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-23')" type="button">レビュー(okinilove)</button><br /><span class="shop-info">aQua</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 22,667円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 22,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 90分 34,000円（ / 90分）</p>
+                  <p>掲載コース 90分 34,000円（ / 90分）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 見出しなし / / 90分 / 34,000円 — 条件: ※本指名＋1,000円</li>
+                  </ul>
                   <p>条件: ※本指名＋1,000円</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ※本指名＋1,000円</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ※本指名＋1,000円</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
                   <ul class="shop-price-decisions">
                     <li>見出しなし / : 見出しなしの表はDOMの表境界と複数行の確認が必要</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:45+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/aqua/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:45+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/aqua/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -2387,22 +2453,24 @@ AV動画みたいとすいさんも喜んでましたね、かわいいです。
 次は私がガンガン動きたいです。</pre><br /><a href="https://okinilove.com/blog-entry-2811.html#sakuma" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="15600.0" data-shop-price-status="ok" data-shops="らぶりぃ 本店|デリヘル(スタンダード/錦・栄・矢場町)">
+          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="らぶりぃ 本店|デリヘル(スタンダード/錦・栄・矢場町)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230103/lori_lovely/girlid-46752614/?lo=1" target="_blank">ゆいり（19歳）</a><br /><button aria-controls="review-okinilove-24" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-24')" type="button">レビュー(okinilove 2件)</button><br /><span class="shop-info">らぶりぃ 本店</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 15,600円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 26,000円（通常料金 / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 120分以上のロングコース承ります。 延長にて対応可能ですので希望される方は お電話にてお問い合わせ下さいませ。</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 120分以上のロングコース承ります。 延長にて対応可能ですので希望される方は お電話にてお問い合わせ下さいませ。 / 入会金: 無料 / 指名料: ￥2,000 / 特別指名料: ￥2,000～ / 交通費: ￥1,000～ / 料金表の条件（加算なし）: 利用コースの5%ポイント加算 / 延長30分毎: 10,000円</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 120分以上のロングコース承ります。 延長にて対応可能ですので希望される方は お電話にてお問い合わせ下さいませ。 / 入会金: 無料 / 指名料: ￥2,000 / 特別指名料: ￥2,000～ / 交通費: ￥1,000～ / 料金表の条件（加算なし）: 利用コースの5%ポイント加算 / 延長30分毎: 10,000円</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>通常料金 / : 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>動画撮影コース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>利用可能ポイント / : 追加料金・特殊・総額等の別体系</li>
+                    <li>通常料金 / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>動画撮影コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>利用可能ポイント / : 延長・追加料金・部分料金のみの表は換算対象外</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:30:41+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/lori_lovely/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:30:41+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/lori_lovely/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/錦・栄・矢場町)</span>
@@ -2534,18 +2602,22 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
           </tr>
           <tr data-report="true" data-shop-price="12000.0" data-shop-price-status="ok" data-shops="桜　SAKURA|デリヘル(人妻/新栄・東新町)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230104/sakura_nagya/girlid-60543178/?lo=1" target="_blank">みなみ（32歳）</a><br /><button aria-controls="review-okinilove-25" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-25')" type="button">レビュー(okinilove)</button><br /><span class="shop-info">桜　SAKURA</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 12,000円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 12,000円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 130分 26,000円（料金表 / 130分）</p>
+                  <p>掲載コース 130分 26,000円（料金表 / 130分）</p>
                   <p>税込表記</p>
-                  <p>条件: ※その他ロングコースもご用意しております。 お気軽にお問い合わせくださいませ。</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 延長30分: 10,000円 / 指定エリア: 1,000円 / 指定エリア外: 2,000円 / その他: 3,000円～ / 料金表の条件（加算なし）: ※その他ロングコースもご用意しております。 お気軽にお問い合わせくださいませ。</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
-                  <ul class="shop-price-decisions">
-                    <li>料金表 / : 料金表の文脈と複数時間/単一金額の対応</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 料金表 / / 130分 / 26,000円 — 条件: ※その他ロングコースもご用意しております。 お気軽にお問い合わせくださいませ。</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:31:41+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230104/sakura_nagya/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※その他ロングコースもご用意しております。 お気軽にお問い合わせくださいませ。</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 延長30分: 10,000円 / 指定エリア: 1,000円 / 指定エリア外: 2,000円 / その他: 3,000円～ / 料金表の条件（加算なし）: ※その他ロングコースもご用意しております。 お気軽にお問い合わせくださいませ。</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>料金表 / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:31:41+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230104/sakura_nagya/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(人妻/新栄・東新町)</span>
@@ -2619,17 +2691,19 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: パネル指名料: 2,000円 / 本指名料: 2,000円 / 西三河全域【 出張中 】 安城・岡崎・刈谷・豊田・知立・その他: 1,000円～ / 料金表の条件（加算なし）: ※三河安城エリア限定 ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円 / 料金表の条件（加算なし）: ※三河安城エリア限定 ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円 / 料金表の条件（加算なし）: ※210分以上のロングコースも可能です ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円～</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: パネル指名料: 2,000円 / 本指名料: 2,000円 / 西三河全域【 出張中 】 安城・岡崎・刈谷・豊田・知立・その他: 1,000円～ / 料金表の条件（加算なし）: ※三河安城エリア限定 ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円 / 料金表の条件（加算なし）: ※三河安城エリア限定 ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円 / 料金表の条件（加算なし）: ※210分以上のロングコースも可能です ※週末（金・土・日・祝）は＋1,000円 ※指名料＋2,000円 ※交通費＋1,000円～</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>💴激安の安城パック💴 🌟満足度No.1の大人気オススメパック🌟 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>通常お得パック / : 限定・割引・会員等の対象コース</li>
-                    <li>激安料金システム / : 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>💴激安の安城パック💴 🌟満足度No.1の大人気オススメパック🌟 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>通常お得パック / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>激安料金システム / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:29+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/pokin-ko/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:29+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/pokin-ko/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/安城)</span>
@@ -2710,23 +2784,25 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>ネット予約限定コース / ネット予約限定: 限定・割引・会員等の対象コース</li>
-                    <li>ネット予約限定コース / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>GRAND STAGE / 料金システム: 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>Wコース料金表 / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                    <li>ネット予約限定コース / ネット予約限定: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ネット予約限定コース / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>GRAND STAGE / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>Wコース料金表 / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
                     <li>基本料金 / 料金システム: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>ロングコース / ロングコース: 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>ポイントシステム 利用可能ポイント / 料金システム: 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>ロングコース / ロングコース: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                     <li>基本料金 / ロングコース: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / ロングコース: 追加料金・特殊・総額等の別体系</li>
+                    <li>ポイントシステム 利用可能ポイント / ロングコース: 延長・追加料金・部分料金のみの表は換算対象外</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -2793,26 +2869,28 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません / 注記の時間帯・曜日・ランク条件を基本料金から分離できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 公式アプリダウンロードで お得な特典GET さらにメルマガ登録でお得な情報をゲット！ Android の方はｺﾁﾗ iPhone・ガラケ― の方はｺﾁﾗ / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ▼0yen(UPなし) ・平日(月〜金)16時55分迄の到着 ▼1,000yenUP ・平日(月〜金)17時以降の到着 ▼2,000yenUP ・平日(月〜木)22時以降の到着 ・土曜日/日曜日/祝日 ▼3,000yenUP ・金曜日、土曜日、日曜日、祝日の22時以降の到着 / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 ※状況により派遣が出来ない場合が御座いますm(._.)m / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ※ご予約状況によりお断りする場合も御座います。ご了承下さい。 / 料金表の条件（加算なし）: ※プレミア料の女の子のプロフィールをご確認下さいませ。 ★が付いてる女の子が対象です。 ※プレミアの女の子をご指名する場合は指名料＋プレミア料となりますのでご了承下さいm(_ _)m / フリー: 0yen / 指名料: 2,000yen / プレミア料（★星1つ）: 2,000yen / 料金表の条件（加算なし）: ※先行予約は、総額コースのみの受付となります。（岡崎IC周辺） ※基本、3日前以上のご予約・受付は行っておりません。 ※ネット予約は毎朝6:00に受付日が切り替わります。 システムの仕様上、毎朝6:00～7:59の間は、電話予約より先に**2日前の先行予約（仮予約）**をネット予約からお申し込みいただけます。 ※📞電話予約は、毎朝8:30より受付開始となります。 ※キャンセルの場合は、キャンセル料金が発生いたしますので、あらかじめご了承ください。 / 料金表の条件（加算なし）: ※1 一部ホテル除く。 詳しくの場所はお気軽にお問合せ下さい。 ※交通費有料エリアは状況により派遣出来ない場合も御座います。 今からスグの派遣希望であれば派遣確率アップです♪ / ホテル(岡崎ＩＣ周辺*1）: 無料 / 岡崎市 （一部除く）: 1,000yen / 岡崎市外: 2,000yen～ / 料金表の条件（加算なし）: ※コスプレ種類はお電話にてご確認下さい。 ※女の子により対応出来ない場合も御座います。 / 料金表の条件（加算なし）: ※ご予約の際はご注意下さい。 ※女の子がお休み、遅刻でのキャンセルはキャンセル料は発生致しません。 尚、その際はお店側からキャンセル料をお支払いする事も出来ませんのでご了承下さい。 大変申し訳ございません。</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません / 注記の時間帯・曜日・ランク条件を基本料金から分離できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 公式アプリダウンロードで お得な特典GET さらにメルマガ登録でお得な情報をゲット！ Android の方はｺﾁﾗ iPhone・ガラケ― の方はｺﾁﾗ / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ▼0yen(UPなし) ・平日(月〜金)16時55分迄の到着 ▼1,000yenUP ・平日(月〜金)17時以降の到着 ▼2,000yenUP ・平日(月〜木)22時以降の到着 ・土曜日/日曜日/祝日 ▼3,000yenUP ・金曜日、土曜日、日曜日、祝日の22時以降の到着 / 料金表の条件（加算なし）: ※今からスグ（即ヒメ）の派遣希望であれば指名可能♪ ※予約の場合はフリー限定になります。 ※状況により派遣が出来ない場合が御座いますm(._.)m / 料金表の条件（加算なし）: ※上記以上のロンク゛コースもございます。 お気軽にお問い合わせ下さい。 / 料金表の条件（加算なし）: ※ご予約状況によりお断りする場合も御座います。ご了承下さい。 / 料金表の条件（加算なし）: ※プレミア料の女の子のプロフィールをご確認下さいませ。 ★が付いてる女の子が対象です。 ※プレミアの女の子をご指名する場合は指名料＋プレミア料となりますのでご了承下さいm(_ _)m / フリー: 0yen / 指名料: 2,000yen / プレミア料（★星1つ）: 2,000yen / 料金表の条件（加算なし）: ※先行予約は、総額コースのみの受付となります。（岡崎IC周辺） ※基本、3日前以上のご予約・受付は行っておりません。 ※ネット予約は毎朝6:00に受付日が切り替わります。 システムの仕様上、毎朝6:00～7:59の間は、電話予約より先に**2日前の先行予約（仮予約）**をネット予約からお申し込みいただけます。 ※📞電話予約は、毎朝8:30より受付開始となります。 ※キャンセルの場合は、キャンセル料金が発生いたしますので、あらかじめご了承ください。 / 料金表の条件（加算なし）: ※1 一部ホテル除く。 詳しくの場所はお気軽にお問合せ下さい。 ※交通費有料エリアは状況により派遣出来ない場合も御座います。 今からスグの派遣希望であれば派遣確率アップです♪ / ホテル(岡崎ＩＣ周辺*1）: 無料 / 岡崎市 （一部除く）: 1,000yen / 岡崎市外: 2,000yen～ / 料金表の条件（加算なし）: ※コスプレ種類はお電話にてご確認下さい。 ※女の子により対応出来ない場合も御座います。 / 料金表の条件（加算なし）: ※ご予約の際はご注意下さい。 ※女の子がお休み、遅刻でのキャンセルはキャンセル料は発生致しません。 尚、その際はお店側からキャンセル料をお支払いする事も出来ませんのでご了承下さい。 大変申し訳ございません。</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>お試し【総額】コース / : 限定・割引・会員等の対象コース</li>
-                    <li>オススメ【総額】コース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>ロング【総額】コース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>お試しコース / : 限定・割引・会員等の対象コース</li>
-                    <li>オススメ★コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>ロング★コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>【延長】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【指名料】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【先行予約】 / : 注記の時間帯・曜日・ランク条件を基本料金から分離できません</li>
-                    <li>【交通費】 / : 追加料金・特殊・総額等の別体系</li>
-                    <li>【オプション】 / : 追加料金・特殊・総額等の別体系</li>
+                    <li>お試し【総額】コース / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>オススメ【総額】コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>ロング【総額】コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>お試しコース / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>オススメ★コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>ロング★コース / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>【延長】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【指名料】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【先行予約】 / : 時間コースではない追加情報の表</li>
+                    <li>【交通費】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>【オプション】 / : 延長・追加料金・部分料金のみの表は換算対象外</li>
                     <li>【チェンジ・キャンセル】 / : 時間コースではない追加情報の表</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:58:53+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:58:53+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/岡崎)</span>
@@ -2890,23 +2968,25 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 私服での出張をご希望される場合は、ご予約の際にお伝えください。 / 指名料: 2,000円 / 会員登録して初回指名料: 無料 / ボディコン出張: 0円 / 3km以下: 1,000円 / 3km以上～4km以下: 2,000円 / 4km以上～5km以下: 3,000円 / 5km以上～: 応相談 / 料金表の条件（加算なし）: 上記金額は中区周辺での料金となります。 Wコースは他の女性との組み合わせも承っております。 お気軽にご相談ください</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>ネット予約限定コース / ネット予約限定: 限定・割引・会員等の対象コース</li>
-                    <li>ネット予約限定コース / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>GRAND STAGE / 料金システム: 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>Wコース料金表 / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                    <li>ネット予約限定コース / ネット予約限定: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>ネット予約限定コース / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>GRAND STAGE / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>Wコース料金表 / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
                     <li>基本料金 / 料金システム: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>ロングコース / ロングコース: 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>ポイントシステム 利用可能ポイント / 料金システム: 延長・追加料金・部分料金のみの表は換算対象外</li>
+                    <li>ロングコース / ロングコース: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                     <li>基本料金 / ロングコース: 時間コースではない追加情報の表</li>
-                    <li>ポイントシステム 利用可能ポイント / ロングコース: 追加料金・特殊・総額等の別体系</li>
+                    <li>ポイントシステム 利用可能ポイント / ロングコース: 延長・追加料金・部分料金のみの表は換算対象外</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:27:08+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/grandstage/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/名古屋駅周辺)</span>
@@ -2969,20 +3049,24 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
           </tr>
           <tr data-report="true" data-shop-price="24000.0" data-shop-price-status="ok" data-shops="M|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/en/girlid-44866959/?lo=1" target="_blank">はる/羽桜（21歳）</a><br /><button aria-controls="review-merged-30" aria-expanded="false" onclick="toggleReviewRow('review-merged-30')" type="button">レビュー(merged 4件)</button><br /><button aria-controls="review-okinilove-30" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-30')" type="button">レビュー(okinilove)</button><br /><button aria-controls="review-ns-30" aria-expanded="false" onclick="toggleReviewRow('review-ns-30')" type="button">レビュー(NS専門 1件)</button><br /><span class="shop-info">M</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 24,000円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 24,000円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 40,000円（通常コース / 100分）</p>
+                  <p>掲載コース 100分 40,000円（通常コース / 100分）</p>
                   <p>税込表記</p>
-                  <p>条件: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。 / 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。 / 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
-                  <ul class="shop-price-decisions">
-                    <li>通常コース / : 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>プレミアムコース / : 追加料金・特殊・総額等の別体系</li>
-                    <li>スペシャルプレミアムコース / : 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 通常コース / / 100分 / ￥40,000 — 条件: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:59+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/en/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。 / 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。 / 料金表の条件（加算なし）: 指名料・アルバム指名料 コスプレ料金（1着目無料）（2着目から+1000円） コスプレ希望の方はご予約の前日までにコスプレ番号をお伝え下さい。 ロングコースを希望の方はスタッフにお問い合わせ下さい。</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>通常コース / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>プレミアムコース / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>スペシャルプレミアムコース / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:33:59+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/en/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -3109,18 +3193,22 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
           </tr>
           <tr data-report="true" data-shop-price="21428.571428571428" data-shop-price-status="ok" data-shops="ROYALCLUB姫|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-50476855/?lo=1" target="_blank">素人ゆき☆高級サービス（...</a><br /><button aria-controls="review-okinilove-34" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-34')" type="button">レビュー(okinilove)</button><br /><button aria-controls="review-ns-34" aria-expanded="false" onclick="toggleReviewRow('review-ns-34')" type="button">レビュー(NS専門 1件)</button><br /><span class="shop-info">ROYALCLUB姫</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 21,429円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 21,429円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 70分 25,000円（料金 / 70分）</p>
+                  <p>掲載コース 70分 25,000円（料金 / 70分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
-                  <ul class="shop-price-decisions">
-                    <li>料金 / : 料金表の文脈と複数時間/単一金額の対応</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 料金 / / 70分 / 25,000円 — 条件: 記載条件は出典で確認してください</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:02+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/hime/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>料金 / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:02+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/hime/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -3222,10 +3310,12 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:30:54+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/opera/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:30:54+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/opera/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ヘルス(スタンダード/錦・栄・矢場町)</span>
@@ -3397,18 +3487,20 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります / 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 『会員様限り、¥5,000割引きとさせていただきます。』 ※リージェントコース対応女の子のみとなります。 / 【ご指名】120min: 68,000yen※7,000yen割引 / 【ご指名】120min: 70,000yen ※5,000yen割引 / 料金表の条件（加算なし）: ※ラスト案内に限り150分でのご案内が可能です。 （延長10,000yen） ※ロイヤルコース対応女の子のみとなります。 / 料金表の条件（加算なし）: メルマガ登録で お得な店舗情報 をゲット!! プラチナメール会員登録</p>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります / 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 『会員様限り、¥5,000割引きとさせていただきます。』 ※リージェントコース対応女の子のみとなります。 / 【ご指名】120min: 68,000yen※7,000yen割引 / 【ご指名】120min: 70,000yen ※5,000yen割引 / 料金表の条件（加算なし）: ※ラスト案内に限り150分でのご案内が可能です。 （延長10,000yen） ※ロイヤルコース対応女の子のみとなります。 / 料金表の条件（加算なし）: メルマガ登録で お得な店舗情報 をゲット!! プラチナメール会員登録</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>リージェントコース / : 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>ロイヤルコース(正規料金) / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>ロイヤルコース【会員様料金】 / : 限定・割引・会員等の対象コース</li>
-                    <li>新規のお客様（他店舗会員様含む） / : 限定・割引・会員等の対象コース</li>
+                    <li>リージェントコース / : 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>ロイヤルコース(正規料金) / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>ロイヤルコース【会員様料金】 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>新規のお客様（他店舗会員様含む） / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T14:01:04+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T14:01:04+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(高級/金津園)</span>
@@ -3528,10 +3620,12 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <summary>料金の根拠・別途費用</summary>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 120分 【フリー/P指名/本指名】: 70,000円(非会員様) 65,000円(会員様) / 150分 【フリー/P指名/本指名】: 100,000円(非会員様) 95,000円(会員様) / 120分 150分 【フリー/P指名/本指名】: 60,000円(非会員様)120分 90,000円(非会員様)150分 / 120分 150分 【フリー/P指名】: 55,000円(会員様)120分 85,000円(会員様)150分 / 120分 150分 【本指名】: 58,000円(会員様)120分 88,000円(会員様)150分</p>
+                  <p>掲載金額に加算しない別情報: 120分 【フリー/P指名/本指名】: 70,000円(非会員様) 65,000円(会員様) / 150分 【フリー/P指名/本指名】: 100,000円(非会員様) 95,000円(会員様) / 120分 150分 【フリー/P指名/本指名】: 60,000円(非会員様)120分 90,000円(非会員様)150分 / 120分 150分 【フリー/P指名】: 55,000円(会員様)120分 85,000円(会員様)150分 / 120分 150分 【本指名】: 58,000円(会員様)120分 88,000円(会員様)150分</p>
                   <p>料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）</p>
-                  <p>確認日時: 2026-10-25T13:34:24+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/s-romane/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:34:24+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/s-romane/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(高級/金津園)</span>
@@ -3859,17 +3953,19 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>入浴・入泉料等の部分料金のみで、別途サービス料を含む基本体系を特定できません</p>
+                  <p>入浴・入泉料等の部分料金のみで、独立した掲載コース料金を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: メルマガ登録で お得な店舗情報 をゲット!! プラチナメール会員登録 / 料金表の条件（加算なし）: ※当日予約は10:00から承ります。 ※前日予約は12:00から承ります。 / ご予約・初回指名料: 完全無料 / 本指名料: 1,000円 / 料金表の条件（加算なし）: ※別途サービス料金が必要となります。 / 料金表の条件（加算なし）: ※当店指定の女の子に限ります。 ※別途サービス料金が必要となります。 / 料金表の条件（加算なし）: ※表示価格は全て消費税込みの金額です。</p>
-                  <p>入浴・入泉料等の部分料金のみで、別途サービス料を含む基本体系を特定できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: メルマガ登録で お得な店舗情報 をゲット!! プラチナメール会員登録 / 料金表の条件（加算なし）: ※当日予約は10:00から承ります。 ※前日予約は12:00から承ります。 / ご予約・初回指名料: 完全無料 / 本指名料: 1,000円 / 料金表の条件（加算なし）: ※別途サービス料金が必要となります。 / 料金表の条件（加算なし）: ※当店指定の女の子に限ります。 ※別途サービス料金が必要となります。 / 料金表の条件（加算なし）: ※表示価格は全て消費税込みの金額です。</p>
+                  <p>入浴・入泉料等の部分料金のみで、独立した掲載コース料金を特定できません</p>
                   <ul class="shop-price-decisions">
                     <li>料金システム / : 時間コースではない追加情報の表</li>
-                    <li>▼通常コース入泉料▼ / : 入浴・入泉料のみの部分料金で通常基本料金全体を特定できません</li>
-                    <li>▼イベントコース入泉料▼ / : 限定・割引・会員等の対象コース</li>
+                    <li>▼通常コース入泉料▼ / : 入浴・入泉料のみの部分料金で独立した掲載コース料金を特定できません</li>
+                    <li>▼イベントコース入泉料▼ / : 入浴・入泉料のみの部分料金で独立した掲載コース料金を特定できません</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:58:54+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/newreijo/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:58:54+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/newreijo/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(激安/名古屋駅周辺)</span>
@@ -3938,22 +4034,28 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <pre>写真は綺麗な感じですが実際は丸顔の童顔でめちゃくちゃ可愛いです。スタイルはグラビアアイドルみたいな体型でいわゆるボンキュボンのナイスバディです。おっぱいもFカップで大きくきれいです。フィリピンとのハーフみたいです。プレイの方もキスがかなり濃厚でイチャイチャプレイです。ガッツリ舌も絡ませてくれます。喘ぎ声も可愛く大きいのでこちらがテクニシャンと勘違いしてしまうほどです。オマンコも締まりよく秒で果てれます。</pre><br /><a href="https://okinilove.com/blog-entry-2405.html#sasuke" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="美スタイル|デリヘル(高級/錦・栄・矢場町)">
+          <tr data-report="true" data-shop-price="28000.0" data-shop-price-status="ok" data-shops="美スタイル|デリヘル(高級/錦・栄・矢場町)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/aichi/A2301/A230103/b-style/girlid-43952936/?lo=1" target="_blank">メロ◆ギャップ溢れる極上...</a><br /><button aria-controls="review-merged-45" aria-expanded="false" onclick="toggleReviewRow('review-merged-45')" type="button">レビュー(merged 3件)</button><br /><button aria-controls="review-okinilove-45" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-45')" type="button">レビュー(okinilove 6件)</button><br /><span class="shop-info">美スタイル</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 28,000円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補表の複数体系・未解決の表があり通常基本料金を一意に特定できません</p>
+                  <p>掲載コース 90分 42,000円（VERSIONⅠ / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 指名料…2,000円 延長料金（30分）…14,000円～ / ノーパン出張: 1,000円 / 中区（栄・新栄）: 1000円 / 中区（栄・新栄以外）千種区・東区・中村区: 2000円 / ※千種区・中村区の一部エリア: 3000円 / 西区・北区・瑞穂区・昭和区・熱田区: 3000円 / 名東区・守山区・南区・港区・緑区・中川区・天白区: 4000円 / 料金表の条件（加算なし）: ルックス・スタイル・ホスピタリティすべてが最上級レベルの女優・タレントクラスの女性です。 指名料についてはお問い合わせください。 / 料金表の条件（加算なし）: 当店の入店審査基準を大きく上回っており、どのお店に行っても看板嬢になれるクラスの女性です。 指名料についてはお問い合わせください。</p>
-                  <p>候補表の複数体系・未解決の表があり通常基本料金を一意に特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>通常料金 / : 基本・通常の文脈と時間/単一金額の対応</li>
-                    <li>VERSIONⅠ / : 注記の時間帯・曜日・ランク条件を基本料金から分離できません</li>
-                    <li>VERSIONⅡ / : 注記の時間帯・曜日・ランク条件を基本料金から分離できません</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>比較対象: 通常料金 / / 90分 / 29,000円 — 条件: 指名料…2,000円 延長料金（30分）…14,000円～</li>
+                    <li>採用金額: VERSIONⅠ / / 90分 / 42,000円 — 条件: ルックス・スタイル・ホスピタリティすべてが最上級レベルの女優・タレントクラスの女性です。 指名料についてはお問い合わせください。</li>
+                    <li>比較対象: VERSIONⅡ / / 90分 / 34,000円 — 条件: 当店の入店審査基準を大きく上回っており、どのお店に行っても看板嬢になれるクラスの女性です。 指名料についてはお問い合わせください。</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:30:15+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/b-style/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ルックス・スタイル・ホスピタリティすべてが最上級レベルの女優・タレントクラスの女性です。 指名料についてはお問い合わせください。</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 指名料…2,000円 延長料金（30分）…14,000円～ / ノーパン出張: 1,000円 / 中区（栄・新栄）: 1000円 / 中区（栄・新栄以外）千種区・東区・中村区: 2000円 / ※千種区・中村区の一部エリア: 3000円 / 西区・北区・瑞穂区・昭和区・熱田区: 3000円 / 名東区・守山区・南区・港区・緑区・中川区・天白区: 4000円 / 料金表の条件（加算なし）: ルックス・スタイル・ホスピタリティすべてが最上級レベルの女優・タレントクラスの女性です。 指名料についてはお問い合わせください。 / 料金表の条件（加算なし）: 当店の入店審査基準を大きく上回っており、どのお店に行っても看板嬢になれるクラスの女性です。 指名料についてはお問い合わせください。</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>通常料金 / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>VERSIONⅠ / : 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>VERSIONⅡ / : 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:30:15+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230103/b-style/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(高級/錦・栄・矢場町)</span>
@@ -4157,20 +4259,24 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 今度は体調万全でリベンジしようと思います。</pre><br /><a href="https://okinilove.com/blog-entry-435.html#tyois" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="26666.666666666668" data-shop-price-status="ok" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-49169298/?lo=1" target="_blank">茉白Mashiro♡輝く...</a><br /><button aria-controls="review-merged-48" aria-expanded="false" onclick="toggleReviewRow('review-merged-48')" type="button">レビュー(merged)</button><br /><span class="shop-info">ジュリエット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 26,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 40,000円（システム(総額) / 90分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>システム(総額) / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: システム(総額) / 料金システム / 90分コース / 40,000円 — 条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>システム(総額) / 料金システム: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -4231,20 +4337,24 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               </ul>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="スチュアーデス|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="22800.0" data-shop-price-status="ok" data-shops="スチュアーデス|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/stewardess/girlid-46872663/?lo=1" target="_blank">まみ/愛実（高級店サービ...</a><br /><button aria-controls="review-merged-49" aria-expanded="false" onclick="toggleReviewRow('review-merged-49')" type="button">レビュー(merged 3件)</button><br /><button aria-controls="review-ns-49" aria-expanded="false" onclick="toggleReviewRow('review-ns-49')" type="button">レビュー(NS専門 3件)</button><br /><span class="shop-info">スチュアーデス</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 22,800円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
+                  <p>掲載コース 100分 38,000円（基本料金システム / 100分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ※指名料無料 各種イベント割引あり ※延長30分…10000円 ただし 来店してからで1回に限ります（予約の段階では不可）</p>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
-                  <ul class="shop-price-decisions">
-                    <li>基本料金システム / 基本料金: 注記に限定・割引・会員等の適用条件があります</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 基本料金システム / 基本料金 / 100分 / 38,000円 — 条件: ※指名料無料 各種イベント割引あり ※延長30分…10000円 ただし 来店してからで1回に限ります（予約の段階では不可）</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:29+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/stewardess/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※指名料無料 各種イベント割引あり ※延長30分…10000円 ただし 来店してからで1回に限ります（予約の段階では不可）</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ※指名料無料 各種イベント割引あり ※延長30分…10000円 ただし 来店してからで1回に限ります（予約の段階では不可）</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>基本料金システム / 基本料金: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:29+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/stewardess/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -4386,18 +4496,20 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 80分: 20,000円 / 指名料: 1,000円 / 交通費: 一宮インター付近 0円～1,000円 その他地域1,000円～ お電話にて / 料金表の条件（加算なし）: 💁‍♀️お客様の希望時間に空きのある女性を案内 🏨一宮限定、ホテル、交通費込み 🚙最速⏰15分以内にご案内 🙅‍♀️オプション無し ※土日祝でも料金アップは一切ございません ※電話での受付に限る / 料金表の条件（加算なし）: 🈯️指名可能 🙅‍♀️オプション無し 💻📲ネット予約可能 🏨一宮限定、ホテル、交通費込み ※土日祝でも料金アップは一切ございません ※対象外の女性有り / 料金表の条件（加算なし）: 🈯️指名可能 🙆‍♀️無料オプションつけ放題‼️ 🏨一宮限定、ホテル、交通費込み 💻📲ネット予約可能 ※土日祝でも料金アップは一切ございません。 ※120分以上はお問い合わせ下さい。 / 料金表の条件（加算なし）: 🈯️指名可能 🙆‍♀️無料オプションつけ放題‼️ ※ご自宅・お客様の指定場所に派遣 ※120分以上はお問い合わせ下さい。</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載金額に加算しない別情報: 80分: 20,000円 / 指名料: 1,000円 / 交通費: 一宮インター付近 0円～1,000円 その他地域1,000円～ お電話にて / 料金表の条件（加算なし）: 💁‍♀️お客様の希望時間に空きのある女性を案内 🏨一宮限定、ホテル、交通費込み 🚙最速⏰15分以内にご案内 🙅‍♀️オプション無し ※土日祝でも料金アップは一切ございません ※電話での受付に限る / 料金表の条件（加算なし）: 🈯️指名可能 🙅‍♀️オプション無し 💻📲ネット予約可能 🏨一宮限定、ホテル、交通費込み ※土日祝でも料金アップは一切ございません ※対象外の女性有り / 料金表の条件（加算なし）: 🈯️指名可能 🙆‍♀️無料オプションつけ放題‼️ 🏨一宮限定、ホテル、交通費込み 💻📲ネット予約可能 ※土日祝でも料金アップは一切ございません。 ※120分以上はお問い合わせ下さい。 / 料金表の条件（加算なし）: 🈯️指名可能 🙆‍♀️無料オプションつけ放題‼️ ※ご自宅・お客様の指定場所に派遣 ※120分以上はお問い合わせ下さい。</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>🔴超得お任せイベント🏨総額コース🔴 / : 限定・割引・会員等の対象コース</li>
-                    <li>🔴お得な指名可能🏨総額コース🔴 / : 限定・割引・会員等の対象コース</li>
-                    <li>🔴🏨総額コース 【】内は会員様価格🔴 / : 限定・割引・会員等の対象コース</li>
-                    <li>【基本コース 【】内は会員様価格】 / : 限定・割引・会員等の対象コース</li>
+                    <li>🔴超得お任せイベント🏨総額コース🔴 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>🔴お得な指名可能🏨総額コース🔴 / : 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>🔴🏨総額コース 【】内は会員様価格🔴 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>【基本コース 【】内は会員様価格】 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:32:56+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2302/A230201/wife_ichinomiya/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:32:56+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2302/A230201/wife_ichinomiya/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(人妻/一宮・稲沢)</span>
@@ -4495,10 +4607,12 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/kanagawa/A1403/A140301/luxury/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -4553,13 +4667,15 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <summary>料金の根拠・別途費用</summary>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 安城: 無料 / 刈谷/知立: 1,000円 / 岡崎/高浜/東浦: 2,000円 / 豊田/大府/碧南/三好/ 半田/西尾/東郷/幸田: 3,000円</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 安城: 無料 / 刈谷/知立: 1,000円 / 岡崎/高浜/東浦: 2,000円 / 豊田/大府/碧南/三好/ 半田/西尾/東郷/幸田: 3,000円</p>
                   <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <ul class="shop-price-decisions">
                     <li>基本料金 / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:22+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/color/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:22+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/color/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/安城)</span>
@@ -4651,10 +4767,12 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/shizuoka/A2201/A220101/final_stage/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
@@ -4702,20 +4820,24 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
             <td data-date="10/22" data-day="5" data-label="10/22(木)"><span class="cell">-</span></td>
             <td data-date="10/23" data-day="6" data-label="10/23(金)"><span class="cell">-</span></td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="26666.666666666668" data-shop-price-status="ok" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-37754672/?lo=1" target="_blank">姫香/Himek♡ハイク...</a><br /><button aria-controls="review-merged-56" aria-expanded="false" onclick="toggleReviewRow('review-merged-56')" type="button">レビュー(merged 2件)</button><br /><button aria-controls="review-okinilove-56" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-56')" type="button">レビュー(okinilove)</button><br /><span class="shop-info">ジュリエット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 26,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 40,000円（システム(総額) / 90分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>システム(総額) / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: システム(総額) / 料金システム / 90分コース / 40,000円 — 条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>システム(総額) / 料金システム: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -4793,20 +4915,24 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <pre>久々に金津園に行きました　前から気になった「姫香」さんを指名しました日記には写真写りが悪いと書いてありますが、むしろ実物の方が良いです　清楚系というよりはクラスにいる運動得意な可愛い子系です（伝わるかなぁ？）お互いを脱がせあった後、そのまま攻めますキス好きおじさんである私の最初のキス攻撃も嫌がらず受け止めてくれましたおっぱいはFはないものの綺麗で、ベロベロ舐め回しましたそして舌を這わせクリを攻めますクリが気持ちいいらしく、クリイキしてました　そのあと帽子をつけて騎乗位で挿入締めてくれているのか中はキツキツでした　正常位に変えて1回戦終了　ベッドでたべります少しして、マットをお願いして準備いただきます　マットは気持ち良かったのですが、勃ちが悪く、手コキでフィニッシュ（情け無い）また少したべり終了おじさんの取り留めのない話にも真剣に相手してくれてありがとうございました接客の感じは、イチャイチャというのとは違い、またサバサバというのとも違う微妙な接し方でした次回はもっと振り向かせたくなる様掻き立てられました（狙いにはまってしまったか？）あと、特筆するところはお尻　ハーフという事もあるのか大きく触り心地抜群 暇さえあれば痴〇の様に触ってしまいました金津園では裏を返したことがない私ですが、絶対また行こうと思います（もともと予約が取りにくい子なので、これ書いても影響ないと思いたい）</pre><br /><a href="http://okinilove.com/blog-entry-859.html#tomooji" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="26666.666666666668" data-shop-price-status="ok" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-58575520/?lo=1" target="_blank">桔梗/Kikyo💖永遠の...</a><br /><button aria-controls="review-merged-58" aria-expanded="false" onclick="toggleReviewRow('review-merged-58')" type="button">レビュー(merged)</button><br /><span class="shop-info">ジュリエット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 26,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 40,000円（システム(総額) / 90分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>システム(総額) / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: システム(総額) / 料金システム / 90分コース / 40,000円 — 条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>システム(総額) / 料金システム: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -4872,16 +4998,18 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 100分 指名: 38,000円（通常価格40,000円） / 120分 指名: 48,000円（通常価格50,000円）</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 100分 指名: 38,000円（通常価格40,000円） / 120分 指名: 48,000円（通常価格50,000円）</p>
+                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <ul class="shop-price-decisions">
-                    <li>Jewel / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>Imperial / : 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>Jewel / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>Imperial / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:35+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/vivi_g/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:34:35+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/vivi_g/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -4942,21 +5070,25 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               </ul>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="GG|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="23333.333333333332" data-shop-price-status="ok" data-shops="GG|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-53248326/?lo=1" target="_blank">ELENA『エレナ』（2...</a><br /><button aria-controls="review-merged-60" aria-expanded="false" onclick="toggleReviewRow('review-merged-60')" type="button">レビュー(merged)</button><br /><span class="shop-info">GG</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 23,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載コース 90分 35,000円（すべて込みの総額 / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ネット予約はコチラから / 料金表の条件（加算なし）: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>ネット予約+10分コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>すべて込みの総額 / : 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: すべて込みの総額 / / 90分 / 35,000円 — 条件: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:00+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ネット予約はコチラから / 料金表の条件（加算なし）: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>ネット予約+10分コース / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>すべて込みの総額 / : 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:00+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -5017,20 +5149,24 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               </ul>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="26666.666666666668" data-shop-price-status="ok" data-shops="ジュリエット|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/girlid-57031614/?lo=1" target="_blank">蛍/Hotaru💖絶品G...</a><br /><button aria-controls="review-merged-61" aria-expanded="false" onclick="toggleReviewRow('review-merged-61')" type="button">レビュー(merged 2件)</button><br /><span class="shop-info">ジュリエット</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 26,667円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 40,000円（システム(総額) / 90分コース）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>システム(総額) / 料金システム: 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: システム(総額) / 料金システム / 90分コース / 40,000円 — 条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■ご予約はメンバー様:1週間前～ フリーのお客様:3日前～ ■受付時間 10時～ 案内時間 11時～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>システム(総額) / 料金システム: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:06+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/juliet/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -5102,21 +5238,25 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
               </ul>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="GG|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="23333.333333333332" data-shop-price-status="ok" data-shops="GG|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/girlid-11631416/?lo=1" target="_blank">HOTARU『ホタル』（...</a><br /><button aria-controls="review-merged-63" aria-expanded="false" onclick="toggleReviewRow('review-merged-63')" type="button">レビュー(merged 2件)</button><br /><button aria-controls="review-okinilove-63" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-63')" type="button">レビュー(okinilove 2件)</button><br /><span class="shop-info">GG</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 23,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載コース 90分 35,000円（すべて込みの総額 / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ネット予約はコチラから / 料金表の条件（加算なし）: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
-                  <p>候補あり・判定保留: 名称だけでは通常と特殊・別体系を区別できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>ネット予約+10分コース / : 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>すべて込みの総額 / : 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: すべて込みの総額 / / 90分 / 35,000円 — 条件: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:00+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ネット予約はコチラから / 料金表の条件（加算なし）: 指名料や予約料や入場料は一切ございません。 ◆ご予約詳細 電話予約・・・2日前～ ネット予約・・3日前～ グループ公式サイト・4日前～ ◆営業時間案内 予約受付時間 ９：００～ 案内開始時間：１０：００～</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>ネット予約+10分コース / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>すべて込みの総額 / : 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:00+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/gold_garden/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -5215,21 +5355,23 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります / 注記に限定・割引・会員等の適用条件があります / 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: ■交通費・・・1,000円～※詳しくはお電話にてお問合せ下さい / 通常指名料: 2,000円 / 特別指名料: ＋1,000円～ ☆マーク１つごとに＋1,000円となります。 / 動画撮影（首下） ※同意書の署名必須: 5,000円～（5pt~） / 動画撮影（顔あり） ※同意書の署名必須: 10,000円～（10pt~） / 料金表の条件（加算なし）: ※メール会員様は1,000円オフ ■交通費…1,000円～ ※詳細はお問い合わせください / 料金表の条件（加算なし）: プロフィール内に熟女と記載ある女性のみ ※メール会員様は1,000円オフ ■交通費…1,000円～ ※詳細はお問い合わせください / 料金表の条件（加算なし）: ※手コキコースのプレイ内容（マスク着用） 手コキのみ・キス無し・女の子へのお触り無し・簡単なマッサージ♪ ■交通費・・・1,000円～※詳しくはお電話にてお問合せ下さい / 料金表の条件（加算なし）: ※メルマガで配信される「合言葉」をスタッフにお伝えください。 ※人妻コースはオールコース1000円オフ / 料金表の条件（加算なし）: ※特別指名料別途 ※詳しい料金はお問い合わせください。 オキニのあの娘とまったりデート♡もちろんその後はホテルでじっくり♡ ※60分コースからデートコース可能 / 60分: 18,000円（18pt) / 90分 ★オススメ！: 25,000円（25pt) / 120分: 34,000円（34pt) / 30分延長: 10,000円（10pt) / 60分: 16,000円（16pt） / 120分: 29,000円（29pt） / 40分: 9,000円（9pt） / 60分: 11,000円（11pt） / 90分: 14,000円（14pt） / 120分: 17,000円（17pt) / 80分: 20,000円（20pt）</p>
-                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります / 注記に限定・割引・会員等の適用条件があります / 名称だけでは通常と特殊・別体系を区別できません</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: ■交通費・・・1,000円～※詳しくはお電話にてお問合せ下さい / 通常指名料: 2,000円 / 特別指名料: ＋1,000円～ ☆マーク１つごとに＋1,000円となります。 / 動画撮影（首下） ※同意書の署名必須: 5,000円～（5pt~） / 動画撮影（顔あり） ※同意書の署名必須: 10,000円～（10pt~） / 料金表の条件（加算なし）: ※メール会員様は1,000円オフ ■交通費…1,000円～ ※詳細はお問い合わせください / 料金表の条件（加算なし）: プロフィール内に熟女と記載ある女性のみ ※メール会員様は1,000円オフ ■交通費…1,000円～ ※詳細はお問い合わせください / 料金表の条件（加算なし）: ※手コキコースのプレイ内容（マスク着用） 手コキのみ・キス無し・女の子へのお触り無し・簡単なマッサージ♪ ■交通費・・・1,000円～※詳しくはお電話にてお問合せ下さい / 料金表の条件（加算なし）: ※メルマガで配信される「合言葉」をスタッフにお伝えください。 ※人妻コースはオールコース1000円オフ / 料金表の条件（加算なし）: ※特別指名料別途 ※詳しい料金はお問い合わせください。 オキニのあの娘とまったりデート♡もちろんその後はホテルでじっくり♡ ※60分コースからデートコース可能 / 60分: 18,000円（18pt) / 90分 ★オススメ！: 25,000円（25pt) / 120分: 34,000円（34pt) / 30分延長: 10,000円（10pt) / 60分: 16,000円（16pt） / 120分: 29,000円（29pt） / 40分: 9,000円（9pt） / 60分: 11,000円（11pt） / 90分: 14,000円（14pt） / 120分: 17,000円（17pt) / 80分: 20,000円（20pt）</p>
+                  <p>候補あり・判定保留: 表内に未対応の時間・範囲・複数金額・条件行があります</p>
                   <ul class="shop-price-decisions">
                     <li>基本コース / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
-                    <li>◇人妻コース(名前の前に◇がありカタカナの女性) / 料金システム: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>熟女コース(名前の前に◇がありカタカナの女性) / 料金システム: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>手コキコース / 料金システム: 名称だけでは通常と特殊・別体系を区別できません</li>
-                    <li>80分完全フリーイベント / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>メルマガ会員様はお得 / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>独り占め♡貸切デートコース / 料金システム: 名称だけでは通常と特殊・別体系を区別できません</li>
+                    <li>◇人妻コース(名前の前に◇がありカタカナの女性) / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>熟女コース(名前の前に◇がありカタカナの女性) / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>手コキコース / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>80分完全フリーイベント / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>メルマガ会員様はお得 / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
+                    <li>独り占め♡貸切デートコース / 料金システム: 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:31+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/secret_service/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:31+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2305/A230504/secret_service/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">デリヘル(スタンダード/安城)</span>
@@ -5312,24 +5454,32 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
 長文失礼しました</pre><br /><a href="http://okinilove.com/blog-entry-375.html#akuta" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="false" data-shop-price="" data-shop-price-status="unknown" data-shops="Sabbat|ソープ(大衆/金津園)">
+          <tr data-report="false" data-shop-price="23333.333333333332" data-shop-price-status="ok" data-shops="Sabbat|ソープ(大衆/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-55157842/?lo=1" target="_blank">ゆゆ♡【GOLD】（21...</a><br /><span class="shop-info">Sabbat</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 23,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
+                  <p>掲載コース 90分 35,000円（⚜️ゴールドキャスト⚜️ / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
-                  <ul class="shop-price-decisions">
-                    <li>★総額料金（指名料込み）★ / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>比較対象: ★総額料金（指名料込み）★ / 料金システム / 90分 / 32,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: ★おまかせ割引（総額）★ / 料金システム / 90分 / 31,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: 🌈レインボーキャスト🌈 / キャスト別料金表✨ / 90分 / 33,000円 — 条件: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可</li>
+                    <li>比較対象: 💠プラチナキャスト💠 / キャスト別料金表✨ / 90分 / 34,000円 — 条件: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
+                    <li>採用金額: ⚜️ゴールドキャスト⚜️ / キャスト別料金表✨ / 90分 / 35,000円 — 条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載金額に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>★総額料金（指名料込み）★ / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -5375,20 +5525,24 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
             <td data-date="10/22" data-day="5" data-label="10/22(木)"><span class="cell">-</span></td>
             <td data-date="10/23" data-day="6" data-label="10/23(金)"><span class="cell">-</span></td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="ヴィーナス|ソープ(スタンダード/金津園)">
+          <tr data-report="true" data-shop-price="21600.0" data-shop-price-status="ok" data-shops="ヴィーナス|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/venus/girlid-41531297/?lo=1" target="_blank">ユキ（22歳）</a><br /><button aria-controls="review-merged-67" aria-expanded="false" onclick="toggleReviewRow('review-merged-67')" type="button">レビュー(merged)</button><br /><button aria-controls="review-okinilove-67" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-67')" type="button">レビュー(okinilove 3件)</button><br /><span class="shop-info">ヴィーナス</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 21,600円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 100分 36,000円（総額 / 100分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 料金表の条件（加算なし）: 60分コース～ご予約可能になります。</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>総額 / : 追加料金・特殊・総額等の別体系</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: 総額 / / 100分 / 36,000円 — 条件: 60分コース～ご予約可能になります。</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:34+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/venus/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 60分コース～ご予約可能になります。</p>
+                  <p>掲載金額に加算しない別情報: 料金表の条件（加算なし）: 60分コース～ご予約可能になります。</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>総額 / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:34+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/venus/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -5499,21 +5653,23 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
               <pre>【予約】数か月間予約争奪戦に参加し続けやっと予約が取れて再訪問。予約開始数分でも先着がいるのは本当に尊敬します。【ご対面】お店が混んでいてなかなか部屋が空かないためけっこう待ちました。店員さんが案内できると言った時間よりだいぶオーバーしていました。でもユキちゃんと会ってからはそんなことも吹っ飛ぶくらいの衝撃的な可愛いさです。前回の白のワンピースとは対象的な黒のミニスカートで迎えていただきました。真っ白な綺麗な足が見えていてとてもセクシー。上のニットは彼女の巨乳を際立たせるように体にみっちりフィットしている。モジモジしてスカートを伸ばそうとしながら待つ彼女がとても可愛いんです。以前よりにこやかですが目をそらしお久しぶりです。と小声の第一声を聞くとまだ人見知りをしているのだなと思いました。案内が遅れたことへの謝罪をしてきましたが、部屋が空かないのは女の子のせいではないですよね。それよりもなんでそんな服を着てきたのか聞いていいのか迷うくらいＨでした。【脱衣】部屋に入ると私も彼女も緊張していてガチゴチでした。そうなることも見越して、ユキちゃんが好きそうなプレゼントを持っていきました。とても喜んでくれて笑顔も見せてくれました。楽しそうに話すユキちゃんですが、私の目線は大きすぎる胸と短すぎるスカートからのぞく純白の太ももに奪われてしまいます。我慢しきれず服を脱いでもらえませんかと土下座する勢いで頼み込んだら恥ずかしそうにOKしてくれました。部屋を薄暗くし、そろそろと脱ぎ始めます。脱ぐと大きさ、形、乳輪の色、乳首の全てがパーフェクトなお胸があらわになります。肌も陶器のように白く美しく、なめらか。なんといってもくびれがエグいのでたわわに実ったおっぱいとの差がすごい。グラビアアイドルでもこんないい体の子はいないんじゃないかと思うくらいど迫力で息子が暴発しそうでした。【洗体】体も指の先まで丁寧に洗ってくれて気持ちがいいです。面白いのはずっとタオルを巻いているところ。本当に恥ずかしがり屋さんです。【プレイ】お風呂からベッドへ行くと不安そうに見えたので私がリードすることにしました。年齢も彼女より数個上なだけなので、お兄ちゃん気分になります。後ろから抱き締めると嬉しそうでリアルな彼女と錯覚してしまいそうな可愛さです。大きな胸を触ると呼吸が荒くなり気持ちよさそうな反応。乳首は少し突起するくらいです。クリは小さめで少し触れると突起させてくすぐったいと仰せられ、中心部分に指の第一関節をそっと入れただけでビクビクしながらイってしまい、びしょびしょになっていて驚きました。もう既にお気づきでしょう。彼女はとても感度がよくてイきやすい体質なのです。もっと攻めたかったのですが、私は裸を見たときから勃ちすぎて我慢できなかったのでＦもすっ飛ばしＧを着けて騎乗位でIN。INしようと思ったのですが先端部分からゆっくり腰を下ろし、半分入れたくらいでイっちゃいそうと小声で漏らす彼女。もうオマ◯コの締め付けがすごく、中がビクビクしてイキたそうにしてるのが伝わってきます。そんなの初めてでこちらの息子もイキたそう。根本まで挿れたところで彼女はイき、痛いくらいの締つけとビクビクする感覚、ブルンブルンと揺れるたわわなおっぱいがエロすぎて私も果てました。動かずにイったのは初めての経験です。速すぎて恥ずかしいのと気持ち良すぎた感動でしばらく放心状態＆それ以降の記憶が曖昧。いやーすごいという言葉しか出なかった気がします。さっきまで淫らに乱れていたユキちゃんはまた恥ずかしそうに私の腕の中に隠れていました（萌）一緒にイってくれて嬉しいと言っていてフォローも上手だなと思いました。早漏が好きらしいです。【追記】動かずともイけたのも、イってもらえたのも初めてで衝撃でした。見た目の可愛さに加えて賢くて優しくて性格がいい、さらに感度も相性もいい。もう骨抜きを通り越して全てを捧げたいです。すごい子を見つけてしまったため今後通いすぎてしまうんじゃないかと不安になりましたが杞憂になりそうです。そもそも予約が取れないので。今のところ姫予約はしていないと聞いたのでまた争奪戦に参加します。またすぐに会いたいです。</pre><br /><a href="https://okinilove.com/blog-entry-681.html#feifei2" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="false" data-shop-price="21600.0" data-shop-price-status="ok" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
+          <tr data-report="false" data-shop-price="" data-shop-price-status="unknown" data-shops="きみにメロン組|ソープ(スタンダード/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-45015787/?lo=1" target="_blank">みりあ🔐（22歳）</a><br /><span class="shop-info">きみにメロン組</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 21,600円 / 60分換算</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常 100分 36,000円（－SYSTEM－ / 100分）</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <p>税込表記</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
-                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>掲載金額に加算しない別情報: 指名料: 2,000円 / 本指名: 2,000円 / 料金表の条件（加算なし）: 下記ラインのご登録が必須となります。 🔽ラインのご登録はURLをコピー🔽 https://x.gd/m1F66</p>
+                  <p>未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません</p>
                   <ul class="shop-price-decisions">
-                    <li>－SYSTEM－ / : 料金表の文脈と複数時間/単一金額の対応</li>
-                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 限定・割引・会員等の対象コース</li>
+                    <li>－SYSTEM－ / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>--LINE会員様限定ALLコース2000円OFF-- / : 表内に未対応の時間・範囲・複数金額・条件行があります</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>確認日時: 2026-10-25T13:33:53+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(スタンダード/金津園)</span>
@@ -5559,21 +5715,26 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
             <td data-date="10/22" data-day="5" data-label="10/22(木)"><span class="cell">-</span></td>
             <td data-date="10/23" data-day="6" data-label="10/23(金)"><span class="cell">-</span></td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="LOVE MISSILE|ソープ(大衆/金津園)">
+          <tr data-report="true" data-shop-price="21333.333333333332" data-shop-price-status="ok" data-shops="LOVE MISSILE|ソープ(大衆/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/lovemissile/girlid-14231717/?lo=1" target="_blank">ここ❤️【１位】（22歳...</a><br /><button aria-controls="review-merged-69" aria-expanded="false" onclick="toggleReviewRow('review-merged-69')" type="button">レビュー(merged 4件)</button><br /><button aria-controls="review-okinilove-69" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-69')" type="button">レビュー(okinilove 2件)</button><br /><button aria-controls="review-ns-69" aria-expanded="false" onclick="toggleReviewRow('review-ns-69')" type="button">レビュー(NS専門 1件)</button><br /><span class="shop-info">LOVE MISSILE</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 21,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
+                  <p>掲載コース 90分 32,000円（★総額料金（指名料込み）★ / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円</p>
-                  <p>候補は限定・追加料金等のみで通常基本料金を特定できません</p>
-                  <ul class="shop-price-decisions">
-                    <li>★総額料金（指名料込み）★ / : 追加料金・特殊・総額等の別体系</li>
-                    <li>★おまかせ割引（総額）★ / : 限定・割引・会員等の対象コース</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>採用金額: ★総額料金（指名料込み）★ / / 90分 / 32,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: ★おまかせ割引（総額）★ / / 90分 / 30,000円 — 条件: 記載条件は出典で確認してください</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:10+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/lovemissile/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: 詳細な適用条件は出典を確認してください</p>
+                  <p>掲載金額に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>★総額料金（指名料込み）★ / : コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>★おまかせ割引（総額）★ / : 限定・会員等の掲載条件を保持したコース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:10+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/lovemissile/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -5735,24 +5896,32 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</pre><br />
               <pre>約一年振りに、お久しぶり〜ふ！覚えていらっしゃいますでしょうか？パチンコが激調子が良くタンス預金が出来ましたので、初のお風呂屋さんへ勉強に行きました。平日昼間でも、予約してからのが良いですね。結構、断られました。少し待てば女の子が空く　ラブミサイルさんへ入りました。トラブル有りでかなり待たされましたが案内された嬢の写真が好みだったので決めました。スク水でお出迎えされ軽い対話の後脱がして貰い「私も脱がして❤︎」なんて言われたらもう！可愛いおっぱいとキレイな乳首ナイスなお尻キレイなアソコ　ちょこっと惚れそうでした。すごい型の湯船に浸かりフェラーリ　普通です。ベットへ行き、たくさんキスをして69になり久しぶりに思う存分アソコを舐めました。ちなみに無味無臭でした。騎乗位の体制で生IN嬢に腰ん振ってもらうも気持ち良すぎてstopを掛けて止めてもらいます。もっと楽しみたいですからね。そのまま騎乗で覆い被さった状態でお尻を掴むと何とも言えない柔らかさが凄く良かったです。終始、騎乗位のまま腰を張り溜まったモノをマル秘へ注入して来ました♪2回目もいけそうですが自分の息子さん元気無く残りはおしゃべりして終わりました。もっと、いろんな対位をしたいのでこの子なら再訪は有りですね。ちと遠いけどw</pre><br /><a href="https://okinilove.com/blog-entry-1522.html#kimu" target="_blank">レポートリンク (okinilove)</a>
             </td>
           </tr>
-          <tr data-report="true" data-shop-price="" data-shop-price-status="unknown" data-shops="Sabbat|ソープ(大衆/金津園)">
+          <tr data-report="true" data-shop-price="23333.333333333332" data-shop-price-status="ok" data-shops="Sabbat|ソープ(大衆/金津園)">
             <td class="shop-cell"><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-41709102/?lo=1" target="_blank">ゆら♡【GOLD】（21...</a><br /><button aria-controls="review-merged-73" aria-expanded="false" onclick="toggleReviewRow('review-merged-73')" type="button">レビュー(merged 2件)</button><br /><button aria-controls="review-okinilove-73" aria-expanded="false" onclick="toggleReviewRow('review-okinilove-73')" type="button">レビュー(okinilove 2件)</button><br /><button aria-controls="review-ns-73" aria-expanded="false" onclick="toggleReviewRow('review-ns-73')" type="button">レビュー(NS専門 1件)</button><br /><span class="shop-info">Sabbat</span>
-              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（候補あり・判定保留）</span>
+              <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">条件つき目安 23,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
+                  <p>掲載コース 90分 35,000円（⚜️ゴールドキャスト⚜️ / 90分）</p>
                   <p>税込表記</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
-                  <p>候補あり・判定保留: 注記に限定・割引・会員等の適用条件があります</p>
-                  <ul class="shop-price-decisions">
-                    <li>★総額料金（指名料込み）★ / 料金システム: 追加料金・特殊・総額等の別体系</li>
-                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・割引・会員等の対象コース</li>
-                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
-                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 注記に限定・割引・会員等の適用条件があります</li>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul>
+                    <li>比較対象: ★総額料金（指名料込み）★ / 料金システム / 90分 / 32,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: ★おまかせ割引（総額）★ / 料金システム / 90分 / 31,000円 — 条件: 記載条件は出典で確認してください</li>
+                    <li>比較対象: 🌈レインボーキャスト🌈 / キャスト別料金表✨ / 90分 / 33,000円 — 条件: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可</li>
+                    <li>比較対象: 💠プラチナキャスト💠 / キャスト別料金表✨ / 90分 / 34,000円 — 条件: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
+                    <li>採用金額: ⚜️ゴールドキャスト⚜️ / キャスト別料金表✨ / 90分 / 35,000円 — 条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</li>
                   </ul>
-                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:07:36+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載金額に加算しない別情報: 45分: 17,000円 / 60分: 21,000円 / 75分: 27,000円 / 90分: 32,000円 / 105分: 37,000円 / 120分: 42,000円 / 料金表の条件（加算なし）: 🌈レインボー🌈キャストは通常料金+1,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※メルマガ併用可 ※ポイントカード利用可 / 料金表の条件（加算なし）: 💠プラチナキャスト💠は通常料金+2,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可 / 料金表の条件（加算なし）: ⚜️ゴールドキャスト⚜️は通常料金+3,000円でのご案内となります。 ※メンバーズカードお持ちの方はこちらから1,000円割引 ※ポイントカード利用可 ※メルマガ併用不可</p>
+                  <p>掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない</p>
+                  <ul class="shop-price-decisions">
+                    <li>★総額料金（指名料込み）★ / 料金システム: コース名称で除外せず時間と単一掲載金額の対応を確認</li>
+                    <li>★おまかせ割引（総額）★ / 料金システム: 限定・会員等の掲載条件を保持したコース候補</li>
+                    <li>🌈レインボーキャスト🌈 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>💠プラチナキャスト💠 / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                    <li>⚜️ゴールドキャスト⚜️ / キャスト別料金表✨: 時間帯・利用条件を保持した掲載コース候補</li>
+                  </ul>
+                  <p>確認日時: 2026-10-25T13:34:25+00:00 / 保存候補の再解析 2026-10-25T14:47:31+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/gifu/A2101/A210101/sabbat/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
               <br /><span class="shop-info">ソープ(大衆/金津園)</span>
@@ -5912,10 +6081,12 @@ M字で待ち受ける嬢へと挿入しながらクリを弄るとすごい反�
               <div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>掲載コース料金は未取得です</p>
                   <p>税の扱い不明</p>
+                  <p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p>
+                  <ul></ul>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
+                  <p>掲載金額に加算しない別情報: 別途費用の詳細は未確認</p>
                   <p></p>
                   <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/hiroshima/A3401/A340101/excellent_royal/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
