@@ -2,6 +2,7 @@
 
 見た目・操作はおきにラブの人物別ページ（src/okinilove/render_people_summary.py）に合わせる。
 """
+import argparse
 import html
 import json
 import re
@@ -18,6 +19,7 @@ from data_store import read_jsonl
 from html_format import write_html
 from ns_senmon.profile_images import classify_price_class
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
+from shop_prices import attach_prices
 
 
 def shop_type(entry):
@@ -244,7 +246,7 @@ def build_html(records, profiles=None):
     )
     prior_mean = overall_total_mean(records)
     rows = "".join(render_person(group, profiles, prior_mean) for group in groups)
-    return (
+    return attach_prices(
         TEMPLATE.replace("SHOP_OPTIONS", shop_options)
         .replace("REPEAT_OPTIONS", repeat_options)
         .replace("AGE_OPTIONS", age_options)
@@ -403,6 +405,7 @@ function applyFilters() {
             && (!shop || row.dataset.shop === shop)
             && (!repeat || row.dataset.repeat.split('|').includes(repeat))
             && (!shopType || row.dataset.shopType === shopType)
+            && (typeof shopPriceMatches !== 'function' || shopPriceMatches(row))
             && ageOk;
         row.hidden = !match;
         detail.hidden = !match || !row.classList.contains('open');
@@ -412,7 +415,7 @@ function applyFilters() {
     $('empty').hidden = shown !== 0;
 }
 pairs.forEach(([row, detail]) => row.addEventListener('click', event => {
-    if (event.target.closest('a')) return;
+    if (event.target.closest('a, details, input, select, button')) return;
     const open = !row.classList.contains('open');
     pairs.forEach(([r, d]) => { r.classList.remove('open'); d.hidden = true; });
     if (open) { row.classList.add('open'); detail.hidden = false; }
@@ -445,6 +448,7 @@ $('sort').addEventListener('change', applySort);
 $('reset-filters').addEventListener('click', () => {
     $('filters').querySelectorAll('select').forEach(select => select.selectedIndex = 0);
     $('search').value = '';
+    if (window.resetShopPrices) resetShopPrices();
     if (window.resetShopSearches) resetShopSearches();
     applySort();
     applyFilters();
@@ -472,7 +476,10 @@ def load_profiles(records):
         return {}
 
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--offline", action="store_true", help="保存済み画像と料金だけで生成（通信なし）")
+    args = parser.parse_args(argv)
     data = read_jsonl(INPUT_JSONL)
     records = data.sort_values(["date", "post_id"], ascending=False).to_dict("records")
     for record in records:
@@ -480,7 +487,12 @@ def main():
             record["details"] = json.loads(record["details"])
         if not isinstance(record.get("cityheaven_url"), str):
             record["cityheaven_url"] = ""
-    write_html(OUTPUT_HTML, build_html(records, load_profiles(records)))
+    if args.offline:
+        from ns_senmon.profile_images import load_cache
+        profiles = load_cache()
+    else:
+        profiles = load_profiles(records)
+    write_html(OUTPUT_HTML, build_html(records, profiles))
     print(f"HTMLを生成しました: {OUTPUT_HTML} ({len(records)}件 / {len(group_records(records))}人)")
 
 

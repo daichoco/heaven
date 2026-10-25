@@ -1,0 +1,324 @@
+{
+  "version": 1,
+  "shops": {
+    "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/": {
+      "status": "ok",
+      "reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間",
+      "candidates": [
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "60分",
+          "price_text": "18,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": 18000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "75分",
+          "price_text": "22,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 75,
+          "yen": 22000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "90分",
+          "price_text": "27,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 90,
+          "yen": 27000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "120分",
+          "price_text": "36,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 120,
+          "yen": 36000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "150分",
+          "price_text": "47,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 150,
+          "yen": 47000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+          "label": "180分",
+          "price_text": "56,000円",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 180,
+          "yen": 56000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金"
+        },
+        {
+          "course_name": "当店独自 【ポイントシステム】 利用可能ポイント",
+          "label": "60分",
+          "price_text": "2,000ptまで",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "当店独自 【ポイントシステム】 利用可能ポイント",
+          "label": "75分",
+          "price_text": "3,000ptまで",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 75,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "当店独自 【ポイントシステム】 利用可能ポイント",
+          "label": "90分",
+          "price_text": "4,000ptまで",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 90,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "当店独自 【ポイントシステム】 利用可能ポイント",
+          "label": "120分",
+          "price_text": "5,000ptまで",
+          "conditions": "",
+          "section": "料金システム",
+          "minutes": 120,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🉐ネット予約限定AV撮影割り🎥",
+          "label": "75分",
+          "price_text": "17,000円",
+          "conditions": "※動画撮影系オプションを付けていただくことが利用条件となります。 ※時間無制限台数無制限 スマホ三脚無料！ 🎥対応キャストを確認🎥 下記の特殊コース料金を参照してくださいませ🙇",
+          "section": "ネット予約限定最安値",
+          "minutes": 75,
+          "yen": 17000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🉐ネット予約限定AV撮影割り🎥",
+          "label": "90分",
+          "price_text": "21,000円",
+          "conditions": "※動画撮影系オプションを付けていただくことが利用条件となります。 ※時間無制限台数無制限 スマホ三脚無料！ 🎥対応キャストを確認🎥 下記の特殊コース料金を参照してくださいませ🙇",
+          "section": "ネット予約限定最安値",
+          "minutes": 90,
+          "yen": 21000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🉐ネット予約限定AV撮影割り🎥",
+          "label": "105分",
+          "price_text": "26,000円",
+          "conditions": "※動画撮影系オプションを付けていただくことが利用条件となります。 ※時間無制限台数無制限 スマホ三脚無料！ 🎥対応キャストを確認🎥 下記の特殊コース料金を参照してくださいませ🙇",
+          "section": "ネット予約限定最安値",
+          "minutes": 105,
+          "yen": 26000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🉐ネット予約限定AV撮影割り🎥",
+          "label": "135分",
+          "price_text": "35,000円",
+          "conditions": "※動画撮影系オプションを付けていただくことが利用条件となります。 ※時間無制限台数無制限 スマホ三脚無料！ 🎥対応キャストを確認🎥 下記の特殊コース料金を参照してくださいませ🙇",
+          "section": "ネット予約限定最安値",
+          "minutes": 135,
+          "yen": 35000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        }
+      ],
+      "selected": {
+        "course_name": "料金システム ※チェンジ・キャンセル不可 ※当日を含めた7日間ご予約が承れます✨",
+        "label": "90分",
+        "price_text": "27,000円",
+        "conditions": "",
+        "section": "料金システム",
+        "minutes": 90,
+        "yen": 27000,
+        "eligible": true,
+        "reason": "明示された通常料金表の時間・基本料金",
+        "yen_per_60": 18000.0,
+        "selection_reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間"
+      },
+      "tax": "included",
+      "additional_fees": [
+        {
+          "section": "指名システム🙇",
+          "label": "入会金",
+          "text": "無料"
+        },
+        {
+          "section": "指名システム🙇",
+          "label": "写真指名",
+          "text": "無料"
+        },
+        {
+          "section": "指名システム🙇",
+          "label": "本指名",
+          "text": "2,000円"
+        },
+        {
+          "section": "指名システム🙇",
+          "label": "姫予約",
+          "text": "2,000円（女の子からの特別予約）"
+        },
+        {
+          "section": "指名システム🙇",
+          "label": "30分延長",
+          "text": "10,000円+特別指名料"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "1,000円エリア",
+          "text": "中区"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "2,000円エリア",
+          "text": "中区(一部)金山・東区・千種区・昭和区・熱田区・中村区"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "3,000円エリア",
+          "text": "北区・西区・千種区・中川区・瑞穂区・南区・港区・中村区(一部)"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "4,000円エリア",
+          "text": "名東区・天白区・守山区・緑区・南区・港区(一部)"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "6,000円エリア",
+          "text": "名古屋市外"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "1,000円エリア",
+          "text": "中区"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "2,000円エリア",
+          "text": "中区(一部)金山・東区・千種区・昭和区・熱田区・中村区"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "3,000円エリア",
+          "text": "北区・西区・千種区・中川区・瑞穂区・南区・港区・中村区(一部)"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "6,000円エリア",
+          "text": "名東区・天白区・守山区・緑区・南区・港区(一部)"
+        },
+        {
+          "section": "【出張先詳細】",
+          "label": "8,000円エリア",
+          "text": "名古屋市外"
+        }
+      ],
+      "source_kind": "saved_html",
+      "observed_at": "2026-10-25T11:18:25+00:00",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/system/",
+      "checked_at": "2026-10-25T11:26:20+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/": {
+      "status": "unknown",
+      "reason": "明示的な通常料金表がありません",
+      "candidates": [],
+      "selected": null,
+      "tax": "unknown",
+      "additional_fees": [
+        {
+          "section": "【指名料】",
+          "label": "フリー",
+          "text": "0yen"
+        },
+        {
+          "section": "【指名料】",
+          "label": "指名料",
+          "text": "2,000yen"
+        },
+        {
+          "section": "【指名料】",
+          "label": "プレミア料（★星1つ）",
+          "text": "2,000yen"
+        },
+        {
+          "section": "【交通費】",
+          "label": "ホテル(岡崎ＩＣ周辺*1）",
+          "text": "無料"
+        },
+        {
+          "section": "【交通費】",
+          "label": "岡崎市 （一部除く）",
+          "text": "1,000yen"
+        },
+        {
+          "section": "【交通費】",
+          "label": "岡崎市外",
+          "text": "2,000yen～"
+        }
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2305/A230502/deidos-okazaki/system/",
+      "checked_at": "2026-10-25T11:28:58+00:00"
+    },
+    "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/": {
+      "status": "unknown",
+      "reason": "明示的な通常料金表がありません",
+      "candidates": [],
+      "selected": null,
+      "tax": "unknown",
+      "additional_fees": [
+        {
+          "section": "ロイヤルコース【会員様料金】",
+          "label": "【ご指名】120min",
+          "text": "68,000yen※7,000yen割引"
+        },
+        {
+          "section": "新規のお客様（他店舗会員様含む）",
+          "label": "【ご指名】120min",
+          "text": "70,000yen ※5,000yen割引"
+        }
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/system/",
+      "checked_at": "2026-10-25T11:28:59+00:00"
+    }
+  }
+}

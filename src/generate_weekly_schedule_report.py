@@ -30,6 +30,7 @@ from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
 from tokai_fuzoku.html_render import REPORT_DETAIL_FIELDS
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
+import shop_prices
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs" / "weekly_schedule.html"
@@ -458,6 +459,11 @@ def person_schedule(person, dates, schedules):
 def render_html(people, dates, schedules, removed, now=None, images=None):
     now = now or datetime.now(JST)
     images = images or {}
+    prices = shop_prices.load_cache()
+    period_note = (
+        "生成時の本日から7日間" if dates[0] == now.astimezone(JST).date().isoformat()
+        else "保存済み対象期間・本日へずらしません"
+    )
     labels = [
         f'{day}（{"月火水木金土日"[datetime.fromisoformat(day).weekday()]}）'
         for day in dates
@@ -472,6 +478,10 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
         name = escape(" / ".join(person["names"]) or "名前不明")
         shop = escape(" / ".join(person["shops"]) or "店舗不明")
         profile = escape(person["profile_url"], quote=True)
+        price_url = shop_prices.shop_url(person["profile_url"])
+        price_entry = prices["shops"].get(price_url, {})
+        selected_price = price_entry.get("selected") if price_entry.get("status") == "ok" else None
+        price_amount = selected_price["yen_per_60"] if selected_price else ""
         identity = (
             f'<a href="{profile}" target="_blank" rel="noopener">{name}</a>'
             if profile else f"{name}<br>CityHeaven URL未突合"
@@ -531,10 +541,11 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
             )
         rows.append(
             f'<tr class="person-row" data-working="{",".join(working_days)}" '
+            f'data-shop-price="{price_amount}" data-shop-price-status="{escape(price_entry.get("status", "not_fetched"), quote=True)}" '
             f'data-ages="{",".join(map(str, ages))}"{hidden}>'
             f'<td class="shop-cell">{image_html(person, images)}'
             f'<div class="person-identity"><div class="person-name">{identity}</div>'
-            f'<div class="shop-info">{shop}</div></div>'
+            f'<div class="shop-info">{shop}</div></div>{shop_prices.price_info(price_entry, price_url)}'
             f'<div class="rank-info"><dl class="ranking-metrics">'
             f'<div><dt>横断順位</dt><dd>{person["rank"]}<small>位</small></dd></div>'
             f'<div><dt>横断相対スコア</dt><dd>{person["score"]:.2f}<small>/100</small></dd></div></dl>'
@@ -563,11 +574,13 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 <html lang="ja">
 <head><meta charset="UTF-8">{HEAD_COMMON}
 <title>3レポート横断・7日間出勤カレンダー</title>
+<link rel="stylesheet" href="shop_prices.css">
+<script src="shop_prices.js"></script>
 <link rel="stylesheet" href="weekly_schedule.css">
 <script src="weekly_schedule.js" defer></script></head>
 <body data-details-scroll="native">{BACK_NAV}
 <h1>3レポート横断・7日間出勤カレンダー</h1>
-<p>対象期間: {labels[0]}〜{labels[-1]} 日本時間（生成時の本日から7日間）。レポート生成日時:
+<p>対象期間: {labels[0]}〜{labels[-1]} 日本時間（{period_note}）。レポート生成日時:
 {escape(now.astimezone(JST).isoformat(timespec="seconds"))}。評価あり {len(people)}人。</p>
 <details class="method"><summary>ランキング・取得方針</summary>
 <p>全評価人物が母集団です（予約困難・人気の文言、年齢、3件未満で除外しません）。
@@ -582,6 +595,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 <p>予定取得はS優先、Aは追加指定。表示フィルタでは順位・母集団・S/A選定を変更しません。
 未取得・未公開・未定・休み・要確認・取得エラーは区別します。空欄や欠けた日を休みと推測しません。
 予定は取得日時点の公開情報であり、予約可能性を保証しません。</p></details>
+{shop_prices.PRICE_CONTROLS}
 <div class="sticky-toolbar" id="toolbar">
 <div class="day-picker"><label for="scheduleFilter">表示条件</label>
 <select id="scheduleFilter">
@@ -601,9 +615,9 @@ def render_html(people, dates, schedules, removed, now=None, images=None):
 <p class="filter-count" id="dayCount" aria-live="polite">予定ありのみ（7日間）: 表示 {visible_count}名 / 母集団 {len(people)}名（順位・S/Aは固定）</p>
 </div>
 <p class="no-results" id="noResults" {"" if visible_count == 0 else "hidden"} role="status">条件に合う出勤予定はありません。
-未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」と年齢「絞り込みなし」で取得状況を確認してください。</p>
+未取得・未公開・取得エラーは出勤なしを意味しません。「全表示」と年齢「絞り込みなし」、料金条件を確認してください。</p>
 <p id="staleNotice" hidden role="status">本日は保存期間に含まれません。ページを再生成・再取得してください。</p>
-<noscript><p>JavaScriptが無効です。生成時の7日間に予定がある人物のみ表示しています。
+<noscript><p>JavaScriptが無効です。対象7日間に予定がある人物のみ表示しています。
 セレクタを使うにはJavaScriptを有効にしてください。</p></noscript>
 <div class="table-scroll" role="region" aria-label="横断順位と週間予定" tabindex="0">
 <table data-dates="{",".join(dates)}"><thead><tr><th>氏名・店舗／順位・評価</th>{headers}</tr></thead>
@@ -617,15 +631,26 @@ def main(argv=None):
     parser.add_argument("--offline", action="store_true", help="画像も予定も取得せず保存データだけで生成")
     parser.add_argument("--image-limit", type=int, help="明示的に不足画像取得対象数を制限（既定は対象全員）")
     parser.add_argument("--include-a", action="store_true", help="取得対象にSに続いてAも追加")
+    parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
     if args.offline and (args.collect or args.collect_images):
         parser.error("--offline と収集オプションは併用できません")
     if args.image_limit is not None and args.image_limit < 1:
         parser.error("--image-limit は1以上で指定してください")
+    if args.window_start and not args.offline:
+        parser.error("--window-start は --offline と併用してください")
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking()
     cache = load_cache()
+    if args.window_start:
+        try:
+            start = datetime.strptime(args.window_start, "%Y-%m-%d").date()
+        except ValueError:
+            parser.error("--window-start は YYYY-MM-DD で指定してください")
+        if start.isoformat() not in cache["windows"]:
+            parser.error("指定した開始日の保存済み予定がありません")
+        dates = [(start + timedelta(days=offset)).isoformat() for offset in range(7)]
     schedules = cache["windows"].get(dates[0], {})
     failures = 0
     if args.collect:

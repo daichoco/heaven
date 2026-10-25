@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "src" / "tokai_fuzoku"))
 
 from tokai_fuzoku.html_render import generate_html, group_reports, sort_attributes
 from tokai_fuzoku import generate_report_final as tokai
@@ -73,6 +74,8 @@ const context = vm.createContext({
         },
     },
     window: {},
+    URLSearchParams,
+    location: {search: ""},
 });
 vm.runInContext(script, context);
 ready();

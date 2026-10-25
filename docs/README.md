@@ -82,7 +82,56 @@ Neither command collects data or makes network requests.
 
 保守オプションは併用できます。`--time-budget N` は検索補完に使う時間の上限を秒数で指定します（既定値: 20）。`--enrich` に適用されます。`--check-unavailable` または `--enrich` のいずれかを指定してください。
 
-### オフラインでのレポート生成
+### 店舗の通常料金フィルタ
+
+週間カレンダー、NS専門・オキニラブ・東海の人物一覧、統合カレンダー、予約困難一覧は
+共通の `data\cityheaven_shop_prices.json` を読みます。通常90分を優先し、なければ
+最も近い時間（同距離は長い方）を選んで60分相当に換算します。
+料金の上下限は円単位で任意指定でき、既定は絞り込みなしです。
+「料金不明のみ」は未取得・判別不可・取得失敗等を含み、金額入力とは排他的です。
+下限・上限のどちらかを指定した場合、料金不明は一致しません。
+既存の年齢・日付・店舗条件とANDで併用し、母集団・評価・横断順位・S/A・予定取得対象は変更しません。
+NSの既存「高級」表記とは別軸です。新しい固定価格帯や本文AI解析は導入しません。
+
+人物欄の「料金の根拠・別途費用」から、採用コースと金額、税込・税別・不明、
+指名・出張費等、出典URL、確認日時を確認できます。60分換算は実際の60分商品や
+確定支払総額ではなく、別途料金を最安値にまとめたり黙って足したりしません。
+判別できない表・画像のみ・複数通常体系・制限・転送は理由付きの料金不明です。
+現在確認できた数値は保存HTMLの愛らぶ名古屋本店1店のみ
+（90分27,000円、60分換算18,000円・税込表記）です。
+でりどす岡崎とリージェントクラブ貴公子は通常表を確定できず不明、
+他280店は未取得です。この1店のサンプル分布を全店舗の分布とは見なしません。
+
+```powershell
+# 指定店舗のみ。既存結果は保持。更新する場合だけ --refresh を追加
+py -3 src\shop_prices.py --shop-url "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/"
+# 保存HTMLから1店舗を取り込む（canonical一致を確認、通信なし）
+py -3 src\shop_prices.py --shop-url "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/" --html-file "C:\path\system.html" --refresh
+# 利用者が明示的に全店取得を始める場合のみ。まず上限を付ける
+py -3 src\shop_prices.py --all --limit 5
+py -3 src\shop_prices.py --all
+py -3 src\shop_prices.py --summary
+# 保存データだけで各画面を再生成（料金の通信・キャッシュ更新はしない）
+py -3 src\generate_weekly_schedule_report.py --offline
+# 過去の保存期間を保持して再生成。指定日が保存されていなければエラー
+py -3 src\generate_weekly_schedule_report.py --offline --window-start 2026-10-19
+py -3 src\ns_senmon\generate_ns_senmon_report.py --offline
+py -3 src\okinilove\render_people_summary.py --offline
+py -3 src\tokai_fuzoku\generate_report_final.py --offline --refresh-prices
+py -3 src\integrations\report_left_merge.py --offline
+py -3 src\generate_booking_difficulty_report.py --refresh-prices
+```
+
+料金取得は店舗URL単位で重複排除し、逐次実行します。保存済み失敗も自動で全失効せず、
+再確認は対象店舗を指定して `--refresh` を使います。全件取得はHTML生成から起動しません。
+取り込みHTMLは変更せず、リポジトリには料金の最小データと小さなDOMテストfixtureだけを置きます。
+統合カレンダーの `--offline` は既存HTMLの予定・画像・記事を維持して料金とフィルタだけを更新します。
+東海のオフライン生成も既存HTMLの画像を再利用します。
+東海の `--offline --refresh-prices` は、過去のオンライン掲載確認による除外も含めて
+公開済みHTMLの人物・記事を保持します。通常の `--offline` によるJSONLからの全再生成とは区別します。
+予約困難一覧の `--refresh-prices` も同様に既存の人物・根拠を保持します。
+
+### その他のオフライン生成コマンド
 
 | コマンド | 機能 |
 | --- | --- |
