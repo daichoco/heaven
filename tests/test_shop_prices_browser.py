@@ -5,6 +5,7 @@ import sys
 import unittest
 from datetime import datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import pandas as pd
@@ -18,6 +19,7 @@ from integrations.report_left_merge import build_calendar_html
 from ns_senmon.generate_ns_senmon_report import build_html, TOTAL_KEY
 from okinilove.render_people_summary import build_people_summary
 from tokai_fuzoku.html_render import generate_html
+from generate_booking_difficulty_report import render_html as booking_html
 
 SHOP = "https://www.cityheaven.net/aichi/A2301/A230103/airabugakuen/"
 PROFILES = [SHOP + "girlid-123/", SHOP.replace("airabugakuen", "unknown") + "girlid-456/"]
@@ -53,10 +55,52 @@ def pages():
         "okinilove": str(build_people_summary(raw_oki, fetch_missing_industries=False)[0]),
         "tokai": generate_html(pd.DataFrame(records)),
         "calendar": build_calendar_html(calendar),
+        "booking": booking_html([{
+            "names": [f"Person{index}"], "shops": [f"Shop{index}"], "profile_url": profile,
+            "name": f"Person{index}", "sources": [], "identity_issues": [],
+            "needs_review": False, "score": 80, "ratings": {}, "rated_count": 1,
+        } for index, profile in enumerate(PROFILES)], {}, views=SimpleNamespace(render=lambda person: "")),
     }, people
 
 
 class ShopPriceBrowserTests(unittest.TestCase):
+    def test_band_boundaries_missing_values_and_reset(self):
+        with sync_playwright() as playwright:
+            for engine in ("chromium", "webkit"):
+                browser = getattr(playwright, engine).launch()
+                try:
+                    page = browser.new_page()
+                    page.set_content(shop_prices.PRICE_CONTROLS)
+                    page.add_script_tag(path=str(ROOT / "docs" / "shop_prices.js"))
+                    bands = ["0-10000", "10000-15000", "15000-20000",
+                             "20000-25000", "25000-30000", "30000"]
+                    amounts = [0.01, 9999.99, 10000, 14999.99, 15000, 19999.99,
+                               20000, 24999.99, 25000, 29999.99, 30000, 99999]
+                    expected = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+                    for index, band in enumerate(bands):
+                        page.select_option("#shopPriceBand", band)
+                        actual = page.evaluate("""amounts => amounts.map(amount =>
+                            shopPriceMatches({dataset: {shopPriceStatus: "ok", shopPrice: String(amount)}}))""", amounts)
+                        self.assertEqual(actual, [value == index for value in expected], (engine, band))
+                        self.assertEqual(page.evaluate("""() => ["", "NaN", "0", "-1"].map(value =>
+                            shopPriceMatches({dataset: {shopPriceStatus: "ok", shopPrice: value}}))"""),
+                                         [False] * 4)
+                        self.assertFalse(page.evaluate("""() => shopPriceMatches({
+                            dataset: {shopPriceStatus: "unknown", shopPrice: "18000"}})"""))
+                    page.select_option("#shopPriceBand", "unknown")
+                    self.assertEqual(page.evaluate("""() => [
+                        {shopPriceStatus: "ok", shopPrice: "18000"}, {},
+                        {shopPriceStatus: "unknown", shopPrice: "18000"},
+                        {shopPriceStatus: "ok", shopPrice: ""},
+                        {shopPriceStatus: "error"}, {shopPriceStatus: "not_fetched"}
+                    ].map(dataset => shopPriceMatches({dataset}))"""),
+                                     [False, True, True, True, True, True])
+                    page.evaluate("resetShopPrices()")
+                    expect(page.locator("#shopPriceBand")).to_have_value("")
+                    self.assertTrue(page.evaluate("shopPriceMatches({dataset: {}})"))
+                finally:
+                    browser.close()
+
     def test_native_filter_composition_unknown_empty_reset_and_disclosure(self):
         entry = shop_prices.parse_system_html(
             (ROOT / "tests" / "fixtures" / "shop_prices_airabugakuen.html").read_text(encoding="utf-8")
@@ -92,10 +136,14 @@ class ShopPriceBrowserTests(unittest.TestCase):
 
                                 context.route("**/*", respond)
                                 page.goto("https://prices.invalid/test.html")
+                                if name == "booking":
+                                    page.locator("#categoryFilter").select_option("")
                                 rows = page.locator("[data-shop-price-status]")
                                 expect(rows.locator("visible=true")).to_have_count(2)
-                                page.locator("#shopPriceMin").fill("18000")
-                                page.locator("#shopPriceMax").fill("18000")
+                                band = page.locator("#shopPriceBand")
+                                expect(band).to_have_value("")
+                                expect(page.locator("#shopPriceMin, #shopPriceMax")).to_have_count(0)
+                                band.select_option("15000-20000")
                                 expect(rows.locator("visible=true")).to_have_count(1)
                                 known = rows.filter(has=page.locator('[href="' + PROFILES[0] + '"]')).first
                                 price_details = known.locator(".shop-price-evidence").first
@@ -110,38 +158,42 @@ class ShopPriceBrowserTests(unittest.TestCase):
                                 price_details.locator("summary").click()
                                 if name == "weekly":
                                     self.assertLess(abs(price_details.locator("summary").bounding_box()["y"] - top), 2)
-                                page.locator("#shopPriceMin").fill("18001")
+                                band.select_option("20000-25000")
                                 expect(rows.locator("visible=true")).to_have_count(0)
-                                expect(page.locator("#shopPriceError")).to_be_visible()
-                                page.locator("#shopPriceMode").select_option("unknown")
+                                band.select_option("unknown")
                                 expect(rows.locator("visible=true")).to_have_count(1)
-                                expect(page.locator("#shopPriceMin")).to_be_disabled()
-                                page.locator("#shopPriceMode").select_option("")
-                                page.locator("#shopPriceMin").fill("")
-                                page.locator("#shopPriceMax").fill("17999")
+                                band.select_option("10000-15000")
                                 expect(rows.locator("visible=true")).to_have_count(0)
-                                # Clearing numeric conditions restores the native population, not an independently hidden copy.
-                                page.locator("#shopPriceMax").fill("")
+                                band.select_option("")
                                 expect(rows.locator("visible=true")).to_have_count(2)
                                 if name == "weekly":
                                     page.locator("#ageFilter").select_option("over30")
                                     expect(rows.locator("visible=true")).to_have_count(0)
-                                    page.locator("#shopPriceMin").fill("0")
+                                    band.select_option("15000-20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#ageFilter").select_option("")
+                                    band.select_option("")
                                 elif name in {"ns", "okinilove"}:
                                     page.locator("#shop").select_option("Shop1")
-                                    page.locator("#shopPriceMax").fill("18000")
+                                    band.select_option("15000-20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#reset-filters").click()
-                                    expect(page.locator("#shopPriceMax")).to_have_value("")
+                                    expect(band).to_have_value("")
                                     expect(rows.locator("visible=true")).to_have_count(2)
                                 elif name in {"tokai", "calendar"}:
                                     page.locator("#shopFilter").select_option("Shop1")
-                                    page.locator("#shopPriceMax").fill("18000")
+                                    band.select_option("15000-20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#shopFilter").select_option("")
-                                    page.locator("#shopPriceMax").fill("")
+                                    band.select_option("")
+                                elif name == "booking":
+                                    page.locator("#personSearch").fill("Person1")
+                                    band.select_option("15000-20000")
+                                    expect(rows.locator("visible=true")).to_have_count(0)
+                                    page.locator("#personSearch").fill("")
+                                    page.evaluate("resetShopPrices(); filterPeople()")
+                                    expect(band).to_have_value("")
+                                    expect(rows.locator("visible=true")).to_have_count(2)
                                 self.assertFalse(errors, errors)
                                 self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth"), width + 1)
                                 artifacts = os.environ.get("SHOP_PRICE_ARTIFACTS")

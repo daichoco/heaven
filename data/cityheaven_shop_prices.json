@@ -319,6 +319,544 @@
       "source_kind": "http",
       "source_url": "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/system/",
       "checked_at": "2026-10-25T11:28:59+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2301/A230101/alamode/": {
+      "status": "ok",
+      "reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間",
+      "candidates": [
+        {
+          "course_name": "システム料金",
+          "label": "50分",
+          "price_text": "8,000円",
+          "conditions": "※アルバム見学無料です。 ※別途サービス料を頂きます。",
+          "section": "",
+          "minutes": 50,
+          "yen": 8000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "システム料金",
+          "label": "70分",
+          "price_text": "11,000円",
+          "conditions": "※アルバム見学無料です。 ※別途サービス料を頂きます。",
+          "section": "",
+          "minutes": 70,
+          "yen": 11000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "システム料金",
+          "label": "90分",
+          "price_text": "14,000円",
+          "conditions": "※アルバム見学無料です。 ※別途サービス料を頂きます。",
+          "section": "",
+          "minutes": 90,
+          "yen": 14000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        }
+      ],
+      "selected": {
+        "course_name": "システム料金",
+        "label": "90分",
+        "price_text": "14,000円",
+        "conditions": "※アルバム見学無料です。 ※別途サービス料を頂きます。",
+        "section": "",
+        "minutes": 90,
+        "yen": 14000,
+        "eligible": true,
+        "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）",
+        "yen_per_60": 9333.333333333334,
+        "selection_reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間"
+      },
+      "tax": "unknown",
+      "additional_fees": [
+        {
+          "section": "システム料金",
+          "label": "指名料",
+          "text": "0円"
+        },
+        {
+          "section": "システム料金",
+          "label": "料金表の条件（加算なし）",
+          "text": "※アルバム見学無料です。 ※別途サービス料を頂きます。"
+        }
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/",
+      "checked_at": "2026-10-25T13:09:30+00:00",
+      "reprocessed_at": "2026-10-25T13:14:25+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/": {
+      "status": "ok",
+      "reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間",
+      "candidates": [
+        {
+          "course_name": "基本料金",
+          "label": "60分",
+          "price_text": "18,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": 18000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "基本料金",
+          "label": "80分 ★オススメ",
+          "price_text": "23,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪",
+          "section": "料金システム",
+          "minutes": 80,
+          "yen": 23000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "基本料金",
+          "label": "100分",
+          "price_text": "29,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪",
+          "section": "料金システム",
+          "minutes": 100,
+          "yen": 29000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "基本料金",
+          "label": "120分",
+          "price_text": "36,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪",
+          "section": "料金システム",
+          "minutes": 120,
+          "yen": 36000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        }
+      ],
+      "selected": {
+        "course_name": "基本料金",
+        "label": "100分",
+        "price_text": "29,000円",
+        "conditions": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪",
+        "section": "料金システム",
+        "minutes": 100,
+        "yen": 29000,
+        "eligible": true,
+        "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）",
+        "yen_per_60": 17400.0,
+        "selection_reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間"
+      },
+      "tax": "unknown",
+      "additional_fees": [
+        {
+          "section": "その他",
+          "label": "入会金",
+          "text": "0円"
+        },
+        {
+          "section": "その他",
+          "label": "指名料",
+          "text": "2,000円"
+        },
+        {
+          "section": "その他",
+          "label": "特別指名料",
+          "text": "1,000円～"
+        },
+        {
+          "section": "交通費",
+          "label": "納屋橋エリア",
+          "text": "無料"
+        },
+        {
+          "section": "交通費",
+          "label": "名古屋市内～",
+          "text": "1,000円～"
+        },
+        {
+          "section": "基本料金",
+          "label": "料金表の条件（加算なし）",
+          "text": "☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪"
+        },
+        {
+          "section": "その他",
+          "label": "入会金",
+          "text": "0円"
+        },
+        {
+          "section": "その他",
+          "label": "指名料",
+          "text": "2,000円"
+        },
+        {
+          "section": "その他",
+          "label": "本指名料",
+          "text": "2,000円"
+        },
+        {
+          "section": "その他",
+          "label": "特別指名料",
+          "text": "1,000円～"
+        },
+        {
+          "section": "交通費",
+          "label": "納屋橋エリア",
+          "text": "無料"
+        },
+        {
+          "section": "交通費",
+          "label": "名古屋市内～",
+          "text": "1,000円～"
+        }
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/",
+      "checked_at": "2026-10-25T13:09:31+00:00",
+      "reprocessed_at": "2026-10-25T13:14:25+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_nayabashi/": {
+      "status": "ok",
+      "reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間",
+      "candidates": [
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "45分",
+          "price_text": "12,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 45,
+          "yen": 12000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "60分",
+          "price_text": "16,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 60,
+          "yen": 16000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "75分",
+          "price_text": "20,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 75,
+          "yen": 20000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "90分",
+          "price_text": "24,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 90,
+          "yen": 24000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "60分",
+          "price_text": "16,000円",
+          "conditions": "入店1カ月以内の女の子限定！いつでも特別価格！ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 60,
+          "yen": 16000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "90分",
+          "price_text": "24,000円",
+          "conditions": "入店1カ月以内の女の子限定！いつでも特別価格！ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "WEB予約が一番お得",
+          "minutes": 90,
+          "yen": 24000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "通常料金",
+          "label": "45分",
+          "price_text": "15,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 45,
+          "yen": 15000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "通常料金",
+          "label": "60分",
+          "price_text": "19,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": 19000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "通常料金",
+          "label": "75分",
+          "price_text": "23,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 75,
+          "yen": 23000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "通常料金",
+          "label": "90分",
+          "price_text": "27,000円",
+          "conditions": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 90,
+          "yen": 27000,
+          "eligible": true,
+          "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "45分",
+          "price_text": "12,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 45,
+          "yen": 12000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "60分",
+          "price_text": "16,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": 16000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "75分",
+          "price_text": "20,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 75,
+          "yen": 20000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "アリススペシャル🌟最安値🌟【WEB予約料込み】",
+          "label": "90分",
+          "price_text": "24,000円",
+          "conditions": "WEB予約限定のコースになります♪ 【注意事項】 プレイ終了後、口コミの投稿が必要になります。 口コミ投稿しない場合は＋1000円 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 90,
+          "yen": 24000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "60分",
+          "price_text": "16,000円",
+          "conditions": "入店1カ月以内の女の子限定！いつでも特別価格！ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 60,
+          "yen": 16000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "90分",
+          "price_text": "24,000円",
+          "conditions": "入店1カ月以内の女の子限定！いつでも特別価格！ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 90,
+          "yen": 24000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "フリー割引",
+          "label": "50分",
+          "price_text": "11,000円",
+          "conditions": "※女の子はお選びいただけません。 ※ご案内可能な女の子2名以上いる場合に限りご利用いただけます。 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 50,
+          "yen": 11000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "フリー割引",
+          "label": "80分",
+          "price_text": "18,000円",
+          "conditions": "※女の子はお選びいただけません。 ※ご案内可能な女の子2名以上いる場合に限りご利用いただけます。 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+          "section": "料金システム",
+          "minutes": 80,
+          "yen": 18000,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        }
+      ],
+      "selected": {
+        "course_name": "通常料金",
+        "label": "90分",
+        "price_text": "27,000円",
+        "conditions": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料",
+        "section": "料金システム",
+        "minutes": 90,
+        "yen": 27000,
+        "eligible": true,
+        "reason": "明示された通常料金表の時間・基本料金（別途費用は加算なし）",
+        "yen_per_60": 18000.0,
+        "selection_reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間"
+      },
+      "tax": "unknown",
+      "additional_fees": [
+        {
+          "section": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "60分",
+          "text": "16,000円"
+        },
+        {
+          "section": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "90分",
+          "text": "24,000円"
+        },
+        {
+          "section": "",
+          "label": "パネル指名料",
+          "text": "無料"
+        },
+        {
+          "section": "",
+          "label": "本指名料",
+          "text": "2,000円"
+        },
+        {
+          "section": "通常料金",
+          "label": "料金表の条件（加算なし）",
+          "text": "☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料"
+        },
+        {
+          "section": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "60分",
+          "text": "16,000円"
+        },
+        {
+          "section": "🔰新人割🔰 【WEB予約料／パネル指名料込み】",
+          "label": "90分",
+          "text": "24,000円"
+        },
+        {
+          "section": "",
+          "label": "パネル指名料",
+          "text": "無料"
+        },
+        {
+          "section": "",
+          "label": "本指名料",
+          "text": "2,000円"
+        }
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_nayabashi/system/",
+      "checked_at": "2026-10-25T13:09:33+00:00",
+      "reprocessed_at": "2026-10-25T13:14:25+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/": {
+      "status": "unknown",
+      "reason": "明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています",
+      "candidates": [
+        {
+          "course_name": "8時45分〜24時00分",
+          "label": "20分",
+          "price_text": "基本料金 2,990円 入場料金 2,000円 4,990円（税込）",
+          "conditions": "",
+          "section": "",
+          "minutes": 20,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "8時45分〜24時00分",
+          "label": "40分",
+          "price_text": "基本料金 7,990円 入場料金 2,000円 9,990円（ 税込）",
+          "conditions": "",
+          "section": "",
+          "minutes": 40,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        },
+        {
+          "course_name": "8時45分〜24時00分",
+          "label": "60分",
+          "price_text": "基本料金 12,990円 入場料金 2,000円 14,990円（税込）",
+          "conditions": "",
+          "section": "",
+          "minutes": 60,
+          "yen": null,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        }
+      ],
+      "selected": null,
+      "tax": "unknown",
+      "additional_fees": [],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/",
+      "checked_at": "2026-10-25T13:09:34+00:00",
+      "reprocessed_at": "2026-10-25T13:14:25+00:00"
+    },
+    "https://www.cityheaven.net/aichi/A2301/A230101/beppin-c/": {
+      "status": "unknown",
+      "reason": "通常見出しのない時間コースと限定・割引注記があり、通常体系を確定できません",
+      "candidates": [
+        {
+          "course_name": "50分コース 9:00~24:00（23:00最終案内） 受付開始 / 8:30",
+          "label": "50分",
+          "price_text": "18,500円",
+          "conditions": "【料金プラン】 「ヘブンを見た！」 とお伝えいただくと、 以下の限定価格（税込）でご案内いたします。 1名様：16,500円（通常 18,500円） 「団体割を見た！」 とお伝えいただくと、 以下の限定価格（税込）でご案内いたします。 2名様：おひとり様あたり3,000円OFF → 15,500円 (通常18,500円) 3名様：おひとり様あたり4,000円OFF → 14,500円 (通常18,500円) ※2名様以上でのご利用からとなります。 ※こちらの割引はお時間関係なく終日ご利用可能です。 ■割引の併用について 「ヘブンを見た！」と「団体割を見た！」の併用は ご利用いただけません。 上記割引に加え、ポイントカードなど「もう1種類」のみ 割引を併用いただけます。ぜひお得にご利用ください。 お支払いにはVISA・Masterカードもご利用可能です。 ■ご案内システムについて 当店は毎時00分（1時間に1度）の ご案内制となっております。 タイミングによってはお待ちいただく場合や、 準備の都合上、ご案内の順番が 前後する可能性がございます。 何卒ご了承くださいませ。 ■その他注意事項 当店は外国籍の方の入場をお断りいたします。 JAPANESE ONLY. 일본인만 이용 가능. 僅適用於日本人。",
+          "section": "",
+          "minutes": 50,
+          "yen": 18500,
+          "eligible": false,
+          "reason": "通常コースと確認できない条件・表記"
+        }
+      ],
+      "selected": null,
+      "tax": "unknown",
+      "additional_fees": [],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230101/beppin-c/system/",
+      "checked_at": "2026-10-25T13:09:36+00:00",
+      "reprocessed_at": "2026-10-25T13:14:25+00:00"
     }
   }
 }

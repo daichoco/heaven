@@ -106,16 +106,19 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
     <section aria-label="店舗料金" class="shop-price-filters" id="shopPriceFilters">
       <strong>店舗の通常料金（60分換算・参考）</strong>
       <div class="shop-price-inputs">
-        <label>下限（円）<input id="shopPriceMin" inputmode="numeric" min="0" placeholder="指定なし" step="any" type="number" /></label>
-        <label>上限（円）<input id="shopPriceMax" inputmode="numeric" min="0" placeholder="指定なし" step="any" type="number" /></label>
-        <label>料金の確認状態<select id="shopPriceMode">
-            <option value="">絞り込みなし</option>
-            <option value="unknown">料金不明のみ</option>
+        <label>価格帯<select id="shopPriceBand">
+            <option value="">すべて</option>
+            <option value="0-10000">1万円未満</option>
+            <option value="10000-15000">1万〜1.5万円未満</option>
+            <option value="15000-20000">1.5万〜2万円未満</option>
+            <option value="20000-25000">2万〜2.5万円未満</option>
+            <option value="25000-30000">2.5万〜3万円未満</option>
+            <option value="30000">3万円以上</option>
+            <option value="unknown">料金不明</option>
           </select></label>
       </div>
       <p>通常90分を優先し、なければ最も近い時間（同距離は長い方）を60分換算。実際の60分コース料金・確定支払総額ではありません。
 指名料・交通費・別途必須料金は加算していません。税込・税別・税不明は根拠欄を確認してください。未取得を安価とは扱いません。</p>
-      <p hidden="" id="shopPriceError" role="alert"></p>
     </section>
     <section aria-label="レビューの絞り込み" class="filters" id="filters">
       <div class="filter-primary">
@@ -517,16 +520,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
           </tr>
         </thead>
         <tbody>
-          <tr class="person-row" data-average="5.000" data-chubby="false" data-faces="かわいい|キレイ" data-gaps="判別不可" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 つき" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="5.000" data-chubby="false" data-faces="かわいい|キレイ" data-gaps="判別不可" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 つき" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="unknown" data-vals="1">
+            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（判別不可）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
                   <p>税の扱い不明</p>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
                   <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
+                  <p>確認日時: 2026-10-25T13:09:34+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -3535,16 +3538,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="5.000" data-chubby="false" data-faces="かわいい|幼い" data-gaps="写真より良い" data-industry="ソープランド" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード ゆきか" data-service-types="" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="5.000" data-chubby="false" data-faces="かわいい|幼い" data-gaps="写真より良い" data-industry="ソープランド" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード ゆきか" data-service-types="" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -37143,16 +37146,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="" data-gaps="" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 ちなみ" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="" data-gaps="" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 ちなみ" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="unknown" data-vals="1">
+            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（判別不可）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
                   <p>税の扱い不明</p>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
                   <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
+                  <p>確認日時: 2026-10-25T13:09:34+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -37185,16 +37188,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="" data-gaps="判別不可" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 るり" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="" data-gaps="判別不可" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 るり" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="unknown" data-vals="1">
+            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（判別不可）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
                   <p>税の扱い不明</p>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
                   <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
+                  <p>確認日時: 2026-10-25T13:09:34+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -37227,16 +37230,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|キレイ|並" data-gaps="判別不可" data-industry="ヘルス" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 ミライちゃん" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|キレイ|並" data-gaps="判別不可" data-industry="ヘルス" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="avハーツ納屋橋店 ミライちゃん" data-service-types="" data-shop="AVハーツ納屋橋店" data-shop-price="" data-shop-price-status="unknown" data-vals="1">
+            <td>AVハーツ納屋橋店<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（判別不可）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
                   <p>税の扱い不明</p>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
                   <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>明示的な通常料金表がなく、基本料金・入場料金・合計の複数金額が同居しています</p>
+                  <p>確認日時: 2026-10-25T13:09:34+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/av-nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -40185,16 +40188,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|キレイ" data-gaps="そのまま変りない" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="べっぴんコレクション めい" data-service-types="" data-shop="べっぴんコレクション" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>べっぴんコレクション<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|キレイ" data-gaps="そのまま変りない" data-industry="ヘルス" data-neg="0.0000" data-negn="0" data-posn="1" data-rated="1" data-reports="1" data-search="べっぴんコレクション めい" data-service-types="" data-shop="べっぴんコレクション" data-shop-price="" data-shop-price-status="unknown" data-vals="1">
+            <td>べっぴんコレクション<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（判別不可）</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常見出しのない時間コースと限定・割引注記があり、通常体系を確定できません</p>
                   <p>税の扱い不明</p>
                   <p>条件: 詳細な適用条件は出典を確認してください</p>
                   <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/beppin-c/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>通常見出しのない時間コースと限定・割引注記があり、通常体系を確定できません</p>
+                  <p>確認日時: 2026-10-25T13:09:36+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/beppin-c/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -41944,16 +41947,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード はく" data-service-types="sp" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="4.000" data-chubby="false" data-faces="かわいい|並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード はく" data-service-types="sp" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -93185,16 +93188,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="3.000" data-chubby="false" data-faces="かわいい" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード りん" data-service-types="sp" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="3.000" data-chubby="false" data-faces="かわいい" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード りん" data-service-types="sp" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -115857,16 +115860,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="幼い" data-gaps="まったくの別人" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード おと" data-service-types="" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="幼い" data-gaps="まったくの別人" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アラモード おと" data-service-types="" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -116120,16 +116123,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="並|幼い" data-gaps="写真より落ちる" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 森永ちろる" data-service-types="sp" data-shop="アリス女学院名古屋校" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="並|幼い" data-gaps="写真より落ちる" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 森永ちろる" data-service-types="sp" data-shop="アリス女学院名古屋校" data-shop-price="17400.0" data-shop-price-status="ok" data-vals="1">
+            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 17,400円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 100分 29,000円（基本料金 / 100分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪</p>
+                  <p>基本料金に加算しない別情報: 入会金: 0円 / 指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～ / 料金表の条件（加算なし）: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪ / 入会金: 0円 / 指名料: 2,000円 / 本指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:31+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -116162,16 +116165,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="かわいい|並" data-gaps="まったくの別人" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 秋姫すもも" data-service-types="sp" data-shop="アリス女学院名古屋校" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="2.000" data-chubby="false" data-faces="かわいい|並" data-gaps="まったくの別人" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="1" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 秋姫すもも" data-service-types="sp" data-shop="アリス女学院名古屋校" data-shop-price="17400.0" data-shop-price-status="ok" data-vals="1">
+            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 17,400円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 100分 29,000円（基本料金 / 100分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪</p>
+                  <p>基本料金に加算しない別情報: 入会金: 0円 / 指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～ / 料金表の条件（加算なし）: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪ / 入会金: 0円 / 指名料: 2,000円 / 本指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:31+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -127168,16 +127171,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="ブサイク|並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード えみり" data-service-types="" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="ブサイク|並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード えみり" data-service-types="" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -127263,16 +127266,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード ののか" data-service-types="" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="並" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード ののか" data-service-types="" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -127347,16 +127350,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="老けてる" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード るい" data-service-types="" data-shop="アラモード" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="老けてる" data-gaps="写真より落ちる" data-industry="ソープランド" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アラモード るい" data-service-types="" data-shop="アラモード" data-shop-price="9333.333333333334" data-shop-price-status="ok" data-vals="1">
+            <td>アラモード<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 9,333円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 14,000円（システム料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>基本料金に加算しない別情報: 指名料: 0円 / 料金表の条件（加算なし）: ※アルバム見学無料です。 ※別途サービス料を頂きます。</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:30+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alamode/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -127431,16 +127434,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="老けてる" data-gaps="まったくの別人" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 西野こはね" data-service-types="" data-shop="アリス女学院名古屋校" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="老けてる" data-gaps="まったくの別人" data-industry="デリヘル" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名古屋校 西野こはね" data-service-types="" data-shop="アリス女学院名古屋校" data-shop-price="17400.0" data-shop-price-status="ok" data-vals="1">
+            <td>アリス女学院名古屋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 17,400円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 100分 29,000円（基本料金 / 100分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪</p>
+                  <p>基本料金に加算しない別情報: 入会金: 0円 / 指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～ / 料金表の条件（加算なし）: ☆カード決済手数料無料☆ カード決済でも、現金と同じ料金で遊べます♪ / 入会金: 0円 / 指名料: 2,000円 / 本指名料: 2,000円 / 特別指名料: 1,000円～ / 納屋橋エリア: 無料 / 名古屋市内～: 1,000円～</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:31+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_n/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>
@@ -127473,16 +127476,16 @@ thead { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; o
               </ol>
             </td>
           </tr>
-          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="並" data-gaps="写真より落ちる" data-industry="ヘルス" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名駅納屋橋校 灰原のあ" data-service-types="" data-shop="アリス女学院名駅納屋橋校" data-shop-price="" data-shop-price-status="not_fetched" data-vals="1">
-            <td>アリス女学院名駅納屋橋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">料金不明（未取得）</span>
+          <tr class="person-row" data-average="1.000" data-chubby="false" data-faces="並" data-gaps="写真より落ちる" data-industry="ヘルス" data-neg="1.0000" data-negn="1" data-posn="0" data-rated="1" data-reports="1" data-search="アリス女学院名駅納屋橋校 灰原のあ" data-service-types="" data-shop="アリス女学院名駅納屋橋校" data-shop-price="18000.0" data-shop-price-status="ok" data-vals="1">
+            <td>アリス女学院名駅納屋橋校<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">参考 18,000円 / 60分換算</span>
                 <details class="shop-price-evidence">
                   <summary>料金の根拠・別途費用</summary>
-                  <p>通常コース料金は未取得です</p>
+                  <p>通常 90分 27,000円（通常料金 / 90分）</p>
                   <p>税の扱い不明</p>
-                  <p>条件: 詳細な適用条件は出典を確認してください</p>
-                  <p>基本料金に加算しない別情報: 別途費用の詳細は未確認</p>
-                  <p></p>
-                  <p>確認日時: 未取得</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
+                  <p>条件: ☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料</p>
+                  <p>基本料金に加算しない別情報: 60分: 16,000円 / 90分: 24,000円 / パネル指名料: 無料 / 本指名料: 2,000円 / 料金表の条件（加算なし）: ☆カード決済手数料無料☆ カード決済でも現金と同じ料金で遊べます♪ 【注意事項】 土日祝・平日17:00以降＋1000円 別途、入場料・本指名料・特別指名料 / 60分: 16,000円 / 90分: 24,000円 / パネル指名料: 無料 / 本指名料: 2,000円</p>
+                  <p>通常90分を優先。なければ90分に最も近い時間、同距離は長い時間</p>
+                  <p>確認日時: 2026-10-25T13:09:33+00:00 / 保存候補の再解析 2026-10-25T13:14:25+00:00（ページ再取得なし・税条件は元記録を保持）</p><a href="https://www.cityheaven.net/aichi/A2301/A230101/alicejogakuin_nayabashi/system/" rel="noopener" target="_blank">料金表の出典</a>
                 </details>
               </div>
             </td>

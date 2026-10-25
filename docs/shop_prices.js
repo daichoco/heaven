@@ -1,49 +1,36 @@
 (() => {
-  function values() {
-    const min = document.getElementById("shopPriceMin");
-    const max = document.getElementById("shopPriceMax");
-    const mode = document.getElementById("shopPriceMode");
-    const lower = min?.value ? Number(min.value) : null;
-    const upper = max?.value ? Number(max.value) : null;
-    const unknown = mode?.value === "unknown";
-    const invalid = !unknown && ((min && !min.validity.valid) || (max && !max.validity.valid)
-      || (lower !== null && upper !== null && lower > upper));
-    return {lower, upper, unknown, invalid};
-  }
+  const bands = {
+    "0-10000": [0, 10000],
+    "10000-15000": [10000, 15000],
+    "15000-20000": [15000, 20000],
+    "20000-25000": [20000, 25000],
+    "25000-30000": [25000, 30000],
+    "30000": [30000, Infinity],
+  };
   window.shopPriceMatches = row => {
-    const {lower, upper, unknown, invalid} = values();
-    if (invalid) return false;
+    const band = document.getElementById("shopPriceBand")?.value || "";
     const raw = row.dataset.shopPrice;
     const amount = raw ? Number(raw) : NaN;
     const known = row.dataset.shopPriceStatus === "ok" && Number.isFinite(amount) && amount > 0;
-    if (unknown) return !known;
-    if (lower === null && upper === null) return true;
-    return known && (lower === null || amount >= lower) && (upper === null || amount <= upper);
+    if (band === "unknown") return !known;
+    if (!band) return true;
+    const bounds = bands[band];
+    return known && !!bounds && amount >= bounds[0] && amount < bounds[1];
   };
   window.resetShopPrices = () => {
-    ["shopPriceMin", "shopPriceMax", "shopPriceMode"].forEach(id => {
-      const control = document.getElementById(id);
-      if (control) { control.value = ""; control.disabled = false; }
-    });
-    const error = document.getElementById("shopPriceError");
-    if (error) error.hidden = true;
+    const control = document.getElementById("shopPriceBand");
+    if (control) control.value = "";
   };
   document.addEventListener("DOMContentLoaded", () => {
     const root = document.getElementById("shopPriceFilters");
     if (!root) return;
     const update = () => {
-      const {unknown, invalid} = values();
-      const error = document.getElementById("shopPriceError");
-      error.hidden = !invalid;
-      error.textContent = invalid ? "料金は0以上の数値で、下限が上限以下となるよう指定してください。" : "";
-      root.querySelectorAll("input").forEach(input => input.disabled = unknown);
       if (typeof window.applyCombinedFilter === "function") window.applyCombinedFilter();
       else if (typeof window.applyFilters === "function") window.applyFilters();
       else if (typeof window.filterPeople === "function") window.filterPeople();
       else document.dispatchEvent(new Event("shop-prices-change"));
     };
-    root.querySelectorAll("input, select").forEach(control => {
-      control.addEventListener("input", update);
+    root.querySelectorAll("select").forEach(control => {
       control.addEventListener("change", update);
     });
   });
