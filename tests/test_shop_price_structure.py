@@ -34,7 +34,7 @@ def cache_entry(title="■基本コース", checked="2026-10-25T10:00:00+00:00")
 
 
 class StructureTests(unittest.TestCase):
-    def test_real_saved_ecom_context_excludes_events_and_preserves_reservation_note(self):
+    def test_real_saved_ecom_includes_event_courses_and_preserves_reservation_note(self):
         result = prices.parse_system_html(
             (ROOT / "tests" / "fixtures" / "shop_prices_structural.html").read_text(encoding="utf-8"))
         self.assertEqual(result["status"], "ok")
@@ -44,7 +44,7 @@ class StructureTests(unittest.TestCase):
         self.assertEqual(result["selected"]["conditions"], "ネット予約をする")
         self.assertTrue(any(f["text"] == "2,000円" for f in result["additional_fees"]))
         self.assertEqual([d["decision"] for d in result["table_decisions"]],
-                         ["excluded", "excluded", "eligible", "excluded"])
+                         ["eligible", "eligible", "eligible", "excluded"])
         replay = prices.reprocess_cached_entry(dict(result, status="unknown", selected=None))
         self.assertEqual(replay["selected"], result["selected"])
 
@@ -55,10 +55,10 @@ class StructureTests(unittest.TestCase):
                 result = parse(table(title))
                 self.assertEqual(result["status"], "ok")
                 self.assertEqual(result["selected"]["yen"], 27000)
-        # An unsupported product name alone must not make the cheapest table ordinary.
+        # Named products are now eligible references, not claims of ordinary base prices.
         result = parse(table("新しい謎のコース"))
-        self.assertEqual(result["status"], "unknown")
-        self.assertIn("名称", result["reason"])
+        self.assertEqual(result["status"], "ok")
+        self.assertEqual(result["selected"]["course_name"], "新しい謎のコース")
 
     def test_separate_fee_notes_are_not_coupon_qualifiers(self):
         notes = [
@@ -76,34 +76,44 @@ class StructureTests(unittest.TestCase):
                 self.assertEqual(result["selected"]["conditions"], note)
         for note in ["ネット予約限定", "事前予約必須", "会員様のみ", "口コミ割でこの価格", "新人限定"]:
             with self.subTest(note=note):
-                self.assertIsNone(parse(table("通常料金", note=note))["selected"])
+                self.assertEqual(parse(table("通常料金", note=note))["selected"]["conditions"], note)
 
-    def test_multiple_ordinary_time_and_rank_systems_stay_on_hold(self):
+    def test_multiple_course_systems_choose_highest_at_selected_time(self):
         cases = [
             (table("基本コース"), table("通常コース", [("90分", "1,000円")])),
             (table("コース料金"), table("未知の商品コース", [("90分", "1,000円")])),
             (table("通常料金"), table("平日10:00～17:00 通常料金", [("90分", "1,000円")])),
             (table("ヤングコース", [("90分", "1,000円")]), table("アダルトコース")),
-            (table("通常コース VIPクラス"), table("通常コース レギュラークラス")),
             (table("基本料金", [("90分", "20,000円"), ("90分", "30,000円")]),),
-            (table("基本料金", [("60分", "10,000円"), ("60分", "20,000円"), ("90分", "27,000円")]),),
-            (table("基本料金", note="平日10:00～17:00の料金です"),),
         ]
         for tables in cases:
             with self.subTest(tables=tables):
-                self.assertIsNone(parse(*tables)["selected"])
+                result = parse(*tables)
+                expected = 30000 if len(tables) == 1 else 27000
+                self.assertEqual(result["selected"]["yen"], expected)
+        result = parse(table("通常コース VIPクラス"), table("通常コース レギュラークラス"))
+        self.assertEqual(len(result["selected"]["matching_courses"]), 2)
+        self.assertEqual(parse(table("基本料金", [
+            ("60分", "10,000円"), ("60分", "20,000円"), ("90分", "27,000円"),
+        ]))["selected"]["yen"], 27000)
+        note = "平日10:00～17:00の料金です"
+        self.assertEqual(parse(table("基本料金", note=note))["selected"]["conditions"], note)
 
-    def test_promotions_extensions_ads_and_points_never_become_base_prices(self):
+    def test_promotions_are_compared_but_extensions_ads_and_points_stay_excluded(self):
         for title in ["イベント", "新人限定", "ネット予約限定", "広告", "延長料金", "特殊コース",
                       "ポイント", "会員様コース", "お任せフリー", "総額パック", "VIPコース"]:
             with self.subTest(title=title):
                 result = parse(table("基本料金"), table(title, [("90分", "1,000円")]))
-                self.assertEqual(result["selected"]["yen_per_60"], 18000)
+                if title in {"広告", "延長料金", "ポイント"}:
+                    self.assertEqual(result["selected"]["yen_per_60"], 18000)
+                else:
+                    self.assertEqual(result["selected"]["yen"], 27000)
         result = parse(table("基本料金", [
             ("60分", "18,000円"), ("90分", "27,000円"), ("30分延長", "1,000円"),
             ("ポイント90分", "1000pt"), ("初回限定90分", "1,000円"),
         ]))
         self.assertEqual(result["selected"]["yen"], 27000)
+        self.assertTrue(any(c["eligible"] and c["label"] == "初回限定90分" for c in result["candidates"]))
 
     def test_multiple_amounts_and_normal_discount_combinations_are_not_minimized(self):
         values = ["基本料金12,990円 入場料金2,000円 14,990円（税込）",

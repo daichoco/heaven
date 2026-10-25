@@ -19,20 +19,19 @@ from data_store import read_jsonl_records
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "data" / "cityheaven_shop_prices.json"
-DECISION_VERSION = 3
+DECISION_VERSION = 4
 PROMOTION = re.compile(
     r"初回|初めて|新規|新人|限定|割引|割り|クーポン|イベント|キャンペーン|"
     r"最安|お得|特価|口コミ|割(?!増)|会員様|会員価格|会員料金|フリー|おまかせ|お任せ|お試し|"
     r"モーニング|早朝|深夜割|期間|事前予約|予約必須|予約のみ|予約専用|OFF", re.I,
 )
-EXTRA_COURSE = re.compile(
+FEE_ONLY = re.compile(
     r"延長|オプション|ポイント|利用可能|指名料|入場料|入泉料|入浴料|交通費|出張料|"
-    r"サービス料|入会|ホテル代|広告|特殊|VIP|プレミア|パック|総額|コミコミ|"
-    r"[23456３４５６]人|[23456３４５６]P|ダブル|Wコース|動画|撮影", re.I,
+    r"サービス料|入会金|ホテル代|広告", re.I,
 )
 TIME_CONTEXT = re.compile(r"\d{1,2}\s*[:：時]\s*\d{0,2}\s*(?:分)?\s*[~〜～\-]|平日|土日|祝日|ランク|クラス")
 STATUSES = {
-    "ok": "基本料金判定済み", "unknown": "判定保留", "not_fetched": "未取得",
+    "ok": "掲載コース目安あり", "unknown": "判定保留", "not_fetched": "未取得",
     "error": "取得失敗", "restricted": "アクセス制限", "redirect": "転送",
     "not_found": "HTTP 404/410",
 }
@@ -78,30 +77,30 @@ def normalized(value):
     return " ".join(unicodedata.normalize("NFKC", value or "").split())
 
 
+def fee_only_heading(value):
+    value = normalized(value).lstrip("■●★☆【[ ")
+    return bool(
+        re.match(r"(?:ご|追加)?(?:指名料|入場料|交通費|出張料|サービス料|入会金|ホテル代)", value, re.I)
+        or ("延長" in value and not re.search(r"延長(?:込|含|無料)", value))
+        or re.search(r"入浴料|入泉料", value)
+        or re.search(r"ポイント|利用可能|広告", value)
+        or ("オプション" in value and not re.search(r"オプション(?:込|付|含|無料)", value))
+    )
+
+
 def context_role(title, section, conditions):
     heading = normalized(title + " " + section)
     note = normalized(conditions)
-    # A surcharge or an optional reservation link does not turn base prices into a coupon.
-    note = re.sub(r"割増(?:料金)?|プラチナメール会員登録|ネット予約をする|ネット予約も可", "", note)
+    # Only fee-only headings exclude a table. Course names and eligibility conditions remain evidence.
+    if fee_only_heading(title) or fee_only_heading(section):
+        return "extra", "延長・追加料金・部分料金のみの表は換算対象外"
     if PROMOTION.search(heading):
-        return "promotion", "限定・割引・会員等の対象コース"
-    if TIME_CONTEXT.search(heading):
-        return "conditional", "時間帯・曜日・ランク別の体系は選択しません"
-    if EXTRA_COURSE.search(heading):
-        return "extra", "追加料金・特殊・総額等の別体系"
-    if PROMOTION.search(note):
-        return "conditional", "注記に限定・割引・会員等の適用条件があります"
-    if TIME_CONTEXT.search(note) and not re.search(r"[+＋]|別途|加算|追加|割増|アップ|\bup\b", note, re.I):
-        return "conditional", "注記の時間帯・曜日・ランク条件を基本料金から分離できません"
-    if re.search(r"通常|基本|標準|スタンダード|レギュラー", normalized(title)):
-        return "base", "基本・通常の文脈と時間/単一金額の対応"
-    bare_title = re.sub(r"[^一-龥ぁ-んァ-ヶーa-zA-Z]", "", normalized(title).split("※", 1)[0]).lower()
-    bare_title = bare_title.strip("ー")
-    if bare_title and re.fullmatch(r"(?:料金|価格|システム|system|コース|表|ご利用|利用|案内|プラン)+", bare_title):
-        return "structural", "料金表の文脈と複数時間/単一金額の対応"
+        return "promotion", "限定・会員等の掲載条件を保持したコース候補"
+    if TIME_CONTEXT.search(heading + " " + note) or PROMOTION.search(note):
+        return "conditional", "時間帯・利用条件を保持した掲載コース候補"
     if not normalized(title):
         return "unlabeled", "見出しなしの表はDOMの表境界と複数行の確認が必要"
-    return "unresolved", "名称だけでは通常と特殊・別体系を区別できません"
+    return "course", "コース名称で除外せず時間と単一掲載金額の対応を確認"
 
 
 def classify_candidate(candidate):
@@ -112,9 +111,12 @@ def classify_candidate(candidate):
     recommendation = r"(?:当店)?(?:超)?(?:オススメ|おすすめ|人気)(?:コース)?"
     clean_label = re.sub(rf"^[★☆!【\[\s]*{recommendation}[★☆!】\]\s]*", "", clean_label)
     clean_label = re.sub(rf"\s*[★☆!【\[\s]*{recommendation}[★☆!】\]\s]*$", "", clean_label)
-    duration = re.fullmatch(
-        r"(\d{1,3})\s*(?:分|mins?|minutes?)(?:\s*[.]?\s*(?:コース|course))?", clean_label, re.I,
+    duration = None if re.search(r"[~〜～]|以上|以下|から|応相談", clean_label) else re.fullmatch(
+        r"[^\d]*?(\d{1,3})\s*(?:分|minutes?|mins?)\b[^\d]*", clean_label, re.I,
     )
+    # Japanese course suffixes do not form a Unicode word boundary after 分.
+    if duration is None and not re.search(r"[~〜～]|以上|以下|から|応相談", clean_label):
+        duration = re.fullmatch(r"[^\d]*?(\d{1,3})\s*分[^\d]*", clean_label, re.I)
     price_text = normalized(candidate["price_text"])
     amount = re.fullmatch(
         r"(?:[¥￥]\s*([1-9]\d*(?:,\d{3})*)\s*-?|([1-9]\d*(?:,\d{3})*)\s*(?:円|yen))"
@@ -131,10 +133,9 @@ def classify_candidate(candidate):
     points_unclear = bool(amount and amount[3] and re.fullmatch(r"\d+\s*pt", amount[3], re.I))
     role, context_reason = context_role(title, section, candidate["conditions"])
     row_extra = bool(
-        EXTRA_COURSE.search(normalized(label))
+        FEE_ONLY.search(normalized(label))
         or re.match(r"^\+\s*[1-9][\d,]*\s*(?:円|yen)", price_text, re.I)
     )
-    row_promotion = bool(PROMOTION.search(clean_label))
     row_information = (
         normalized(label) == price_text and not re.search(r"円|yen|[¥￥]", price_text, re.I)
         and bool(re.fullmatch(
@@ -142,8 +143,7 @@ def classify_candidate(candidate):
         ))
     )
     eligible = bool(
-        role in {"base", "structural", "unlabeled"}
-        and not row_extra and not row_promotion
+        role != "extra" and not row_extra
         and duration and 1 <= int(duration[1]) <= 300 and amount and not points_unclear
     )
     return {
@@ -153,18 +153,18 @@ def classify_candidate(candidate):
         "eligible": eligible,
         "amount_annotations": annotations,
         "context_role": role, "row_role": (
-            "extra" if row_extra else "promotion" if row_promotion else "information" if row_information else "course"
+            "extra" if row_extra else "information" if row_information else "course"
         ),
         "reason": context_reason if eligible else (
-            "追加・限定行は基本料金に採用しません" if row_extra or row_promotion else
-            context_reason if role not in {"base", "structural", "unlabeled"} else
+            "延長・追加料金のみの行は換算対象外" if row_extra else
+            context_reason if role == "extra" else
             "金額併記のptが支払条件か特定できません" if points_unclear else
-            "時間と単一基本金額の対応を特定できません（範囲・内訳・複数金額等）"
+            "時間と単一掲載金額の対応を特定できません（範囲・内訳・複数金額等）"
         ),
     }
 
 
-def select_ordinary_course(result, tables):
+def select_published_course(result, tables):
     viable = []
     unresolved = []
     decisions = []
@@ -175,30 +175,19 @@ def select_ordinary_course(result, tables):
         has_duration = any(item["minutes"] is not None or re.search(
             r"\d+\s*(?:分|mins?|minutes?)", normalized(item["label"]), re.I,
         ) for item in courses)
-        if role in {"promotion", "extra", "conditional"}:
-            decision = "excluded" if role != "conditional" else "hold"
+        if role == "extra":
+            decision = "excluded"
             if role == "extra" and re.search(r"入浴料|入泉料", normalized(first["course_name"] + " " + first["label"])):
-                reason = "入浴・入泉料のみの部分料金で通常基本料金全体を特定できません"
-            if role == "conditional" and TIME_CONTEXT.search(normalized(
-                first["course_name"] + " " + first["section"] + " " + first["conditions"]
-            )):
-                unresolved.append(table)
+                reason = "入浴・入泉料のみの部分料金で独立した掲載コース料金を特定できません"
         elif not courses or not has_duration:
             decision, reason = "excluded", "時間コースではない追加情報の表"
             if any(re.search(r"入浴料|入泉料", normalized(item["label"])) for item in table):
-                reason = "入浴・入泉料のみの部分料金で通常基本料金全体を特定できません"
-        elif role == "unresolved":
-            decision = "hold"
-            unresolved.append(table)
+                reason = "入浴・入泉料のみの部分料金で独立した掲載コース料金を特定できません"
         elif any(not item["eligible"] for item in courses):
             decision, reason = "hold", "表内に未対応の時間・範囲・複数金額・条件行があります"
             unresolved.append(table)
-        elif any(len({item["yen"] for item in courses if item["minutes"] == duration}) > 1
-                 for duration in {item["minutes"] for item in courses}):
-            decision, reason = "hold", "同じ時間に異なる基本料金があり体系を一意に特定できません"
-            unresolved.append(table)
-        elif role in {"structural", "unlabeled"} and len({item["minutes"] for item in courses}) < 2:
-            decision, reason = "hold", "通常の文脈が弱く、複数時間の料金対応を確認できません"
+        elif role == "unlabeled" and len({item["minutes"] for item in courses}) < 2:
+            decision, reason = "hold", "見出しなしの単一行では独立したコースか確認できません"
             unresolved.append(table)
         elif role == "unlabeled" and first.get("table_index") is None:
             decision, reason = "hold", "保存候補だけでは見出しなし表のDOM境界を復元できません"
@@ -214,31 +203,33 @@ def select_ordinary_course(result, tables):
             "section": first["section"], "role": role, "decision": decision, "reason": reason,
         })
     result["table_decisions"] = decisions
-    if len(viable) != 1 or unresolved:
+    if not viable or unresolved:
         result["reason"] = (
-            "候補表の複数体系・未解決の表があり通常基本料金を一意に特定できません"
-            if len(viable) > 1 or (viable and unresolved) else
+            "未解決の時間・金額を含む候補表があり掲載コースの代表値を特定できません"
+            if viable and unresolved else
             "候補あり・判定保留: " + " / ".join(dict.fromkeys(
                 item["reason"] for item in decisions if item["decision"] == "hold"
             )) if any(item["decision"] == "hold" for item in decisions) else
-            "入浴・入泉料等の部分料金のみで、別途サービス料を含む基本体系を特定できません"
+            "入浴・入泉料等の部分料金のみで、独立した掲載コース料金を特定できません"
             if any("部分料金" in item["reason"] for item in decisions) else
-            "候補は限定・追加料金等のみで通常基本料金を特定できません"
+            "候補は延長・追加料金等のみで掲載コース料金を特定できません"
             if result["candidates"] else "料金候補を抽出できません（画像・未対応構造等、料金不存在ではありません）"
         )
         return result
-    candidates = viable[0]
+    candidates = [candidate for table in viable for candidate in table]
     minutes = min((item["minutes"] for item in candidates), key=lambda value: (abs(value - 90), -value))
-    if len({item["yen"] for item in candidates if item["minutes"] == minutes}) != 1:
-        result["reason"] = "採用時間の通常料金が複数あり一意に判別できません"
-        return result
     if result["tax"] == "ambiguous":
-        result["reason"] = "税込・税別の表記が混在し通常料金の税条件を特定できません"
+        result["reason"] = "税込・税別の表記が混在し採用料金の税条件を特定できません"
         return result
-    selected = next(item for item in candidates if item["minutes"] == minutes)
+    compared = [item for item in candidates if item["minutes"] == minutes]
+    highest = max(item["yen"] for item in compared)
+    alternatives = [item for item in compared if item["yen"] == highest]
+    selected = alternatives[0]
     result["selected"] = {
         **selected, "yen_per_60": selected["yen"] * 60 / minutes,
-        "selection_reason": "通常90分を優先。なければ90分に最も近い時間、同距離は長い時間",
+        "matching_courses": alternatives,
+        "compared_courses": compared,
+        "selection_reason": "掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない",
     }
     result["status"] = "ok"
     result["reason"] = result["selected"]["selection_reason"]
@@ -270,7 +261,7 @@ def reprocess_cached_entry(entry):
             remember_candidate_fee(result, candidate)
     result["reprocessed_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     result["decision_version"] = DECISION_VERSION
-    return select_ordinary_course(result, list(groups.values()))
+    return select_published_course(result, list(groups.values()))
 
 
 def remember_candidate_fee(result, candidate):
@@ -304,7 +295,7 @@ def parse_system_html(markup):
         tab.get("id", "")[4:]: text(tab)
         for tab in soup.select(".fee_system_menu li[id^=menu]")
     }
-    result = empty_result("unknown", "明示的な通常料金表がありません")
+    result = empty_result("unknown", "時間と掲載金額が対応するコース候補がありません")
     result["extraction_diagnostics"] = diagnostics
     result["unpaired_tables"] = []
     tables = []
@@ -345,7 +336,7 @@ def parse_system_html(markup):
     exclusive = bool(re.search(r"税別|税抜", table_text))
     result["tax"] = "ambiguous" if inclusive and exclusive else "included" if inclusive else "excluded" if exclusive else "unknown"
     result["decision_version"] = DECISION_VERSION
-    return select_ordinary_course(result, tables)
+    return select_published_course(result, tables)
 
 
 def load_cache(path=CACHE):
@@ -511,14 +502,10 @@ def unresolved_categories(entry):
         return ["候補未抽出・原DOM不足"]
     categories = set()
     for decision in entry.get("table_decisions", []):
-        if decision["role"] == "unresolved":
-            categories.add("通常・商品体系の識別不足")
-        if decision["role"] == "conditional":
-            categories.add("時間帯・会員等の適用条件")
         if "部分料金" in decision["reason"]:
-            categories.add("入浴・入泉料のみ・基本体系不足")
+            categories.add("入浴・入泉料のみ・掲載コース不足")
     for candidate in entry["candidates"]:
-        if candidate.get("context_role") not in {"base", "structural", "unlabeled"}:
+        if candidate.get("context_role") == "extra":
             continue
         if candidate.get("row_role") != "course" or candidate.get("eligible"):
             continue
@@ -532,15 +519,15 @@ def unresolved_categories(entry):
             categories.add("ポイントと金額の関係不明")
         else:
             categories.add("時間・単一金額表記未対応")
-    if "複数体系" in entry.get("reason", ""):
-        categories.add("複数体系・競合表")
+    if entry.get("tax") == "ambiguous":
+        categories.add("税条件の対応不明")
     if "DOM" in entry.get("reason", "") or "表境界" in entry.get("reason", ""):
         categories.add("旧候補の表境界不足")
-    return sorted(categories) or ["限定・追加料金等のみ"]
+    return sorted(categories) or ["延長・追加料金等のみ・独立コース未確認"]
 
 
 PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" aria-label="店舗料金">
-<strong>店舗の通常料金（60分換算・参考）</strong>
+<strong>掲載コースの60分換算目安（利用条件あり）</strong>
 <div class="shop-price-inputs">
 <label>価格帯<select id="shopPriceBand">
 <option value="">すべて</option>
@@ -553,8 +540,9 @@ PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" ar
 <option value="unknown">料金不明</option>
 </select></label>
 </div>
-<p>通常90分を優先し、なければ最も近い時間（同距離は長い方）を60分換算。実際の60分コース料金・確定支払総額ではありません。
-指名料・交通費・別途必須料金は加算していません。税込・税別・税不明は根拠欄を確認してください。未取得を安価とは扱いません。</p>
+<p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
+選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
+指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
 </section>"""
 
 
@@ -562,9 +550,9 @@ def price_info(entry, url):
     status = entry.get("status", "not_fetched")
     selected = entry.get("selected") if status == "ok" else None
     if selected:
-        heading = f'参考 {selected["yen_per_60"]:,.0f}円 / 60分換算'
+        heading = f'条件つき目安 {selected["yen_per_60"]:,.0f}円 / 60分換算'
         evidence = (
-            f'通常 {selected["minutes"]}分 {selected["yen"]:,}円'
+            f'掲載コース {selected["minutes"]}分 {selected["yen"]:,}円'
             f'（{selected["course_name"]} / {selected["label"]}）'
         )
     else:
@@ -573,7 +561,7 @@ def price_info(entry, url):
             "候補未抽出・判定保留" if status == "unknown" else STATUSES.get(status, "判定保留")
         )
         heading = f'料金不明（{state}）'
-        evidence = entry.get("reason") or "通常コース料金は未取得です"
+        evidence = entry.get("reason") or "掲載コース料金は未取得です"
     tax = {
         "included": "税込表記", "excluded": "税別表記（税を加算していません）",
         "unknown": "税の扱い不明", "ambiguous": "税表記が混在",
@@ -598,6 +586,14 @@ def price_info(entry, url):
         if entry.get("redirect_location") else ""
     )
     decisions = entry.get("table_decisions", [])
+    matching = (selected or {}).get("compared_courses") or ([selected] if selected else [])
+    conditions_html = "".join(
+        f'<li>{"採用金額" if selected and item["yen"] == selected["yen"] else "比較対象"}: '
+        f'{escape(item["course_name"] or "見出しなし")} / {escape(item["section"])} / '
+        f'{escape(item["label"])} / {escape(item["price_text"])}'
+        f' — 条件: {escape(item["conditions"] or "記載条件は出典で確認してください")}</li>'
+        for item in matching
+    )
     decision_html = (
         '<ul class="shop-price-decisions">' + "".join(
             f'<li>{escape(item["course_name"] or "見出しなし")} / '
@@ -608,8 +604,9 @@ def price_info(entry, url):
         f'<div class="shop-price" data-details-scroll="native"><span class="shop-price-value">{escape(heading)}</span>'
         f'<details class="shop-price-evidence"><summary>料金の根拠・別途費用</summary>'
         f'<p>{escape(evidence)}</p><p>{escape(tax)}</p>'
+        f'<p>採用時間の掲載コース・比較料金と原条件（適用可能性は未確認）:</p><ul>{conditions_html}</ul>'
         f'<p>条件: {escape((selected or {}).get("conditions") or "詳細な適用条件は出典を確認してください")}</p>'
-        f'<p>基本料金に加算しない別情報: {escape(fee_text)}</p>'
+        f'<p>掲載金額に加算しない別情報: {escape(fee_text)}</p>'
         f'<p>{escape(entry.get("reason", ""))}</p>{decision_html}{redirect_evidence}'
         f'<p>確認日時: {escape(checked + saved + reprocessed)}</p>{origin}</details></div>'
     )
