@@ -79,6 +79,45 @@ workflowが `main` に反映された後、Actionsタブで `Update NS senmon re
 実行結果・認証エラー・競合の詳細はActionsタブの対象実行ログで確認してください。
 Secret登録後の最初の手動実行で、実サイトの認証とレポート更新を確認できます。
 
+### 関東レポート
+
+`https://m.fuzoku-kanto.net/` の記事を関東専用データとして収集します。
+認証には東海と同じ `FUZOKU_TOKAI_PASSWORD` 環境変数を利用します。
+パスワード・Cookieをソースやデータに保存しないでください。
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\kanto_fuzoku\collect_fuzoku_kanto.py --preflight` | 本番JSONL・再開状態を書かず、全一覧ページの到達、重複除去後の記事URL数、上限75ページの適否、最終ページの記事取得・解析を確認します。記事URL数はお知らせを含み、レポート数は全本文解析後に確定します。上限超過・解析失敗・認証切れはエラーになります。 |
+| `py -3 src\kanto_fuzoku\collect_fuzoku_kanto.py` | 差分収集し、`data\kanto_fuzoku_reports.jsonl` に1記事URLにつき1行保存します。空の初回データでは最大ページ数まで走査します。 |
+| `py -3 src\kanto_fuzoku\generate_report_final.py` | `docs\kanto_final_report.html` を生成します。既定はオンラインの掲載確認・画像取得・未保存詳細の補完。`--offline` は保存済みデータのみを使用し、認証・通信を行いません。 |
+
+**初回の全件収集前に `--preflight` の結果を確認してください。**
+事前確認そのものは収集を開始しません。
+収集対象は一覧の `2016/08/15/hello-world/` より前の記事です。
+ユーザー指定により、Hello world! 本体と、それ以降の用語集等は収集せず、
+その記事に到達したページで走査を終了します。事前確認は全一覧ページを読み、
+全記事数・対象記事数・除外記事数を区別して報告します。
+公開HTMLには**年齢制限を設けず**、
+年齢不明も表示します。掲載終了が確定した人物は除外し、掲載状況不明は保持します。
+プロフィールURLを人物キーに使い、`?id=`・`?uid=` 等の識別クエリを保持します。
+リピートする・しない両方の記事を保存し、同じ人物の複数レビューをまとめて表示します。
+運営告知・移籍案内など、レビュー本文のない記事はJSONLに保存せず、再開状態に記録します。
+
+収集オプションは東海と同じ意味で `--backfill --resume`、`--fill-details`、
+`--recheck-profiles`（認証不要）、`--status`、`--limit`、`--overlap-days` を使用できます。
+最大一覧ページ数は `--max-pages N`、または `FUZOKU_KANTO_MAX_PAGES`（既定75）で指定します。
+差分の重複確認期間は既定3日、10記事ごとに途中保存します。
+再開状態はGit管理外の `data\kanto_fuzoku_collect_state.json` に保存します。
+取得失敗が残る場合はエラーで終了し、保存済みデータを保持します。
+HTMLの `--offline --refresh-prices` は人物・記事を保持して料金だけを更新します。
+
+関東専用HTMLは公開indexから参照します。横断カレンダー・予約困難一覧への統合と、
+関東用workflow・定期実行は追加していません。
+
+単体テスト: `py -3 -m unittest discover -s tests -p test_kanto_collection.py`
+ブラウザテスト: `py -3 -m unittest discover -s tests -p test_kanto_browser.py`
+（PlaywrightのChromium・WebKitが必要。公開HTMLとindexのリンクも確認します。）
+
 ### 東海レポート
 
 | コマンド | 機能・オプション |

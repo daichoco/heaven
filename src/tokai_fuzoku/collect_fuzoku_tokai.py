@@ -30,14 +30,13 @@ from selenium.webdriver.chrome.service import Service
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from wait_for_name_parts import name_in_text, normalize as normalize_name, wait_for_name_parts
-
 ROOT_DIR = Path(__file__).resolve().parents[2]
 SRC_DIR = ROOT_DIR / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from report_store import (
+from tokai_fuzoku.wait_for_name_parts import name_in_text, normalize as normalize_name, wait_for_name_parts
+from tokai_fuzoku.report_store import (
     REPORTS_JSONL,
     ReportStore,
     article_date_from_url,
@@ -48,7 +47,7 @@ from report_store import (
     parse_report_details,
     person_key,
 )
-from profile_signals import classify_profile_page, decode_html
+from tokai_fuzoku.profile_signals import classify_profile_page, decode_html
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -360,13 +359,22 @@ def now_iso():
 
 
 class Collector:
-    def __init__(self, session, store, state, checker, *, clock=now_iso, sleep=time.sleep):
+    def __init__(
+        self, session, store, state, checker, *, clock=now_iso, sleep=time.sleep,
+        parse_article=None, parse_details=None, listing_count=None, listing_urls=None,
+        listing_finished=None,
+    ):
         self.session = session
         self.store = store
         self.state = state
         self.checker = checker
         self.clock = clock
         self.sleep = sleep
+        self.parse_article = parse_article or parse_report_page
+        self.parse_details = parse_details or parse_report_details
+        self.listing_count = listing_count or get_listing_page_count
+        self.listing_urls = listing_urls or fetch_listing_urls
+        self.listing_finished = listing_finished or (lambda: False)
         self.counts = Counter()
         self.fetches = 0
 
@@ -388,7 +396,7 @@ class Collector:
             return None, self._fail(url, f"HTTP {response.status_code}")
         if is_login_page(response.text):
             raise LoginRequiredError(f"ログインページが返されました: {url}")
-        if canonical_article_url(response.url) != url:
+        if self.store.canonicalize(response.url) != url:
             return None, self._fail(url, f"別URLへ転送: {response.url}")
         return BeautifulSoup(response.text, "lxml"), None
 
@@ -398,7 +406,9 @@ class Collector:
         if failure:
             return failure
         try:
-            record = parse_report_page(soup, url)
+            record = self.parse_article(soup, url)
+            if record is not None:
+                record.update(self.parse_details(soup))
         except ValueError as exc:
             return self._fail(url, exc)
         if record is None:
@@ -408,7 +418,6 @@ class Collector:
             return self._fail(url, "記事として解析できません")
 
         checked_at = self.clock()
-        record.update(parse_report_details(soup))
         record["fetched_at"] = checked_at
         record["profile_status"] = self.checker.check(record["girl_url"], record["name"])
         record["profile_checked_at"] = checked_at
@@ -425,11 +434,14 @@ class Collector:
         if not is_article_page(soup):
             return self._fail(url, "記事として解析できません")
         try:
-            fresh = parse_report_page(soup, url) or {}
+            fresh = self.parse_article(soup, url) or {}
         except ValueError:
             fresh = {}
         fresh.pop("delete?", None)
-        fresh.update(parse_report_details(soup))
+        try:
+            fresh.update(self.parse_details(soup))
+        except ValueError as exc:
+            return self._fail(url, exc)
         fresh["url"] = url
         fresh["fetched_at"] = self.clock()
         outcome = self.store.upsert(fresh)
@@ -480,13 +492,13 @@ def run_incremental(collector, max_pages, overlap_days, limit=None):
     if cutoff:
         print(f"既存データの最新日付: {latest_date}（{cutoff} 以降の一覧を再確認）")
 
-    page_count = get_listing_page_count(collector.session, max_pages)
+    page_count = collector.listing_count(collector.session, max_pages)
     pending = []
     seen = set()
     for page_number in range(1, page_count + 1):
-        page_urls = fetch_listing_urls(collector.session, page_number)
+        page_urls = collector.listing_urls(collector.session, page_number)
         in_window = {
-            url for url in page_urls if cutoff is None or article_date_from_url(url) >= cutoff
+            url for url in page_urls if cutoff is None or _article_date(collector, url) >= cutoff
         }
         pending.extend(sorted(url for url in in_window - seen if collector.should_fetch(url)))
         seen |= in_window
@@ -494,12 +506,19 @@ def run_incremental(collector, max_pages, overlap_days, limit=None):
         if cutoff is not None and page_urls and not in_window:
             print(f"再確認範囲の下限 {cutoff} より前の一覧に到達しました")
             break
+        if collector.listing_finished():
+            break
         collector.sleep(REQUEST_INTERVAL_SECONDS)
 
-    pending.sort(key=lambda url: (article_date_from_url(url), url))
+    pending.sort(key=lambda url: (_article_date(collector, url), url))
     print(f"新規確認対象: {len(pending)}件")
     if not collector.process_many(pending, limit):
         print("--limit に達したため中断しました。残りは次回の実行で取り込みます")
+
+
+def _article_date(collector, url):
+    canonical = collector.store.canonicalize(url)
+    return datetime.strptime("/".join(canonical.split("/")[3:6]), "%Y/%m/%d").date()
 
 
 def run_backfill(collector, max_pages, resume=False, limit=None):
@@ -512,7 +531,7 @@ def run_backfill(collector, max_pages, resume=False, limit=None):
             return
         start_page = int(backfill.get("resume_page") or 1)
 
-    page_count = get_listing_page_count(collector.session, max_pages)
+    page_count = collector.listing_count(collector.session, max_pages)
     if start_page > page_count:
         print(f"再開ページ {start_page} が対象ページ数 {page_count} を超えています（--max-pages を確認）")
         return
@@ -522,7 +541,7 @@ def run_backfill(collector, max_pages, resume=False, limit=None):
     for page_number in range(start_page, page_count + 1):
         # 中断時・完了後ともにこのページから再開する（一覧のずれによる取りこぼし防止）
         backfill["resume_page"] = page_number
-        page_urls = fetch_listing_urls(collector.session, page_number)
+        page_urls = collector.listing_urls(collector.session, page_number)
         pending = sorted(url for url in page_urls if collector.should_fetch(url))
         print(f"一覧 {page_number}/{page_count}: {len(page_urls)}件中 未取得 {len(pending)}件")
         finished = collector.process_many(pending, limit)
@@ -531,19 +550,24 @@ def run_backfill(collector, max_pages, resume=False, limit=None):
         if not finished:
             print(f"--limit に達したため中断しました。--backfill --resume でページ {page_number} から再開できます")
             return
+        if collector.listing_finished():
+            break
         collector.sleep(REQUEST_INTERVAL_SECONDS)
 
-    backfill.update({"completed": True, "resume_page": None, "completed_at": collector.clock()})
-    print(f"バックフィル完了（{page_count}ページ）。max_pages より後のページは走査していません")
+    backfill.update({
+        "completed": True, "resume_page": None, "completed_at": collector.clock(),
+        "last_processed_page": page_number,
+    })
+    print(f"バックフィル完了（{page_number}ページまで）。収集対象の終端またはページ上限に到達しました")
     if collector.state.data["failed_urls"]:
         print(f"失敗記事 {len(collector.state.data['failed_urls'])}件は次回の --backfill で再試行されます")
 
 
 def run_fill_details(collector, limit=None):
     targets = [
-        canonical_article_url(record.get("url"))
+        collector.store.canonicalize(record.get("url"))
         for record in collector.store.records
-        if canonical_article_url(record.get("url")) and is_missing(record.get("fetched_at"))
+        if collector.store.canonicalize(record.get("url")) and is_missing(record.get("fetched_at"))
     ]
     print(f"詳細未保存の既存記事: {len(targets)}件")
     if not collector.process_many(targets, limit, handler=collector.fill_article_details):
@@ -553,16 +577,17 @@ def run_fill_details(collector, limit=None):
 RECHECK_STATUSES = ("unavailable", "unknown", "published")
 
 
-def recheck_targets(records, statuses):
+def recheck_targets(records, statuses, *, canonicalize=None):
     """再確認する人物を {人物キー: [記事行...]} で返す。対象は profile_status 保存済みの行のみ。
 
     人物の現在の状態は最新の確定結果（published/unavailable）、確定結果が無ければ unknown。
     """
     latest = latest_profile_status_by_person(records)
+    canonicalize = canonicalize or canonical_article_url
     groups = {}
     for record in records:
         key = person_key(record)
-        if key is None or is_missing(record.get("profile_status")) or not canonical_article_url(record.get("url")):
+        if key is None or is_missing(record.get("profile_status")) or not canonicalize(record.get("url")):
             continue
         groups.setdefault(key, []).append(record)
     return {key: rows for key, rows in groups.items() if latest.get(key, "unknown") in statuses}
@@ -574,7 +599,9 @@ def run_recheck_profiles(collector, statuses=("unavailable",), limit=None):
     確定結果（published/unavailable）が出た人物だけ、その人物の状態保存済み行を更新する。
     unknown（通信失敗・制限など）のときは既存の状態を変更しない。
     """
-    targets = recheck_targets(collector.store.records, set(statuses))
+    targets = recheck_targets(
+        collector.store.records, set(statuses), canonicalize=collector.store.canonicalize,
+    )
     print(f"プロフィール再判定の対象: {len(targets)}人（状態: {', '.join(statuses)}）")
     latest = latest_profile_status_by_person(collector.store.records)
     for index, (key, rows) in enumerate(targets.items(), start=1):
