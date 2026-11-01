@@ -127,6 +127,7 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 | コマンド | 機能・オプション |
 | --- | --- |
 | `py -3 src\okinilove\scrape_okinilove.py` | オキニラブの記事・口コミデータを更新し、`docs\okinilove_remove_unknown.html` を再生成します。 |
+| `py -3 src\okinilove\scrape_okinilove.py --diagnose-shop-index` | カテゴリ70〜72の先頭ページのHTTP応答・転送先・サイズ・店舗履歴一致数を診断します。データは変更せず、取得失敗時は異常終了します。 |
 | `py -3 src\okinilove\scrape_okinilove.py --recover-numbered-profile-article URL` | 指定したオキニラブ記事から、番号付きの `www` プロフィールURLを探して取り込みます。 |
 | `py -3 src\okinilove\maintain_okinilove.py --check-unavailable` | 保存済みプロフィールのHTTP 404/410を確認し、掲載終了プロフィールを削除します。保存済みCityHeaven出勤カレンダーに掲載中のプロフィールは対象外です。 |
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
@@ -134,8 +135,13 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 
 GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
 手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
-手動で実行できます。手動実行で選択したブランチにかかわらず、更新対象は `main` です。
-更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+手動で実行できます。手動実行は選択したブランチを使用します。
+`main` で更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+他のブランチでの実行は自動コミット・pushを行いません。
+`diagnose_only` を有効にすると、店舗索引の応答診断だけを実行し、データ更新・コミット・pushは行いません。
+店舗索引のHTTPエラー、想定外の転送・HTML、店舗0件は失敗として扱います。
+途中のカテゴリやページで失敗した場合も既存索引を保持し、不完全な索引で上書きしません。
+失敗時の応答情報と本文先頭（最大300文字）はログに表示されます。
 実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
 
 オキニラブのスタイル語句「デブ」はネガティブ分類とし、ネガ含有率・おすすめ順・本文の語句表示に反映します。

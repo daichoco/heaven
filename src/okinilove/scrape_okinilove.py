@@ -135,6 +135,52 @@ def shop_industry_label_from_title(title):
     return title.rpartition("-")[2].strip()
 
 
+def fetch_shop_index_page(session, category, page=0):
+    suffix = f"-{page}" if page else ""
+    url = f"https://okinilove.com/blog-category-{category}{suffix}.html"
+    try:
+        response = session.get(url, headers=HEADERS, timeout=20)
+    except requests.RequestException as exc:
+        print(f"店舗索引取得失敗: {url}: {exc}", file=sys.stderr)
+        raise
+    found = {m.group(1): m.group(2) for m in HISTORY_ENTRY_RE.finditer(response.text)}
+    print(
+        f"店舗索引応答: url={url} final_url={response.url} "
+        f"status={response.status_code} bytes={len(response.content)} "
+        f"matches={len(found)}"
+    )
+    soup = BeautifulSoup(response.text, "html.parser")
+    valid_category = (
+        response.status_code == 200
+        and response.url == url
+        and soup.title is not None
+        and "【全投稿履歴】" in soup.title.get_text()
+        and soup.find(id="center") is not None
+    )
+    # A normal terminal page retains the category template but has no entries.
+    empty_terminal = (
+        page > 0
+        and valid_category
+        and not soup.find(id=re.compile(r"^entry\d+$"))
+    )
+    if not valid_category or (not found and not empty_terminal):
+        excerpt = re.sub(r"\s+", " ", soup.get_text(" ", strip=True))[:300]
+        print(f"店舗索引取得失敗: 本文先頭={excerpt!r}", file=sys.stderr)
+        raise RuntimeError(f"店舗索引を取得できません: {url}")
+    return found
+
+
+def diagnose_shop_index(session):
+    failures = []
+    for category in SHOP_INDEX_CATEGORIES:
+        try:
+            fetch_shop_index_page(session, category)
+        except (requests.RequestException, RuntimeError) as exc:
+            failures.append(str(exc))
+    if failures:
+        raise RuntimeError("店舗索引診断失敗: " + "; ".join(failures))
+
+
 def fetch_shop_index(session, categories=None):
     """カテゴリページを巡回して店舗URL、別名、業種を収集する。"""
     shops = {}
@@ -145,14 +191,10 @@ def fetch_shop_index(session, categories=None):
         seen = set()
         page = 0
         while True:
-            suffix = f"-{page}" if page else ""
-            url = f"https://okinilove.com/blog-category-{category}{suffix}.html"
-            response = session.get(url, headers=HEADERS, timeout=20)
-            if response.status_code != 200:
-                break
-            found = {m.group(1): m.group(2) for m in HISTORY_ENTRY_RE.finditer(response.text)}
+            found = fetch_shop_index_page(session, category, page)
             new = {k: v for k, v in found.items() if k not in seen}
             if not new:
+                print(f"店舗索引巡回完了: category={category} page={page}")
                 break
             seen.update(new)
             for entry, title in new.items():
@@ -171,6 +213,8 @@ def fetch_shop_index(session, categories=None):
                     aliases.setdefault(name, display)
             page += 1
             time.sleep(0.5)
+    if not shops:
+        raise RuntimeError("店舗索引が0件のため更新を中止します")
     return (
         shops,
         aliases,
@@ -241,6 +285,8 @@ def load_shop_urls(session):
             )
 
     shops, aliases, industries, industry_labels = fetch_shop_index(session)
+    if not shops:
+        raise RuntimeError("店舗索引が0件のため既存索引を保持します")
     SHOP_INDEX_PATH.write_text(
         json.dumps(
             {
@@ -460,7 +506,7 @@ def remove_unavailable_profiles():
         profile_link = profile_link_in_row(row)
         if profile_link:
             urls.add(profile_link["href"])
-
+
     reviews = read_reviews()
     if "girl_url" in reviews:
         urls.update(reviews["girl_url"].dropna().astype(str))
@@ -1395,12 +1441,22 @@ def refresh_shop_category_reviews(category):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--diagnose-shop-index",
+        action="store_true",
+        help="カテゴリ先頭ページの応答だけを診断し、データを変更しない",
+    )
+    parser.add_argument(
         "--recover-numbered-profile-article",
         metavar="URL",
         help="指定したOkinilove記事だけから数字付きwwwプロフィールを探して取り込む",
     )
     args = parser.parse_args()
-    if args.recover_numbered_profile_article:
+    if args.diagnose_shop_index and args.recover_numbered_profile_article:
+        parser.error("診断と記事取り込みは同時に指定できません")
+    if args.diagnose_shop_index:
+        with requests.Session() as session:
+            diagnose_shop_index(session)
+    elif args.recover_numbered_profile_article:
         recover_numbered_profile_article(args.recover_numbered_profile_article)
     else:
         refresh_okinilove_data()
