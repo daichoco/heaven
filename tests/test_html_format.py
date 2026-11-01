@@ -98,7 +98,7 @@ class GeneratedHtmlFormatTests(unittest.TestCase):
                 patch.object(ns, "read_jsonl", return_value=pd.DataFrame(columns=["date", "post_id"])),
                 patch.object(ns, "load_profiles", return_value={}),
             ):
-                ns.main()
+                ns.main([])
             self.assert_formatted(path)
 
     def test_tokai_generator_without_network(self):
