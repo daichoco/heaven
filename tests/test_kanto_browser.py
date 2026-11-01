@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from tokai_fuzoku.html_render import generate_html
+from tokai_fuzoku.generate_report_final import load_input_data
+from kanto_fuzoku.generate_report_final import INPUT_JSONL
 
 
 class KantoBrowserTests(unittest.TestCase):
@@ -19,17 +21,17 @@ class KantoBrowserTests(unittest.TestCase):
             {
                 "girl_url": "https://profiles.invalid/profile.html?uid=a",
                 "shop_name": "Alpha", "type": "type-a", "name": "Person A",
-                "predict_age": "35才", "date": "2026-01-01", "total_point": 90,
+                "predict_age": "30才", "date": "2026-01-01", "total_point": 90,
             },
             {
                 "girl_url": "https://profiles.invalid/profile.html?uid=a",
                 "shop_name": "Alpha", "type": "type-a", "name": "Person A",
-                "predict_age": "35才", "date": "2026-02-01", "total_point": 70,
+                "predict_age": "30才", "date": "2026-02-01", "total_point": 70,
             },
             {
                 "girl_url": "https://profiles.invalid/profile.html?uid=b",
                 "shop_name": "Beta", "type": "type-b", "name": "Person B",
-                "predict_age": None, "date": "2026-03-01", "total_point": 85,
+                "predict_age": "29才", "date": "2026-03-01", "total_point": 85,
             },
         ]
         source = generate_html(pd.DataFrame(reports), title="関東風俗レポート")
@@ -61,7 +63,7 @@ class KantoBrowserTests(unittest.TestCase):
                     expect(page.locator(".report-entry").first).to_contain_text("Person B")
                     page.locator("#reportSearch").fill("Person A")
                     expect(page.locator(".report-entry:visible")).to_have_count(1)
-                    expect(page.locator(".report-entry:visible")).to_contain_text("35")
+                    expect(page.locator(".report-entry:visible")).to_contain_text("30")
                     page.locator("#reportSearch").fill("no matching person")
                     expect(page.locator("#noResults")).to_be_visible()
                     self.assertEqual(errors, [], engine)
@@ -75,6 +77,12 @@ class KantoBrowserTests(unittest.TestCase):
         self.assertEqual(soup.title.get_text(), "関東風俗レポート")
         self.assertGreater(len(soup.select(".report-entry")), 0)
         self.assertGreater(len(soup.select(".article-entry")), 0)
+        expected = BeautifulSoup(generate_html(load_input_data(INPUT_JSONL), title="関東風俗レポート"), "lxml")
+        self.assertEqual(len(soup.select(".report-entry")), len(expected.select(".report-entry")))
+        self.assertEqual(
+            {link["href"] for link in soup.select(".article-entry .report-heading a")},
+            {link["href"] for link in expected.select(".article-entry .report-heading a")},
+        )
 
 
 if __name__ == "__main__":
