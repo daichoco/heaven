@@ -79,7 +79,8 @@ Neither command collects data or makes network requests.
 
 GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
 手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
-手動で実行できます。更新があれば、生成されたHTMLと追跡対象のデータを自動コミットします。
+手動で実行できます。手動実行で選択したブランチにかかわらず、更新対象は `main` です。
+更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
 実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
 
 オキニラブのスタイル語句「デブ」はネガティブ分類とし、ネガ含有率・おすすめ順・本文の語句表示に反映します。
