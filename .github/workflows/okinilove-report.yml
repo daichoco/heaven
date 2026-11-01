@@ -1,0 +1,50 @@
+name: Update Okinilove report
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: okinilove-report-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Refresh Okinilove report
+        run: python src/okinilove/scrape_okinilove.py
+
+      - name: Commit updated report data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            data/okinilove_cityheaven_enrich_cache.json \
+            data/okinilove_report_details.json \
+            data/okinilove_reviews.jsonl \
+            data/okinilove_shop_index.json \
+            data/okinilove_skipped_articles.json \
+            docs/okinilove_remove_unknown.html \
+            docs/okinilove_review_bodies.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update Okinilove report data"
+          fi
