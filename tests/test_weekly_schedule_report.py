@@ -93,9 +93,9 @@ class RankingTests(unittest.TestCase):
         self.assertEqual(first["source_count"], 3)
         self.assertEqual(first["review_count"], 3)
         self.assertFalse(first["provisional"])
-        self.assertAlmostEqual(first["score"], (62.5 + 50 + 50) / 3)
+        self.assertAlmostEqual(first["score"], (75 + 50 + 50) / 3)
         self.assertEqual(set(first["names"]), {"人物1", "別名"})
-        self.assertEqual(people[1]["score"], 37.5)
+        self.assertEqual(people[1]["score"], 25)
         self.assertTrue(people[1]["provisional"])
 
     def test_unambiguous_saved_external_person_link_recovers_missing_cityheaven_link(self):
@@ -173,7 +173,7 @@ class RankingTests(unittest.TestCase):
         ]
         first = weekly.rank_people(datasets(tokai_rows=rows))[0]
         self.assertEqual(first["review_count"], 2)
-        self.assertEqual(first["score"], 70)
+        self.assertAlmostEqual(first["score"], 250 / 3)
         self.assertEqual(first["tier"], "S")
 
     def test_only_cityheaven_profiles_merge_not_names_or_external_urls(self):

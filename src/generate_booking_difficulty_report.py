@@ -45,7 +45,7 @@ OUTPUT_HTML = ROOT_DIR / "docs" / "reservation_difficulty.html"
 OKINILOVE_PROFILE_STATUS_PATH = ROOT_DIR / "data" / "okinilove_profile_status.json"
 NS_UNMATCHED_PATH = ROOT_DIR / "data" / "ns_senmon_unmatched.json"
 CATEGORY_LABELS = {"difficulty": "予約困難", "soldout": "完売の記述あり", "popular": "人気の記述あり"}
-SCORE_PRIOR_WEIGHT = 3
+SCORE_PRIOR_WEIGHT = 1
 BOOKING_DIFFICULTY = re.compile(
     r"超予約困難|予約困難|"
     r"予約(?:が|は|の|を)?(?:全然|なかなか|あまり)?"
