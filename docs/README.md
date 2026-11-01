@@ -53,6 +53,8 @@ Neither command collects data or makes network requests.
 | `py -3 src\tokai_fuzoku\collect_fuzoku_tokai.py` | 新しい記事を差分収集し、`data\tokai_fuzoku_reports.jsonl` に保存します。最新保存記事から `--overlap-days N` 日さかのぼって確認します（既定値: 3）。`FUZOKU_TOKAI_PASSWORD` が必要です。 |
 | `py -3 src\tokai_fuzoku\generate_report_final.py` | `docs\tokai_final_report.html` を生成します。既定ではログインし、プロフィール掲載状況を再確認し、不足しているレポート詳細とプロフィール画像を取得します。O-ren Groupの個人ページURLが個人プロフィールではなく一覧などを返し、対象者の名前を確認できない場合は掲載終了として除外します。`--offline` を指定すると、保存済みの詳細・掲載状況のみを使い、ログインやネットワーク通信を行いません。オンライン実行には `FUZOKU_TOKAI_PASSWORD` が必要です。 |
 
+GitHub Actions の `Update Tokai report` ワークフローは毎日 03:47 UTC に実行され、手動実行もできます。実行にはリポジトリの Actions secrets に `FUZOKU_TOKAI_PASSWORD` を設定してください。記事データと生成HTMLに変更がある場合だけコミットします。
+
 収集スクリプトでは、次のモードは同時に指定できません。
 
 | オプション | 機能 |
