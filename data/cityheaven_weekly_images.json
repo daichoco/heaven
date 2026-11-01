@@ -1639,6 +1639,11 @@
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-53067844/": {
+  "checked_at": "2026-11-01T13:19:34.364271+00:00",
+  "status": "not_found",
+  "image_url": ""
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-51443569/": {
   "checked_at": "2026-10-18T12:00:47.636179+00:00",
   "status": "not_found",
