@@ -22,8 +22,8 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl_records
 from html_format import write_html
-from html_render import generate_html, PAGE_TEMPLATE
-from report_store import (
+from tokai_fuzoku.html_render import generate_html, PAGE_TEMPLATE
+from tokai_fuzoku.report_store import (
     COMMENT_COLUMNS,
     DETAIL_COLUMNS,
     PLAY_TIME_COLUMNS,
@@ -35,8 +35,8 @@ from report_store import (
     parse_report_details,
     person_key,
 )
-from profile_signals import classify_profile_page, decode_html
-from wait_for_name_parts import name_in_text
+from tokai_fuzoku.profile_signals import classify_profile_page, decode_html
+from tokai_fuzoku.wait_for_name_parts import name_in_text
 from shop_prices import refresh_saved_prices
 
 INPUT_JSONL = REPORTS_JSONL
@@ -54,11 +54,12 @@ AQUA_ROSTER_API = f"{AQUA_API_ROOT}/parts/pc/25/1"
 DETAIL_LABELS = {**COMMENT_COLUMNS, **SCORE_COLUMNS, **PLAY_TIME_COLUMNS}
 
 
-def load_input_data():
+def load_input_data(input_path=None, *, max_age=30):
     """記事単位のJSONLを読む。旧データ（詳細列・確認結果なし）も読めるよう欠損列は空で補う。"""
-    if not INPUT_JSONL.exists():
-        raise FileNotFoundError(f"JSON Linesデータがありません: {INPUT_JSONL}")
-    records = read_jsonl_records(INPUT_JSONL)
+    input_path = INPUT_JSONL if input_path is None else Path(input_path)
+    if not input_path.exists():
+        raise FileNotFoundError(f"JSON Linesデータがありません: {input_path}")
+    records = read_jsonl_records(input_path)
     df = pd.DataFrame(records)
     required_columns = {"delete?", "predict_age", "url", "shop_name", "name", "girl_url"}
     missing_columns = required_columns.difference(df.columns)
@@ -76,11 +77,13 @@ def load_input_data():
     if len(df) and unavailable.any():
         tqdm.write(f"収集時に掲載終了と確認された人物のレポートを除外: {int(unavailable.sum())}件")
         df = df.loc[~unavailable].copy()
+    if max_age is None:
+        return df.reset_index(drop=True)
     ages = pd.to_numeric(
         df["predict_age"].astype("string").str.extract(r"(\d+)")[0],
         errors="coerce",
     )
-    return df.loc[ages.le(30)].copy().reset_index(drop=True)
+    return df.loc[ages.le(max_age)].copy().reset_index(drop=True)
 
 
 
@@ -335,12 +338,13 @@ def has_stored_details(df):
     return df["fetched_at"].map(lambda value: not is_missing(value))
 
 
-def enrich_report_data(df, session):
+def enrich_report_data(df, session, *, parse_details=None, validate_article=None):
     """詳細未保存の旧記事だけ本文を取得して詳細列を埋める（JSONLには書き戻さない）。
 
     収集時に保存済みの詳細はそのまま使う。保存するには collect_fuzoku_tokai.py --fill-details。
     """
     df = df.copy()
+    parse_details = parse_details or parse_report_details
     for column in DETAIL_LABELS:
         if column not in df.columns:
             df[column] = None
@@ -350,25 +354,30 @@ def enrich_report_data(df, session):
         row = df.loc[index]
         response = session.get(row["url"], headers=HEADERS, timeout=30)
         response.raise_for_status()
+        if validate_article is not None:
+            validate_article(response, row["url"])
         soup = BeautifulSoup(response.text, "html.parser")
         tqdm.write(f"{row['shop_name']}:{row['name']}")
-        for column, value in parse_report_details(soup).items():
+        for column, value in parse_details(soup).items():
             if value is None:
                 tqdm.write(f"{DETAIL_LABELS[column]} に関する記述なし")
             df.at[index, column] = value
     return df
 
 
-def prepare_offline_data(df):
+def prepare_offline_data(
+    df, *, output_path=None, fill_command="collect_fuzoku_tokai.py --fill-details",
+):
     """ネットなしで、保存済みの詳細だけからHTMLを作る。画像・掲載確認は行わない。"""
     df = df.copy()
+    output_path = OUTPUT_HTML if output_path is None else Path(output_path)
     for column in DETAIL_LABELS:
         if column not in df.columns:
             df[column] = None
     if "profile_image_url" not in df.columns:
         df["profile_image_url"] = None
-    if OUTPUT_HTML.exists() and "girl_url" in df.columns:
-        saved_page = BeautifulSoup(OUTPUT_HTML.read_text(encoding="utf-8"), "lxml")
+    if output_path.exists() and "girl_url" in df.columns:
+        saved_page = BeautifulSoup(output_path.read_text(encoding="utf-8"), "lxml")
         saved_images = {}
         for person in saved_page.select(".report-entry"):
             link = person.select_one(".person-heading a.link-button")
@@ -383,13 +392,13 @@ def prepare_offline_data(df):
     if missing:
         tqdm.write(
             f"詳細未保存の記事 {missing}件は基本項目のみ表示します"
-            "（collect_fuzoku_tokai.py --fill-details で補完できます）"
+            f"（{fill_command} で補完できます）"
         )
     return df
 
 
-def parse_args(argv):
-    parser = argparse.ArgumentParser(description="東海風俗レポートHTMLを生成する")
+def parse_args(argv, *, description="東海風俗レポートHTMLを生成する"):
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--offline",
         action="store_true",

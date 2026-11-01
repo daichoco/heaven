@@ -12,7 +12,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
-from report_store import normalize_profile_url
+from tokai_fuzoku.report_store import normalize_profile_url
 
 HOST_PREFIXES = ("www.", "sp.", "m.", "s.")
 META_CHARSET_RE = re.compile(rb"""<meta[^>]+charset=["']?([\w-]+)""", re.I)
