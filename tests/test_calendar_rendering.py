@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 import pandas as pd
+from bs4 import BeautifulSoup
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -41,19 +42,20 @@ class CalendarRenderingTests(unittest.TestCase):
                     "10/17(土)": status,
                 }])
                 generated = build_calendar_html(merged)
+                page = BeautifulSoup(generated, "html.parser")
+                mobile_day = page.select_one("li[data-day='0']")
                 box_class = "on" if is_time else "off"
-                self.assertIn(
-                    "<li data-day='0'><div class='m-date saturday'>10/17</div>"
-                    f"<div class='m-box {box_class}'>{expected_mobile}</div></li>",
-                    generated,
+                self.assertEqual(mobile_day.select_one(".m-date").get_text(), "10/17")
+                self.assertEqual(mobile_day.select_one(".m-box").get("class"), ["m-box", box_class])
+                self.assertEqual(
+                    mobile_day.select_one(".m-box").get_text(separator="<br>"),
+                    expected_mobile,
                 )
                 expected_desktop = status if pd.notna(status) else "-"
-                on_attr = " data-on='1'" if is_time else ""
-                self.assertIn(
-                    "<td data-label='10/17(土)' data-date='10/17' data-day='0'"
-                    f"{on_attr} class='saturday'><span class='cell'>{expected_desktop}</span></td>",
-                    generated,
-                )
+                desktop_day = page.select_one("td[data-label='10/17(土)']")
+                self.assertEqual(desktop_day.get("data-on") == "1", is_time)
+                self.assertIn("saturday", desktop_day.get("class", []))
+                self.assertEqual(desktop_day.select_one(".cell").get_text(), expected_desktop)
 
 
 if __name__ == "__main__":

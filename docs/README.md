@@ -77,6 +77,11 @@ Neither command collects data or makes network requests.
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
 | `py -3 src\okinilove\render_people_summary.py` | 既存ページから人物別オキニラブHTMLと口コミ本文JSONを再生成します。不足しているプロフィール画像や業種情報を取得する場合があります。 |
 
+GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
+手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
+手動で実行できます。更新があれば、生成されたHTMLと追跡対象のデータを自動コミットします。
+実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
+
 オキニラブのスタイル語句「デブ」はネガティブ分類とし、ネガ含有率・おすすめ順・本文の語句表示に反映します。
 他の語句分類や補正の重みは変更せず、週間カレンダーの星評価ベースの横断スコアには影響しません。
 
