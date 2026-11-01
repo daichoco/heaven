@@ -1,4 +1,4 @@
-"""関東専用HTMLを生成する。30歳以下のみ表示。--offline は保存済みデータのみを使う。"""
+"""関東専用HTMLを生成する。--offline は保存済みデータのみを使う。"""
 import os
 import sys
 from pathlib import Path
@@ -23,15 +23,16 @@ TITLE = "関東風俗レポート"
 
 def main(argv=None):
     args = shared.parse_args(
-        sys.argv[1:] if argv is None else argv, description="関東風俗レポートHTMLを生成する（30歳以下のみ表示）",
+        sys.argv[1:] if argv is None else argv, description="関東風俗レポートHTMLを生成する",
     )
     if args.refresh_prices:
         write_html(OUTPUT_HTML, refresh_saved_prices(
-            OUTPUT_HTML.read_text(encoding="utf-8"), report_template(TITLE), "function applySort()",
+            OUTPUT_HTML.read_text(encoding="utf-8"),
+            report_template(TITLE, include_age_filter=True), "function applySort()",
         ))
         print(f"関東の保存HTMLの料金を更新しました: {OUTPUT_HTML}")
         return
-    frame = shared.load_input_data(INPUT_JSONL)
+    frame = shared.load_input_data(INPUT_JSONL, max_age=None)
     if args.offline:
         frame = shared.prepare_offline_data(
             frame, output_path=OUTPUT_HTML, fill_command="collect_fuzoku_kanto.py --fill-details",
@@ -47,7 +48,7 @@ def main(argv=None):
                 frame, session, parse_details=parse_report_details, validate_article=validate_article,
             )
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    write_html(OUTPUT_HTML, generate_html(frame, title=TITLE))
+    write_html(OUTPUT_HTML, generate_html(frame, title=TITLE, include_age_filter=True))
     print(f"生成しました: {OUTPUT_HTML}")
 
 

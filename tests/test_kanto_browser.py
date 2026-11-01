@@ -33,8 +33,20 @@ class KantoBrowserTests(unittest.TestCase):
                 "shop_name": "Beta", "type": "type-b", "name": "Person B",
                 "predict_age": "29才", "date": "2026-03-01", "total_point": 85,
             },
+            {
+                "girl_url": "https://profiles.invalid/profile.html?uid=c",
+                "shop_name": "Gamma", "type": "type-c", "name": "Person C",
+                "predict_age": "35才", "date": "2026-04-01", "total_point": 80,
+            },
+            {
+                "girl_url": "https://profiles.invalid/profile.html?uid=d",
+                "shop_name": "Delta", "type": "type-d", "name": "Person D",
+                "predict_age": "", "date": "2026-05-01", "total_point": 75,
+            },
         ]
-        source = generate_html(pd.DataFrame(reports), title="関東風俗レポート")
+        source = generate_html(
+            pd.DataFrame(reports), title="関東風俗レポート", include_age_filter=True,
+        )
         resources = {
             "https://report.invalid/kanto_final_report.html": ("text/html", source),
             "https://report.invalid/common.css": ("text/css", (ROOT / "docs" / "common.css").read_text(encoding="utf-8")),
@@ -58,8 +70,18 @@ class KantoBrowserTests(unittest.TestCase):
                     page.on("pageerror", lambda error: errors.append(str(error)))
                     page.goto("https://report.invalid/kanto_final_report.html")
                     expect(page).to_have_title("関東風俗レポート")
-                    expect(page.locator(".report-entry")).to_have_count(2)
-                    expect(page.locator(".article-entry")).to_have_count(3)
+                    expect(page.locator(".report-entry")).to_have_count(4)
+                    expect(page.locator(".article-entry")).to_have_count(5)
+                    expect(page.locator("#filterCount")).to_contain_text("4 人 / 5 件")
+                    page.locator("#ageLimitFilter").select_option("30")
+                    expect(page.locator(".report-entry:visible")).to_have_count(3)
+                    expect(page.locator(".article-entry:not([hidden])")).to_have_count(4)
+                    expect(page.locator("#filterCount")).to_contain_text("3 人 / 4 件")
+                    page.locator("#includeUnknownAge").uncheck()
+                    expect(page.locator(".report-entry:visible")).to_have_count(2)
+                    expect(page.locator(".article-entry:not([hidden])")).to_have_count(3)
+                    expect(page.locator("#filterCount")).to_contain_text("2 人 / 3 件")
+                    page.locator("#includeUnknownAge").check()
                     expect(page.locator(".report-entry").first).to_contain_text("Person B")
                     page.locator("#reportSearch").fill("Person A")
                     expect(page.locator(".report-entry:visible")).to_have_count(1)
@@ -77,7 +99,13 @@ class KantoBrowserTests(unittest.TestCase):
         self.assertEqual(soup.title.get_text(), "関東風俗レポート")
         self.assertGreater(len(soup.select(".report-entry")), 0)
         self.assertGreater(len(soup.select(".article-entry")), 0)
-        expected = BeautifulSoup(generate_html(load_input_data(INPUT_JSONL), title="関東風俗レポート"), "lxml")
+        expected = BeautifulSoup(
+            generate_html(
+                load_input_data(INPUT_JSONL, max_age=None), title="関東風俗レポート",
+                include_age_filter=True,
+            ),
+            "lxml",
+        )
         self.assertEqual(len(soup.select(".report-entry")), len(expected.select(".report-entry")))
         self.assertEqual(
             {link["href"] for link in soup.select(".article-entry .report-heading a")},

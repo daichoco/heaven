@@ -360,7 +360,7 @@ class LoginTests(unittest.TestCase):
 
 
 class GeneratorTests(unittest.TestCase):
-    def test_offline_age_limit_matches_tokai_and_ended_profiles_excluded(self):
+    def test_offline_includes_all_ages_and_excludes_ended_profiles(self):
         records = []
         for number, age, status in (
             (1, "29才", "published"), (2, "30才", "unknown"),
@@ -387,13 +387,15 @@ class GeneratorTests(unittest.TestCase):
                 generate.main(["--offline"])
             soup = BeautifulSoup(output_path.read_text(encoding="utf-8"), "lxml")
             self.assertEqual(soup.title.get_text(), "関東風俗レポート")
-            self.assertEqual(len(soup.select(".report-entry")), 2)
-            self.assertEqual(len(soup.select(".article-entry")), 3)
-            expected_urls = set(tokai_generate.load_input_data(input_path)["url"])
+            self.assertEqual(len(soup.select(".report-entry")), 6)
+            self.assertEqual(len(soup.select(".article-entry")), 8)
+            self.assertIsNotNone(soup.select_one("#ageLimitFilter"))
+            self.assertTrue(soup.select_one("#includeUnknownAge").has_attr("checked"))
+            expected_urls = set(tokai_generate.load_input_data(input_path, max_age=None)["url"])
             actual_urls = {
                 link["href"] for link in soup.select(".article-entry .report-heading a")
             }
-            self.assertEqual(expected_urls, {url(1), url(2), url(8)})
+            self.assertEqual(expected_urls, {url(1), url(2), url(3), url(4), url(6), url(7), url(8), url(9)})
             self.assertEqual(actual_urls, expected_urls)
 
     def test_title_is_escaped_without_altering_review_text(self):
