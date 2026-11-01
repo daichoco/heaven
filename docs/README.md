@@ -282,8 +282,12 @@ py -3 src\generate_weekly_schedule_report.py --collect --include-a
 
 母集団は掲載終了扱いを既存ルールで除外した3レポートの全評価人物です。
 予約困難・人気の文言、年齢、3件未満では除外しません。NS専門・東海の総合満足度と
-オキニラブの星を既存の相対スコア方式（同点平均順位のパーセンタイル、1件分の50点への平均回帰）
-で補正し、評価のある元のみを等重み平均します。欠けた元は0点にしません。
+オキニラブの星をDBごとに順位化し、評価のある元のみを等重み平均します。NS専門・東海は
+平均評価の同点平均順位パーセンタイルを評価件数1件分の50点へ縮小します。
+オキニラブは人物ページのおすすめ順（全体平均1件分で補正した平均星、星同点なら
+判定可能レビューがある人を先にし、補正ネガ率・補正ポジ率・判定可能レビュー数）を使った
+同順位平均パーセンタイルとし、二重補正を避けるため
+追加の50点への縮小は行いません。欠けた元は0点にしません。
 無評価は順位対象外。1評価元は「暫定」とし、排除しません。
 評価元数と、各元で同一人物・記事URLを重複除去した評価件数を表示します。
 記事URLのHTTP/HTTPS違いは同一、口コミフラグメント違いは別件です。
@@ -504,9 +508,14 @@ including people outside the candidate list: NS/Tokai overall points and
 Okinilove stars. Records sharing a person key and article URL are counted once
 (HTTP/HTTPS variants are equivalent; review fragments remain distinct).
 Each person's mean rating is converted to a 0–100 percentile within that DB,
-using average ranks for ties and 50 for a single rated person. The adjusted
-score is `(count * percentile + 3 * 50) / (count + 3)`. The three-review prior
-pulls small samples toward the DB's mean percentile (50).
+using average ranks for ties and 50 for a single rated person. NS/Tokai scores
+are shrunk toward 50 with one prior review: `(count * percentile + 50) / (count + 1)`.
+Okinilove uses the same ordering as its people page recommendation sort:
+corrected mean stars, classifiable-review availability when stars tie, corrected
+negative rate, corrected positive rate, then classifiable review count. Exact
+ties receive the same average-rank percentile;
+its recommendation ordering already applies one-review priors, so no additional
+shrink toward 50 is applied.
 
 Available DB scores are averaged with equal weight per DB, not by review
 count. Missing DB ratings do not count as zero; people without any ratings

@@ -2,6 +2,7 @@ import argparse
 import hashlib
 import html
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -485,7 +486,10 @@ POSITIVE = {
     "face": {"かわいい", "キレイ", "きれい"},
     "gap": {"写真より良い", "そのまま変りない", "そのまま変わりない"},
     "style": {"ナイスボディ"},
-    "service": {"フェラ上手", "キス上手", "一生懸命", "テクニシャン", "手コキ上手", "いちゃいちゃ"},
+    "service": {
+        "フェラ上手", "キス上手", "一生懸命", "テクニシャン", "手コキ上手",
+        "いちゃいちゃ", "超SP", "SP（スペシャルサービス）", "SP",
+    },
 }
 NEUTRAL = {
     "face": {"並", "幼い", "幼い（追）"},
@@ -494,8 +498,7 @@ NEUTRAL = {
     "service": {
         "濃厚ベロチュー", "二度ヌキ以上", "即プレイ", "交渉次第で…",
         "喫煙有（タバコ/アイコス）", "追銭", "撮影", "期間限定/出稼ぎ",
-        "A舐め", "AF（アナルファック）", "超SP", "SP（スペシャルサービス）",
-        "SP", "ぎこちない",
+        "A舐め", "AF（アナルファック）", "ぎこちない",
     },
 }
 NEGATIVE = {
@@ -512,6 +515,89 @@ def _tone(kind, value):
     if value in NEGATIVE[kind]:
         return "neg"
     return ""
+
+
+def review_sentiment(details, gap=""):
+    face_tokens = _face_tokens(details.get("face"))
+    style_tokens = _face_tokens(details.get("style"))
+    service_tokens = _face_tokens(details.get("service"))
+    items = (
+        [("face", token) for token in face_tokens]
+        + [("style", token) for token in style_tokens]
+        + [("service", token) for token in service_tokens]
+        + [("gap", _clean_gap(gap))]
+    )
+    known = any(
+        value in POSITIVE[kind] | NEGATIVE[kind] | NEUTRAL[kind]
+        for kind, value in items
+    )
+    if not known:
+        return None
+    return (
+        any(_tone(kind, value) == "pos" for kind, value in items),
+        any(_tone(kind, value) == "neg" for kind, value in items),
+    )
+
+
+def okinilove_recommendation_metrics(records_by_person, ratings_by_person):
+    """Return sentiment metrics for each person and sort keys for rated people."""
+    details_by_report, _ = _load_review_details()
+    details_path = ROOT_DIR / "data" / "okinilove_report_details.json"
+    cache = json.loads(details_path.read_text(encoding="utf-8")) if details_path.exists() else {}
+    metrics = {}
+    for key, records in records_by_person.items():
+        ratings = ratings_by_person.get(key, [])
+        positive = negative = classifiable = 0
+        for record in records:
+            report_url = record.get("report_url") or record.get("url") or ""
+            details = {
+                **record,
+                **details_by_report.get(report_url, {}),
+                **cache.get(report_url, {}),
+            }
+            sentiment = review_sentiment(details, record.get("gap", ""))
+            if sentiment is not None:
+                positive += sentiment[0]
+                negative += sentiment[1]
+                classifiable += 1
+        metrics[key] = {
+            "mean": sum(ratings) / len(ratings) if ratings else None,
+            "count": len(ratings),
+            "positive": positive,
+            "negative": negative,
+            "classifiable": classifiable,
+        }
+
+    total_rated = sum(person["count"] for person in metrics.values())
+    prior_star = (
+        sum((person["mean"] or 0) * person["count"] for person in metrics.values()) / total_rated
+        if total_rated else 0
+    )
+    total_classifiable = sum(person["classifiable"] for person in metrics.values())
+    prior_positive = (
+        sum(person["positive"] for person in metrics.values()) / total_classifiable
+        if total_classifiable else 0
+    )
+    prior_negative = (
+        sum(person["negative"] for person in metrics.values()) / total_classifiable
+        if total_classifiable else 0
+    )
+    for person in metrics.values():
+        if not person["count"]:
+            continue
+        corrected_star = (
+            person["count"] * person["mean"] + prior_star
+        ) / (person["count"] + 1)
+        corrected_star_tenth = math.floor(corrected_star * 10 + 0.5)
+        classifiable = person["classifiable"]
+        person["order_key"] = (
+            -corrected_star_tenth,
+            int(classifiable == 0),
+            (person["negative"] + prior_negative) / (classifiable + 1),
+            -(person["positive"] + prior_positive) / (classifiable + 1),
+            -classifiable,
+        )
+    return metrics
 
 
 def _clean_gap(text):
@@ -587,16 +673,10 @@ def build_people_summary(source_html, profile_images=None, fetch_missing_industr
             face_counts.update(sorted(set(face_tokens)))
             style_tokens = _face_tokens(detail.get("style"))
             service_tokens = _face_tokens(detail.get("service"))
-            items = (
-                [("face", token) for token in face_tokens]
-                + [("style", token) for token in style_tokens]
-                + [("service", token) for token in service_tokens]
-                + [("gap", report["gap"])]
-            )
-            if any(value in POSITIVE[kind] | NEGATIVE[kind] | NEUTRAL[kind] for kind, value in items):
+            sentiment = review_sentiment(detail, report["gap"])
+            if sentiment is not None:
                 value_total += 1
-                has_pos = any(_tone(kind, value) == "pos" for kind, value in items)
-                has_neg = any(_tone(kind, value) == "neg" for kind, value in items)
+                has_pos, has_neg = sentiment
                 pos_total += has_pos
                 neg_total += has_neg
                 review_classes[(has_pos, has_neg)] += 1
@@ -816,7 +896,7 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 </div>
 <div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><label class="chubby-toggle"><input id="include-chubby" type="checkbox">ぽっちゃり系店舗も表示</label><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
 </section>
-<p class="age">ポジ・ネガ含有率は顔・写真との差・スタイル・サービスをレビュー単位で集計します。おすすめ順は補正平均星（小数1桁）が高い順 → 補正ネガ率が低い順 → 補正ポジ率が高い順 → 判定可能レビュー数が多い順です。星・率は全体平均1件分で補正します。判定不能・未分類のみのレビューは率の集計対象外です。</p>
+<p class="age">ポジ・ネガ含有率は顔・写真との差・スタイル・サービスをレビュー単位で集計します。おすすめ順は補正平均星（小数1桁）が高い順 →（星同点なら）判定可能レビューがある人 → 補正ネガ率が低い順 → 補正ポジ率が高い順 → 判定可能レビュー数が多い順です。星・率は全体平均1件分で補正します。判定不能・未分類のみのレビューは率の集計対象外です。</p>
 <div class="table-wrap"><table id="reviews"><thead><tr><th>店舗</th><th>女の子</th><th>平均評価</th><th>顔 / ギャップ集計</th><th>評価数</th></tr></thead><tbody>{''.join(rows_html)}</tbody></table>
 <p id="empty" class="empty" hidden>該当する人はいません</p></div>
 <script>

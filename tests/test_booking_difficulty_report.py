@@ -414,6 +414,48 @@ class BookingDifficultyReportTests(unittest.TestCase):
         for invalid in (None, "", "unknown", float("nan"), float("inf"), -1, 101, True):
             self.assertIsNone(rating_value("tokai_fuzoku", {"total_point": invalid}))
 
+    def test_okinilove_scores_follow_recommendation_order_without_double_correction(self):
+        records = [
+            {"girl_url": f"https://example.invalid/{key}",
+             "url": f"https://okinilove.invalid/{key}",
+             "evaluations": "評価 ★★★★★", "service": service}
+            for key, service in (
+                ("a", "超SP"),
+                ("b", "ぎこちない"),
+                ("d", "ぎこちない"),
+            )
+        ] + [
+            {"girl_url": "https://example.invalid/c",
+             "url": "https://okinilove.invalid/c",
+             "evaluations": "評価 ★★★★☆", "service": "フェラ上手"},
+        ]
+        scores = relative_scores("okinilove", records)
+        keys = {
+            key: candidate_person_key("okinilove", {"girl_url": f"https://example.invalid/{key}"}, 1)
+            for key in "abcd"
+        }
+        self.assertEqual(scores[keys["a"]]["score"], 100)
+        self.assertEqual(scores[keys["b"]]["score"], 50)
+        self.assertEqual(scores[keys["d"]]["score"], 50)
+        self.assertEqual(scores[keys["c"]]["score"], 0)
+        self.assertEqual(scores[keys["a"]]["score"], scores[keys["a"]]["percentile"])
+
+    def test_okinilove_unclassifiable_person_follows_same_star_evaluated_people(self):
+        records = [
+            {"girl_url": f"https://example.invalid/{key}",
+             "url": f"https://okinilove.invalid/{key}",
+             "evaluations": "評価 ★★★★★", "service": service}
+            for key, service in (("a", "ぎこちない"), ("b", ""), ("c", "地雷"))
+        ]
+        scores = relative_scores("okinilove", records)
+        keys = {
+            key: candidate_person_key("okinilove", {"girl_url": f"https://example.invalid/{key}"}, 1)
+            for key in "abc"
+        }
+        self.assertEqual(scores[keys["a"]]["score"], 100)
+        self.assertEqual(scores[keys["c"]]["score"], 50)
+        self.assertEqual(scores[keys["b"]]["score"], 0)
+
     def test_combined_scores_weight_databases_equally_and_keep_missing_unrated(self):
         for person, card in zip(self.people, self.page.select("#people > .person")):
             ratings = list(person["ratings"].values())

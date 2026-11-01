@@ -27,7 +27,10 @@ from tokai_fuzoku.report_store import (
     person_key,
 )
 from tokai_fuzoku.html_render import group_reports, render_person_entry
-from okinilove.render_people_summary import build_people_summary
+from okinilove.render_people_summary import (
+    build_people_summary,
+    okinilove_recommendation_metrics,
+)
 from okinilove.scrape_okinilove import (
     PROFILE_STATUS_CACHE_TTL,
     profile_check_url,
@@ -263,22 +266,47 @@ def rating_value(dataset, record):
 
 
 def relative_scores(dataset, records):
-    """Rank all rated people in one DB, then shrink toward its mean percentile."""
+    """Rank all rated people, using Okinilove's recommendation order when applicable."""
     groups = defaultdict(list)
-    seen = set()
+    records_by_person = defaultdict(list)
+    seen_records, seen_ratings = set(), set()
     for row_number, record in enumerate(records, start=1):
         key = candidate_person_key(dataset, record, row_number)
         source = record.get("url") or record.get("report_url") or ""
         identity = (key, record_url_key(source)) if source else (key, row_number)
-        if identity in seen:
-            continue
+        if identity not in seen_records:
+            seen_records.add(identity)
+            records_by_person[key].append(record)
         value = rating_value(dataset, record)
-        if value is not None:
-            seen.add(identity)
+        if value is not None and identity not in seen_ratings:
+            seen_ratings.add(identity)
             groups[key].append(value)
     means = {key: sum(values) / len(values) for key, values in groups.items()}
-    ordered = sorted(means.values())
     results = {}
+    if dataset == "okinilove":
+        metrics = okinilove_recommendation_metrics(
+            records_by_person,
+            groups,
+        )
+        rated_metrics = {key: metrics[key] for key in means}
+        ordered_keys = sorted(person["order_key"] for person in rated_metrics.values())
+        for key, person in rated_metrics.items():
+            order_key = person["order_key"]
+            percentile = (
+                100 * (
+                    len(ordered_keys) - 1
+                    - (bisect_left(ordered_keys, order_key) + bisect_right(ordered_keys, order_key) - 1) / 2
+                )
+                / (len(ordered_keys) - 1)
+                if len(ordered_keys) > 1 else 50
+            )
+            results[key] = {
+                "score": percentile, "percentile": percentile,
+                "mean": person["mean"], "count": person["count"],
+            }
+        return results
+
+    ordered = sorted(means.values())
     for key, raw_mean in means.items():
         count = len(groups[key])
         percentile = (
@@ -978,7 +1006,7 @@ h1 {{ font-size: 1.5rem; }}
       <p>対象は data/ns_senmon_reports.jsonl、data/okinilove_reviews.jsonl、data/tokai_fuzoku_reports.jsonl です。既存docsの人物欄・評価・詳細をこのページに直接掲載しています。人物の詳細を開くとレビュー本文を読め、候補の根拠となったレビューには分類を表示し、該当箇所を強調しています。予約困難・完売・人気は重複することがあります。人物欄の集計にはこれらに言及しないレビューも含まれます。既存一覧にないデータも保存レコードから同じHTML形式で表示します。JSONは補足として残しています。否定文や「予約が取れなくなる前」などの将来の懸念は除外しました。</p>
       <p>3つのデータベースには元ページのHTMLソース自体は保存されていないため、表示するのは取得・保存済みのレコードデータです。これは保存済みレビューの文言検索結果であり、現在の出勤状況や予約可能性を確認したものではありません。記述時期・レビュアーの主観・本文が別の人物に言及している可能性があるため、各元記事で確認してください。人物の統合はプロフィールURLが一致する場合のみ行い、プロフィールURLのないレコードは個別に扱っています。</p>
       <p>生成日: {date.today().isoformat()}</p>
-      <p>スコアは候補以外も含む各DBの全保存データで計算します。NS専門・東海は総合点、オキニラブは星評価を使用し、同じ人物・記事URL（HTTP/HTTPS違いを含む）の評価は1件とします。人物の平均評価をDB内で順位化し、同点は平均順位、1人のみなら50とします。相対スコアは（評価件数 × 順位点 ＋ {SCORE_PRIOR_WEIGHT} × 50）÷（評価件数 ＋ {SCORE_PRIOR_WEIGHT}）。複数DBの評価はDBごとに均等平均します。未評価DBは平均に含めず、全DB未評価なら末尾に表示します。表示中の人物欄とDB内の集計単位・対象範囲が異なる場合があります。</p>
+      <p>スコアは候補以外も含む各DBの全保存データで計算します。同じ人物・記事URL（HTTP/HTTPS違いを含む）の評価は1件とします。NS専門・東海は総合点をDB内で順位化し、同点は平均順位、1人のみなら50とします。相対スコアは（評価件数 × 順位点 ＋ {SCORE_PRIOR_WEIGHT} × 50）÷（評価件数 ＋ {SCORE_PRIOR_WEIGHT}）です。オキニラブは人物ページのおすすめ順（補正平均星、同星なら判定可能レビューがある人を先にし、補正ネガ率、補正ポジ率、判定可能レビュー数）と同じ順で順位化し、同順位は平均順位、1人のみなら50とします。おすすめ順ですでに全体平均1件分を補正するため、オキニラブには追加の50点への縮小を行いません。複数DBの評価はDBごとに均等平均します。未評価DBは平均に含めず、全DB未評価なら末尾に表示します。表示中の人物欄とDB内の集計単位・対象範囲が異なる場合があります。</p>
     </aside>
     <script>
       const people = [...document.querySelectorAll(".person")];
