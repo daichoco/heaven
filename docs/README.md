@@ -67,6 +67,28 @@ Neither command collects data or makes network requests.
 または75）。`--limit N` は処理する記事数の上限です（`--recheck-profiles` の場合は人物数）。
 `--resume` は `--backfill` と併用してください。
 
+GitHub Actions の `Update Tokai report` ワークフローは毎日 **04:17 UTC（日本時間13:17）**
+に通常差分収集とオンラインHTML生成を順に実行し、手動実行にも対応しています。
+スケジュール実行はGitHub側の状況により遅れる場合があります。
+
+実行前に、[repository Actions Secretsの設定画面](https://github.com/daichoco/heaven/settings/secrets/actions)
+（`Settings → Secrets and variables → Actions → New repository secret`）で、
+名前を `FUZOKU_TOKAI_PASSWORD`、値を東海サイトのパスワードとして登録してください。
+パスワードはGitHubのSecretに保管し、コード・データファイル・コマンド引数には記載しません。
+workflowは必要なstepだけに環境変数として渡し、Secretが未設定または空なら失敗します。
+
+workflowが `main` に反映された後、Actionsタブで `Update Tokai report` を選び、
+`Run workflow` から手動実行できます。手動実行で選択したブランチにかかわらず、
+収集・更新対象は `main` です。収集とHTML生成の両方が成功し、変更がある場合だけ、
+追跡対象の `data\tokai_fuzoku_reports.jsonl` と `docs\tokai_final_report.html` を
+自動コミットして `main` にpushします。無変更ならコミットしません。
+収集の再開状態ファイルや他レポートのデータはコミットしません。
+
+実行中に別の更新が `main` に入った場合は、最新の `main` へrebaseして通常pushを再試行します
+（pushは最大3回）。内容の衝突、権限拒否、再試行上限到達は失敗として扱い、force pushは行いません。
+実行結果・認証エラー・競合の詳細はActionsタブの対象実行ログで確認してください。
+Secret登録後の最初の手動実行で、実サイトの認証とレポート更新を確認できます。
+
 ### オキニラブレポート
 
 | コマンド | 機能・オプション |
