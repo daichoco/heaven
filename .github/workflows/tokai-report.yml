@@ -2,11 +2,6 @@ name: Update Tokai report
 
 on:
   workflow_dispatch:
-    inputs:
-      diagnose:
-        description: Run an unauthenticated GET diagnostic only
-        type: boolean
-        default: false
   schedule:
     - cron: "17 4 * * *"
 
@@ -18,37 +13,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  diagnose:
-    if: ${{ inputs.diagnose == true }}
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Check unauthenticated Tokai response
-        shell: bash
-        run: |
-          python - <<'PY'
-          from urllib.request import Request, urlopen
-          from urllib.error import HTTPError
-
-          request = Request("https://m.fuzoku-tokai.com/", headers={
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-              "Accept-Encoding": "identity",
-          })
-          try:
-              response = urlopen(request, timeout=30)
-          except HTTPError as error:
-              response = error
-          with response:
-              body = response.read().decode("utf-8", errors="replace")
-              print("unauthenticated_get_status:", response.status)
-              print("unauthenticated_login_form:", "password_protected_pwd" in body)
-              print("http_auth_challenge_present:", bool(response.headers.get("WWW-Authenticate")))
-          PY
-
   update-report:
-    if: ${{ inputs.diagnose != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     defaults:
