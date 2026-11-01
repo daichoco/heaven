@@ -273,16 +273,25 @@ def option_tags(values):
     )
 
 
-def render_page(shop_options, type_options, entries_html):
+def report_template(title=None):
+    if title is None:
+        return PAGE_TEMPLATE
+    title = escape(str(title))
+    return PAGE_TEMPLATE.replace(
+        "<title>東海風俗レポート</title>", f"<title>{title}</title>",
+    ).replace("<h1>東海風俗レポート</h1>", f"<h1>{title}</h1>")
+
+
+def render_page(shop_options, type_options, entries_html, *, title=None):
     """option タグとレポート要素(HTML)からページ全体を組み立てる。"""
     return (
-        PAGE_TEMPLATE.replace("SHOP_OPTIONS", shop_options)
+        report_template(title).replace("SHOP_OPTIONS", shop_options)
         .replace("TYPE_OPTIONS", type_options)
         .replace("ENTRIES", entries_html)
     )
 
 
-def generate_html(df):
+def generate_html(df, *, title=None):
     shops = sorted(df["shop_name"].dropna().astype(str).unique()) if "shop_name" in df else []
     types = sorted(df["type"].dropna().astype(str).unique()) if "type" in df else []
     cache = load_cache()
@@ -291,7 +300,7 @@ def generate_html(df):
         for url, entry in cache.items()
     }
     entries = "".join(render_person_entry(person, prices_by_url) for person in group_reports(df))
-    return attach_prices(render_page(option_tags(shops), option_tags(types), entries))
+    return attach_prices(render_page(option_tags(shops), option_tags(types), entries, title=title))
 
 
 PAGE_TEMPLATE = """<!DOCTYPE html>

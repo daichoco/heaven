@@ -79,6 +79,45 @@ workflowが `main` に反映された後、Actionsタブで `Update NS senmon re
 実行結果・認証エラー・競合の詳細はActionsタブの対象実行ログで確認してください。
 Secret登録後の最初の手動実行で、実サイトの認証とレポート更新を確認できます。
 
+### 関東レポート
+
+`https://m.fuzoku-kanto.net/` の記事を関東専用データとして収集します。
+認証には東海と同じ `FUZOKU_TOKAI_PASSWORD` 環境変数を利用します。
+パスワード・Cookieをソースやデータに保存しないでください。
+
+| コマンド | 機能・オプション |
+| --- | --- |
+| `py -3 src\kanto_fuzoku\collect_fuzoku_kanto.py --preflight` | 本番JSONL・再開状態を書かず、全一覧ページの到達、重複除去後の記事URL数、上限75ページの適否、最終ページの記事取得・解析を確認します。記事URL数はお知らせを含み、レポート数は全本文解析後に確定します。上限超過・解析失敗・認証切れはエラーになります。 |
+| `py -3 src\kanto_fuzoku\collect_fuzoku_kanto.py` | 差分収集し、`data\kanto_fuzoku_reports.jsonl` に1記事URLにつき1行保存します。空の初回データでは最大ページ数まで走査します。 |
+| `py -3 src\kanto_fuzoku\generate_report_final.py` | `docs\kanto_final_report.html` を生成します。既定はオンラインの掲載確認・画像取得・未保存詳細の補完。`--offline` は保存済みデータのみを使用し、認証・通信を行いません。 |
+
+**初回の全件収集前に `--preflight` の結果を確認してください。**
+事前確認そのものは収集を開始しません。
+収集対象は一覧の `2016/08/15/hello-world/` より前の記事です。
+ユーザー指定により、Hello world! 本体と、それ以降の用語集等は収集せず、
+その記事に到達したページで走査を終了します。事前確認は全一覧ページを読み、
+全記事数・対象記事数・除外記事数を区別して報告します。
+公開HTMLには**年齢制限を設けず**、
+年齢不明も表示します。掲載終了が確定した人物は除外し、掲載状況不明は保持します。
+プロフィールURLを人物キーに使い、`?id=`・`?uid=` 等の識別クエリを保持します。
+リピートする・しない両方の記事を保存し、同じ人物の複数レビューをまとめて表示します。
+運営告知・移籍案内など、レビュー本文のない記事はJSONLに保存せず、再開状態に記録します。
+
+収集オプションは東海と同じ意味で `--backfill --resume`、`--fill-details`、
+`--recheck-profiles`（認証不要）、`--status`、`--limit`、`--overlap-days` を使用できます。
+最大一覧ページ数は `--max-pages N`、または `FUZOKU_KANTO_MAX_PAGES`（既定75）で指定します。
+差分の重複確認期間は既定3日、10記事ごとに途中保存します。
+再開状態はGit管理外の `data\kanto_fuzoku_collect_state.json` に保存します。
+取得失敗が残る場合はエラーで終了し、保存済みデータを保持します。
+HTMLの `--offline --refresh-prices` は人物・記事を保持して料金だけを更新します。
+
+関東専用HTMLは公開indexから参照します。横断カレンダー・予約困難一覧への統合と、
+関東用workflow・定期実行は追加していません。
+
+単体テスト: `py -3 -m unittest discover -s tests -p test_kanto_collection.py`
+ブラウザテスト: `py -3 -m unittest discover -s tests -p test_kanto_browser.py`
+（PlaywrightのChromium・WebKitが必要。公開HTMLとindexのリンクも確認します。）
+
 ### 東海レポート
 
 | コマンド | 機能・オプション |
@@ -127,6 +166,7 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 | コマンド | 機能・オプション |
 | --- | --- |
 | `py -3 src\okinilove\scrape_okinilove.py` | オキニラブの記事・口コミデータを更新し、`docs\okinilove_remove_unknown.html` を再生成します。 |
+| `py -3 src\okinilove\scrape_okinilove.py --diagnose-shop-index` | カテゴリ70〜72の先頭ページのHTTP応答・転送先・サイズ・店舗履歴一致数を診断します。データは変更せず、取得失敗時は異常終了します。 |
 | `py -3 src\okinilove\scrape_okinilove.py --recover-numbered-profile-article URL` | 指定したオキニラブ記事から、番号付きの `www` プロフィールURLを探して取り込みます。 |
 | `py -3 src\okinilove\maintain_okinilove.py --check-unavailable` | 保存済みプロフィールのHTTP 404/410を確認し、掲載終了プロフィールを削除します。保存済みCityHeaven出勤カレンダーに掲載中のプロフィールは対象外です。 |
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
@@ -134,13 +174,19 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 
 GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
 手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
-手動で実行できます。手動実行で選択したブランチにかかわらず、更新対象は `main` です。
-更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+手動で実行できます。手動実行は選択したブランチを使用します。
+`main` で更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+他のブランチでの実行は自動コミット・pushを行いません。
+`diagnose_only` を有効にすると、店舗索引の応答診断だけを実行し、データ更新・コミット・pushは行いません。
+店舗索引のHTTPエラー、想定外の転送・HTML、店舗0件は失敗として扱います。
+途中のカテゴリやページで失敗した場合も既存索引を保持し、不完全な索引で上書きしません。
+失敗時の応答情報と本文先頭（最大300文字）はログに表示されます。
 実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
 
 オキニラブのスタイル語句「デブ」はネガティブ分類、「超SP」「SP（スペシャルサービス）」「SP」
 「二度ヌキ以上」「即プレイ」はポジティブ分類とし、含有率・おすすめ順・本文の語句表示に反映します。
-他の語句分類や補正の重みは変更せず、週間カレンダーの星評価ベースの横断スコアには影響しません。
+他の語句分類や人物ページの補正の重みは変更しません。週間カレンダーのオキニラブ横断スコアにも、
+人物ページと共有するネガポジ判定とおすすめ順を反映します。
 
 保守オプションは併用できます。`--time-budget N` は検索補完に使う時間の上限を秒数で指定します（既定値: 20）。`--enrich` に適用されます。`--check-unavailable` または `--enrich` のいずれかを指定してください。
 

@@ -73,7 +73,9 @@ CITYHEAVEN_GIRL_RE = re.compile(r"^(?P<prefix>.*/girlid-\d+)(?:/.*)?$")
 TRACKING_QUERY_KEYS = {"fbclid", "gclid"}
 
 
-def canonical_article_url(url):
+def canonical_article_url(
+    url, *, hosts=None, base_url="https://m.fuzoku-tokai.com/", path_pattern=None,
+):
     """記事URLを https://m.fuzoku-tokai.com/YYYY/MM/DD/post-N/ に正規化する。対象外は None。"""
     if url is None:
         return None
@@ -83,9 +85,9 @@ def canonical_article_url(url):
         return None
     if parsed.scheme.lower() not in {"http", "https"}:
         return None
-    if (parsed.hostname or "").lower() not in ARTICLE_HOSTS:
+    if (parsed.hostname or "").lower() not in (ARTICLE_HOSTS if hosts is None else hosts):
         return None
-    match = ARTICLE_PATH_RE.match(parsed.path)
+    match = (path_pattern or ARTICLE_PATH_RE).match(parsed.path)
     if not match:
         return None
     try:
@@ -93,7 +95,7 @@ def canonical_article_url(url):
     except ValueError:
         return None
     return (
-        f"https://m.fuzoku-tokai.com/{match.group('year')}/{match.group('month')}/"
+        f"{base_url}{match.group('year')}/{match.group('month')}/"
         f"{match.group('day')}/{match.group('slug')}/"
     )
 
@@ -242,14 +244,15 @@ def merge_report(existing, fresh):
 class ReportStore:
     """記事URLをキーにした JSONL ストア。既存行のキー順・未知の列・並び順を保持する。"""
 
-    def __init__(self, path=REPORTS_JSONL):
+    def __init__(self, path=REPORTS_JSONL, *, canonicalize=None):
         self.path = Path(path)
+        self.canonicalize = canonicalize or canonical_article_url
         self.records = []
         self._index = {}
         self.dirty = False
         self.dropped_duplicates = 0
         for record in read_jsonl_records(self.path):
-            key = canonical_article_url(record.get("url"))
+            key = self.canonicalize(record.get("url"))
             if key is not None and key in self._index:
                 self.dropped_duplicates += 1
                 self.dirty = True
@@ -259,14 +262,14 @@ class ReportStore:
             self.records.append(record)
 
     def __contains__(self, url):
-        key = canonical_article_url(url)
+        key = self.canonicalize(url)
         return key is not None and key in self._index
 
     def __len__(self):
         return len(self.records)
 
     def get(self, url):
-        key = canonical_article_url(url)
+        key = self.canonicalize(url)
         return self.records[self._index[key]] if key in self._index else None
 
     def latest_date(self):
@@ -281,7 +284,7 @@ class ReportStore:
 
     def upsert(self, record):
         """'added' / 'updated' / 'unchanged' を返す。"""
-        key = canonical_article_url(record.get("url"))
+        key = self.canonicalize(record.get("url"))
         if key is None:
             raise ValueError(f"記事URLとして扱えません: {record.get('url')}")
         record = {**record, "url": key}

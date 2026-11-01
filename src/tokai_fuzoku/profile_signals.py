@@ -12,7 +12,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
-from report_store import normalize_profile_url
+from tokai_fuzoku.report_store import normalize_profile_url
 from cityheaven.profile_urls import PROFILE_HOSTS, same_profile
 
 HOST_PREFIXES = ("www.", "sp.", "m.", "s.")
