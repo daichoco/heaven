@@ -230,7 +230,7 @@ class ProfileChecker:
     """プロフィール掲載確認を人物（正規化プロフィールURL）単位でキャッシュする。
 
     結果は published / unavailable / unknown。unavailable は profile_signals の明確な不在シグナル
-    （404・410、別ページへの転送、サイト別の空テンプレート）だけ。CityHeaven は同一URLで200なら published。
+    （404・410、別ページへの転送、サイト別の空テンプレート）だけ。CityHeaven は同一店舗・girlidで200なら published。
     それ以外は名前照合（タグ・装飾・読みを緩和）し、一致しなければブラウザ描画後に再照合して、
     それでも名前が無い・通信失敗・403/429/5xx・ブラウザ失敗は unknown（掲載終了と断定しない）。
     """

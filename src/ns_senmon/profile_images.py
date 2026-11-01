@@ -25,6 +25,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from okinilove.render_people_summary import HEADERS, PROFILE_IMAGE_HTML_LIMIT, extract_profile_image_url
+from cityheaven.profile_urls import canonical_profile_url, same_profile
 
 CACHE_PATH = ROOT_DIR / "data" / "ns_senmon_profile_image_cache.json"
 RETRY_DAYS = 7
@@ -116,7 +117,7 @@ def _fetch(url, name):
     if not 200 <= response.status_code < 400:
         print(f"プロフィール画像取得失敗 ({url}): HTTP {response.status_code}")
         return {"status": "error", "image_url": ""}
-    if normalize_profile_url(response.url).split("://")[-1] != normalize_profile_url(url).split("://")[-1]:
+    if not same_profile(url, response.url):
         message = "別ページに転送されました（認証・掲載状況を確認）"
         print(f"プロフィール画像取得失敗 ({url}): {message}")
         return {"status": "error", "image_url": "", "error": message}
@@ -124,7 +125,10 @@ def _fetch(url, name):
     encoding = response.encoding if "charset" in response.headers.get("content-type", "").lower() else "utf-8"
     page_html = response.content[:PROFILE_IMAGE_HTML_LIMIT].decode(encoding, errors="replace")
     image_url = extract_profile_image_url(page_html, response.url, name)
-    result = {"status": "ok" if image_url else "no_image", "image_url": image_url or "", "shop_checked": True}
+    result = {
+        "status": "ok" if image_url else "no_image", "image_url": image_url or "",
+        "shop_checked": True, "resolved_profile_url": canonical_profile_url(response.url),
+    }
     parsed = parse_shop_kind(page_html)
     if parsed:
         result["shop_kind"], result["price_class"] = parsed

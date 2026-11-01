@@ -46,6 +46,39 @@ Neither command collects data or makes network requests.
 | `py -3 src\ns_senmon\match_cityheaven.py` | 手動マップ、既存レポート、店舗ページ検索を使って、保存済みNS専門記事とCityHeavenプロフィールを突合します。記事JSONLを更新し、未突合データを `data\ns_senmon_unmatched.json` に出力します。 |
 | `py -3 src\ns_senmon\generate_ns_senmon_report.py` | 保存済みNS専門JSONLから `docs\ns_senmon_report.html` を生成し、取得可能なプロフィール画像を取得します。 |
 
+GitHub Actions の `Update NS senmon report` ワークフローは毎日 **05:17 UTC（日本時間14:17）**
+に通常差分収集、CityHeaven突合、オンラインHTML生成を順に実行し、手動実行にも対応しています。
+スケジュール実行はGitHub側の状況により遅れる場合があります。
+
+実行前に、[repository Actions Secretsの設定画面](https://github.com/daichoco/heaven/settings/secrets/actions)
+（`Settings → Secrets and variables → Actions → New repository secret`）で、
+`NS_SENMON_USER` にNS専門のユーザー名またはメールアドレス、
+`NS_SENMON_PASS` にパスワードを登録してください。
+認証情報はGitHubのSecretに保管し、コード・データファイル・コマンド引数には記載しません。
+workflowは事前チェックと収集stepだけに環境変数として渡し、未設定または空なら値を表示せず失敗します。
+CityHeaven突合と画像URL取得は公開ページを利用するため、CityHeavenのSecretsやChromeは不要です。
+
+workflowが `main` に反映された後、Actionsタブで `Update NS senmon report` を選び、
+`Run workflow` から手動実行できます。手動実行で選択したブランチにかかわらず、
+収集・更新対象は `main` です。3つの処理が成功し、変更がある場合だけ、次の追跡対象を
+自動コミットして `main` にpushします。無変更ならコミットしません。
+
+| 更新対象 | 内容 |
+| --- | --- |
+| `data\ns_senmon_reports.jsonl` | 収集記事とCityHeaven突合結果 |
+| `data\ns_senmon_unmatched.json` | 未突合・候補・掲載なしの情報 |
+| `data\ns_senmon_shop_search_cache.json` | 次回実行で再利用する店舗検索結果 |
+| `data\ns_senmon_profile_image_cache.json` | プロフィール画像URL・掲載状況・店舗種別のキャッシュ |
+| `docs\ns_senmon_report.html` | 公開HTML |
+
+画像は外部URLを参照し、画像ファイル自体は保存しません。画像取得の失敗はログに表示し、
+既存のキャッシュを利用できる場合は利用してHTML生成を続けます。
+手動マップ、店舗マップ、他レポートのデータ、統合カレンダーはコミットしません。
+実行中に別の更新が `main` に入った場合は、最新の `main` へrebaseして通常pushを再試行します
+（pushは最大3回）。内容の衝突、権限拒否、再試行上限到達は失敗として扱い、force pushは行いません。
+実行結果・認証エラー・競合の詳細はActionsタブの対象実行ログで確認してください。
+Secret登録後の最初の手動実行で、実サイトの認証とレポート更新を確認できます。
+
 ### 関東レポート
 
 `https://m.fuzoku-kanto.net/` の記事を関東専用データとして収集します。
@@ -133,6 +166,7 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 | コマンド | 機能・オプション |
 | --- | --- |
 | `py -3 src\okinilove\scrape_okinilove.py` | オキニラブの記事・口コミデータを更新し、`docs\okinilove_remove_unknown.html` を再生成します。 |
+| `py -3 src\okinilove\scrape_okinilove.py --diagnose-shop-index` | カテゴリ70〜72の先頭ページのHTTP応答・転送先・サイズ・店舗履歴一致数を診断します。データは変更せず、取得失敗時は異常終了します。 |
 | `py -3 src\okinilove\scrape_okinilove.py --recover-numbered-profile-article URL` | 指定したオキニラブ記事から、番号付きの `www` プロフィールURLを探して取り込みます。 |
 | `py -3 src\okinilove\maintain_okinilove.py --check-unavailable` | 保存済みプロフィールのHTTP 404/410を確認し、掲載終了プロフィールを削除します。保存済みCityHeaven出勤カレンダーに掲載中のプロフィールは対象外です。 |
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
@@ -140,8 +174,13 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 
 GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
 手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
-手動で実行できます。手動実行で選択したブランチにかかわらず、更新対象は `main` です。
-更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+手動で実行できます。手動実行は選択したブランチを使用します。
+`main` で更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
+他のブランチでの実行は自動コミット・pushを行いません。
+`diagnose_only` を有効にすると、店舗索引の応答診断だけを実行し、データ更新・コミット・pushは行いません。
+店舗索引のHTTPエラー、想定外の転送・HTML、店舗0件は失敗として扱います。
+途中のカテゴリやページで失敗した場合も既存索引を保持し、不完全な索引で上書きしません。
+失敗時の応答情報と本文先頭（最大300文字）はログに表示されます。
 実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
 
 オキニラブのスタイル語句「デブ」はネガティブ分類とし、ネガ含有率・おすすめ順・本文の語句表示に反映します。
@@ -288,7 +327,7 @@ py -3 src\generate_weekly_schedule_report.py --collect --include-a
 
 母集団は掲載終了扱いを既存ルールで除外した3レポートの全評価人物です。
 予約困難・人気の文言、年齢、3件未満では除外しません。NS専門・東海の総合満足度と
-オキニラブの星を既存の相対スコア方式（同点平均順位のパーセンタイル、3件分の50点への平均回帰）
+オキニラブの星を既存の相対スコア方式（同点平均順位のパーセンタイル、1件分の50点への平均回帰）
 で補正し、評価のある元のみを等重み平均します。欠けた元は0点にしません。
 無評価は順位対象外。1評価元は「暫定」とし、排除しません。
 評価元数と、各元で同一人物・記事URLを重複除去した評価件数を表示します。
@@ -311,12 +350,20 @@ www有無を統一）で同一人物を統合します。3レポート全体でC
 ページにない日は「未公開」、空欄も「未公開」、明示された「休み」は休み、
 「未定」は未定、不明な文言は原文付きの「要確認」として扱います。
 HTTPエラー・別ページ転送・DOM変更は「取得エラー」であり、休みとは扱いません。
+ただし、CityHeavenの店舗スラッグとgirlidが両方同じプロフィールへの
+都道府県・エリアコード変更による転送は同一人物として取得を続行します。
+別店舗・別girlid・他ホスト・ログイン・年齢確認・店舗トップ等への転送は許可しません。
+同じ判定を共有プロフィール画像取得と東海風俗の掲載判定にも適用します。
 月間予定が対象週の一部しか公開していなくても推測や別日の転用はしません。
 翌月への追加ナビゲーションは行わないため、対象日がページにない場合は未公開のままです。
 
 取得結果は `data\cityheaven_weekly_schedules.json` に期間開始日・プロフィールURL別に
 取得日時、7日間の状態と原文、エラーを保存します。再実行は同じ対象者の結果を更新し、
 今回取得しなかったAや過去期間は保持します。形式v2の `windows[開始日][プロフィールURL]` を使用します。
+取得で確認した移転先は予定・画像の取得結果の `resolved_profile_url` に追加保存し、
+週間レポートのプロフィールリンクに使用します。元記事のURLや既存キャッシュのキーは
+書き換えません。移転先フィールドのない旧データは従来どおり元URLを使用します。
+画像エラーの再試行間隔は変更しません（通常は7日後に再試行）。
 旧v1の `weeks` は読み込み時に同じ開始日・7日分のまま移行し、収集時にv2で保存します。
 オフライン読み込みでは元ファイルを書き換えません。開始日が一致する保存期間だけを利用し、
 前日開始の期間や旧翌週データを本日へずらしたり、欠けた日を補完したりしません。
