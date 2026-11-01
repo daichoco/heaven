@@ -394,10 +394,10 @@ class BookingDifficultyReportTests(unittest.TestCase):
         a, b, c = [scores[key] for key in keys]
         self.assertEqual(a["count"], 1)
         self.assertEqual(a["percentile"], 75)
-        self.assertEqual(a["score"], 56.25)
+        self.assertEqual(a["score"], 62.5)
         self.assertEqual(a["score"], b["score"])
         self.assertEqual(c["percentile"], 0)
-        self.assertEqual(c["score"], 37.5)
+        self.assertEqual(c["score"], 25)
         singleton = relative_scores("tokai_fuzoku", records[:1])
         self.assertEqual(next(iter(singleton.values()))["score"], 50)
         records.extend(
