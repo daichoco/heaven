@@ -4,7 +4,7 @@ unavailable は明確な不在の証拠があるときだけ返す:
   - HTTP 404 / 410
   - 別ページ（店舗トップ・一覧・別IDなど）への転送
   - サイト別の空プロフィールテンプレート（名前欄が空など）
-CityHeaven の girlid ページは HTTP 200 かつ同一ページなら名前照合せずに published。
+CityHeaven の girlid ページは HTTP 200 かつ同一店舗・girlid なら名前照合せずに published。
 それ以外で判断できないときは None を返し、呼び出し側が名前照合する（不一致でも unavailable にはしない）。
 """
 import re
@@ -13,6 +13,7 @@ from urllib.parse import urlsplit, urlunsplit
 from bs4 import BeautifulSoup
 
 from report_store import normalize_profile_url
+from cityheaven.profile_urls import PROFILE_HOSTS, same_profile
 
 HOST_PREFIXES = ("www.", "sp.", "m.", "s.")
 META_CHARSET_RE = re.compile(rb"""<meta[^>]+charset=["']?([\w-]+)""", re.I)
@@ -52,9 +53,11 @@ def _strip_host_prefix(url):
 
 
 def same_profile_page(requested_url, final_url):
-    """転送後も同じプロフィールか（http/https、末尾スラッシュ、www./sp. などの違いは同一扱い）。"""
+    """同じプロフィールか。CityHeaven は店舗・girlid、それ以外は正規化 URL を比較する。"""
     if not final_url:
         return True
+    if _host(requested_url) in PROFILE_HOSTS:
+        return same_profile(requested_url, final_url)
     requested = normalize_profile_url(requested_url)
     final = normalize_profile_url(final_url)
     if requested is None or final is None:
@@ -96,5 +99,5 @@ def classify_profile_page(requested_url, final_url, status_code, html):
     if reason:
         return "unavailable", reason
     if is_cityheaven_profile(requested_url):
-        return "published", "CityHeaven プロフィール（HTTP 200・同一URL）"
+        return "published", "CityHeaven プロフィール（HTTP 200・同一店舗／girlid）"
     return None, None

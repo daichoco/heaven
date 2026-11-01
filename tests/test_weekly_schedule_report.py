@@ -553,6 +553,104 @@ class WeeklyCalendarTests(unittest.TestCase):
         page.content.assert_not_called()
         page.close.assert_awaited_once()
 
+    def test_area_relocations_fetch_and_persist_under_original_keys(self):
+        for shop, girl, old_area, new_area in [
+            ("alamode", "31291565", "A230113", "A230101"),
+            ("imperial-h", "12065159", "A230113", "A230101"),
+            ("aitokkyu2006", "10798162", "A230103", "A230104"),
+        ]:
+            original = f"https://www.cityheaven.net/aichi/A2301/{old_area}/{shop}/girlid-{girl}/"
+            resolved = original.replace(old_area, new_area)
+            html = calendar_html([("10/19(月)", "10:00 - 18:00")])
+            html += '<img data-echo="/img/girls/t/shop/grpb1.jpg">'
+            page = Mock(
+                url=resolved + "?of=y", goto=AsyncMock(return_value=Mock(status=200)),
+                content=AsyncMock(return_value=html), wait_for_selector=AsyncMock(),
+                close=AsyncMock(),
+            )
+            context = Mock(new_page=AsyncMock(return_value=page))
+            with self.subTest(shop=shop):
+                result = asyncio.run(weekly.fetch_person(
+                    context, {"profile_url": original, "names": ["人物"]}, self.dates,
+                ))
+                self.assertEqual(result["error"], "")
+                self.assertEqual(result["profile_url"], original)
+                self.assertEqual(result["resolved_profile_url"], resolved)
+                self.assertEqual(result["days"][0]["state"], "working")
+                self.assertEqual(result["image"]["image_url"],
+                                 "https://www.cityheaven.net/img/girls/t/shop/grpb1.jpg")
+                page.wait_for_selector.assert_awaited_once()
+                page.close.assert_awaited_once()
+                cache = {"version": 2, "windows": {self.dates[0]: {original: result}}}
+                path = Path(self.assets_directory.name) / "schedule.json"
+                weekly.save_cache(cache, path)
+                self.assertEqual(weekly.load_cache(path), cache)
+                response = Mock(
+                    status_code=200, url=resolved, headers={"content-type": "text/html"},
+                    content=html.encode("utf-8"),
+                )
+                image_path = Path(self.assets_directory.name) / f"{shop}.json"
+                with patch.object(profile_images.requests, "get", return_value=response):
+                    images = profile_images.fetch_profile_images({original: "人物"}, image_path)
+                self.assertEqual(set(images), {original})
+                self.assertEqual(images[original]["status"], "ok")
+                self.assertEqual(images[original]["resolved_profile_url"], resolved)
+                self.assertEqual(profile_images.load_cache(image_path), images)
+
+    def test_invalid_redirects_and_http_errors_never_parse_profiles(self):
+        for destination, status in [
+            (profile(2), 200),
+            (profile(1).replace("/shop/", "/other-shop/"), 200),
+            (profile(1) + "diary/", 200),
+            ("http://img.cityheaven.net/cs/nenrei/", 200),
+            ("https://www.cityheaven.net/login/girlid-1/", 200),
+            (profile(1), 404), (profile(1), 410),
+        ]:
+            page = Mock(
+                url=destination, goto=AsyncMock(return_value=Mock(status=status)),
+                close=AsyncMock(), content=AsyncMock(),
+            )
+            context = Mock(new_page=AsyncMock(return_value=page))
+            with self.subTest(destination=destination, status=status):
+                result = asyncio.run(weekly.fetch_person(
+                    context, {"profile_url": profile(1)}, self.dates,
+                ))
+                self.assertTrue(result["error"])
+                self.assertEqual(result["resolved_profile_url"], "")
+                self.assertTrue(all(day["state"] == "error" for day in result["days"]))
+                page.content.assert_not_called()
+                page.close.assert_awaited_once()
+                response = Mock(status_code=status, url=destination)
+                with patch.object(profile_images.requests, "get", return_value=response):
+                    image = profile_images._fetch(profile(1), "人物")
+                self.assertEqual(image["status"], "not_found" if status in {404, 410} else "error")
+                self.assertEqual(image["image_url"], "")
+
+    def test_resolved_links_keep_original_lookup_and_legacy_compatibility(self):
+        original = profile(1)
+        resolved = original.replace("/gifu/A2101/", "/aichi/A2301/A230101/")
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(1)]))
+        result = {
+            "fetched_at": "", "error": "",
+            "days": weekly.daily_states(self.dates, "working", "10:00 - 18:00"),
+        }
+        for schedules, images, expected in [
+            ({original: {**result, "resolved_profile_url": resolved}}, {}, resolved),
+            ({original: result}, {original: {"resolved_profile_url": resolved}}, resolved),
+            ({original: result}, {}, original),
+            ({original: {**result, "resolved_profile_url": profile(2)}}, {}, original),
+            ({original: result}, {original: {"resolved_profile_url": resolved + "login/"}}, original),
+        ]:
+            with self.subTest(expected=expected, schedules=schedules, images=images):
+                page = BeautifulSoup(
+                    weekly.render_html(people, self.dates, schedules, {}, images=images), "html.parser",
+                )
+                self.assertEqual(page.select_one(".person-row a")["href"], expected)
+                index = json.loads(page.select_one("#weeklyIndex").string)
+                self.assertIn(original.casefold(), index["people"][0]["search"])
+                self.assertIn(expected.casefold(), index["people"][0]["search"])
+                self.assertEqual(people[0]["profile_url"], original)
+
     def test_report_navigation_template_preserves_weekend_content(self):
         from cityheaven.cityheaven_month_schedule import render_index_html
 
@@ -961,8 +1059,11 @@ class BrowserFixtureTests(unittest.TestCase):
                             self.assertEqual(result["days"][1]["state"], "off")
                             self.assertEqual(result["days"][6]["state"], "unpublished")
                             self.assertEqual(result["error"], "")
+                            self.assertEqual(result["profile_url"], profile(1))
+                            self.assertEqual(result["resolved_profile_url"], profile(1))
                             self.assertEqual(result["image"], {
-                                "status": "ok", "image_url": "https://img.invalid/photo.jpg"
+                                "status": "ok", "image_url": "https://img.invalid/photo.jpg",
+                                "resolved_profile_url": profile(1),
                             })
                         else:
                             self.assertTrue(result["error"])

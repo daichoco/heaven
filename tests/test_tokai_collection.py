@@ -295,6 +295,32 @@ class ProfileSignalTests(unittest.TestCase):
         checker = collect.ProfileChecker(session, driver_factory=lambda: self.fail("browser not needed"))
         self.assertEqual(checker.check(self.SHABOOLE, "みく"), "unavailable")
 
+    def test_cityheaven_relocation_keeps_profile_published(self):
+        import profile_signals
+
+        original = "https://www.cityheaven.net/aichi/A2301/A230113/alamode/girlid-31291565/"
+        resolved = original.replace("A230113", "A230101")
+        self.assertEqual(
+            profile_signals.classify_profile_page(original, resolved, 200, "")[0], "published",
+        )
+        for destination in [
+            resolved.replace("alamode", "other-shop"),
+            resolved.replace("31291565", "999"),
+            resolved + "diary/",
+            "https://www.cityheaven.net/login/girlid-31291565/",
+            "https://img.cityheaven.net/cs/nenrei/",
+        ]:
+            with self.subTest(destination=destination):
+                self.assertEqual(
+                    profile_signals.classify_profile_page(original, destination, 200, "")[0],
+                    "unavailable",
+                )
+        for status in (404, 410):
+            self.assertEqual(
+                profile_signals.classify_profile_page(original, resolved, status, "")[0],
+                "unavailable",
+            )
+
     def test_checker_uses_signals_and_name_mismatch_is_unknown(self):
         session = FakeSession(
             {

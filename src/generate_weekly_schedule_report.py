@@ -13,6 +13,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from bs4 import BeautifulSoup
 
+from cityheaven.profile_urls import canonical_profile_url, same_profile
 from data_store import read_jsonl_records
 from generate_booking_difficulty_report import (
     DATASETS,
@@ -269,16 +270,21 @@ async def fetch_person(context, person, dates):
     page = await context.new_page()
     error = ""
     image = {"status": "error", "image_url": ""}
+    resolved_profile_url = ""
     try:
         response = await page.goto(person["profile_url"], wait_until="domcontentloaded")
         if response is None or response.status >= 400:
             raise ValueError(f"HTTP {response.status if response else '応答なし'}")
-        if cityheaven_profile_url(page.url) != person["profile_url"]:
+        if not same_profile(person["profile_url"], page.url):
             raise ValueError("別ページに転送されました（認証・掲載状況を確認）")
+        resolved_profile_url = canonical_profile_url(page.url)
         image_url = extract_profile_image_url(
             await page.content(), page.url, (person.get("names") or [""])[0]
         )
-        image = {"status": "ok" if image_url else "no_image", "image_url": image_url or ""}
+        image = {
+            "status": "ok" if image_url else "no_image", "image_url": image_url or "",
+            "resolved_profile_url": resolved_profile_url,
+        }
         await page.wait_for_selector("#syukin_month .girlitem_waku", state="attached")
         days = parse_month_calendar(await page.content(), dates)
     except (PlaywrightError, ValueError) as exc:
@@ -289,6 +295,7 @@ async def fetch_person(context, person, dates):
         await page.close()
     return {
         "profile_url": person["profile_url"],
+        "resolved_profile_url": resolved_profile_url,
         "fetched_at": datetime.now(JST).isoformat(timespec="seconds"),
         "days": days,
         "error": error,
@@ -516,7 +523,13 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
         person_ids.add(person_id)
         name = escape(" / ".join(person["names"]) or "名前不明")
         shop = escape(" / ".join(person["shops"]) or "店舗不明")
-        profile = escape(person["profile_url"], quote=True)
+        profile_url = person["profile_url"]
+        for entry in (schedules.get(profile_url, {}), images.get(profile_url, {})):
+            resolved = entry.get("resolved_profile_url", "")
+            if same_profile(person["profile_url"], resolved):
+                profile_url = canonical_profile_url(resolved)
+                break
+        profile = escape(profile_url, quote=True)
         price_url = shop_prices.shop_url(person["profile_url"])
         price_entry = prices["shops"].get(price_url, {})
         selected_price = price_entry.get("selected") if price_entry.get("status") == "ok" else None
@@ -601,7 +614,9 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
         listing_index.append({
             "id": person_id, "working": working_days, "ages": ages,
             "price": price_amount, "priceStatus": price_entry.get("status", "not_fetched"),
-            "search": " ".join(person["names"] + person["shops"] + [person["profile_url"]]).casefold(),
+            "search": " ".join(
+                person["names"] + person["shops"] + [person["profile_url"], profile_url]
+            ).casefold(),
         })
     for start in range(0, len(rows), PAGE_SIZE):
         url = add_asset(assets, "list", {
