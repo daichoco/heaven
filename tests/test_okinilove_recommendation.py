@@ -178,7 +178,9 @@ class RecommendationTests(unittest.TestCase):
         self.run_scripts(data, lambda result: self.assertEqual(result["order"], [1, 0]))
 
     def test_sp_services_are_positive_and_classifiable(self):
-        for value in ("超SP", "SP（スペシャルサービス）", "SP"):
+        for value in (
+            "超SP", "SP（スペシャルサービス）", "SP", "二度ヌキ以上", "即プレイ",
+        ):
             self.assertIn(value, POSITIVE["service"])
             self.assertNotIn(value, NEUTRAL["service"])
             self.assertEqual(_tone("service", value), "pos")
