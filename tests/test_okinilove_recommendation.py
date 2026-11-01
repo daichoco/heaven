@@ -11,7 +11,13 @@ from bs4 import BeautifulSoup
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from okinilove.render_people_summary import NEGATIVE, NEUTRAL, _tone, build_people_summary
+from okinilove.render_people_summary import (
+    NEGATIVE,
+    NEUTRAL,
+    POSITIVE,
+    _tone,
+    build_people_summary,
+)
 
 
 # Execute the real sorting/filtering code with a small DOM, without a browser or network.
@@ -170,6 +176,32 @@ class RecommendationTests(unittest.TestCase):
             for row in rows
         ]
         self.run_scripts(data, lambda result: self.assertEqual(result["order"], [1, 0]))
+
+    def test_sp_services_are_positive_and_classifiable(self):
+        for value in (
+            "超SP", "SP（スペシャルサービス）", "SP", "二度ヌキ以上", "即プレイ",
+        ):
+            self.assertIn(value, POSITIVE["service"])
+            self.assertNotIn(value, NEUTRAL["service"])
+            self.assertEqual(_tone("service", value), "pos")
+
+        source = '<table id="girlsTable"><tbody>' + "".join(
+            f'<tr><td>店舗</td><td><a href="https://okinilove.com/blog-entry-{number}.html">記事</a></td>'
+            f'<td><a href="https://example.invalid/person">人物</a></td><td></td><td>★★★★☆</td></tr>'
+            for number in (2238, 2026)
+        ) + '</tbody></table>'
+        with (
+            patch("okinilove.render_people_summary._load_review_details", return_value=({
+                "https://okinilove.com/blog-entry-2238.html": {"service": "超SP"},
+                "https://okinilove.com/blog-entry-2026.html": {"service": "SP（スペシャルサービス） SP"},
+            }, {})),
+            patch("requests.get", side_effect=AssertionError("Unexpected network request")),
+        ):
+            page, _ = build_people_summary(source, {}, fetch_missing_industries=False)
+        row = page.select_one(".person-row")
+        self.assertEqual(row["data-posn"], "2")
+        self.assertEqual(row["data-negn"], "0")
+        self.assertEqual(row["data-vals"], "2")
 
     def test_single_review_can_overtake_established_person(self):
         def check(result):
