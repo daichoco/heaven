@@ -360,15 +360,21 @@ class LoginTests(unittest.TestCase):
 
 
 class GeneratorTests(unittest.TestCase):
-    def test_offline_no_age_limit_and_ended_profiles_excluded(self):
+    def test_offline_age_limit_matches_tokai_and_ended_profiles_excluded(self):
         records = []
-        for number, age, status in ((1, "35才", "published"), (2, "", "unknown"), (3, "25才", "unavailable")):
+        for number, age, status in (
+            (1, "29才", "published"), (2, "30才", "unknown"),
+            (3, "31才", "published"), (4, "", "published"),
+            (5, "25才", "unavailable"), (6, "35才", "published"),
+            (7, "不明", "unknown"),
+        ):
             record = store.parse_report_page(BeautifulSoup(article(age=age), "lxml"), url(number))
             record.update(store.parse_report_details(BeautifulSoup(article(), "lxml")))
             record.update(profile_status=status, fetched_at="2026-01-03T00:00:00+00:00",
                           girl_url=PROFILE + str(number))
             records.append(record)
-        records.append({**records[0], "url": url(4)})
+        records.append({**records[0], "url": url(8)})
+        records.append({**records[0], "url": url(9), "predict_age": "31才"})
         with tempfile.TemporaryDirectory() as directory:
             input_path, output_path = Path(directory) / "data.jsonl", Path(directory) / "report.html"
             input_path.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in records), encoding="utf-8")
@@ -383,8 +389,12 @@ class GeneratorTests(unittest.TestCase):
             self.assertEqual(soup.title.get_text(), "関東風俗レポート")
             self.assertEqual(len(soup.select(".report-entry")), 2)
             self.assertEqual(len(soup.select(".article-entry")), 3)
-            self.assertIn("35", soup.get_text())
-            self.assertEqual(len(tokai_generate.load_input_data(input_path)), 0)
+            expected_urls = set(tokai_generate.load_input_data(input_path)["url"])
+            actual_urls = {
+                link["href"] for link in soup.select(".article-entry .report-heading a")
+            }
+            self.assertEqual(expected_urls, {url(1), url(2), url(8)})
+            self.assertEqual(actual_urls, expected_urls)
 
     def test_title_is_escaped_without_altering_review_text(self):
         source = generate_html(pd.DataFrame(), title="<関東>")
