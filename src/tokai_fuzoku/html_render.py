@@ -196,17 +196,19 @@ def render_report_entry(row, i, shop_price_class=""):
     return html
 
 
-def render_person_entry(person, prices_by_url):
+def render_person_entry(person, prices_by_url, *, include_age_filter=False):
     latest = person["latest"]
     name = "" if is_missing(latest["name"]) else str(latest["name"])
     shop = "" if is_missing(latest["shop_name"]) else str(latest["shop_name"])
     typ = "" if is_missing(latest["type"]) else str(latest["type"])
     age = latest["predict_age"]
     age_str = ""
+    age_value = ""
     if not is_missing(age):
         match = re.search(r"\d+", str(age))
         if match:
-            age_str = f"{match.group()}才"
+            age_value = match.group()
+            age_str = f"{age_value}才"
     girl_url = "" if is_missing(latest["girl_url"]) else str(latest["girl_url"])
     image_url = "" if is_missing(latest["profile_image_url"]) else str(latest["profile_image_url"])
     profile_image = (
@@ -255,8 +257,9 @@ def render_person_entry(person, prices_by_url):
         for report_index, record in person["reports"]
     )
     search = " ".join((identity, name, person["search"])).casefold()
+    age_attr = f' data-age="{escape(age_value, quote=True)}"' if include_age_filter else ""
     return (
-        f'<details class="report-entry" {sort_attrs} data-search="{escape(search, quote=True)}">'
+        f'<details class="report-entry" {sort_attrs}{age_attr} data-search="{escape(search, quote=True)}">'
         f'<summary class="person-heading">{profile_image} <span class="person-identity">'
         f'({escape(identity)}) {girl_link} {escape(age_str)}</span> '
         f'<span class="person-report-count">レポート {len(person["reports"])}件</span> '
@@ -273,25 +276,58 @@ def option_tags(values):
     )
 
 
-def report_template(title=None):
+def report_template(title=None, *, include_age_filter=False):
+    age_filter_markup = """<label for="ageLimitFilter">年齢上限</label>
+        <select id="ageLimitFilter" aria-label="年齢上限">
+            <option value="">上限なし</option>
+            <option value="20">20歳以下</option>
+            <option value="25">25歳以下</option>
+            <option value="30">30歳以下</option>
+            <option value="35">35歳以下</option>
+            <option value="40">40歳以下</option>
+            <option value="45">45歳以下</option>
+            <option value="50">50歳以下</option>
+        </select>
+        <label><input id="includeUnknownAge" type="checkbox" checked> 年齢不明を含む</label>"""
+    age_filter_state = """
+        const ageLimit = document.getElementById("ageLimitFilter").value;
+        const includeUnknownAge = document.getElementById("includeUnknownAge").checked;"""
+    age_filter_person = """
+            const age = numericValue(entry, "age");
+            const ageMatches = age === null
+                ? includeUnknownAge
+                : (!ageLimit || age <= Number(ageLimit));"""
+    age_filter_reset = """
+        document.getElementById("ageLimitFilter").value = "";
+        document.getElementById("includeUnknownAge").checked = true;"""
+    replacements = {
+        "AGE_FILTER_STATE": age_filter_state if include_age_filter else "",
+        "AGE_FILTER_PERSON": age_filter_person if include_age_filter else "",
+        "AGE_FILTER_ARTICLE": "ageMatches && " if include_age_filter else "",
+        "AGE_FILTER_RESET": age_filter_reset if include_age_filter else "",
+        "AGE_FILTER_MARKUP": f"\n        {age_filter_markup}" if include_age_filter else "",
+    }
+    template = PAGE_TEMPLATE
+    for placeholder, replacement in replacements.items():
+        template = template.replace(placeholder, replacement)
     if title is None:
-        return PAGE_TEMPLATE
+        return template
     title = escape(str(title))
-    return PAGE_TEMPLATE.replace(
+    return template.replace(
         "<title>東海風俗レポート</title>", f"<title>{title}</title>",
     ).replace("<h1>東海風俗レポート</h1>", f"<h1>{title}</h1>")
 
 
-def render_page(shop_options, type_options, entries_html, *, title=None):
+def render_page(shop_options, type_options, entries_html, *, title=None, include_age_filter=False):
     """option タグとレポート要素(HTML)からページ全体を組み立てる。"""
     return (
-        report_template(title).replace("SHOP_OPTIONS", shop_options)
+        report_template(title, include_age_filter=include_age_filter).replace("SHOP_OPTIONS", shop_options)
         .replace("TYPE_OPTIONS", type_options)
         .replace("ENTRIES", entries_html)
     )
 
 
-def generate_html(df, *, title=None):
+def generate_html(df, *, title=None, include_age_filter=False):
     shops = sorted(df["shop_name"].dropna().astype(str).unique()) if "shop_name" in df else []
     types = sorted(df["type"].dropna().astype(str).unique()) if "type" in df else []
     cache = load_cache()
@@ -299,8 +335,14 @@ def generate_html(df, *, title=None):
         normalize_profile_url(url): classify_price_class(entry)
         for url, entry in cache.items()
     }
-    entries = "".join(render_person_entry(person, prices_by_url) for person in group_reports(df))
-    return attach_prices(render_page(option_tags(shops), option_tags(types), entries, title=title))
+    entries = "".join(
+        render_person_entry(person, prices_by_url, include_age_filter=include_age_filter)
+        for person in group_reports(df)
+    )
+    return attach_prices(render_page(
+        option_tags(shops), option_tags(types), entries, title=title,
+        include_age_filter=include_age_filter,
+    ))
 
 
 PAGE_TEMPLATE = """<!DOCTYPE html>
@@ -369,16 +411,16 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         const type = document.getElementById("typeFilter").value;
         const shopType = document.getElementById("shopTypeFilter").value;
         const repeat = document.getElementById("repeatFilter").value;
-        const minScore = Number(document.getElementById("scoreFilter").value);
+        const minScore = Number(document.getElementById("scoreFilter").value);AGE_FILTER_STATE
         let visiblePeople = 0;
         let visibleArticles = 0;
 
-        document.querySelectorAll(".report-entry").forEach(entry => {
+        document.querySelectorAll(".report-entry").forEach(entry => {AGE_FILTER_PERSON
             const articles = [...entry.querySelectorAll(".article-entry")];
             let matchedArticles = 0;
             articles.forEach(article => {
                 const total = numericValue(article, "total");
-                const matches = article.dataset.search.includes(query)
+                const matches = AGE_FILTER_ARTICLEarticle.dataset.search.includes(query)
                     && (typeof shopPriceMatches !== "function" || shopPriceMatches(entry))
                     && (!shop || article.dataset.shop === shop)
                     && (!type || article.dataset.type === type)
@@ -408,7 +450,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         document.getElementById("typeFilter").value = "";
         document.getElementById("shopTypeFilter").value = "";
         document.getElementById("repeatFilter").value = "";
-        document.getElementById("scoreFilter").value = "0";
+        document.getElementById("scoreFilter").value = "0";AGE_FILTER_RESET
         if (window.resetShopPrices) resetShopPrices();
         if (window.resetShopSearches) resetShopSearches();
         applyFilters();
@@ -464,7 +506,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <select id="typeFilter" aria-label="種別"><option value="">全種別</option>TYPE_OPTIONS</select>
         <select id="shopTypeFilter" aria-label="店舗種別"><option value="">店舗種別すべて</option><option value="luxury">高級</option><option value="other">高級以外</option></select>
         <select id="repeatFilter" aria-label="リピート状態"><option value="">全リピート状態</option><option value="return">返す</option><option value="not-return">返さない</option><option value="other">その他の記載</option><option value="unknown">未記載</option></select>
-        <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>
+        <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>AGE_FILTER_MARKUP
         <button type="button" onclick="resetFilters()">条件をリセット</button>
     </div>
     <div class="sort-control">
