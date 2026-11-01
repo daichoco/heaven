@@ -46,6 +46,39 @@ Neither command collects data or makes network requests.
 | `py -3 src\ns_senmon\match_cityheaven.py` | 手動マップ、既存レポート、店舗ページ検索を使って、保存済みNS専門記事とCityHeavenプロフィールを突合します。記事JSONLを更新し、未突合データを `data\ns_senmon_unmatched.json` に出力します。 |
 | `py -3 src\ns_senmon\generate_ns_senmon_report.py` | 保存済みNS専門JSONLから `docs\ns_senmon_report.html` を生成し、取得可能なプロフィール画像を取得します。 |
 
+GitHub Actions の `Update NS senmon report` ワークフローは毎日 **05:17 UTC（日本時間14:17）**
+に通常差分収集、CityHeaven突合、オンラインHTML生成を順に実行し、手動実行にも対応しています。
+スケジュール実行はGitHub側の状況により遅れる場合があります。
+
+実行前に、[repository Actions Secretsの設定画面](https://github.com/daichoco/heaven/settings/secrets/actions)
+（`Settings → Secrets and variables → Actions → New repository secret`）で、
+`NS_SENMON_USER` にNS専門のユーザー名またはメールアドレス、
+`NS_SENMON_PASS` にパスワードを登録してください。
+認証情報はGitHubのSecretに保管し、コード・データファイル・コマンド引数には記載しません。
+workflowは事前チェックと収集stepだけに環境変数として渡し、未設定または空なら値を表示せず失敗します。
+CityHeaven突合と画像URL取得は公開ページを利用するため、CityHeavenのSecretsやChromeは不要です。
+
+workflowが `main` に反映された後、Actionsタブで `Update NS senmon report` を選び、
+`Run workflow` から手動実行できます。手動実行で選択したブランチにかかわらず、
+収集・更新対象は `main` です。3つの処理が成功し、変更がある場合だけ、次の追跡対象を
+自動コミットして `main` にpushします。無変更ならコミットしません。
+
+| 更新対象 | 内容 |
+| --- | --- |
+| `data\ns_senmon_reports.jsonl` | 収集記事とCityHeaven突合結果 |
+| `data\ns_senmon_unmatched.json` | 未突合・候補・掲載なしの情報 |
+| `data\ns_senmon_shop_search_cache.json` | 次回実行で再利用する店舗検索結果 |
+| `data\ns_senmon_profile_image_cache.json` | プロフィール画像URL・掲載状況・店舗種別のキャッシュ |
+| `docs\ns_senmon_report.html` | 公開HTML |
+
+画像は外部URLを参照し、画像ファイル自体は保存しません。画像取得の失敗はログに表示し、
+既存のキャッシュを利用できる場合は利用してHTML生成を続けます。
+手動マップ、店舗マップ、他レポートのデータ、統合カレンダーはコミットしません。
+実行中に別の更新が `main` に入った場合は、最新の `main` へrebaseして通常pushを再試行します
+（pushは最大3回）。内容の衝突、権限拒否、再試行上限到達は失敗として扱い、force pushは行いません。
+実行結果・認証エラー・競合の詳細はActionsタブの対象実行ログで確認してください。
+Secret登録後の最初の手動実行で、実サイトの認証とレポート更新を確認できます。
+
 ### 東海レポート
 
 | コマンド | 機能・オプション |
