@@ -112,6 +112,28 @@ class ShopIndexTests(unittest.TestCase):
             path.write_text.assert_not_called()
         self.assertEqual(session.get.call_count, 3)
 
+    def test_successful_diagnosis_checks_all_categories(self):
+        session = Mock()
+        session.get.side_effect = [
+            category_response(category=category, entries=[(category, "店舗")])
+            for category in scraper.SHOP_INDEX_CATEGORIES
+        ]
+        with patch.object(scraper, "SHOP_INDEX_PATH") as path:
+            scraper.diagnose_shop_index(session)
+            path.write_text.assert_not_called()
+        self.assertEqual(session.get.call_count, 3)
+
+    def test_later_page_http_error_is_not_a_normal_terminal(self):
+        for status in (403, 404, 429, 500):
+            with self.subTest(status=status):
+                session = Mock()
+                session.get.side_effect = [
+                    category_response(entries=[(1688, "でりどす")]),
+                    category_response(page=1, status=status),
+                ]
+                with self.assertRaises(RuntimeError):
+                    scraper.fetch_shop_index(session, [70])
+
     def test_failed_or_empty_refresh_preserves_old_index_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "index.json"
