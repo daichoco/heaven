@@ -28,7 +28,8 @@ GitHub側の都合で遅れることがあります。どちらの運用でも�
 3. 東海レポートを実行する場合はGoogle Chromeをインストールします。収集コードはSeleniumと
    `chromedriver-autoinstaller` を使います。
 4. HTMLを生成する日次処理ではNode.jsも必要です。Node.js 22 LTS以上をインストールしてください。
-   週間予定の `--collect` を使う場合は、PythonのPlaywright用Chromiumも後述のコマンドで導入します。
+   フル更新モードまたは週間予定の `--collect` を使う場合は、PythonのPlaywright用Chromiumも
+   後述のコマンドで導入します。
 
 Windows Update後の自動再起動を許可し、停電復旧後にPCを自動起動する設定がある場合は有効にします。
 停電後の自動起動はBIOS/UEFIの機能で、全機種にあるとは限りません。
@@ -54,7 +55,7 @@ npm ci
 
 `.venv` はリポジトリのignore対象です。リポジトリ更新後に依存が変わった場合は、
 `git pull --ff-only origin main` の後にpip installと `npm ci` を再実行します。
-週間予定のブラウザー収集を使う場合だけ、Playwrightのブラウザーも入れます。
+フル更新モードまたは週間予定のブラウザー収集を使う場合は、Playwrightのブラウザーも入れます。
 
 ```powershell
 .\.venv\Scripts\python.exe -m playwright install chromium
@@ -76,7 +77,7 @@ npm ci
 | --- | --- |
 | `NS_SENMON_USER`、`NS_SENMON_PASS` | NS専門の記事収集 |
 | `FUZOKU_TOKAI_PASSWORD` | 東海と関東の記事収集。関東も東海と同じ変数名を使います。 |
-| `CITYHEAVEN_USER`、`CITYHEAVEN_PASS` | CityHeavenへのログインが必要な別スクリプト。日次の3 workflowには不要です。 |
+| `CITYHEAVEN_USER`、`CITYHEAVEN_PASS` | フル更新モードの統合カレンダー（CityHeavenログイン）。標準の日次3サイト更新と週間予定収集には不要です。 |
 
 ユーザー環境変数はそのWindowsアカウントで動くプロセスから参照できます。PCを専用のWindowsアカウントで
 運用し、Windowsアカウントのパスワードを保護し、BitLocker等のディスク暗号化を有効にしてください。
@@ -120,9 +121,23 @@ if ($LASTEXITCODE -ne 0) { throw "東海の記事収集に失敗しました" }
 if ($LASTEXITCODE -ne 0) { throw "東海HTMLの生成に失敗しました" }
 ```
 
-成功後、`git status --short` と変更内容を確認してください。東海生成はオンラインで掲載状況や不足詳細・画像を確認します。
-ネットワーク接続が必要です。`--offline` は保存済みデータだけで生成する機能であり、
-収集や通常のオンラインHTML生成の代わりにはなりません。
+標準の手動手順はここまでです。追加のCityHeaven横断ページも更新する場合は、上記の3サイト処理が
+すべて成功した後、同じPowerShellで次も順番に実行してください。これは後述のラッパーの
+`-IncludeCityHeavenCalendarAndWeekly` スイッチを有効にしたときと同じ処理です。
+
+```powershell
+& $python src\integrations\report_left_merge.py
+if ($LASTEXITCODE -ne 0) { throw "CityHeaven統合カレンダーの生成に失敗しました" }
+& $python src\generate_weekly_schedule_report.py --collect --include-a
+if ($LASTEXITCODE -ne 0) { throw "週間予定の取得またはHTML生成に失敗しました" }
+```
+
+統合カレンダーには `CITYHEAVEN_USER` と `CITYHEAVEN_PASS` が必要です。フル更新モードにはPlaywright
+Chromiumが必要で、Node.js 22 LTS以上と `npm ci` もHTML生成に使います。週間予定は認証なしの公開ページを
+Playwright Chromiumで取得し、`--include-a` はSに続けてAも予定取得対象にします。
+東海HTML生成はオンラインで掲載状況・不足詳細・画像を確認します。いずれもネットワークが必要です。
+`--offline` は保存済みデータだけで生成する機能であり、収集や通常のオンラインHTML生成の代わりにはなりません。
+成功後、`git status --short` と変更内容を確認してください。
 
 ## 5. タスクスケジューラ用のラッパーを作る
 
@@ -130,11 +145,16 @@ if ($LASTEXITCODE -ne 0) { throw "東海HTMLの生成に失敗しました" }
 （例：`C:\automation\run-heaven.ps1`）。以下を保存し、チェックアウト場所を変更した場合は
 `$Repo` の値も合わせます。スクリプトはログを `%LOCALAPPDATA%\HeavenScheduledReports\logs` に保存します。
 
-このラッパーは、実行前に `main` がクリーンであることと、リモートからfast-forwardできることを確認します。
-成功した日次workflowの対象ファイルだけをstageし、変更があればcommitして通常の `git push` をします。
+既定ではGitHub Actionsと同じ3サイト更新だけを実行します。統合カレンダーとS/A週間予定も毎回更新するには、
+タスクスケジューラの引数に `-IncludeCityHeavenCalendarAndWeekly` を追加してください。
+このスイッチは、3サイト更新の後にCityHeaven統合カレンダーと週間予定・画像取得を順番に実行します。
+実行前に `main` がクリーンであることと、リモートからfast-forwardできることを確認します。
+選択されたモードの対象ファイルだけをstageし、全処理が成功した場合に変更をcommitして通常の `git push` をします。
 自動rebaseやforce pushは行いません。Pushが拒否された場合は失敗ログを残し、ローカルcommitを保持して停止します。
 
 ```powershell
+param([switch]$IncludeCityHeavenCalendarAndWeekly)
+
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
@@ -189,6 +209,11 @@ try {
     Invoke-Python -PythonArgs @('src\tokai_fuzoku\collect_fuzoku_tokai.py')
     Invoke-Python -PythonArgs @('src\tokai_fuzoku\generate_report_final.py')
 
+    if ($IncludeCityHeavenCalendarAndWeekly) {
+        Invoke-Python -PythonArgs @('src\integrations\report_left_merge.py')
+        Invoke-Python -PythonArgs @('src\generate_weekly_schedule_report.py', '--collect', '--include-a')
+    }
+
     $paths = @(
         'data\okinilove_cityheaven_enrich_cache.json',
         'data\okinilove_report_details.json',
@@ -202,10 +227,18 @@ try {
         'data\ns_senmon_shop_search_cache.json',
         'data\ns_senmon_profile_image_cache.json',
         'docs\ns_senmon_report.html',
+        'data\tokai_fuzoku_report_history.jsonl',
         'data\tokai_fuzoku_reports.jsonl',
-        'docs\tokai_final_report.html'
+        'docs\tokai_final_report.html',
+        'docs\calendar_report.html',
+        'data\cityheaven_weekly_schedules.json',
+        'data\cityheaven_weekly_images.json',
+        'docs\weekly_schedule.html'
     )
     Invoke-Git -GitArgs (@('add', '-u', '--') + $paths)
+    if ($IncludeCityHeavenCalendarAndWeekly) {
+        Invoke-Git -GitArgs @('add', '-A', '--', 'docs\weekly_schedule_assets')
+    }
 
     & git -C $Repo diff --cached --quiet
     $diffExitCode = $LASTEXITCODE
@@ -227,7 +260,17 @@ try {
 }
 ```
 
-このラッパーはActionsの3 workflow（オキニラブ、NS専門、東海）だけを実行します。
+スイッチなしではActionsの3 workflow（オキニラブ、NS専門、東海）相当だけを実行し、
+追加モードではCityHeaven統合カレンダーと週間予定・画像まで実行します。
+フル更新で追跡対象となる追加出力は `data\tokai_fuzoku_report_history.jsonl`、
+`data\okinilove_reviews.jsonl`、必要なURL突合時に更新される
+`data\ns_senmon_shop_search_cache.json`、`docs\calendar_report.html`、
+`data\cityheaven_weekly_schedules.json`、`data\cityheaven_weekly_images.json`、
+`docs\weekly_schedule.html`、`docs\weekly_schedule_assets\` 内の一覧・レビューJSONです。
+`data\cityheaven_profiles.json` は統合カレンダー生成途中で作られ、読み込み後に削除される一時ファイル
+（Git ignore対象）なのでstageしません。画像や予定に失敗が残り週間スクリプトが終了コード1を返した場合、
+更新済みの一部ファイルが残ることがありますが、ラッパーはstage・commit・pushへ進まず停止します。
+
 認証情報やローカルの収集再開状態ファイルをcommitしません。GitHub Actionsが別のcommitを先にpushすると
 このpushは拒否されます。作業ツリーが不潔、ブランチがmainでない、pullがfast-forwardできない場合も
 何も自動修復せず停止します。いずれの場合もログ・`git status`・`git log --oneline --decorate -5` を確認し、
@@ -239,7 +282,8 @@ try {
 1. **タスクの作成**（基本タスクではなく通常のタスク）を選び、日次のトリガーを設定します。
 2. **操作**は次のとおりです。実際にラッパーを保存した場所へパスを合わせます。
    - プログラム/スクリプト：`C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe`
-   - 引数：`-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "C:\automation\run-heaven.ps1"`
+   - 引数（標準の3サイト更新）：`-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "C:\automation\run-heaven.ps1"`
+   - 引数（CityHeaven統合カレンダーと週間予定も更新）：`-NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File "C:\automation\run-heaven.ps1" -IncludeCityHeavenCalendarAndWeekly`
    - 開始（オプション）：`C:\automation`
 3. **全般**では、環境変数を設定したWindowsユーザーを指定します。ログイン中でなくても動かす場合は
    「ユーザーがログオンしているかどうかにかかわらず実行する」を選び、タスクスケジューラの案内に従って
@@ -282,16 +326,33 @@ try {
 Playwright Chromiumが必要です。ログインや年齢確認・アクセス制限を回避する機能ではありません。
 プロフィール単位の取得失敗や画像取得失敗が残ると、HTMLとキャッシュを保存した後でも終了コード1になることがあります。
 
-これらの週間予定は日次3 workflowには含まれず、オプションとして別に実行します。
-日次ラッパーへ追加する場合は、上記コマンドをPython呼び出しとして加え、push対象にも
-`data\cityheaven_weekly_schedules.json`、`data\cityheaven_weekly_images.json`、
-`docs\weekly_schedule.html`、`docs\weekly_schedule_assets` を明示的に加えてください。
-同じデータを更新する別タスクは作らず、失敗時に部分データを無条件で公開しないようログを確認してください。
+週間予定は標準の日次3サイト更新には含まれません。ラッパーに
+`-IncludeCityHeavenCalendarAndWeekly` を付けたフル更新モードでは、統合カレンダーの後に
+`--collect --include-a` で取得し、キャッシュ・HTML・分割アセットを同じ実行でcommit/pushします。
+週間ページの横断対象はNS専門・オキニラブ・東海の3データセットで、関東レポートは含まれません。
+別タスクで同じデータを同時更新しないでください。
 
 `src\cityheaven\cityheaven_month_schedule.py`、`src\cityheaven\exists_merge.py`、
-`src\integrations\report_left_merge.py` は別のCityHeavenログイン処理です。`CITYHEAVEN_USER` と
-`CITYHEAVEN_PASS` が必要で、日次3 workflowには含まれません。とくに月間スケジュールスクリプトは
+`src\integrations\report_left_merge.py` はCityHeavenログイン処理です。`CITYHEAVEN_USER` と
+`CITYHEAVEN_PASS` が必要です。`report_left_merge.py` はフル更新モードで実行します。
+`cityheaven_month_schedule.py` と `exists_merge.py` はこのモードには含めません。
+とくに月間スケジュールスクリプトは
 ブラウザーを画面表示して起動する実装のため、非ログイン状態の定期タスク向けではありません。
+
+### 掲載終了確認の範囲
+
+各処理の確認対象は**人物プロフィールの掲載状態**です。記事URLそのものが削除されたかどうかを
+全記事について確認するものではありません。HTTPエラーや応答を判定できない場合も、掲載終了と決めつけず
+保持する仕組みがあります。
+
+| 対象 | 定期更新で行う確認 |
+| --- | --- |
+| オキニラブ | 通常の `scrape_okinilove.py` は人物プロフィールURLの応答を確認し、HTTP 404/410と判定した人物を既存一覧HTML・レビューJSONLから除いてから更新します。確認結果は7日間のキャッシュを利用し、通信失敗は削除せず保持します。記事URLの掲載確認ではありません。 |
+| 東海 | オンラインの `generate_report_final.py` が人物プロフィールを確認し、明確な掲載終了シグナルがある人物を生成HTMLから除外します。収集時に掲載終了と保存済みの人物は先に除外されるため、この通常生成では再確認されません。`--offline` では新しい確認を行いません。 |
+| 関東 | オンラインの `generate_report_final.py` が東海と共通の判定処理で人物プロフィールを確認し、明確な掲載終了シグナルをHTMLから除外します。関東データは週間予定・統合カレンダーには結合されません。 |
+| NS専門 | CityHeaven突合時に店舗ページの名前検索で掲載を確認できない場合、`not_listed` として「掲載終了?」を表示します。これは照合上の可能性表示で、各プロフィールURLの確定的な掲載終了確認ではありません。 |
+
+掲載終了済みとして保存・除外された人物の復帰確認は、この定期運用では行いません。
 
 ### 関東レポート
 
