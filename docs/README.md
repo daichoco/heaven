@@ -4,6 +4,9 @@ The published HTML in this directory is generated. From the repository root,
 install Node.js (22 LTS or newer) and the Python requirements, then install the
 locked formatter dependency:
 
+Windows PCでレポートを定期実行する場合は、[ローカル定期実行ガイド](LOCAL_SCHEDULED_RUN.md)
+を参照してください。
+
 ```powershell
 py -3 -m pip install -r requirements.txt
 npm ci
