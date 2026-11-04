@@ -730,6 +730,15 @@ def build_people_summary(source_html, profile_images=None, fetch_missing_industr
         all_faces.update(face_counts)
         neg_ratio = neg_total / value_total if value_total else None
         pos_ratio = pos_total / value_total if value_total else None
+        # 記事番号(blog-entry-N)は投稿順に増えるため、新着順の基準にする
+        latest_entry = max(
+            (
+                int(match.group(1))
+                for report in person["reports"]
+                if (match := re.search(r"blog-entry-(\d+)", report["url"] or ""))
+            ),
+            default=0,
+        )
         neg_html = (
             f"<div><span class='review-label'>ポジ含有率</span><strong>{pos_ratio * 100:.0f}%</strong> "
             f"<span class='age'>({pos_total}/{value_total}件)</span></div>"
@@ -753,6 +762,7 @@ def build_people_summary(source_html, profile_images=None, fetch_missing_industr
             f'data-neg="{neg_ratio if neg_ratio is not None else 2:.4f}" '
             f'data-posn="{pos_total}" data-rated="{rated_count}" '
             f'data-negn="{neg_total}" data-vals="{value_total}" data-reports="{len(person["reports"])}" '
+            f'data-latest="{latest_entry}" '
             f'data-average="{average if average is not None else 0:.3f}">'
             f"<td>{html.escape(person['shop'])}</td><td>{profile_link}{age_html}</td>"
             f"<td class='average-cell'><strong>{average_text}</strong></td>"
@@ -892,8 +902,7 @@ thead {{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; 
 <label class="filter-field"><span>評価数</span><select id="reports"><option value="0">指定なし</option><option value="2">2件以上</option><option value="3">3件以上</option><option value="5">5件以上</option></select></label>
 <label class="filter-field"><span>年齢</span><select id="age" aria-label="年齢区分"><option value="">指定なし</option><option value="under30">30歳未満</option><option value="30plus">30歳以上</option><option value="unknown">年齢不明</option></select></label>
 <label class="filter-field"><span>SPサービス</span><select id="service-type"><option value="">指定なし</option><option value="sp">SPあり</option><option value="super-sp">超SPあり</option><option value="either">SPまたは超SPあり</option></select></label>
-<label class="filter-field"><span>並び順</span><select id="sort"><option value="score">おすすめ順</option><option value="pos">ポジ含有率が高い順</option><option value="neg">ネガ含有率が低い順</option><option value="average">平均星が高い順</option><option value="count">判定可能レビュー数が多い順</option></select></label>
-</div>
+<label class="filter-field"><span>並び順</span><select id="sort"><option value="score">おすすめ順</option><option value="pos">ポジ含有率が高い順</option><option value="neg">ネガ含有率が低い順</option><option value="average">平均星が高い順</option><option value="count">判定可能レビュー数が多い順</option><option value="latest">新着順</option></select></label></div>
 </div>
 <div class="filter-footer"><p class="result-count" aria-live="polite">表示 <strong id="visible-count">{len(people)}</strong> / {len(people)} 人</p><label class="chubby-toggle"><input id="include-chubby" type="checkbox">ぽっちゃり系店舗も表示</label><button class="reset-filters" id="reset-filters" type="button">条件をクリア</button></div>
 </section>
@@ -936,6 +945,7 @@ function applySort() {{
       const difference=mode==='pos'?rate(b,'posn')-rate(a,'posn'):rate(a,'negn')-rate(b,'negn');
       return difference||evidenceTie(a,b);
     }}
+    if(mode==='latest')return Number(b.dataset.latest)-Number(a.dataset.latest)||evidenceTie(a,b);
     if(mode==='average')return stars(b)-stars(a)||Number(b.dataset.rated)-Number(a.dataset.rated)||count(b)-count(a);
     return evidenceTie(a,b);
   }});
