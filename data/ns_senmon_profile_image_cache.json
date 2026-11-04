@@ -1,8 +1,26 @@
 {
+ "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-10661762/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/0-i/la_grpb0010661762_0000000000pc.jpg?cache02=1793788440&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-10661762/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-17289863/": {
   "checked_at": "2026-11-01T13:12:26.040437+00:00",
   "status": "error",
   "image_url": ""
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-53702756/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/0-i/la_grpb0053702756_0000000000pc.jpg?cache02=1790746743&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-53702756/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-42558852/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
@@ -285,6 +303,15 @@
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/en/girlid-62803109/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/en/la_grpb0062803109_0000000000pc.jpg?cache02=1793240095&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/en/girlid-62803109/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-29694933/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
   "status": "ok",
@@ -309,11 +336,29 @@
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-60095844/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/hime/la_grpb0060095844_0000000000pc.jpg?cache02=1790755220&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-60095844/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/idol_lab/girlid-61265665/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/idol_lab/grpb0061265665_0000000000pc.jpg?cache02=1790942178&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(大衆/金津園)",
+  "price_class": "大衆"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/idol_lab/girlid-65029847/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/idol_lab/la_grpb0065029847_0000000000pc.jpg?cache02=1785208698&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/idol_lab/girlid-65029847/",
   "shop_kind": "ソープ(大衆/金津園)",
   "price_class": "大衆"
  },
@@ -625,6 +670,24 @@
   "shop_kind": "ソープ(高級/金津園)",
   "price_class": "高級"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/romane/girlid-64174987/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/romane/la_grpb0064174987_0000000000pc.jpg?cache02=1792286521&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/romane/girlid-64174987/",
+  "shop_kind": "ソープ(高級/金津園)",
+  "price_class": "高級"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/romane/girlid-67995441/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/romane/la_grpb0067995441_0000000000pc.jpg?cache02=1789964332&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/romane/girlid-67995441/",
+  "shop_kind": "ソープ(高級/金津園)",
+  "price_class": "高級"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-39989987/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
   "status": "ok",
@@ -659,6 +722,15 @@
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/rubul/grpb0065339206_0000000000pc.jpg?cache02=1777552771&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(高級/金津園)",
+  "price_class": "高級"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-65626131/": {
+  "checked_at": "2026-11-04T14:27:12.917375+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/rubul/la_grpb0065626131_0000000000pc.jpg?cache02=1777552828&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/rubul/girlid-65626131/",
   "shop_kind": "ソープ(高級/金津園)",
   "price_class": "高級"
  },
