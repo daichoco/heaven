@@ -126,6 +126,9 @@ if ($LASTEXITCODE -ne 0) { throw "東海HTMLの生成に失敗しました" }
 `-IncludeCityHeavenCalendarAndWeekly` スイッチを有効にしたときと同じ処理です。
 
 ```powershell
+$env:CITYHEAVEN_HEADLESS = '1'
+& $python src\cityheaven\cityheaven_month_schedule.py
+if ($LASTEXITCODE -ne 0) { throw "月間スケジュールの更新に失敗しました" }
 & $python src\integrations\report_left_merge.py
 if ($LASTEXITCODE -ne 0) { throw "CityHeaven統合カレンダーの生成に失敗しました" }
 & $python src\generate_weekly_schedule_report.py --collect --include-a
@@ -210,6 +213,8 @@ try {
     Invoke-Python -PythonArgs @('src\tokai_fuzoku\generate_report_final.py')
 
     if ($IncludeCityHeavenCalendarAndWeekly) {
+        $env:CITYHEAVEN_HEADLESS = '1'
+        Invoke-Python -PythonArgs @('src\cityheaven\cityheaven_month_schedule.py')
         Invoke-Python -PythonArgs @('src\integrations\report_left_merge.py')
         Invoke-Python -PythonArgs @('src\generate_weekly_schedule_report.py', '--collect', '--include-a')
     }
@@ -231,6 +236,7 @@ try {
         'data\tokai_fuzoku_reports.jsonl',
         'docs\tokai_final_report.html',
         'docs\calendar_report.html',
+        'docs\index.html',
         'data\cityheaven_weekly_schedules.json',
         'data\cityheaven_weekly_images.json',
         'docs\weekly_schedule.html'
@@ -334,10 +340,10 @@ Playwright Chromiumが必要です。ログインや年齢確認・アクセス�
 
 `src\cityheaven\cityheaven_month_schedule.py`、`src\cityheaven\exists_merge.py`、
 `src\integrations\report_left_merge.py` はCityHeavenログイン処理です。`CITYHEAVEN_USER` と
-`CITYHEAVEN_PASS` が必要です。`report_left_merge.py` はフル更新モードで実行します。
-`cityheaven_month_schedule.py` と `exists_merge.py` はこのモードには含めません。
+`CITYHEAVEN_PASS` が必要です。`cityheaven_month_schedule.py` と `report_left_merge.py` はフル更新モードで実行します。
+`cityheaven_month_schedule.py` はこのモードで統合カレンダーの前に実行し、`docs\index.html` を更新します。`exists_merge.py` はこのモードには含めません。
 とくに月間スケジュールスクリプトは
-ブラウザーを画面表示して起動する実装のため、非ログイン状態の定期タスク向けではありません。
+ブラウザー画面を表示する実装のため、ラッパーは `CITYHEAVEN_HEADLESS=1` を設定してヘッドレスで実行します（未設定時は従来どおり画面表示）。
 
 ### 掲載終了確認の範囲
 
