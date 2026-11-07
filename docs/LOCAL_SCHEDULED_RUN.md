@@ -170,6 +170,20 @@ $LockPath = Join-Path $LogDir 'runner.lock'
 $Lock = $null
 $TranscriptStarted = $false
 $LocationPushed = $false
+$env:PYTHONUTF8 = '1'
+
+function Send-Line([string]$Text) {
+    if (-not $env:LINE_CHANNEL_TOKEN -or -not $env:LINE_USER_ID) { return }
+    try {
+        $body = @{ to = $env:LINE_USER_ID; messages = @(@{ type = 'text'; text = $Text }) } | ConvertTo-Json -Depth 5
+        Invoke-RestMethod -Method Post -Uri 'https://api.line.me/v2/bot/message/push' `
+            -Headers @{ Authorization = "Bearer $env:LINE_CHANNEL_TOKEN" } `
+            -ContentType 'application/json; charset=utf-8' `
+            -Body ([Text.Encoding]::UTF8.GetBytes($body)) | Out-Null
+    } catch {
+        Write-Warning "LINE通知に失敗しました: $($_.Exception.Message)"
+    }
+}
 
 try {
     Start-Transcript -Path $LogPath -Append | Out-Null
@@ -256,7 +270,9 @@ try {
         throw 'ステージ済み差分を確認できません'
     }
     Invoke-Git -GitArgs @('push', 'origin', 'main')
+    Send-Line "定期更新が完了しました ($env:COMPUTERNAME)"
 } catch {
+    Send-Line "定期更新に失敗しました: $($_.Exception.Message)`nログ: $LogPath"
     Write-Error $_
     exit 1
 } finally {
@@ -276,6 +292,11 @@ try {
 `data\cityheaven_profiles.json` は統合カレンダー生成途中で作られ、読み込み後に削除される一時ファイル
 （Git ignore対象）なのでstageしません。画像や予定に失敗が残り週間スクリプトが終了コード1を返した場合、
 更新済みの一部ファイルが残ることがありますが、ラッパーはstage・commit・pushへ進まず停止します。
+
+LINE通知（任意）：LINE Developersで作成したMessaging APIチャネルのチャネルアクセストークン（長期）と、通知先の
+ユーザーIDを、ユーザー環境変数 `LINE_CHANNEL_TOKEN` と `LINE_USER_ID` に設定します。どちらかが未設定なら通知しません。
+成功時と失敗時にPush通知を送り、通知自体の失敗は更新処理を止めません。Pushは無料プランで月200通までです。
+トークンはリポジトリにcommitしないでください。ラッパーは文字化け防止のため `PYTHONUTF8=1` も設定します。
 
 認証情報やローカルの収集再開状態ファイルをcommitしません。GitHub Actionsが別のcommitを先にpushすると
 このpushは拒否されます。作業ツリーが不潔、ブランチがmainでない、pullがfast-forwardできない場合も
