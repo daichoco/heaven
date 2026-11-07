@@ -18,6 +18,7 @@ from data_store import read_jsonl_records
 from generate_booking_difficulty_report import (
     DATASETS,
     candidate_person_key,
+    filter_old_records,
     filter_unavailable_records,
     relative_scores,
     rating_value,
@@ -201,6 +202,7 @@ def load_ranking():
     filtered, removed = filter_unavailable_records(
         datasets, unavailable_article_markers(datasets)
     )
+    filtered, _ = filter_old_records(filtered)
     return rank_people(filtered), removed
 
 

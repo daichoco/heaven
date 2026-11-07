@@ -31,6 +31,8 @@ PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
 PROFILE_STATUS_CACHE_TTL = timedelta(days=7)
 SKIPPED_ARTICLES_PATH = DATA_DIR / "okinilove_skipped_articles.json"
 SKIPPED_ARTICLE_RETRY = timedelta(days=30)
+# 公開日がこの日より前の対象外記事は再確認しない（ISO日付）
+SKIPPED_ARTICLE_PUBLISHED_BEFORE = "2023-01-01"
 REVIEW_COLUMNS = [
     "shop_name",
     "girl_name",
@@ -966,13 +968,33 @@ def save_skipped_articles(skipped):
     temporary_path.replace(SKIPPED_ARTICLES_PATH)
 
 
+def skipped_entry(checked_at, published_date=""):
+    entry = {"checked_at": checked_at}
+    if published_date:
+        entry["published_date"] = published_date
+    return entry
+
+
+def _skipped_checked_at(value):
+    return value.get("checked_at") if isinstance(value, dict) else value
+
+
+def _skipped_published_date(value):
+    return (value.get("published_date") or "") if isinstance(value, dict) else ""
+
+
 def recently_skipped_urls(skipped, now=None):
-    """取り込み対象外と判定済みで、再確認期間内の記事URL。"""
+    """取り込み対象外と判定済みで、再確認しない記事URL。"""
     now = now or datetime.now(timezone.utc)
     urls = set()
-    for url, checked_at in skipped.items():
+    for url, value in skipped.items():
+        checked_at = _skipped_checked_at(value)
         # #付きでない記事は履歴・掲示板ページで、女の子のレポートにはならないため再確認しない
         if "#" not in url:
+            urls.add(url)
+            continue
+        published = _skipped_published_date(value)
+        if published and published < SKIPPED_ARTICLE_PUBLISHED_BEFORE:
             urls.add(url)
             continue
         try:
@@ -981,6 +1003,39 @@ def recently_skipped_urls(skipped, now=None):
         except (TypeError, ValueError):
             continue
     return urls
+
+
+def backfill_skipped_published_dates(max_workers=6):
+    """対象外記事に公開日が未保存のものを、記事ページから補完する。"""
+    skipped = load_skipped_articles()
+    pending = {}
+    for url, value in skipped.items():
+        if "#" in url and not _skipped_published_date(value):
+            pending.setdefault(url.partition("#")[0], []).append(url)
+
+    def work(base_url):
+        try:
+            response = requests.get(base_url, headers=HEADERS, timeout=20)
+            response.raise_for_status()
+        except requests.RequestException as error:
+            print(f"公開日補完: 記事を取得できません: {base_url}: {error}", file=sys.stderr)
+            return {}
+        soup = BeautifulSoup(response.text, "html.parser")
+        return {url: extract_published_date(soup, url) for url in pending[base_url]}
+
+    updated = 0
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for result in executor.map(work, pending):
+            for url, published in result.items():
+                if published:
+                    skipped[url] = skipped_entry(
+                        _skipped_checked_at(skipped[url]), published
+                    )
+                    updated += 1
+    if updated:
+        save_skipped_articles(skipped)
+    print(f"対象外記事の公開日を補完: {updated}件（記事{len(pending)}件を確認）")
+    return updated
 
 
 def scrape_new_records(
@@ -1012,7 +1067,12 @@ def scrape_new_records(
             print(f"{shop_name}: 新規候補 {len(pending)}件")
             for article_url in pending:
                 try:
-                    record = fetch_article_record(session, shop_name, article_url)
+                    response = session.get(article_url, headers=HEADERS, timeout=20)
+                    response.raise_for_status()
+                    article_soup = BeautifulSoup(response.text, "html.parser")
+                    record = fetch_article_record(
+                        session, shop_name, article_url, article_soup=article_soup
+                    )
                 except requests.RequestException as error:
                     # 通信失敗は判定できていないので、次回また試す
                     print(f"記事を取得できません: {article_url}: {error}")
@@ -1024,7 +1084,10 @@ def scrape_new_records(
                     if len(new_records) >= batch_size:
                         flush_batch()
                 else:
-                    skipped[article_url] = datetime.now(timezone.utc).isoformat()
+                    skipped[article_url] = skipped_entry(
+                        datetime.now(timezone.utc).isoformat(),
+                        extract_published_date(article_soup, article_url),
+                    )
                 time.sleep(0.5)
             time.sleep(0.5)
     finally:

@@ -379,6 +379,31 @@ def unavailable_article_markers(datasets, *, now=None, okinilove_cache=None,
     }
 
 
+# 横断レポートに含めるレポートの最古日（これより前の個別レポートは除外）
+REPORT_MIN_DATE = "2023-01-01"
+DATE_FIELDS = {"tokai_fuzoku": "date", "ns_senmon": "date", "okinilove": "published_date"}
+
+
+def filter_old_records(datasets, min_date=None):
+    """min_dateより前のレポートを除く。日付がないレポートは残す。
+
+    人物は、残ったレポートが1件でもあれば対象に残る。
+    """
+    min_date = min_date or REPORT_MIN_DATE
+    filtered = []
+    removed_counts = {}
+    for label, dataset, records in datasets:
+        field = DATE_FIELDS[dataset]
+        retained = [
+            record for record in records
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(record.get(field) or ""))
+            or str(record[field]) >= min_date
+        ]
+        filtered.append((label, dataset, retained))
+        removed_counts[label] = len(records) - len(retained)
+    return filtered, removed_counts
+
+
 def filter_unavailable_records(datasets, markers):
     filtered = []
     removed_counts = {}
@@ -416,6 +441,9 @@ def extract_people():
     datasets, removed_counts = filter_unavailable_records(datasets, markers)
     removed_summary = " / ".join(f"{label} {count}件" for label, count in removed_counts.items())
     print(f"掲載終了扱いの記事を候補対象外にしました: {removed_summary}")
+    datasets, old_counts = filter_old_records(datasets)
+    old_summary = " / ".join(f"{label} {count}件" for label, count in old_counts.items())
+    print(f"{REPORT_MIN_DATE}より前のレポートを対象外にしました: {old_summary}")
     shop_names = {
         record["shop_name"] for _, _, rows in datasets for record in rows if record.get("shop_name")
     }

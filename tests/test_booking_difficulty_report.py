@@ -1,6 +1,7 @@
 import json
 import sys
 import unittest
+from unittest import mock
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -18,12 +19,15 @@ from generate_booking_difficulty_report import (
     filter_unavailable_records, rating_value, record_url_key, relative_scores,
     render_html, unavailable_article_markers,
 )
+import generate_booking_difficulty_report as booking_report
 
 
 class BookingDifficultyReportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.people, cls.counts = extract_people()
+        # 古いレポートも含む保存データ全体を前提にしたテストのため、日付除外は無効にする
+        with mock.patch.object(booking_report, "REPORT_MIN_DATE", "0000-01-01"):
+            cls.people, cls.counts = extract_people()
         cls.html = render_html(cls.people, cls.counts)
         cls.page = BeautifulSoup(cls.html, "html.parser")
 
