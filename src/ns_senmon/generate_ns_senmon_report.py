@@ -271,7 +271,7 @@ TEMPLATE = """<!DOCTYPE html>
 body { max-width: 1280px; font-family: "Yu Gothic UI", Meiryo, sans-serif; }
 h1 { margin: 0 0 16px; font-size: 1.4rem; }
 .filters { margin-bottom: 14px; padding: 16px; border: 1px solid var(--panel-border); border-radius: 10px; background: var(--panel); box-shadow: 0 2px 8px #2637460a; }
-.filter-primary { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr); gap: 12px; }
+.filter-primary { display: grid; grid-template-columns: minmax(220px, 1.6fr) minmax(180px, 1fr); gap: 12px; align-items: start; }
 .filter-field { display: grid; min-width: 0; gap: 5px; color: var(--field-label); font-size: 0.78rem; font-weight: 600; }
 .filters input, .filters select { width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid var(--field-border); border-radius: 6px; background: var(--panel); color: var(--fg); font: inherit; font-size: 16px; }
 .filters input:focus, .filters select:focus { border-color: var(--focus); outline: 3px solid #28738a40; }
@@ -331,6 +331,7 @@ h1 { font-size: 1.25rem; }
 .filters { padding: 12px; }
 .filter-primary { grid-template-columns: 1fr 1fr; gap: 9px; }
 .filter-search { grid-column: 1 / -1; }
+.filter-primary .filter-field:has(select[data-shop-filter]) { grid-column: 1 / -1; }
 .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
 .filters input, .filters select { min-height: 44px; }
 .filter-footer { flex-wrap: wrap; }
