@@ -233,6 +233,10 @@ try {
         Invoke-Python -PythonArgs @('src\generate_weekly_schedule_report.py', '--collect', '--include-a')
     }
 
+    $Summary = (& $Python src\report_change_summary.py) -join "`n"
+    if ($LASTEXITCODE -ne 0) { throw '更新件数の集計に失敗しました' }
+    Write-Output $Summary
+
     $paths = @(
         'data\okinilove_cityheaven_enrich_cache.json',
         'data\okinilove_report_details.json',
@@ -270,7 +274,7 @@ try {
         throw 'ステージ済み差分を確認できません'
     }
     Invoke-Git -GitArgs @('push', 'origin', 'main')
-    Send-Line "定期更新が完了しました ($env:COMPUTERNAME)"
+    Send-Line "定期更新が完了しました ($env:COMPUTERNAME)`n$Summary"
 } catch {
     Send-Line "定期更新に失敗しました: $($_.Exception.Message)`nログ: $LogPath"
     Write-Error $_
@@ -295,7 +299,10 @@ try {
 
 LINE通知（任意）：LINE Developersで作成したMessaging APIチャネルのチャネルアクセストークン（長期）と、通知先の
 ユーザーIDを、ユーザー環境変数 `LINE_CHANNEL_TOKEN` と `LINE_USER_ID` に設定します。どちらかが未設定なら通知しません。
-成功時と失敗時にPush通知を送り、通知自体の失敗は更新処理を止めません。Pushは無料プランで月200通までです。
+成功時と失敗時にPush通知を送ります。成功時は `src\report_change_summary.py` が、commit前のデータとHEADを比較した
+東海・NS専門・オキニラブの追加・削除件数と、高得点で追加されたレポート（最大10件）を本文に含めます。
+高得点の基準は、東海が総合点80以上かつ「返す（リピートする）」、NS専門が総合満足度90点以上、オキニラブが星4以上です。
+基準を変える場合は同スクリプト先頭の定数を編集します。通知自体の失敗は更新処理を止めません。Pushは無料プランで月200通までです。
 トークンはリポジトリにcommitしないでください。ラッパーは文字化け防止のため `PYTHONUTF8=1` も設定します。
 
 認証情報やローカルの収集再開状態ファイルをcommitしません。GitHub Actionsが別のcommitを先にpushすると
