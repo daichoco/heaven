@@ -33,7 +33,7 @@ async def safe_evaluate(page, script):
 async def scrape_cityheaven():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
-            headless=False,
+            headless=os.environ.get("CI") == "true",
             args=["--disable-blink-features=AutomationControlled"]
         )
 
