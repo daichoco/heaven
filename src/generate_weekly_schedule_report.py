@@ -259,7 +259,15 @@ def parse_month_calendar(html, dates):
     ]
 
 
-def selected_people(people, include_a=False):
+def selected_people(people, include_a=False, sources=None, limit=None):
+    if sources:
+        # 指定レポートに評価がある人を、全体順位のティアに関係なく点数上位から選ぶ
+        chosen = [
+            person for person in people
+            if person["profile_url"] and sources.intersection(person["ratings"])
+        ]
+        chosen.sort(key=lambda person: (-person["score"], person["key"]))
+        return chosen[:limit]
     tiers = {"S", "A"} if include_a else {"S"}
     return [person for person in people if person["tier"] in tiers and person["profile_url"]]
 
@@ -713,12 +721,29 @@ def main(argv=None):
     parser.add_argument("--offline", action="store_true", help="画像も予定も取得せず保存データだけで生成")
     parser.add_argument("--image-limit", type=int, help="明示的に不足画像取得対象数を制限（既定は対象全員）")
     parser.add_argument("--include-a", action="store_true", help="取得対象にSに続いてAも追加")
+    parser.add_argument(
+        "--collect-sources", nargs="+", metavar="LABEL",
+        help="--collect の対象を、指定レポート（例: 東海風俗 NS専門）に評価がある人の点数上位に限定",
+    )
+    parser.add_argument(
+        "--collect-limit", type=int, default=50,
+        help="--collect-sources 指定時の取得人数（点数上位から。既定50）",
+    )
     parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
     if args.offline and (args.collect or args.collect_images):
         parser.error("--offline と収集オプションは併用できません")
     if args.image_limit is not None and args.image_limit < 1:
         parser.error("--image-limit は1以上で指定してください")
+    if args.collect_sources and not args.collect:
+        parser.error("--collect-sources は --collect と併用してください")
+    if args.collect_sources:
+        if args.collect_limit < 1:
+            parser.error("--collect-limit は1以上で指定してください")
+        labels = {label for label, _, _, _ in DATASETS}
+        unknown = set(args.collect_sources) - labels
+        if unknown:
+            parser.error(f"不明なレポート名: {', '.join(sorted(unknown))}（{', '.join(sorted(labels))}）")
     if args.window_start and not args.offline:
         parser.error("--window-start は --offline と併用してください")
     now = datetime.now(JST)
@@ -736,7 +761,11 @@ def main(argv=None):
     schedules = cache["windows"].get(dates[0], {})
     failures = 0
     if args.collect:
-        results = asyncio.run(collect_schedules(selected_people(people, args.include_a), dates))
+        results = asyncio.run(collect_schedules(
+            selected_people(
+                people, args.include_a, set(args.collect_sources or ()), args.collect_limit
+            ), dates
+        ))
         schedules.update(results)
         cache["windows"][dates[0]] = schedules
         save_cache(cache)

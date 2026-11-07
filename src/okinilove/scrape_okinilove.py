@@ -42,6 +42,7 @@ REVIEW_COLUMNS = [
     "face",
     "service",
     "age",
+    "published_date",
 ]
 _LEGACY_COLUMNS = REVIEW_COLUMNS[:7]
 
@@ -50,7 +51,7 @@ def read_reviews():
     """詳細列が無い旧形式のJSONLも読み込めるようにする。"""
     reviews = read_jsonl(REVIEWS_JSONL_PATH, columns=_LEGACY_COLUMNS)
     full = read_jsonl(REVIEWS_JSONL_PATH)
-    for column in ("face", "service", "age"):
+    for column in ("face", "service", "age", "published_date"):
         reviews[column] = full[column] if column in full.columns else None
     return reviews
 HEADERS = {
@@ -58,7 +59,7 @@ HEADERS = {
     "Accept-Encoding": "identity",
 }
 ARTICLE_URL_RE = re.compile(r"^https?://okinilove\.com/blog-entry-\d+", re.IGNORECASE)
-PUBLICATION_RE = re.compile(r"\[公開日\d{4}/\d{2}/\d{2}\]")
+PUBLICATION_RE = re.compile(r"\[公開日(\d{4})/(\d{2})/(\d{2})\]")
 
 
 SHOP_INDEX_TTL = timedelta(days=7)
@@ -733,6 +734,7 @@ def fetch_article_record(
         return None
 
     report_text = extract_report_detail(session, article_url, article_soup) or gap or ""
+    published_date = extract_published_date(article_soup, article_url)
     return {
         "shop": shop_name,
         "url": article_url,
@@ -744,6 +746,7 @@ def fetch_article_record(
         "face": face,
         "service": service,
         "age": extract_age(decode_response(profile)),
+        "published_date": published_date,
     }
 
 
@@ -1102,6 +1105,7 @@ def append_records_to_jsonl(records):
                 "face": record.get("face", ""),
                 "service": record.get("service", ""),
                 "age": record.get("age", ""),
+                "published_date": record.get("published_date", ""),
             }
         )
         known_urls.add(normalized_url)
@@ -1131,10 +1135,12 @@ def extract_report_detail(session, article_url, article_soup=None):
     return _report_text_after(target.parent if fragment else target)
 
 
-def _report_text_after(section):
+def _report_text_and_date(section):
+    """レポート本文と、直後の `[公開日YYYY/MM/DD]` をISO日付で返す。"""
     for sibling in section.find_next_siblings():
         if sibling.name == "h4" and "レポート内容補足などあれば" in sibling.get_text():
             parts = []
+            published = ""
             for item in sibling.next_siblings:
                 if getattr(item, "name", None) == "h3":
                     break
@@ -1144,11 +1150,25 @@ def _report_text_after(section):
                 text = item.get_text(" ", strip=True) if getattr(item, "name", None) else str(item).strip()
                 if not text:
                     continue
-                if PUBLICATION_RE.search(text):
+                match = PUBLICATION_RE.search(text)
+                if match:
+                    published = "-".join(match.groups())
                     break
                 parts.append(text)
-            return "".join(parts).strip()
-    return ""
+            return "".join(parts).strip(), published
+    return "", ""
+
+
+def _report_text_after(section):
+    return _report_text_and_date(section)[0]
+
+
+def extract_published_date(article_soup, article_url):
+    fragment = article_url.partition("#")[2]
+    if not fragment:
+        return ""
+    target = article_soup.find(attrs={"name": fragment}) or article_soup.find(id=fragment)
+    return _report_text_and_date(target.parent)[1] if target is not None else ""
 
 
 def _fetch_age(girl_url):
@@ -1239,6 +1259,27 @@ def backfill_review_service_from_cache():
     return updated
 
 
+def backfill_published_date_from_cache():
+    """記事詳細キャッシュの公開日をメインレビューJSONLへ補完する。"""
+    reviews = read_reviews()
+    details_by_url = {
+        _normalize_report_url(url): detail for url, detail in load_report_details().items()
+    }
+    updated = 0
+
+    for index, report_url in reviews["report_url"].items():
+        detail = details_by_url.get(_normalize_report_url(report_url))
+        value = detail.get("published_date") if detail else None
+        if value and reviews.at[index, "published_date"] != value:
+            reviews.at[index, "published_date"] = value
+            updated += 1
+
+    if updated:
+        write_jsonl_atomic(reviews, REVIEWS_JSONL_PATH, columns=REVIEW_COLUMNS)
+    print(f"公開日を補完: {updated}件")
+    return updated
+
+
 def parse_report_details(soup, fragment):
     fields = article_section_fields(soup, fragment)
     if fields is None:
@@ -1258,6 +1299,7 @@ def parse_report_details(soup, fragment):
         "style": extract_style(looks),
         "service": service,
         "report_text": _report_text_after(anchor.parent) if anchor else "",
+        "published_date": _report_text_and_date(anchor.parent)[1] if anchor else "",
     }
 
 
@@ -1278,7 +1320,10 @@ def backfill_report_details(report_urls):
         if (
             url
             and "#" in url
-            and "service" not in details_by_url.get(_normalize_report_url(url), {})
+            and (
+                "service" not in details_by_url.get(_normalize_report_url(url), {})
+                or "published_date" not in details_by_url.get(_normalize_report_url(url), {})
+            )
         ):
             pending.setdefault(url.partition("#")[0], []).append(url)
     if not pending:
@@ -1337,6 +1382,7 @@ def refresh_okinilove_data():
         ]
         backfill_report_details(report_urls)
         backfill_review_service_from_cache()
+        backfill_published_date_from_cache()
         people_count = render_people_summary_file(RAW_HTML_PATH)
 
     print(
@@ -1429,6 +1475,7 @@ def refresh_shop_category_reviews(category):
         ]
         backfill_report_details(report_urls)
         backfill_review_service_from_cache()
+        backfill_published_date_from_cache()
         people_count = render_people_summary_file(RAW_HTML_PATH)
 
     print(

@@ -171,6 +171,7 @@ $Lock = $null
 $TranscriptStarted = $false
 $LocationPushed = $false
 $env:PYTHONUTF8 = '1'
+[Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 
 function Send-Line([string]$Text) {
     if (-not $env:LINE_CHANNEL_TOKEN -or -not $env:LINE_USER_ID) { return }
@@ -303,7 +304,8 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 東海・NS専門・オキニラブの追加・削除件数と、高得点で追加されたレポート（最大10件）を本文に含めます。
 高得点の基準は、東海が総合点80以上かつ「返す（リピートする）」、NS専門が総合満足度90点以上、オキニラブが星4以上です。
 基準を変える場合は同スクリプト先頭の定数を編集します。通知自体の失敗は更新処理を止めません。Pushは無料プランで月200通までです。
-トークンはリポジトリにcommitしないでください。ラッパーは文字化け防止のため `PYTHONUTF8=1` も設定します。
+トークンはリポジトリにcommitしないでください。ラッパーは文字化け防止のため `PYTHONUTF8=1` と `[Console]::OutputEncoding`（UTF-8）も設定します。
+後者がないと、Pythonの出力をPowerShellで受け取った集計文がLINEで文字化けします。
 
 認証情報やローカルの収集再開状態ファイルをcommitしません。GitHub Actionsが別のcommitを先にpushすると
 このpushは拒否されます。作業ツリーが不潔、ブランチがmainでない、pullがfast-forwardできない場合も
@@ -354,6 +356,8 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 ```
 
 `--collect` はS対象者の予定を取得し、`--collect --include-a` はSの次にAも取得します。
+`--collect --collect-sources 東海風俗 NS専門` は、指定レポートに評価がある人（CityHeaven URLあり）を
+点数上位から `--collect-limit`（既定50）人だけ取得します。全体順位のティアには依存しません。
 通常のオンラインHTML生成は不足画像も取得し、`--collect` は同じプロフィール応答から予定と画像を保存します。
 予定キャッシュは `data\cityheaven_weekly_schedules.json`、画像キャッシュは
 `data\cityheaven_weekly_images.json`、HTMLは `docs\weekly_schedule.html` に保存されます。
