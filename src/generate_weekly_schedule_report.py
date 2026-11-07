@@ -29,6 +29,7 @@ from generate_booking_difficulty_report import (
 )
 from html_format import write_html
 from okinilove.render_people_summary import extract_profile_image_url
+from report_change_summary import ns_high, tokai_high
 from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
 from tokai_fuzoku.html_render import REPORT_DETAIL_FIELDS
@@ -100,6 +101,9 @@ def external_person_key(value):
     return ""
 
 
+HIGH_RATED_CHECKS = {"東海風俗": tokai_high, "NS専門": ns_high}
+
+
 def rank_people(datasets):
     datasets = [(label, dataset, list(records)) for label, dataset, records in datasets]
     profile_aliases = {}
@@ -139,6 +143,7 @@ def rank_people(datasets):
                 "names": [],
                 "shops": [],
                 "ratings": {},
+                "high_rated": False,
                 "reported_ages": [],
                 "reports": [],
             })
@@ -173,6 +178,9 @@ def rank_people(datasets):
                 if value and value not in person[field]:
                     person[field].append(value)
             person["ratings"][label] = scores[key]
+            is_high = HIGH_RATED_CHECKS.get(label)
+            if is_high and is_high(record):
+                person["high_rated"] = True
 
     for person in people.values():
         ratings = list(person["ratings"].values())
@@ -261,7 +269,10 @@ def parse_month_calendar(html, dates):
     ]
 
 
-def selected_people(people, include_a=False, sources=None, limit=None):
+def selected_people(people, include_a=False, sources=None, limit=None, high_rated=False):
+    if high_rated:
+        # 東海・NS専門で高評価の基準を満たすレポートがある人を全員選ぶ
+        return [person for person in people if person["profile_url"] and person["high_rated"]]
     if sources:
         # 指定レポートに評価がある人を、全体順位のティアに関係なく点数上位から選ぶ
         chosen = [
@@ -731,6 +742,10 @@ def main(argv=None):
         "--collect-limit", type=int, default=50,
         help="--collect-sources 指定時の取得人数（点数上位から。既定50）",
     )
+    parser.add_argument(
+        "--collect-high-rated", action="store_true",
+        help="--collect の対象を、東海・NS専門で高評価（report_change_summaryの基準）の人全員に限定",
+    )
     parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
     if args.offline and (args.collect or args.collect_images):
@@ -739,6 +754,10 @@ def main(argv=None):
         parser.error("--image-limit は1以上で指定してください")
     if args.collect_sources and not args.collect:
         parser.error("--collect-sources は --collect と併用してください")
+    if args.collect_high_rated and not args.collect:
+        parser.error("--collect-high-rated は --collect と併用してください")
+    if args.collect_high_rated and args.collect_sources:
+        parser.error("--collect-high-rated と --collect-sources は併用できません")
     if args.collect_sources:
         if args.collect_limit < 1:
             parser.error("--collect-limit は1以上で指定してください")
@@ -765,7 +784,8 @@ def main(argv=None):
     if args.collect:
         results = asyncio.run(collect_schedules(
             selected_people(
-                people, args.include_a, set(args.collect_sources or ()), args.collect_limit
+                people, args.include_a, set(args.collect_sources or ()), args.collect_limit,
+                args.collect_high_rated,
             ), dates
         ))
         schedules.update(results)

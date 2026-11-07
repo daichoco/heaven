@@ -360,6 +360,26 @@ class RankingTests(unittest.TestCase):
         all_tied = weekly.rank_people(datasets(tokai_rows=[tokai(i) for i in range(10)]))
         self.assertTrue(all(p["tier"] == "S" for p in all_tied))
 
+    def test_selected_people_high_rated_picks_all_matching_with_profile(self):
+        rows = [
+            tokai(1, 85, repeat="返す"),
+            tokai(2, 85, repeat="微妙"),
+            tokai(3, 70, repeat="返す"),
+            tokai(4, 90, repeat="返す", girl_url=""),
+            tokai(5, 82, repeat="返す"),
+        ]
+        people = weekly.rank_people(datasets(tokai_rows=rows))
+        chosen = weekly.selected_people(people, high_rated=True)
+        self.assertEqual({p["profile_url"] for p in chosen}, {profile(1), profile(5)})
+
+    def test_high_rated_only_applies_to_tokai_and_ns(self):
+        oki = [{
+            "report_url": "https://example.invalid/oki#1", "girl_url": profile(9),
+            "girl_name": "人物9", "shop_name": "店舗", "evaluations": "★★★★★",
+        }]
+        people = weekly.rank_people(datasets(oki=oki))
+        self.assertEqual(weekly.selected_people(people, high_rated=True), [])
+
     def test_load_ranking_reuses_unavailability_rules(self):
         rows = [
             tokai(1, profile_status="unavailable", profile_checked_at="2026-10-17"),

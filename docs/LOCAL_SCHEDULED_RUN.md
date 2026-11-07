@@ -358,6 +358,9 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 `--collect` はS対象者の予定を取得し、`--collect --include-a` はSの次にAも取得します。
 `--collect --collect-sources 東海風俗 NS専門` は、指定レポートに評価がある人（CityHeaven URLあり）を
 点数上位から `--collect-limit`（既定50）人だけ取得します。全体順位のティアには依存しません。
+`--collect --collect-high-rated` は、東海風俗・NS専門で高評価の基準（`src/report_change_summary.py` の
+`TOKAI_MIN_TOTAL` / `NS_MIN_TOTAL`）を満たす2023年以降の口コミがある人（CityHeaven URLあり）を
+全員取得します。`--collect-sources` とは併用できません。
 通常のオンラインHTML生成は不足画像も取得し、`--collect` は同じプロフィール応答から予定と画像を保存します。
 予定キャッシュは `data\cityheaven_weekly_schedules.json`、画像キャッシュは
 `data\cityheaven_weekly_images.json`、HTMLは `docs\weekly_schedule.html` に保存されます。
