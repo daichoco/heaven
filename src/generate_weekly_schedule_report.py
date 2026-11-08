@@ -28,7 +28,7 @@ from generate_booking_difficulty_report import (
     unavailable_article_markers,
 )
 from html_format import write_html
-from okinilove.render_people_summary import extract_profile_image_url
+from okinilove.render_people_summary import _tone as okini_tone, extract_profile_image_url
 from report_change_summary import ns_high, tokai_high
 from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
@@ -106,13 +106,14 @@ HIGH_RATED_CHECKS = {"東海風俗": tokai_high, "NS専門": ns_high}
 
 OKINI_TAG_FIELDS = (
     ("face", "顔"), ("style", "スタイル"), ("breast", "おっぱい"), ("private", "おま○こ"),
-    ("service", "サービスについて（複数可能）"),
+    ("service", "サービス（複数可能）"),
 )
+OKINI_BREAST_POSITIVE = {"美乳", "張りがある"}
 _okini_details = None
+OKINI_TONE_KINDS = {"face": "face", "style": "style", "service": "service"}
 
-
-def okini_tag_fields(record):
-    """オキニラブの顔・スタイル・おっぱい・おま○こ・サービスのタグを本文の前に並べる。"""
+def okini_tags(record):
+    """オキニラブの顔・スタイル・おっぱい・おま○こ・サービスを (見出し, [(タグ, 評価色)]) で返す。"""
     global _okini_details
     if _okini_details is None:
         path = ROOT / "data" / "okinilove_report_details.json"
@@ -121,10 +122,17 @@ def okini_tag_fields(record):
     detail = _okini_details.get(url) or _okini_details.get(url.replace("https://", "http://", 1)) or {}
     result = []
     for key, label in OKINI_TAG_FIELDS:
-        value = record.get(key) or detail.get(key) or ""
-        tags = " / ".join(str(value).split())
-        if tags:
-            result.append((label, tags))
+        tokens = [
+            token for token in re.split(r"[\s　]+", str(record.get(key) or detail.get(key) or ""))
+            if token and "■" not in token
+        ]
+        if not tokens:
+            continue
+        if key in OKINI_TONE_KINDS:
+            tones = [okini_tone(OKINI_TONE_KINDS[key], token) for token in tokens]
+        else:
+            tones = ["pos" if key == "breast" and token in OKINI_BREAST_POSITIVE else "" for token in tokens]
+        result.append((label, list(zip(tokens, tones))))
     return result
 
 
@@ -175,8 +183,6 @@ def rank_people(datasets):
             article_key = (label, record_url_key(source) if source else row_number)
             if not any(report["identity"] == article_key for report in person["reports"]):
                 fields = record_fields(dataset, record)
-                if dataset == "okinilove":
-                    fields = okini_tag_fields(record) + fields
                 if dataset == "tokai_fuzoku":
                     known = {key for key, _ in fields}
                     fields += [
@@ -187,6 +193,7 @@ def rank_people(datasets):
                     "identity": article_key, "source": source, "database": label,
                     "date": str(record.get("date") or "保存日付なし"),
                     "score": rating_value(dataset, record), "fields": fields,
+                    **({"tags": okini_tags(record)} if dataset == "okinilove" else {}),
                     **({"record": record} if dataset == "tokai_fuzoku" else {}),
                 })
             age_value = (
@@ -470,6 +477,15 @@ def render_reports(person, database=None):
             body = f'<ul class="tokai-evaluations">{"".join(items)}</ul>' if items else (
                 "<p>保存済み本文なし（外部から追加取得していません）</p>"
             )
+        tags = "".join(
+            f'<div class="tag-row"><span class="tag-label">{escape(label)}</span>'
+            + "".join(
+                f'<span class="chip {tone}">{escape(token)}</span>' for token, tone in items
+            ) + "</div>"
+            for label, items in report.get("tags", [])
+        )
+        if tags:
+            body = f'<div class="tag-rows">{tags}</div>{body}'
         reports.append(
             f'<details class="saved-report"{" open" if not reports else ""}>'
             f'<summary><h3>{escape(report["database"])} / '
