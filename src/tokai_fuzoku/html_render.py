@@ -282,7 +282,8 @@ def report_template(title=None, *, include_age_filter=False, group_options=None)
     include_group = group_options is not None
     group_markup = (
         '<select id="groupFilter" aria-label="価格帯・エリア">'
-        f'<option value="">価格帯・エリアすべて</option>{option_tags(group_options)}</select>'
+        f'<option value="">価格帯・エリアすべて</option>{option_tags(group_options)}'
+        '<option value="__none__">未分類</option></select>'
         if include_group else ""
     )
     group_state = """
@@ -321,7 +322,7 @@ def report_template(title=None, *, include_age_filter=False, group_options=None)
         "AGE_FILTER_RESET": age_filter_reset if include_age_filter else "",
         "AGE_FILTER_MARKUP": f"\n        {age_filter_markup}" if include_age_filter else "",
         "GROUP_FILTER_STATE": group_state if include_group else "",
-        "GROUP_FILTER_ARTICLE": "\n                    && (!group || article.dataset.group === group)" if include_group else "",
+        "GROUP_FILTER_ARTICLE": "\n                    && (!group || (group === \"__none__\" ? !article.dataset.group : article.dataset.group === group))" if include_group else "",
         "GROUP_FILTER_RESET": group_reset if include_group else "",
         "GROUP_FILTER_MARKUP": f"\n        {group_markup}" if include_group else "",
     }

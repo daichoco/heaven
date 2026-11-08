@@ -91,7 +91,7 @@
                     && (!shop || article.dataset.shop === shop)
                     && (!type || article.dataset.type === type)
                     && (!shopType || article.dataset.shopType === shopType)
-                    && (!group || article.dataset.group === group)
+                    && (!group || (group === "__none__" ? !article.dataset.group : article.dataset.group === group))
                     && (!repeat || article.dataset.repeat === repeat)
                     && (!minScore || (total !== null && total >= minScore));
                 article.hidden = !matches;
@@ -417,6 +417,7 @@
           <option value="性感・風俗エステ">性感・風俗エステ</option>
           <option value="メンズエステ">メンズエステ</option>
           <option value="オナクラ">オナクラ</option>
+          <option value="__none__">未分類</option>
         </select>
         <label for="ageLimitFilter">年齢上限</label>
         <select aria-label="年齢上限" id="ageLimitFilter">

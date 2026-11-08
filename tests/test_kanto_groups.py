@@ -107,8 +107,9 @@ class GroupFilterRenderTests(unittest.TestCase):
         self.assertIsNotNone(select)
         self.assertEqual(
             [o.get_text() for o in select.find_all("option")],
-            ["価格帯・エリアすべて", "高級店", "大衆店"],
+            ["価格帯・エリアすべて", "高級店", "大衆店", "未分類"],
         )
+        self.assertIn("__none__", html)
         self.assertEqual(
             sorted(a["data-group"] for a in soup.select(".article-entry")), ["大衆店", "高級店"],
         )
