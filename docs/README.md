@@ -319,7 +319,18 @@ py -3 src\generate_weekly_schedule_report.py
 py -3 src\generate_weekly_schedule_report.py --offline
 py -3 src\generate_weekly_schedule_report.py --collect
 py -3 src\generate_weekly_schedule_report.py --collect --include-a
+# 東海風俗・NS専門のみを順位・表示に使い、保存済み予定から生成
+py -3 src\generate_weekly_schedule_report.py --offline --display-sources 東海風俗 NS専門
 ```
+
+`--display-sources` は評価元を指定し、対象レポートだけで人物の統合・順位・評価・表示を
+作り直します。省略時は従来どおり3レポート全体です。指定しない評価元の人物、評価、
+レビュー、人物URLの補完情報は使いません。`--collect` と併用した場合、予定・画像の
+取得対象も表示対象の中から選ばれます。`--collect-sources` は取得対象だけの絞り込みで、
+`--display-sources` と併用する場合はその範囲内で指定してください。
+`--collect-high-rated` は表示対象のうち東海・NSの高評価者を予定取得対象にします。
+`--collect-limit` は `--collect-sources` のみで有効です。
+いずれの指定も同じ `docs\weekly_schedule.html` を上書きします。
 
 通常生成は保存済み予定を保持し、不足画像だけを自動取得します。
 `--offline` は画像も取得せず保存データだけで生成します。
@@ -332,7 +343,7 @@ py -3 src\generate_weekly_schedule_report.py --collect --include-a
 対象者の取得エラーが1件以上あれば、HTMLとJSONを保存したうえで終了コード1を返します。
 ブラウザー起動失敗など実行基盤のエラーは例外で停止します。
 
-母集団は掲載終了扱いを既存ルールで除外した3レポートの全評価人物です。
+既定の母集団は掲載終了扱いを既存ルールで除外した3レポートの全評価人物です。
 予約困難・人気の文言、年齢、3件未満では除外しません。NS専門・東海の総合満足度と
 オキニラブの星をDBごとに順位化し、評価のある元のみを等重み平均します。NS専門・東海は
 平均評価の同点平均順位パーセンタイルを評価件数1件分の50点へ縮小します。
@@ -345,7 +356,7 @@ py -3 src\generate_weekly_schedule_report.py --collect --include-a
 記事URLのHTTP/HTTPS違いは同一、口コミフラグメント違いは別件です。
 
 正規化したCityHeavenプロフィールURL（`girlid-N`まで、クエリ・フラグメント除去、
-www有無を統一）で同一人物を統合します。3レポート全体でCityHeaven URLが欠ける記事は、
+www有無を統一）で同一人物を統合します。選択したレポートでCityHeaven URLが欠ける記事は、
 同じ夜遊び個人URL（`/tokai/業種/shop/店舗ID/girl/人物ID/` または `/mb/st_item.cfm?ii=人物ID`）から一意のCityHeaven URLが
 掲載終了除外後の保存済み他記事に確認できる場合のみ、相対スコア集計前に補完します。
 広告クエリは無視しますが、複数のCityHeaven URLへの対応や店舗一覧URLは補完しません。

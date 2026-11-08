@@ -353,8 +353,15 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 
 # 通信せず、保存済み予定・画像からHTMLを再生成
 .\.venv\Scripts\python.exe src\generate_weekly_schedule_report.py --offline
+
+# 東海風俗・NS専門のみで順位・表示し、保存済み予定を再利用
+.\.venv\Scripts\python.exe src\generate_weekly_schedule_report.py --offline --display-sources 東海風俗 NS専門
 ```
 
+`--display-sources` は表示対象・順位・評価の対象ソース自体を制限します。
+省略時は3レポート全体です。予定収集オプションと併用時は表示対象の中から取得し、
+`--collect-sources` は表示対象に含まれるソースだけ指定できます。
+生成先はどちらも `docs\weekly_schedule.html` です。
 `--collect` はS対象者の予定を取得し、`--collect --include-a` はSの次にAも取得します。
 `--collect --collect-sources 東海風俗 NS専門` は、指定レポートに評価がある人（CityHeaven URLあり）を
 点数上位から `--collect-limit`（既定50）人だけ取得します。全体順位のティアには依存しません。
