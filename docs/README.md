@@ -139,6 +139,8 @@ HTMLの `--offline --refresh-prices` は人物・記事を保持して料金だ�
 
 東海の更新はローカルPCの定時実行（[LOCAL_SCHEDULED_RUN.md](LOCAL_SCHEDULED_RUN.md)）で行います。
 通常差分収集とオンラインHTML生成を順に実行します。
+日曜日だけ、掲載終了と判定済みの人物を `collect_fuzoku_tokai.py --recheck-profiles` で再判定します
+（ログイン不要。掲載が復活した人物は掲載中に戻ります）。
 
 東海サイトのパスワードは、ユーザー環境変数 `FUZOKU_TOKAI_PASSWORD` に設定します。
 コード・データファイル・コマンド引数には記載しません。未設定または空なら失敗します。
@@ -167,6 +169,8 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 | `py -3 src\okinilove\render_people_summary.py` | 既存ページから人物別オキニラブHTMLと口コミ本文JSONを再生成します。不足しているプロフィール画像や業種情報を取得する場合があります。 |
 
 オキニラブの更新はローカルPCの定時実行（[LOCAL_SCHEDULED_RUN.md](LOCAL_SCHEDULED_RUN.md)）で行います。
+毎回の更新で、404/410 の掲載終了プロフィールを人物一覧HTMLとレビューJSONLから外しますが、
+外す前に一覧行とレビューを `data\okinilove_unavailable_archive.json` へ退避します（誤判定でも元に戻せます）。
 店舗索引のHTTPエラー、想定外の転送・HTML、店舗0件は失敗として扱います。
 途中のカテゴリやページで失敗した場合も既存索引を保持し、不完全な索引で上書きしません。
 失敗時の応答情報と本文先頭（最大300文字）はログに表示されます。

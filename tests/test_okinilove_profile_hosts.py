@@ -57,6 +57,29 @@ class NumberedArticleDiscoveryTests(unittest.TestCase):
         )
 
 
+class ArchiveUnavailableProfilesTests(unittest.TestCase):
+    def test_archive_keeps_rows_and_does_not_duplicate_on_rerun(self):
+        url = "https://example.com/girl/1"
+        html_rows = {url: ["<tr><td>row</td></tr>"]}
+        reviews = [
+            {"girl_url": url, "report_url": "https://example.com/a", "face": float("nan")},
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "archive.json"
+            now = datetime(2026, 11, 8, tzinfo=timezone.utc)
+            scrape_okinilove.archive_unavailable_profiles(html_rows, reviews, now=now, path=path)
+            scrape_okinilove.archive_unavailable_profiles(
+                html_rows, reviews, now=now + timedelta(days=1), path=path
+            )
+            archive = json.loads(path.read_text(encoding="utf-8"))
+
+        entry = archive[url]
+        self.assertEqual(entry["html_rows"], ["<tr><td>row</td></tr>"])
+        self.assertEqual(len(entry["reviews"]), 1)
+        self.assertIsNone(entry["reviews"][0]["face"])
+        self.assertEqual(entry["archived_at"], now.isoformat())
+
+
 class ProfileCheckUrlTests(unittest.TestCase):
     def test_normalizes_any_numbered_www_host(self):
         for numbered_host in ("www3.yoasobi.co.jp", "www4.example.com", "www12.example.com"):

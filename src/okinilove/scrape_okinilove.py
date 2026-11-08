@@ -29,6 +29,7 @@ RAW_HTML_PATH = DOCS_DIR / "okinilove_remove_unknown.html"
 REVIEWS_JSONL_PATH = DATA_DIR / "okinilove_reviews.jsonl"
 PROFILE_STATUS_CACHE_PATH = DATA_DIR / "okinilove_profile_status.json"
 PROFILE_STATUS_CACHE_TTL = timedelta(days=7)
+UNAVAILABLE_ARCHIVE_PATH = DATA_DIR / "okinilove_unavailable_archive.json"
 SKIPPED_ARTICLES_PATH = DATA_DIR / "okinilove_skipped_articles.json"
 SKIPPED_ARTICLE_RETRY = timedelta(days=30)
 # 公開日がこの日より前の対象外記事は再確認しない（ISO日付）
@@ -498,6 +499,40 @@ def find_unavailable_profile_urls(urls, now=None):
     return {url for url, status in statuses.items() if status in {404, 410}}
 
 
+def _json_safe(value):
+    if value is None or value is pd.NA:
+        return None
+    if isinstance(value, float) and value != value:
+        return None
+    return value
+
+
+def archive_unavailable_profiles(html_rows, review_rows, now=None, path=None):
+    """掲載終了として一覧・レビューから外す行を、削除前に退避ファイルへ保存する。"""
+    path = Path(path or UNAVAILABLE_ARCHIVE_PATH)
+    now = now or datetime.now(timezone.utc)
+    archive = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+    def entry_for(url):
+        return archive.setdefault(
+            url, {"archived_at": now.isoformat(), "html_rows": [], "reviews": []}
+        )
+
+    for url, rows in html_rows.items():
+        entry = entry_for(url)
+        entry["html_rows"].extend(row for row in rows if row not in entry["html_rows"])
+    for record in review_rows:
+        record = {key: _json_safe(value) for key, value in record.items()}
+        entry = entry_for(record.get("girl_url"))
+        if record.get("report_url") not in {item.get("report_url") for item in entry["reviews"]}:
+            entry["reviews"].append(record)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = path.with_suffix(".json.tmp")
+    temporary_path.write_text(json.dumps(archive, ensure_ascii=False, indent=1), encoding="utf-8")
+    temporary_path.replace(path)
+
+
 def remove_unavailable_profiles():
     """掲載終了プロフィールを人物一覧HTMLとレビューJSONLから削除する。"""
     with RAW_HTML_PATH.open("r", encoding="utf-8") as source:
@@ -520,17 +555,28 @@ def remove_unavailable_profiles():
         return 0, 0
 
     removed_rows = 0
+    archived_html_rows = {}
+    pending_removals = []
     for row in raw_rows:
         profile_link = profile_link_in_row(row)
         if profile_link and profile_link["href"] in unavailable_urls:
             detail = row.find_next_sibling("tr", class_="detail-row") if "person-row" in (row.get("class") or []) else None
-            if detail:
-                detail.decompose()
-            row.decompose()
-            removed_rows += 1
+            archived_html_rows.setdefault(profile_link["href"], []).append(
+                str(row) + (str(detail) if detail else "")
+            )
+            pending_removals.append((row, detail))
 
     keep_reviews = ~reviews["girl_url"].astype("string").isin(unavailable_urls)
     removed_reviews = int((~keep_reviews).sum())
+    archive_unavailable_profiles(
+        archived_html_rows, reviews.loc[~keep_reviews].to_dict("records")
+    )
+
+    for row, detail in pending_removals:
+        if detail:
+            detail.decompose()
+        row.decompose()
+        removed_rows += 1
     reviews = reviews.loc[keep_reviews].reset_index(drop=True)
 
     if removed_rows:
