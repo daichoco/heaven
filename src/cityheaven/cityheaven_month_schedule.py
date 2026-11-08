@@ -189,7 +189,7 @@ async def scrape_cityheaven():
 
 REPORT_GROUPS = [
     ("出勤カレンダー", [
-        ("weekly_schedule.html", "3レポート横断・7日間出勤カレンダー"),
+        ("weekly_schedule.html", "オキニラブ30歳未満・7日間出勤カレンダー"),
         ("weekly_schedule_tokai_ns.html", "東海風俗・NS専門・7日間出勤カレンダー"),
         ("calendar_report.html", "カレンダー形式レポート"),
     ]),

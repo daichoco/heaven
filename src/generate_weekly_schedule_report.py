@@ -217,6 +217,31 @@ def load_ranking(display_sources=None):
     return rank_people(filtered), removed
 
 
+OKINI_LABEL = "オキニラブ"
+OKINI_MAX_AGE = 30
+OKINI_MIN_MEAN = 4.0
+OKINI_TIER = "対象"
+
+
+def okini_young_people(people):
+    """オキニラブで30歳未満・平均星が閾値以上の人だけに絞り、順位を振り直す。"""
+    chosen = [
+        person for person in people
+        if person["reported_ages"] and min(person["reported_ages"]) < OKINI_MAX_AGE
+        and person["ratings"][OKINI_LABEL]["mean"] >= OKINI_MIN_MEAN
+    ]
+    rank = 0
+    previous = None
+    for index, person in enumerate(chosen, start=1):
+        if person["score"] != previous:
+            rank = index
+        previous = person["score"]
+        person["rank"] = rank
+        person["tier"] = OKINI_TIER
+        person["provisional"] = False
+    return chosen
+
+
 def daily_states(dates, state, text=""):
     return [{"date": day, "state": state, "text": text} for day in dates]
 
@@ -284,7 +309,7 @@ def selected_people(people, include_a=False, sources=None, limit=None, high_rate
         ]
         chosen.sort(key=lambda person: (-person["score"], person["key"]))
         return chosen[:limit]
-    tiers = {"S", "A"} if include_a else {"S"}
+    tiers = {"S", "A", OKINI_TIER} if include_a else {"S", OKINI_TIER}
     return [person for person in people if person["tier"] in tiers and person["profile_url"]]
 
 
@@ -525,7 +550,7 @@ def prune_weekly_assets(assets, output, directory_name=ASSET_DIRECTORY):
 
 
 def render_html(people, dates, schedules, removed, now=None, images=None, assets=None,
-                display_sources=None, output=OUTPUT):
+                display_sources=None, output=OUTPUT, okini_young=False):
     now = now or datetime.now(JST)
     images = images or {}
     assets = assets if assets is not None else {}
@@ -601,7 +626,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
             )
         error = f'<p role="alert">{escape(result["error"])}</p>' if result["error"] else ""
         provisional = '<span class="status-badge">暫定</span>' if person["provisional"] else ""
-        tier_class = {"S": "tier-s", "A": "tier-a"}.get(person["tier"], "tier-other")
+        tier_class = {"S": "tier-s", "A": "tier-a", OKINI_TIER: "tier-a"}.get(person["tier"], "tier-other")
         ages = person.get("reported_ages", [])
         age_text = " / ".join(f"{age}歳" for age in ages) or "不明"
         visible_count += bool(working_days)
@@ -670,6 +695,8 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
                      if not display_sources or label in display_sources]
     title = ("3レポート横断" if len(source_labels) == len(DATASETS)
              else "・".join(source_labels)) + "・7日間出勤カレンダー"
+    if okini_young:
+        title = f"オキニラブ{OKINI_MAX_AGE}歳未満・平均★{OKINI_MIN_MEAN:.1f}以上・7日間出勤カレンダー"
     score_methods = []
     numeric_labels = [label for label in source_labels if label in {"NS専門", "東海風俗"}]
     if numeric_labels:
@@ -684,6 +711,17 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
             '同順位は平均順位にします。おすすめ順ですでに少数補正するため、'
             'オキニラブには追加の50点への縮小を行いません。'
         )
+    tier_note = (
+        '<p>Sは上位10%（人数切り上げ）、Aはその次から上位25%（人数切り上げ）。'
+        '同点は競技順位（1, 1, 3）とし、境界同点は全員を上位区分に含めるため割合を超える場合があります。'
+        '少人数ではSのみとなる場合があります。表示は小数2桁ですが区分判定は丸め前のスコアです。</p>'
+    )
+    okini_note = (
+        f'<p>集計対象はオキニラブの保存レポートのみ。保存レポート年齢が{OKINI_MAX_AGE}歳未満'
+        f'（複数年齢がある場合は最小値）で、元評価の平均が★{OKINI_MIN_MEAN:.1f}以上の人を'
+        '「対象」とします。口コミ件数は問わず1件でも対象です。年齢不明は除外します。'
+        '順位・スコアは対象外を含むオキニラブ全体の相対スコアです。</p>'
+    )
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8">{HEAD_COMMON}
@@ -703,9 +741,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
 <p>{"".join(score_methods)}利用できる評価元を等重み平均し、
 欠けた評価元は0点扱いしません。1評価元は暫定。件数は元ごとに同一人物・記事URLの重複を除いた評価件数です。
 同じ正規化CityHeaven URLだけを統合し、未突合は記事単位で残します。無評価は順位対象外です。</p>
-<p>Sは上位10%（人数切り上げ）、Aはその次から上位25%（人数切り上げ）。
-同点は競技順位（1, 1, 3）とし、境界同点は全員を上位区分に含めるため割合を超える場合があります。
-少人数ではSのみとなる場合があります。表示は小数2桁ですが区分判定は丸め前のスコアです。</p>
+{okini_note if okini_young else tier_note}
 <p>予定取得はS優先、Aは追加指定。表示フィルタでは順位・母集団・S/A選定を変更しません。
 未取得・未公開・未定・休み・要確認・取得エラーは区別します。空欄や欠けた日を休みと推測しません。
 予定は取得日時点の公開情報であり、予約可能性を保証しません。</p></details>
@@ -780,6 +816,10 @@ def main(argv=None):
         "--output", metavar="FILE", default=OUTPUT.name,
         help="docs配下の出力HTML名（既定 weekly_schedule.html）。分割アセットは <名前>_assets に出力",
     )
+    parser.add_argument(
+        "--okini-young", action="store_true",
+        help=f"オキニラブのみ・{OKINI_MAX_AGE}歳未満・平均★{OKINI_MIN_MEAN:.1f}以上の人に絞って集計",
+    )
     parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
     if args.offline and (args.collect or args.collect_images):
@@ -802,6 +842,10 @@ def main(argv=None):
             parser.error("--collect-limit は1以上で指定してください")
         if args.display_sources and not set(args.collect_sources) <= set(args.display_sources):
             parser.error("--collect-sources は --display-sources の範囲内で指定してください")
+    if args.okini_young and (args.display_sources or args.collect_sources or args.collect_high_rated):
+        parser.error("--okini-young は --display-sources・--collect-sources・--collect-high-rated と併用できません")
+    if args.okini_young:
+        args.display_sources = [OKINI_LABEL]
     if args.window_start and not args.offline:
         parser.error("--window-start は --offline と併用してください")
     if not re.fullmatch(r"[A-Za-z0-9_\-]+\.html", args.output):
@@ -810,6 +854,8 @@ def main(argv=None):
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking(args.display_sources)
+    if args.okini_young:
+        people = okini_young_people(people)
     cache = load_cache()
     if args.window_start:
         try:
@@ -836,7 +882,7 @@ def main(argv=None):
     if not args.offline:
         eligible = [
             person for person in people if person["profile_url"] and (
-                person["tier"] == "S"
+                person["tier"] in {"S", OKINI_TIER}
                 or (person["tier"] == "A" and args.include_a)
                 or person["profile_url"] in schedules
             )
@@ -863,7 +909,7 @@ def main(argv=None):
         failures += counts["error"] + counts["not_found"] + counts["pending"]
     assets = {}
     markup = render_html(people, dates, schedules, removed, now, images, assets,
-                         args.display_sources, output)
+                         args.display_sources, output, args.okini_young)
     write_weekly_assets(assets, output, asset_directory(output))
     write_html(output, markup)
     # Remove only this output's obsolete content-addressed artifacts after publishing HTML.

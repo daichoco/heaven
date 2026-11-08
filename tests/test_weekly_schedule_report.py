@@ -441,6 +441,21 @@ class RankingTests(unittest.TestCase):
         self.assertIn("3レポート横断", expanded_saved_output(default, weekly.schedule_dates(), {}, {}))
 
 
+class OkiniYoungTests(unittest.TestCase):
+    def test_filters_by_age_and_mean(self):
+        def person(key, ages, mean, score):
+            return {"key": key, "reported_ages": ages, "score": score, "tier": "対象外",
+                    "provisional": True, "ratings": {"オキニラブ": {"mean": mean}}}
+        people = [
+            person("a", [25], 5.0, 90), person("b", [29, 31], 4.0, 80),
+            person("c", [30], 5.0, 70), person("d", [], 5.0, 60), person("e", [22], 3.9, 50),
+        ]
+        chosen = weekly.okini_young_people(people)
+        self.assertEqual([p["key"] for p in chosen], ["a", "b"])
+        self.assertEqual([p["rank"] for p in chosen], [1, 2])
+        self.assertTrue(all(p["tier"] == "対象" and not p["provisional"] for p in chosen))
+
+
 class WeeklyCalendarTests(unittest.TestCase):
     def setUp(self):
         self.dates = weekly.schedule_dates(datetime(2026, 10, 19, 19, tzinfo=weekly.JST))
