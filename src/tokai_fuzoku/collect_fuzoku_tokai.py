@@ -48,6 +48,7 @@ from tokai_fuzoku.report_store import (
     person_key,
 )
 from tokai_fuzoku.profile_signals import classify_profile_page, decode_html
+from tokai_fuzoku.roster_check import RosterChecker
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -243,6 +244,7 @@ class ProfileChecker:
         self.pages = {}
         self.results = {}
         self.page_requests = 0
+        self.roster = RosterChecker(session, HEADERS, name_in_text)
 
     def _page(self, url, key):
         """(status, html)。status が None なら名前照合が必要。"""
@@ -279,7 +281,14 @@ class ProfileChecker:
             status, html = self._page(url, key)
             if status is None:
                 text = BeautifulSoup(html, "lxml").get_text(" ")
-                status = "published" if name_in_text(text, str(name)) else self._check_with_browser(url, str(name))
+                if name_in_text(text, str(name)):
+                    status = "published"
+                else:
+                    status, reason = self.roster.check(url, name)
+                    if status:
+                        print(f"キャスト一覧で{status}と判定（{reason}）: {url}")
+                    else:
+                        status = self._check_with_browser(url, str(name))
             self.results[cache_key] = status
         return self.results[cache_key]
 
