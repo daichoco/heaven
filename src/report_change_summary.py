@@ -58,8 +58,7 @@ def person_link(page, shop, name):
     shop, name = str(shop or "").strip(), str(name or "").strip()
     if not name:
         return ""
-    query = f"{shop} {name}".strip()
-    return f"{PAGES_BASE}{page}#search={quote(query)}&fallback={quote(name)}"
+    return f"{PAGES_BASE}{page}#search={quote(name)}"
 
 
 def with_link(label, page, shop, name):

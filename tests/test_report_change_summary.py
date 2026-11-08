@@ -39,7 +39,7 @@ class ReportChangeSummaryTest(unittest.TestCase):
         link = rcs.person_link("tokai_final_report.html", "C'est裸美", "柚")
         self.assertTrue(link.startswith(rcs.PAGES_BASE + "tokai_final_report.html#search="))
         self.assertNotIn(" ", link)
-        self.assertIn("fallback=%E6%9F%9A", link)
+        self.assertTrue(link.endswith("#search=%E6%9F%9A"))
         self.assertEqual(rcs.person_link("x.html", "店", ""), "")
 
     def test_label_includes_person_link(self):
