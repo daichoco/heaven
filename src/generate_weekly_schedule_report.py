@@ -258,6 +258,8 @@ OKINI_TIER = "対象"
 OKINI_PRIOR_REPORTS = 5
 OKINI_HALF_LIFE_YEARS = 2
 OKINI_LOW_PENALTY = 0.5
+OKINI_BAD_TAGS = {"ブサイク", "デブ", "地雷", "手抜き", "事務的"}
+OKINI_BAD_TAG_PENALTY = 0.25
 
 
 def okini_young_people(people):
@@ -291,11 +293,15 @@ def okini_prior_mean(people):
 
 
 def okini_adjusted_value(person, today=None, prior=0):
-    """直近を重く、少数件を全体平均へ寄せ、★2以下の割合を減点した値。"""
+    """直近を重く、少数件を全体平均へ寄せ、★2以下と悪いタグの割合を減点した値。"""
     today = today or datetime.now().date()
     numerator = denominator = 0
-    low = rated = 0
+    low = rated = bad = 0
     for report in person["reports"]:
+        bad += any(
+            token in OKINI_BAD_TAGS
+            for _, items in report.get("tags", []) for token, _ in items
+        )
         if report["score"] is None:
             continue
         try:
@@ -308,7 +314,7 @@ def okini_adjusted_value(person, today=None, prior=0):
         rated += 1
         low += report["score"] <= 2
     star = (numerator + OKINI_PRIOR_REPORTS * prior) / (denominator + OKINI_PRIOR_REPORTS)
-    return star - OKINI_LOW_PENALTY * low / (rated + 1)
+    return star - (OKINI_LOW_PENALTY * low + OKINI_BAD_TAG_PENALTY * bad) / (rated + 1)
 
 
 def daily_states(dates, state, text=""):
@@ -800,7 +806,8 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
         f'（複数年齢がある場合は最小値）で、元評価の平均が★{OKINI_MIN_MEAN:.1f}以上の人を'
         '「対象」とします。口コミ件数は問わず1件でも対象です。年齢不明は除外します。'
         f'順位・スコアは対象者内の相対値で、元評価を{OKINI_PRIOR_REPORTS}件分の全体平均で補正し、'
-        f'古いレポートほど軽く（半減期{OKINI_HALF_LIFE_YEARS}年）、★2以下の割合を減点して算出します。</p>'
+        f'古いレポートほど軽く（半減期{OKINI_HALF_LIFE_YEARS}年）、★2以下と悪いタグ'
+        f'（{"・".join(sorted(OKINI_BAD_TAGS))}）を含むレポートの割合を減点して算出します。</p>'
     )
     return f"""<!DOCTYPE html>
 <html lang="ja">

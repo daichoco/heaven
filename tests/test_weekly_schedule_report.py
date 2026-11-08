@@ -468,6 +468,19 @@ class OkiniYoungTests(unittest.TestCase):
         chosen = weekly.okini_young_people([single, flawed, steady])
         self.assertEqual([p["key"] for p in chosen], ["steady", "single", "flawed"])
 
+    def test_ranking_penalizes_bad_tags(self):
+        def person(key, tags):
+            return {"key": key, "reported_ages": [25], "score": 0, "tier": "", "provisional": True,
+                    "ratings": {"オキニラブ": {"mean": 5.0}},
+                    "reports": [{"score": 5, "date": "2026-09-01",
+                                 "tags": [("スタイル", [(tag, "")])] if tag else []} for tag in tags]}
+        clean = person("clean", [""] * 4)
+        tagged = person("tagged", ["デブ", "デブ", "", ""])
+        mild = person("mild", ["ぽっちゃり"] * 4)
+        chosen = weekly.okini_young_people([tagged, clean, mild])
+        self.assertEqual(chosen[-1]["key"], "tagged")
+        self.assertEqual(weekly.okini_adjusted_value(clean), weekly.okini_adjusted_value(mild))
+
 
 class WeeklyCalendarTests(unittest.TestCase):
     def setUp(self):
