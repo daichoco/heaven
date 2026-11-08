@@ -56,6 +56,12 @@ class RosterCheckTests(unittest.TestCase):
         self.assertIsNone(self.checker(roster_html(25), status=503).check(PROFILE.format("zzz"), "ゆず")[0])
         self.assertIsNone(self.checker(roster_html(25)).check("https://unlisted.example.com/p?id=1", "ゆず")[0])
 
+    def test_pbc_legacy_url_matches_current_profile_link(self):
+        links = "".join(f'<a href="/cast/no-{i}.html">g</a>' for i in range(25))
+        checker = self.checker(f"<html><body>{links}</body></html>")
+        self.assertEqual(checker.check("http://www.k-pbc.com/cast/?no=3", "あ")[0], "published")
+        self.assertEqual(checker.check("http://www.k-pbc.com/cast/?no=99", "い")[0], "unavailable")
+
     def test_roster_is_fetched_once(self):
         checker = self.checker(roster_html(25))
         checker.check(PROFILE.format("a"), "あ")

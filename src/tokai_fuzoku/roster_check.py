@@ -27,6 +27,7 @@ ROSTER_URLS = {
     "n-fortune.jp": ["https://n-fortune.jp/cast/"],
     "mutekikawasaki.jp": ["https://mutekikawasaki.jp/cast.html"],
     "t-classy.com": ["https://www.t-classy.com/profile/"],
+    "k-pbc.com": ["https://www.k-pbc.com/cast"],
 }
 MIN_PROFILE_LINKS = 20
 PAGER_RE = re.compile(r"[?&]page=\d|/page/\d|次のページ|次へ|NEXT\s*>|>>", re.I)
@@ -39,6 +40,9 @@ def _base_host(url):
 
 def _profile_key(url):
     parts = urlsplit(url)
+    legacy = re.fullmatch(r"no=(\d+)", parts.query)
+    if _base_host(url) == "k-pbc.com" and parts.path.rstrip("/") == "/cast" and legacy:
+        return f"/cast/no-{legacy.group(1)}.html", ""
     return parts.path, parts.query
 
 
