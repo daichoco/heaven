@@ -658,23 +658,34 @@ def run_fill_details(collector, limit=None):
         print("--limit に達したため中断しました。再実行すると残りを補完します")
 
 
-RECHECK_STATUSES = ("unavailable", "unknown", "published")
+RECHECK_STATUSES = ("unavailable", "unknown", "published", "unchecked")
 
 
 def recheck_targets(records, statuses, *, canonicalize=None):
-    """再確認する人物を {人物キー: [記事行...]} で返す。対象は profile_status 保存済みの行のみ。
+    """再確認する人物を {人物キー: [記事行...]} で返す。
 
     人物の現在の状態は最新の確定結果（published/unavailable）、確定結果が無ければ unknown。
+    unchecked は profile_status を一度も保存していない人物で、指定したときだけ対象になる。
     """
     latest = latest_profile_status_by_person(records)
     canonicalize = canonicalize or canonical_article_url
+    include_unchecked = "unchecked" in statuses
     groups = {}
     for record in records:
         key = person_key(record)
-        if key is None or is_missing(record.get("profile_status")) or not canonicalize(record.get("url")):
+        if key is None or not canonicalize(record.get("url")):
+            continue
+        if is_missing(record.get("profile_status")) and not include_unchecked:
             continue
         groups.setdefault(key, []).append(record)
-    return {key: rows for key, rows in groups.items() if latest.get(key, "unknown") in statuses}
+    targets = {}
+    for key, rows in groups.items():
+        state = latest.get(key, "unknown")
+        if state == "unknown" and all(is_missing(r.get("profile_status")) for r in rows):
+            state = "unchecked"
+        if state in statuses:
+            targets[key] = rows
+    return targets
 
 
 def run_recheck_profiles(collector, statuses=("unavailable",), limit=None):
