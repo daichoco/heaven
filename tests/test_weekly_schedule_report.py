@@ -390,6 +390,56 @@ class RankingTests(unittest.TestCase):
         self.assertEqual([p["profile_url"] for p in people], [profile(2)])
         self.assertEqual(removed["東海風俗"], 1)
 
+    def test_display_sources_filter_before_ranking_and_preserve_default(self):
+        ns = [
+            {"url": "https://ns.invalid/1", "cityheaven_url": profile(1),
+             "details": {TOTAL_KEY: "90点"}, "name": "NS1"},
+            {"url": "https://ns.invalid/2", "cityheaven_url": profile(2),
+             "details": {TOTAL_KEY: "70点"}, "name": "NS2"},
+        ]
+        oki = [
+            {"report_url": "https://oki.invalid/1", "girl_url": profile(1),
+             "evaluations": "★★★★★", "girl_name": "Oki1"},
+            {"report_url": "https://oki.invalid/3", "girl_url": profile(3),
+             "evaluations": "★★★★☆", "girl_name": "Oki3"},
+        ]
+        first = tokai(1, 80)
+        tokai_rows = [first, {**first, "url": first["url"].replace("https:", "http:")},
+                      tokai(4, 100)]
+        markers = {"tokai_people": set(), "ns_articles": set(), "ns_profiles": set(),
+                   "okinilove_profiles": set()}
+        def load(sources=None):
+            with (patch.object(weekly, "read_jsonl_records", side_effect=[ns, oki, tokai_rows]),
+                  patch.object(weekly, "unavailable_article_markers", return_value=markers)):
+                return weekly.load_ranking(sources)
+
+        default, _ = load()
+        both, removed = load(["東海風俗", "NS専門"])
+        only_tokai, _ = load(["東海風俗"])
+        only_ns, _ = load(["NS専門"])
+        expected = weekly.rank_people(datasets(ns=ns, tokai_rows=tokai_rows))
+        self.assertEqual(both, expected)
+        self.assertEqual(set(removed), {"東海風俗", "NS専門"})
+        self.assertEqual({p["profile_url"] for p in both}, {profile(1), profile(2), profile(4)})
+        self.assertEqual({p["profile_url"] for p in only_tokai}, {profile(1), profile(4)})
+        self.assertEqual({p["profile_url"] for p in only_ns}, {profile(1), profile(2)})
+        shared = next(p for p in both if p["profile_url"] == profile(1))
+        self.assertEqual(set(shared["ratings"]), {"東海風俗", "NS専門"})
+        self.assertEqual(shared["review_count"], 2)
+        self.assertEqual({r["database"] for r in shared["reports"]}, {"東海風俗", "NS専門"})
+        self.assertEqual(shared["score"], (shared["ratings"]["東海風俗"]["score"]
+                                           + shared["ratings"]["NS専門"]["score"]) / 2)
+        self.assertIn(profile(3), {p["profile_url"] for p in default})
+        default_shared = next(p for p in default if p["profile_url"] == profile(1))
+        self.assertEqual(set(default_shared["ratings"]), {"東海風俗", "NS専門", "オキニラブ"})
+        self.assertNotEqual(default_shared["score"], shared["score"])
+        page = expanded_saved_output(both, weekly.schedule_dates(), {}, removed,
+                                     display_sources=["東海風俗", "NS専門"])
+        self.assertIn("東海風俗", page)
+        self.assertIn("NS専門", page)
+        self.assertNotIn("オキニラブ", page)
+        self.assertIn("3レポート横断", expanded_saved_output(default, weekly.schedule_dates(), {}, {}))
+
 
 class WeeklyCalendarTests(unittest.TestCase):
     def setUp(self):
@@ -526,6 +576,45 @@ class WeeklyCalendarTests(unittest.TestCase):
             self.assertIn("未取得", write.call_args.args[1])
         with self.assertRaises(SystemExit):
             weekly.main(["--offline", "--collect-images"])
+
+    def test_cli_display_sources_are_validated_and_passed_to_ranking(self):
+        with (
+            patch.object(weekly, "load_ranking", return_value=([], {})) as ranking,
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
+            patch.object(weekly, "write_html") as write,
+            patch.object(weekly, "fetch_profile_images") as image_fetch,
+        ):
+            self.assertEqual(weekly.main(["--offline", "--display-sources", "東海風俗", "NS専門"]), 0)
+            ranking.assert_called_once_with(["東海風俗", "NS専門"])
+            self.assertNotIn("オキニラブ", write.call_args.args[1])
+            image_fetch.assert_not_called()
+        with self.assertRaises(SystemExit):
+            weekly.main(["--offline", "--display-sources", "不明"])
+        with self.assertRaises(SystemExit):
+            weekly.main(["--collect", "--display-sources", "NS専門",
+                         "--collect-sources", "東海風俗"])
+
+    def test_cli_high_rated_collect_uses_filtered_population_not_collect_limit(self):
+        people = weekly.rank_people(datasets(tokai_rows=[
+            tokai(1, 90, repeat="返す"), tokai(2, 80, repeat="返す"),
+        ]))
+        with (
+            patch.object(weekly, "load_ranking", return_value=(people, {})) as ranking,
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
+            patch.object(weekly, "collect_schedules", new_callable=AsyncMock, return_value={}) as collect,
+            patch.object(weekly, "save_cache"),
+            patch.object(weekly, "write_html"),
+            patch.object(weekly, "fetch_profile_images", return_value={
+                person["profile_url"]: {"status": "ok", "image_url": "https://example.invalid/photo.jpg"}
+                for person in people
+            }),
+        ):
+            self.assertEqual(weekly.main([
+                "--collect", "--collect-high-rated", "--collect-limit", "1",
+                "--display-sources", "東海風俗", "NS専門",
+            ]), 0)
+            ranking.assert_called_once_with(["東海風俗", "NS専門"])
+            self.assertEqual(len(collect.call_args.args[0]), 2)
 
     def test_cli_collect_persists_errors_and_a_follows_s(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(20)]))

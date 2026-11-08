@@ -202,7 +202,7 @@ def rank_people(datasets):
     return ordered
 
 
-def load_ranking():
+def load_ranking(display_sources=None):
     datasets = [
         (label, dataset, read_jsonl_records(ROOT / "data" / filename))
         for label, filename, dataset, _ in DATASETS
@@ -211,6 +211,9 @@ def load_ranking():
         datasets, unavailable_article_markers(datasets)
     )
     filtered, _ = filter_old_records(filtered)
+    if display_sources:
+        filtered = [item for item in filtered if item[0] in display_sources]
+        removed = {label: count for label, count in removed.items() if label in display_sources}
     return rank_people(filtered), removed
 
 
@@ -516,7 +519,8 @@ def prune_weekly_assets(assets, output):
             path.unlink()
 
 
-def render_html(people, dates, schedules, removed, now=None, images=None, assets=None):
+def render_html(people, dates, schedules, removed, now=None, images=None, assets=None,
+                display_sources=None):
     now = now or datetime.now(JST)
     images = images or {}
     assets = assets if assets is not None else {}
@@ -654,27 +658,41 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
     date_options = "".join(
         f'<option value="{day}">{label}</option>' for day, label in zip(dates, labels)
     )
+    source_labels = [label for label, _, _, _ in DATASETS
+                     if not display_sources or label in display_sources]
+    title = ("3レポート横断" if len(source_labels) == len(DATASETS)
+             else "・".join(source_labels)) + "・7日間出勤カレンダー"
+    score_methods = []
+    numeric_labels = [label for label in source_labels if label in {"NS専門", "東海風俗"}]
+    if numeric_labels:
+        score_methods.append(
+            f'{"・".join(numeric_labels)}は人物平均の同点平均順位を0〜100パーセンタイルにし、'
+            '（評価件数×パーセンタイル＋50）÷（評価件数＋1）で補正します。'
+        )
+    if "オキニラブ" in source_labels:
+        score_methods.append(
+            'オキニラブは人物ページのおすすめ順（全体平均1件分で補正した平均星、星同点なら'
+            '判定可能レビューがある人を先にし、補正ネガ率・補正ポジ率・判定可能レビュー数）を使い、'
+            '同順位は平均順位にします。おすすめ順ですでに少数補正するため、'
+            'オキニラブには追加の50点への縮小を行いません。'
+        )
     return f"""<!DOCTYPE html>
 <html lang="ja">
 <head><meta charset="UTF-8">{HEAD_COMMON}
-<title>3レポート横断・7日間出勤カレンダー</title>
+<title>{escape(title)}</title>
 <link rel="stylesheet" href="shop_prices.css">
 <script src="shop_prices.js"></script>
 <link rel="stylesheet" href="weekly_schedule.css">
 <script src="weekly_schedule.js" defer></script></head>
 <body data-details-scroll="native">{BACK_NAV}
-<h1>3レポート横断・7日間出勤カレンダー</h1>
+<h1>{escape(title)}</h1>
 <p>対象期間: {labels[0]}〜{labels[-1]} 日本時間（{period_note}）。レポート生成日時:
 {escape(now.astimezone(JST).isoformat(timespec="seconds"))}。評価あり {len(people)}人。</p>
 <details class="method"><summary>ランキング・取得方針</summary>
-<p>全評価人物が母集団です（予約困難・人気の文言、年齢、3件未満で除外しません）。
+<p>対象評価元: {escape("・".join(source_labels))}。指定評価元の全評価人物が母集団です
+（予約困難・人気の文言、年齢、3件未満で除外しません）。
 掲載終了扱いの保存記事は除外: {escape(removed_text)}。</p>
-<p>NS専門・東海は人物平均の同点平均順位を0〜100パーセンタイルにし、
-（評価件数×パーセンタイル＋50）÷（評価件数＋1）で補正します。
-オキニラブは人物ページのおすすめ順（全体平均1件分で補正した平均星、星同点なら
-判定可能レビューがある人を先にし、補正ネガ率・補正ポジ率・判定可能レビュー数）を使い、
-同順位は平均順位にします。おすすめ順ですでに少数補正するため、
-オキニラブには追加の50点への縮小を行いません。利用できる評価元を等重み平均し、
+<p>{"".join(score_methods)}利用できる評価元を等重み平均し、
 欠けた評価元は0点扱いしません。1評価元は暫定。件数は元ごとに同一人物・記事URLの重複を除いた評価件数です。
 同じ正規化CityHeaven URLだけを統合し、未突合は記事単位で残します。無評価は順位対象外です。</p>
 <p>Sは上位10%（人数切り上げ）、Aはその次から上位25%（人数切り上げ）。
@@ -735,6 +753,10 @@ def main(argv=None):
     parser.add_argument("--image-limit", type=int, help="明示的に不足画像取得対象数を制限（既定は対象全員）")
     parser.add_argument("--include-a", action="store_true", help="取得対象にSに続いてAも追加")
     parser.add_argument(
+        "--display-sources", nargs="+", metavar="LABEL",
+        help="表示・順位に使うレポート（例: 東海風俗 NS専門。既定は全レポート）",
+    )
+    parser.add_argument(
         "--collect-sources", nargs="+", metavar="LABEL",
         help="--collect の対象を、指定レポート（例: 東海風俗 NS専門）に評価がある人の点数上位に限定",
     )
@@ -758,18 +780,21 @@ def main(argv=None):
         parser.error("--collect-high-rated は --collect と併用してください")
     if args.collect_high_rated and args.collect_sources:
         parser.error("--collect-high-rated と --collect-sources は併用できません")
+    labels = {label for label, _, _, _ in DATASETS}
+    for selected in (args.display_sources, args.collect_sources):
+        unknown = set(selected or ()) - labels
+        if unknown:
+            parser.error(f"不明なレポート名: {', '.join(sorted(unknown))}（{', '.join(sorted(labels))}）")
     if args.collect_sources:
         if args.collect_limit < 1:
             parser.error("--collect-limit は1以上で指定してください")
-        labels = {label for label, _, _, _ in DATASETS}
-        unknown = set(args.collect_sources) - labels
-        if unknown:
-            parser.error(f"不明なレポート名: {', '.join(sorted(unknown))}（{', '.join(sorted(labels))}）")
+        if args.display_sources and not set(args.collect_sources) <= set(args.display_sources):
+            parser.error("--collect-sources は --display-sources の範囲内で指定してください")
     if args.window_start and not args.offline:
         parser.error("--window-start は --offline と併用してください")
     now = datetime.now(JST)
     dates = schedule_dates(now)
-    people, removed = load_ranking()
+    people, removed = load_ranking(args.display_sources)
     cache = load_cache()
     if args.window_start:
         try:
@@ -822,7 +847,8 @@ def main(argv=None):
         )
         failures += counts["error"] + counts["not_found"] + counts["pending"]
     assets = {}
-    markup = render_html(people, dates, schedules, removed, now, images, assets)
+    markup = render_html(people, dates, schedules, removed, now, images, assets,
+                         args.display_sources)
     write_weekly_assets(assets, OUTPUT)
     write_html(OUTPUT, markup)
     # Remove only this generator's obsolete content-addressed artifacts after publishing HTML.
