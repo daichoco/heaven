@@ -22,7 +22,8 @@ if str(SRC_DIR) not in sys.path:
 
 from data_store import read_jsonl_records
 from html_format import write_html
-from tokai_fuzoku.html_render import generate_html, PAGE_TEMPLATE
+from tokai_fuzoku.html_render import generate_html, report_template, PAGE_TEMPLATE
+from tokai_fuzoku.collect_fuzoku_tokai import GROUP_NAMES
 from tokai_fuzoku.report_store import (
     COMMENT_COLUMNS,
     DETAIL_COLUMNS,
@@ -418,7 +419,7 @@ def main(argv=()):
     args = parse_args(list(argv))
     if args.refresh_prices:
         write_html(OUTPUT_HTML, refresh_saved_prices(
-            OUTPUT_HTML.read_text(encoding="utf-8"), PAGE_TEMPLATE, "function applySort()",
+            OUTPUT_HTML.read_text(encoding="utf-8"), report_template(group_options=[]), "function applySort()",
         ))
         print(f"保存HTMLの人物・記事を保持して料金を更新しました: {OUTPUT_HTML}")
         return
@@ -437,7 +438,11 @@ def main(argv=()):
             df = enrich_report_data(df, session)
 
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    write_html(OUTPUT_HTML, generate_html(df))
+    group_options = None
+    if "shop_group" in df:
+        present = set(df["shop_group"].dropna().astype(str))
+        group_options = [name for name in GROUP_NAMES if name in present]
+    write_html(OUTPUT_HTML, generate_html(df, group_options=group_options))
     print(f"生成しました: {OUTPUT_HTML}")
 
 

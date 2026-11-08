@@ -46,6 +46,9 @@ EMPTY_PHRASE_RE = re.compile(
 EMPTY_STATS_RE = re.compile(r"B\s*\(\s*\??\s*\)\s*\.?\s*W\s*\.?\s*H(?![\w(])")
 
 
+TCLASSY_EMPTY_RE = re.compile(r"在籍コンパニオン\s+才\s+プロフィール")
+
+
 def _host(url):
     return (urlsplit(url).hostname or "").lower()
 
@@ -90,6 +93,12 @@ def empty_profile_reason(url, html):
         title = soup.title.get_text() if soup.title else ""
         if SHABOOLE_EMPTY_TITLE_RE.search(title):
             return "名前が空のプロフィールテンプレート"
+    if host.endswith("t-classy.com"):
+        soup = BeautifulSoup(html or "", "html.parser")
+        for tag in soup(["script", "style"]):
+            tag.decompose()
+        if TCLASSY_EMPTY_RE.search(soup.get_text(" ", strip=True)):
+            return "名前と年齢が空のプロフィールテンプレート"
     if host.endswith("stylish-bach.com") and "girldetail" in urlsplit(url).path:
         soup = BeautifulSoup(html or "", "html.parser")
         if soup.body is not None and not soup.select(".profilename, .element-girl-detail"):

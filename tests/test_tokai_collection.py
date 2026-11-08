@@ -289,6 +289,14 @@ class ProfileSignalTests(unittest.TestCase):
         self.assertEqual(
             classify("https://example.com/girl?id=1", "https://example.com/girl?id=2", 200, "")[0], "unavailable"
         )
+        classy = "https://www.t-classy.com/profile/01180/"
+        self.assertEqual(
+            classify(classy, classy, 200, "<body>在籍コンパニオン 才 プロフィール ツイート 才 T B カップ W H</body>")[0],
+            "unavailable",
+        )
+        self.assertIsNone(
+            classify(classy, classy, 200, "<body>在籍コンパニオン ねね 23才 プロフィール ねね 23 才 T160</body>")[0]
+        )
 
     def test_decode_ignores_requests_latin1_default(self):
         import profile_signals

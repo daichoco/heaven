@@ -287,34 +287,8 @@ def fetch_category_urls(session, slug, page_number):
 
 
 def run_fill_groups(session, store, *, full=False, sleep=0.5):
-    """カテゴリ一覧を辿り、記事に価格帯・エリア(shop_group)を付与する。
-
-    既存値は上書きしない。通常は、ページ内の保存済み記事がすべて付与済みになった時点で
-    そのカテゴリの走査を終える（新着は一覧の先頭に並ぶため）。full=True で全ページ走査。
-    """
-    assigned = 0
-    for slug, group in GROUP_CATEGORIES:
-        page = 1
-        while True:
-            urls = fetch_category_urls(session, slug, page)
-            if urls is None:
-                break
-            known = [store.get(u) for u in urls if u in store]
-            pending = 0
-            for record in known:
-                if not record.get("shop_group"):
-                    record["shop_group"] = group
-                    store.dirty = True
-                    assigned += 1
-                    pending += 1
-            if not full and known and not pending:
-                break
-            page += 1
-            time.sleep(sleep)
-        print(f"{group}: 走査 {page}ページ")
-    ungrouped = sum(1 for r in store.records if not r.get("shop_group"))
-    print(f"価格帯・エリアを付与: {assigned}件 / 未分類: {ungrouped}件")
-    return assigned
+    """カテゴリ一覧から記事に価格帯・エリア(shop_group)を付与する（既存値は上書きしない）。"""
+    return shared.fill_groups(session, store, GROUP_CATEGORIES, fetch_category_urls, full=full, sleep=sleep)
 
 
 def parse_args(argv):

@@ -109,6 +109,81 @@ def extract_article_urls(soup, page_url=BASE_URL):
     return urls
 
 
+GROUP_CATEGORIES = [
+    ("kanaduen-soap", "金津園ソープ格安店"),
+    ("kn-mediumclass", "金津園ソープ大衆店"),
+    ("kn-chukyu", "金津園ソープ中級店"),
+    ("kn-highclass", "金津園ソープ高級店"),
+    ("nagoya-soap", "名古屋ソープ"),
+    ("katayamadu-soap", "片山津ソープ"),
+    ("yokkaiti-soap", "四日市ソープ"),
+    ("numadu-soap", "沼津ソープ"),
+    ("shizuoka-soap", "静岡ソープ"),
+    ("yamanashi-soap", "山梨ソープ"),
+    ("deli-heal", "デリヘル"),
+    ("nagoya-h-d", "名古屋ホテヘル・デリヘル"),
+    ("gifu-h-d", "岐阜ホテヘル・デリヘル"),
+    ("yamanashi-h-d", "山梨ホテヘル・デリヘル"),
+    ("health", "ヘルス（箱ヘル）"),
+    ("seikan", "性感"),
+    ("fuzoku-est", "性感・風俗エステ"),
+    ("onaclu", "オナクラ"),
+    ("mensesthetic", "メンズエステ"),
+]
+GROUP_NAMES = [name for _, name in GROUP_CATEGORIES]
+
+
+def fetch_category_urls(session, slug, page_number):
+    """カテゴリ一覧ページの記事URL。ページが存在しなければ None。"""
+    path = f"category/{slug}/" if page_number == 1 else f"category/{slug}/page/{page_number}/"
+    url = BASE_URL + path
+    response = session.get(url, headers=HEADERS, timeout=30)
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    if is_login_page(response.text):
+        raise LoginRequiredError(f"カテゴリ一覧のログイン画面が返されました: {url}")
+    soup = BeautifulSoup(response.text, "lxml")
+    if not soup.select("article.entry-card"):
+        return None
+    return extract_article_urls(soup, url)
+
+
+def fill_groups(session, store, categories, fetch_urls, *, full=False, sleep=0.5):
+    """カテゴリ一覧を辿り、記事に価格帯・エリア(shop_group)を付与する。
+
+    既存値は上書きしない。通常は、ページ内の保存済み記事がすべて付与済みになった時点で
+    そのカテゴリの走査を終える（新着は一覧の先頭に並ぶため）。full=True で全ページ走査。
+    """
+    assigned = 0
+    for slug, group in categories:
+        page = 1
+        while True:
+            urls = fetch_urls(session, slug, page)
+            if urls is None:
+                break
+            known = [store.get(u) for u in urls if u in store]
+            pending = 0
+            for record in known:
+                if not record.get("shop_group"):
+                    record["shop_group"] = group
+                    store.dirty = True
+                    assigned += 1
+                    pending += 1
+            if not full and known and not pending:
+                break
+            page += 1
+            time.sleep(sleep)
+        print(f"{group}: 走査 {page}ページ")
+    ungrouped = sum(1 for r in store.records if not r.get("shop_group"))
+    print(f"価格帯・エリアを付与: {assigned}件 / 未分類: {ungrouped}件")
+    return assigned
+
+
+def run_fill_groups(session, store, *, full=False, sleep=0.5):
+    return fill_groups(session, store, GROUP_CATEGORIES, fetch_category_urls, full=full, sleep=sleep)
+
+
 def get_listing_page_count(session, max_pages):
     soup = BeautifulSoup(fetch_listing_html(session, BASE_URL), "lxml")
 
@@ -686,6 +761,10 @@ def parse_args(argv):
         action="store_true",
         help="保存済みの profile_status を人物単位で再判定する（ログイン不要。--limit は人物数）",
     )
+    mode.add_argument(
+        "--fill-groups", action="store_true", help="カテゴリ一覧から記事の価格帯・エリア(shop_group)を付与する",
+    )
+    parser.add_argument("--all-pages", action="store_true", help="--fill-groups で全ページを走査する（初回用）")
     parser.add_argument(
         "--status",
         action="append",
@@ -701,6 +780,8 @@ def parse_args(argv):
         parser.error("--resume は --backfill と併用してください")
     if args.status and not args.recheck_profiles:
         parser.error("--status は --recheck-profiles と併用してください")
+    if args.all_pages and not args.fill_groups:
+        parser.error("--all-pages は --fill-groups と併用してください")
     args.status = list(dict.fromkeys(args.status or ["unavailable"]))
     if args.overlap_days < 0:
         parser.error("--overlap-days は0以上を指定してください")
@@ -732,6 +813,10 @@ def main(argv=None):
         configure_retries(session)
         if not args.recheck_profiles:
             login(session, password)
+        if args.fill_groups:
+            run_fill_groups(session, store, full=args.all_pages)
+            store.save()
+            return
         checker = ProfileChecker(session)
         collector = Collector(session, store, state, checker)
         try:
