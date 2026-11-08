@@ -104,6 +104,30 @@ def external_person_key(value):
 HIGH_RATED_CHECKS = {"東海風俗": tokai_high, "NS専門": ns_high}
 
 
+OKINI_TAG_FIELDS = (
+    ("face", "顔"), ("style", "スタイル"), ("breast", "おっぱい"), ("private", "おま○こ"),
+    ("service", "サービスについて（複数可能）"),
+)
+_okini_details = None
+
+
+def okini_tag_fields(record):
+    """オキニラブの顔・スタイル・おっぱい・おま○こ・サービスのタグを本文の前に並べる。"""
+    global _okini_details
+    if _okini_details is None:
+        path = ROOT / "data" / "okinilove_report_details.json"
+        _okini_details = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    url = record.get("report_url") or ""
+    detail = _okini_details.get(url) or _okini_details.get(url.replace("https://", "http://", 1)) or {}
+    result = []
+    for key, label in OKINI_TAG_FIELDS:
+        value = record.get(key) or detail.get(key) or ""
+        tags = " / ".join(str(value).split())
+        if tags:
+            result.append((label, tags))
+    return result
+
+
 def rank_people(datasets):
     datasets = [(label, dataset, list(records)) for label, dataset, records in datasets]
     profile_aliases = {}
@@ -151,6 +175,8 @@ def rank_people(datasets):
             article_key = (label, record_url_key(source) if source else row_number)
             if not any(report["identity"] == article_key for report in person["reports"]):
                 fields = record_fields(dataset, record)
+                if dataset == "okinilove":
+                    fields = okini_tag_fields(record) + fields
                 if dataset == "tokai_fuzoku":
                     known = {key for key, _ in fields}
                     fields += [
@@ -445,9 +471,10 @@ def render_reports(person, database=None):
                 "<p>保存済み本文なし（外部から追加取得していません）</p>"
             )
         reports.append(
-            f'<section class="saved-report"><h3>{escape(report["database"])} / '
-            f'{escape(report["date"])} / 元評価 {score_text}</h3>'
-            f'{body + source if report["database"] == "東海風俗" else source + body}</section>'
+            f'<details class="saved-report"{" open" if not reports else ""}>'
+            f'<summary><h3>{escape(report["database"])} / '
+            f'{escape(report["date"])} / 元評価 {score_text}</h3></summary>'
+            f'{body + source if report["database"] == "東海風俗" else source + body}</details>'
         )
     return "".join(reports)
 

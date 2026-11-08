@@ -40,6 +40,8 @@ td.shop-cell { width: 280px; min-width: 280px; text-align: left; max-width: 360p
 .reported-age { font-size: 12px; color: var(--muted); }
 .saved-report { margin: 8px 0; padding: 6px; border: 1px solid var(--border-soft); }
 .saved-report h3 { font-size: 1em; margin: 4px 0 8px; }
+.saved-report > summary { cursor: pointer; }
+.saved-report > summary h3 { display: inline; margin: 0; }
 .review-buttons { margin: 6px 0; }
 .review-toggle { display: block; width: 100%; min-height: 44px; margin: 4px 0; padding: 8px 12px; border-radius: 4px; color: var(--fg); background: var(--chip); border: 1px solid var(--border); cursor: pointer; }
 .review-toggle:active { background: var(--border-soft); }

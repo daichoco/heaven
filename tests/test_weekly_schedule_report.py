@@ -269,7 +269,7 @@ class RankingTests(unittest.TestCase):
             self.assertTrue(row.has_attr("hidden"))
             self.assertEqual(row.td["colspan"], "8")
             self.assertEqual(len(row.select(".saved-report")), count)
-            self.assertFalse(row.select("details"))
+            self.assertFalse(row.select("details:not(.saved-report)"))
             for heading in row.select("h3"):
                 self.assertIn(label, heading.get_text())
         self.assertIn("二件目", page.get_text())
@@ -1022,7 +1022,7 @@ class BrowserFixtureTests(unittest.TestCase):
                                         if opening:
                                             await review.locator(".saved-report").wait_for()
                                             self.assertEqual(await review.locator(".saved-report").count(), 1)
-                                            self.assertFalse(await review.locator("details").count())
+                                            self.assertFalse(await review.locator("details:not(.saved-report)").count())
                                             self.assertEqual(await review.locator("td").get_attribute("colspan"), "8")
                                 await button.click()
                                 other = page.locator(".review-toggle").nth(10)

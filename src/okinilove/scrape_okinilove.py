@@ -666,6 +666,14 @@ def extract_style(looks_text):
     return extract_section(looks_text, "スタイル")
 
 
+def extract_breast(looks_text):
+    return extract_section(looks_text, "おっぱい")
+
+
+def extract_private(looks_text):
+    return extract_section(looks_text, "おま[○〇◯●]こ")
+
+
 REPORT_DETAILS_PATH = DATA_DIR / "okinilove_report_details.json"
 AGE_PATTERNS = (
     re.compile(r"年齢\s*[:：]?\s*(\d{2})\s*(?:歳|才)"),
@@ -1406,6 +1414,8 @@ def parse_report_details(soup, fragment):
     return {
         "face": extract_face(looks),
         "style": extract_style(looks),
+        "breast": extract_breast(looks),
+        "private": extract_private(looks),
         "service": service,
         "report_text": _report_text_after(anchor.parent) if anchor else "",
         "published_date": _report_text_and_date(anchor.parent)[1] if anchor else "",
@@ -1431,6 +1441,7 @@ def backfill_report_details(report_urls):
             and "#" in url
             and (
                 "service" not in details_by_url.get(_normalize_report_url(url), {})
+                or "breast" not in details_by_url.get(_normalize_report_url(url), {})
                 or "published_date" not in details_by_url.get(_normalize_report_url(url), {})
             )
         ):

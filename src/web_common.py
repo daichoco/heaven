@@ -32,6 +32,32 @@ FILTER_TOGGLE_SCRIPT = (
 )
 
 BACK_TO_TOP = (
+    '<button type="button" class="close-open" id="closeOpen" hidden>▲ 開いた本文を閉じる</button>\n'
+    "<style>.close-open { position: fixed; right: 12px; bottom: 64px; z-index: 30; min-height: 44px; "
+    "padding: 8px 14px; border-radius: 22px; border: 1px solid var(--border, #888); "
+    "background: var(--chip, #eee); color: var(--fg, #000); box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; }</style>\n"
+    "<script>\n"
+    "(() => {\n"
+    "  const button = document.getElementById('closeOpen');\n"
+    "  const selector = 'details.report-entry[open], .review-toggle[aria-expanded=\"true\"]';\n"
+    "  const open = () => [...document.querySelectorAll(selector)];\n"
+    "  const update = () => { button.hidden = open().length === 0; };\n"
+    "  button.addEventListener('click', () => {\n"
+    "    const items = open();\n"
+    "    const anchor = i => i.tagName === 'DETAILS' ? i.querySelector('summary') : i;\n"
+    "    const middle = innerHeight / 2;\n"
+    "    const current = items.find(i => { const r = i.getBoundingClientRect(); return r.top <= middle && r.bottom >= middle; });\n"
+    "    const target = anchor(current || items[0]);\n"
+    "    items.forEach(i => i.tagName === 'DETAILS' ? (i.open = false) : i.click());\n"
+    "    target?.scrollIntoView({ block: 'center' });\n"
+    "    update();\n"
+    "  });\n"
+    "  new MutationObserver(update).observe(document.body, {\n"
+    "    subtree: true, childList: true, attributes: true, attributeFilter: ['open', 'aria-expanded'],\n"
+    "  });\n"
+    "  update();\n"
+    "})();\n"
+    "</script>\n"
     '<button type="button" class="back-to-top" id="backToTop" hidden aria-label="ページの先頭へ">↑ 先頭へ</button>\n'
     "<script>\n"
     "(() => {\n"

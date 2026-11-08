@@ -11533,6 +11533,30 @@ $('reset-filters').addEventListener('click', () => {
 applySort();
 applyFilters();
 </script>
+    <button class="close-open" hidden="" id="closeOpen" type="button">▲ 開いた本文を閉じる</button>
+    <style>.close-open { position: fixed; right: 12px; bottom: 64px; z-index: 30; min-height: 44px; padding: 8px 14px; border-radius: 22px; border: 1px solid var(--border, #888); background: var(--chip, #eee); color: var(--fg, #000); box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer; }</style>
+    <script>
+(() => {
+  const button = document.getElementById('closeOpen');
+  const selector = 'details.report-entry[open], .review-toggle[aria-expanded="true"]';
+  const open = () => [...document.querySelectorAll(selector)];
+  const update = () => { button.hidden = open().length === 0; };
+  button.addEventListener('click', () => {
+    const items = open();
+    const anchor = i => i.tagName === 'DETAILS' ? i.querySelector('summary') : i;
+    const middle = innerHeight / 2;
+    const current = items.find(i => { const r = i.getBoundingClientRect(); return r.top <= middle && r.bottom >= middle; });
+    const target = anchor(current || items[0]);
+    items.forEach(i => i.tagName === 'DETAILS' ? (i.open = false) : i.click());
+    target?.scrollIntoView({ block: 'center' });
+    update();
+  });
+  new MutationObserver(update).observe(document.body, {
+    subtree: true, childList: true, attributes: true, attributeFilter: ['open', 'aria-expanded'],
+  });
+  update();
+})();
+</script>
     <button aria-label="ページの先頭へ" class="back-to-top" hidden="" id="backToTop" type="button">↑ 先頭へ</button>
     <script>
 (() => {
