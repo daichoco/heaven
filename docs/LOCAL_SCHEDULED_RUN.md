@@ -361,7 +361,10 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 `--display-sources` は表示対象・順位・評価の対象ソース自体を制限します。
 省略時は3レポート全体です。予定収集オプションと併用時は表示対象の中から取得し、
 `--collect-sources` は表示対象に含まれるソースだけ指定できます。
-生成先はどちらも `docs\weekly_schedule.html` です。
+`--output weekly_schedule_tokai_ns.html` を付けると、`docs` 配下の別ファイルに出力します。
+分割アセットは `weekly_schedule_tokai_ns_assets/` に分かれるため、3レポート版を上書き・削除しません。
+東海・NS専門ページは `--display-sources 東海風俗 NS専門 --output weekly_schedule_tokai_ns.html` で作成します。
+`--output` を省略した場合の生成先は `docs\weekly_schedule.html` です。
 `--collect` はS対象者の予定を取得し、`--collect --include-a` はSの次にAも取得します。
 `--collect --collect-sources 東海風俗 NS専門` は、指定レポートに評価がある人（CityHeaven URLあり）を
 点数上位から `--collect-limit`（既定50）人だけ取得します。全体順位のティアには依存しません。

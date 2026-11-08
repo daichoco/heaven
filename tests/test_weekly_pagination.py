@@ -110,6 +110,31 @@ class WeeklyPaginationTests(unittest.TestCase):
             self.assertTrue(other.exists())
             self.assertTrue((folder / next(iter(current))).exists())
 
+    def test_custom_output_uses_its_own_asset_directory(self):
+        self.assertEqual(weekly.asset_directory(weekly.OUTPUT), weekly.ASSET_DIRECTORY)
+        custom = weekly.OUTPUT.with_name("weekly_schedule_tokai_ns.html")
+        self.assertEqual(weekly.asset_directory(custom), "weekly_schedule_tokai_ns_assets")
+        assets = {}
+        with patch.object(shop_prices, "load_cache", return_value={"shops": {}}):
+            markup = weekly.render_html(
+                self.people, self.dates, {}, {}, self.now, assets=assets, output=custom,
+            )
+        page = BeautifulSoup(markup, "html.parser")
+        self.assertIn("weekly_schedule_tokai_ns_assets/list-", markup)
+        self.assertNotIn(f"{weekly.ASSET_DIRECTORY}/", markup)
+        self.assertIn("weekly_schedule_tokai_ns.html", page.select_one("#fileNotice").get_text())
+        with TemporaryDirectory() as directory:
+            output = Path(directory) / custom.name
+            default_folder = Path(directory) / weekly.ASSET_DIRECTORY
+            default_folder.mkdir()
+            keep = default_folder / ("list-" + "c" * 24 + ".json")
+            keep.write_text("{}", encoding="utf-8")
+            folder_name = weekly.asset_directory(custom)
+            weekly.write_weekly_assets(assets, output, folder_name)
+            weekly.prune_weekly_assets(assets, output, folder_name)
+            self.assertTrue(keep.exists())
+            self.assertEqual(len(list((Path(directory) / folder_name).iterdir())), len(assets))
+
     def test_http_global_filters_paging_lazy_loading_retry_and_races(self):
         with sync_playwright() as playwright:
             for engine in ("chromium", "webkit"):

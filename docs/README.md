@@ -330,7 +330,10 @@ py -3 src\generate_weekly_schedule_report.py --offline --display-sources 東海�
 `--display-sources` と併用する場合はその範囲内で指定してください。
 `--collect-high-rated` は表示対象のうち東海・NSの高評価者を予定取得対象にします。
 `--collect-limit` は `--collect-sources` のみで有効です。
-いずれの指定も同じ `docs\weekly_schedule.html` を上書きします。
+`--output FILE` は `docs` 配下の出力HTML名（既定 `weekly_schedule.html`）です。分割アセットは
+`<名前>_assets` に出力し、他ページのアセットは削除しません。東海・NS専門だけのページは
+`--display-sources 東海風俗 NS専門 --output weekly_schedule_tokai_ns.html` で作成します。
+`--output` を省略した場合は `docs\weekly_schedule.html` を上書きします。
 
 通常生成は保存済み予定を保持し、不足画像だけを自動取得します。
 `--offline` は画像も取得せず保存データだけで生成します。
