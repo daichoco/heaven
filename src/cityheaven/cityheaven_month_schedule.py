@@ -187,21 +187,31 @@ async def scrape_cityheaven():
         return weekend_map
 
 
-REPORT_LINKS = [
-    ("weekly_schedule.html", "3レポート横断・7日間出勤カレンダー"),
-    ("weekly_schedule_tokai_ns.html", "東海風俗・NS専門・7日間出勤カレンダー"),
-    ("reservation_difficulty.html", "予約困難な人物"),
-    ("calendar_report.html", "カレンダー形式レポート"),
-    ("tokai_final_report.html", "最終レポート"),
-    ("okinilove_remove_unknown.html", "オキニラブレポート"),
-    ("ns_senmon_report.html", "NS専門レポート"),
-    ("kanto_final_report.html", "関東風俗レポート"),
+REPORT_GROUPS = [
+    ("出勤カレンダー", [
+        ("weekly_schedule.html", "3レポート横断・7日間出勤カレンダー"),
+        ("weekly_schedule_tokai_ns.html", "東海風俗・NS専門・7日間出勤カレンダー"),
+        ("calendar_report.html", "カレンダー形式レポート"),
+    ]),
+    ("サイト別レポート", [
+        ("tokai_final_report.html", "東海風俗レポート"),
+        ("kanto_final_report.html", "関東風俗レポート"),
+        ("ns_senmon_report.html", "NS専門レポート"),
+        ("okinilove_remove_unknown.html", "オキニラブレポート"),
+    ]),
+    ("分析", [
+        ("reservation_difficulty.html", "予約困難な人物"),
+    ]),
 ]
+REPORT_LINKS = [link for _, links in REPORT_GROUPS for link in links]
 
 
 def render_index_html(weekend_map):
     report_items = "".join(
-        f'<li><a href="{href}">{label}</a></li>' for href, label in REPORT_LINKS
+        f"<h3>{title}</h3><ul class=\"reports\">"
+        + "".join(f'<li><a href="{href}">{label}</a></li>' for href, label in links)
+        + "</ul>"
+        for title, links in REPORT_GROUPS
     )
     day_cards = ""
     for date, members in weekend_map.items():
@@ -238,7 +248,8 @@ h1 {{ text-align: center; margin: 0 0 24px; font-size: 1.5rem; }}
 .member img {{ width: 50px; height: 50px; object-fit: cover; border-radius: 4px; margin-right: 10px; }}
 .member-name {{ font-weight: bold; }}
 .status {{ font-size: 0.9em; color: var(--muted); }}
-.reports {{ margin: 0 0 24px; padding-left: 1.2em; }}
+.reports {{ margin: 0 0 12px; padding-left: 1.2em; }}
+.report-links h3 {{ margin: 12px 0 4px; font-size: 1rem; color: var(--muted); }}
 .reports a {{ display: inline-flex; align-items: center; min-height: 44px; }}
 @media (max-width: 600px) {{
     :root {{ --page-pad: 12px; }}
@@ -255,7 +266,7 @@ h1 {{ text-align: center; margin: 0 0 24px; font-size: 1.5rem; }}
 <h1>公開ページ</h1>
 <section class="report-links">
 <h2>📄 レポート一覧</h2>
-<ul class="reports">{report_items}</ul>
+{report_items}
 </section>
 
 <h1>土日出勤カレンダー</h1>
