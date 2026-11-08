@@ -270,8 +270,22 @@ class ProfileSignalTests(unittest.TestCase):
         self.assertIsNone(classify(self.BACH, self.BACH, 200, self.BACH_OK)[0])
         self.assertIsNone(classify(self.RGROUP, self.RGROUP, 200, "<title>橘　真央プロフィール</title>")[0])
         self.assertIsNone(
-            classify("http://example.com/girl/1", "https://sp.example.com/girl/1/", 200, "<html></html>")[0]
+            classify("http://example.com/girl/1", "https://sp.example.com/girl/1/", 200, "<html><script></script></html>")[0]
         )
+        generic = "http://example.com/profile.php?id=1"
+        for html in (
+            "<html><body></body></html>",
+            "<body>キャストの指定がされていません</body>",
+            "<body>(歳) Tcm B(?) W H 血液型：？ 星座：？</body>",
+            "<body>T.B().W.H. SCHEDULE</body>",
+        ):
+            self.assertEqual(classify(generic, generic, 200, html)[0], "unavailable", html)
+        for html in (
+            "<body><script>render()</script></body>",
+            "<body>るな T.158 B.88(E) W.56 H.86</body>",
+            "<body>" + "キャストの指定がされていません。" + "あ" * 700 + "</body>",
+        ):
+            self.assertIsNone(classify(generic, generic, 200, html)[0], html)
         self.assertEqual(
             classify("https://example.com/girl?id=1", "https://example.com/girl?id=2", 200, "")[0], "unavailable"
         )

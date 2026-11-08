@@ -36,6 +36,14 @@ def decode_html(content, declared_encoding=None):
     return content.decode("utf-8", errors="replace")
 CITYHEAVEN_PROFILE_RE = re.compile(r"/girlid-\d+/?$")
 SHABOOLE_EMPTY_TITLE_RE = re.compile(r"[｜|]\s*\[\s*\]\s*プロフィール")
+ZERO_WIDTH_RE = re.compile(r"[\u200b-\u200d\u2060\ufeff]")
+EMPTY_PAGE_MAX_TEXT = 600
+EMPTY_PHRASE_RE = re.compile(
+    r"キャストの指定がされていません|女の子のデータがないか|該当するキャストのデータはありませんでした"
+    r"|表示を一時停止中|サイトは作成中|作成中です|Website doesn't exist|domain name has expired",
+    re.I,
+)
+EMPTY_STATS_RE = re.compile(r"B\s*\(\s*\??\s*\)\s*\.?\s*W\s*\.?\s*H(?![\w(])")
 
 
 def _host(url):
@@ -75,6 +83,8 @@ def is_cityheaven_profile(url):
 def empty_profile_reason(url, html):
     """サイト別の空プロフィールテンプレートなら理由を返す。"""
     host = _host(url)
+    if is_cityheaven_profile(url):
+        return None
     if host.endswith("shaboole.com"):
         soup = BeautifulSoup(html or "", "html.parser")
         title = soup.title.get_text() if soup.title else ""
@@ -84,6 +94,25 @@ def empty_profile_reason(url, html):
         soup = BeautifulSoup(html or "", "html.parser")
         if soup.body is not None and not soup.select(".profilename, .element-girl-detail"):
             return "プロフィール欄の無い女の子詳細テンプレート"
+    return generic_empty_reason(html)
+
+
+def generic_empty_reason(html):
+    """サイトを問わない空ページ・閉鎖ページの判定。短い本文だけを対象にし、長いページの偶然の一致を避ける。"""
+    soup = BeautifulSoup(html or "", "html.parser")
+    for tag in soup(["script", "style", "noscript"]):
+        tag.decompose()
+    text = ZERO_WIDTH_RE.sub("", soup.get_text(" ", strip=True))
+    if len(text) > EMPTY_PAGE_MAX_TEXT:
+        return None
+    if not text:
+        if soup.find(["img", "iframe", "canvas", "object", "embed"]) or (html and "<script" in html.lower()):
+            return None
+        return "本文が空のページ"
+    if EMPTY_PHRASE_RE.search(text):
+        return "空・閉鎖を示す文言のページ"
+    if EMPTY_STATS_RE.search(text):
+        return "項目名だけで中身が空のプロフィールテンプレート"
     return None
 
 
