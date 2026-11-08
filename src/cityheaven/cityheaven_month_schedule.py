@@ -195,6 +195,7 @@ REPORT_LINKS = [
     ("tokai_final_report.html", "最終レポート"),
     ("okinilove_remove_unknown.html", "オキニラブレポート"),
     ("ns_senmon_report.html", "NS専門レポート"),
+    ("kanto_final_report.html", "関東風俗レポート"),
 ]
 
 
