@@ -99,6 +99,11 @@ def empty_profile_reason(url, html):
             tag.decompose()
         if TCLASSY_EMPTY_RE.search(soup.get_text(" ", strip=True)):
             return "名前と年齢が空のプロフィールテンプレート"
+    if host.endswith("kirajo-cecil.com") and "/cast/" in urlsplit(url).path:
+        soup = BeautifulSoup(html or "", "html.parser")
+        title = soup.title.get_text(" ", strip=True) if soup.title else ""
+        if title.startswith("女の子一覧"):
+            return "個別ページではなく女の子一覧が表示される"
     if host.endswith("stylish-bach.com") and "girldetail" in urlsplit(url).path:
         soup = BeautifulSoup(html or "", "html.parser")
         if soup.body is not None and not soup.select(".profilename, .element-girl-detail"):
@@ -118,6 +123,8 @@ def generic_empty_reason(html):
         if soup.find(["img", "iframe", "canvas", "object", "embed"]) or (html and "<script" in html.lower()):
             return None
         return "本文が空のページ"
+    if soup.body is not None and soup.title and not ZERO_WIDTH_RE.sub("", soup.body.get_text(" ", strip=True)):
+        return "タイトルだけで本文が空のページ"
     if EMPTY_PHRASE_RE.search(text):
         return "空・閉鎖を示す文言のページ"
     if EMPTY_STATS_RE.search(text):

@@ -289,6 +289,15 @@ class ProfileSignalTests(unittest.TestCase):
         self.assertEqual(
             classify("https://example.com/girl?id=1", "https://example.com/girl?id=2", 200, "")[0], "unavailable"
         )
+        title_only = "<html><head><title>サイト名</title></head><body></body></html>"
+        kirajo = "http://kirajo-cecil.com/cast/a00BL000001hbniYAA.html"
+        self.assertEqual(
+            classify(kirajo, kirajo, 200, "<html><head><title>女の子一覧 - 輝女</title></head><body>" + "あ" * 700 + "</body></html>")[0],
+            "unavailable",
+        )
+        self.assertEqual(
+            classify("https://example.com/p?id=1", "https://example.com/p?id=1", 200, title_only)[0], "unavailable"
+        )
         classy = "https://www.t-classy.com/profile/01180/"
         self.assertEqual(
             classify(classy, classy, 200, "<body>在籍コンパニオン 才 プロフィール ツイート 才 T B カップ W H</body>")[0],

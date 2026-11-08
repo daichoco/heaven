@@ -124,7 +124,7 @@ class TokaiSortingTests(unittest.TestCase):
                 "date": "2025-12-20", "shop_name": "shop", "type": "type",
                 "name": "name", "total_point": 0, "play_score": 80,
                 "face_score": 90, "style_score": 70,
-            }]))
+            }]), group_options=["g"])
         cls.pages = {
             "generated": BeautifulSoup(generated, "html.parser"),
             "published": BeautifulSoup(
