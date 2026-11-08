@@ -94,9 +94,95 @@ async function handlePull(request, env) {
   return Response.json({ password });
 }
 
+const FORM_HTML = `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>パスワード更新</title>
+<style>
+body{font-family:sans-serif;margin:0;padding:24px;background:#f5f5f5}
+h1{font-size:18px}input,button{width:100%;box-sizing:border-box;font-size:16px;padding:12px;margin-top:12px}
+button{background:#06c755;color:#fff;border:0;border-radius:6px}#msg{margin-top:16px;white-space:pre-wrap}
+</style></head><body>
+<h1>関東・東海レポートのパスワード更新</h1>
+<form id="f"><input id="pw" type="password" autocomplete="off" placeholder="新しいパスワード" required maxlength="200">
+<button id="b" type="submit">送信</button></form><div id="msg"></div>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const msg = document.getElementById("msg");
+const ready = liff.init({ liffId: "__LIFF_ID__" }).then(() => {
+  if (!liff.isLoggedIn()) liff.login();
+});
+document.getElementById("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const button = document.getElementById("b");
+  button.disabled = true;
+  try {
+    await ready;
+    const res = await fetch("/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + liff.getAccessToken() },
+      body: JSON.stringify({ password: document.getElementById("pw").value }),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    msg.textContent = "受け取りました。次回の定時実行で反映します。";
+    document.getElementById("pw").value = "";
+    setTimeout(() => liff.closeWindow(), 1500);
+  } catch (err) {
+    msg.textContent = "失敗しました: " + err.message;
+    button.disabled = false;
+  }
+});
+</script></body></html>`;
+
+function handleForm(env) {
+  return new Response(FORM_HTML.replace("__LIFF_ID__", env.LIFF_ID), {
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+      "X-Frame-Options": "DENY",
+    },
+  });
+}
+
+async function handleSubmit(request, env) {
+  const accessToken = (request.headers.get("authorization") ?? "").replace(/^Bearer /, "");
+  if (!accessToken) return new Response("unauthorized", { status: 401 });
+
+  const verify = await fetch(
+    `https://api.line.me/oauth2/v2.1/verify?access_token=${encodeURIComponent(accessToken)}`,
+  );
+  if (!verify.ok) return new Response("unauthorized", { status: 401 });
+  const info = await verify.json();
+  if (String(info.client_id) !== env.LIFF_CHANNEL_ID || info.expires_in <= 0) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
+  const profile = await fetch("https://api.line.me/v2/profile", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!profile.ok) return new Response("unauthorized", { status: 401 });
+  if ((await profile.json()).userId !== env.ALLOWED_USER_ID) {
+    return new Response("forbidden", { status: 403 });
+  }
+
+  let password;
+  try {
+    ({ password } = await request.json());
+  } catch {
+    return new Response("bad request", { status: 400 });
+  }
+  if (typeof password !== "string" || !/^\S{1,200}$/.test(password)) {
+    return new Response("パスワードは空白なしの1〜200文字にしてください", { status: 400 });
+  }
+  await env.PASSWORDS.put(KEY, password, { expirationTtl: TTL_SECONDS });
+  return new Response("ok");
+}
+
 export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
+    if (request.method === "GET" && pathname === "/form") return handleForm(env);
+    if (request.method === "POST" && pathname === "/submit") return handleSubmit(request, env);
     if (request.method === "POST" && pathname === "/webhook") return handleWebhook(request, env);
     if (request.method === "POST" && pathname === "/pull") return handlePull(request, env);
     return new Response("not found", { status: 404 });

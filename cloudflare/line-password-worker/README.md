@@ -29,6 +29,30 @@ npx wrangler deploy
 [Environment]::SetEnvironmentVariable('PASSWORD_WORKER_TOKEN','(PULL_TOKENと同じ値)','User')
 ```
 
+## メニューのボタンから入力する(LIFF フォーム)
+
+トーク下部のリッチメニュー「パスワード更新」を押すと、LINE内で入力フォーム(`/form`)が開きます。
+パスワードはトーク履歴に残りません。LINEのアクセストークンを検証し、自分のユーザーID以外は拒否します。
+
+1. LINE Developers で、同じプロバイダーに「LINEログイン」チャネルを作り、LIFFアプリを追加します。
+   - エンドポイントURL: `https://...workers.dev/form`
+   - スコープ: `profile`
+   - 表示されるLIFF ID(`1234567890-xxxxxxxx`)と、LINEログインチャネルのチャネルID(数字)を控えます。
+2. Worker に設定してデプロイします。
+
+```powershell
+cd cloudflare\line-password-worker
+npx wrangler secret put LIFF_ID           # LIFF ID
+npx wrangler secret put LIFF_CHANNEL_ID   # LINEログインチャネルのチャネルID
+npx wrangler deploy
+```
+
+3. リッチメニューを作成します(画像は自動生成)。
+
+```powershell
+.\create-rich-menu.ps1 -LiffId <LIFF ID>
+```
+
 ## 注意
 
 - パスワードは LINE のトーク履歴に残ります。反映後に削除してください。
