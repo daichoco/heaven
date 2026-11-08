@@ -1,0 +1,8 @@
+name = "heaven-line-password"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+# `wrangler kv namespace create PASSWORDS` で作成したIDを入れる
+[[kv_namespaces]]
+binding = "PASSWORDS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
