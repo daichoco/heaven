@@ -17,6 +17,7 @@ from cityheaven.profile_urls import canonical_profile_url, same_profile
 from data_store import read_jsonl_records
 from generate_booking_difficulty_report import (
     DATASETS,
+    DATE_FIELDS,
     candidate_person_key,
     filter_old_records,
     filter_unavailable_records,
@@ -191,7 +192,7 @@ def rank_people(datasets):
                     ]
                 person["reports"].append({
                     "identity": article_key, "source": source, "database": label,
-                    "date": str(record.get("date") or "保存日付なし"),
+                    "date": str(record.get(DATE_FIELDS.get(dataset, "date")) or record.get("date") or "保存日付なし"),
                     "score": rating_value(dataset, record), "fields": fields,
                     **({"tags": okini_tags(record)} if dataset == "okinilove" else {}),
                     **({"record": record} if dataset == "tokai_fuzoku" else {}),
