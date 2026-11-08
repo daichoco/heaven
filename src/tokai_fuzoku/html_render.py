@@ -283,7 +283,7 @@ def report_template(title=None, *, include_age_filter=False, group_options=None)
     group_markup = (
         '<select id="groupFilter" aria-label="価格帯・エリア">'
         f'<option value="">価格帯・エリアすべて</option>{option_tags(group_options)}'
-        '<option value="__none__">未分類</option></select>'
+        '<option value="__none__">閉店・移籍など(未分類)</option></select>'
         if include_group else ""
     )
     group_state = """
