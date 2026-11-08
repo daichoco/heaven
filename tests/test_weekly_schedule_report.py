@@ -443,17 +443,30 @@ class RankingTests(unittest.TestCase):
 
 class OkiniYoungTests(unittest.TestCase):
     def test_filters_by_age_and_mean(self):
-        def person(key, ages, mean, score):
-            return {"key": key, "reported_ages": ages, "score": score, "tier": "対象外",
-                    "provisional": True, "ratings": {"オキニラブ": {"mean": mean}}}
+        def person(key, ages, mean, reports=()):
+            return {"key": key, "reported_ages": ages, "score": 0, "tier": "対象外",
+                    "provisional": True, "ratings": {"オキニラブ": {"mean": mean}},
+                    "reports": [{"score": s, "date": d} for s, d in reports]}
+        fresh = [(5, "2026-10-01")]
         people = [
-            person("a", [25], 5.0, 90), person("b", [29, 31], 4.0, 80),
-            person("c", [30], 5.0, 70), person("d", [], 5.0, 60), person("e", [22], 3.9, 50),
+            person("a", [25], 5.0, fresh), person("b", [29, 31], 4.0, [(4, "2026-10-01")]),
+            person("c", [30], 5.0, fresh), person("d", [], 5.0, fresh), person("e", [22], 3.9, fresh),
         ]
         chosen = weekly.okini_young_people(people)
         self.assertEqual([p["key"] for p in chosen], ["a", "b"])
         self.assertEqual([p["rank"] for p in chosen], [1, 2])
         self.assertTrue(all(p["tier"] == "対象" and not p["provisional"] for p in chosen))
+
+    def test_ranking_penalizes_low_and_old_and_small_samples(self):
+        def person(key, stars_dates):
+            return {"key": key, "reported_ages": [25], "score": 0, "tier": "", "provisional": True,
+                    "ratings": {"オキニラブ": {"mean": 5.0}},
+                    "reports": [{"score": s, "date": d} for s, d in stars_dates]}
+        steady = person("steady", [(5, "2026-09-01")] * 10)
+        flawed = person("flawed", [(5, "2026-09-01")] * 9 + [(2, "2026-09-01")])
+        single = person("single", [(5, "2026-09-01")])
+        chosen = weekly.okini_young_people([single, flawed, steady])
+        self.assertEqual([p["key"] for p in chosen], ["steady", "single", "flawed"])
 
 
 class WeeklyCalendarTests(unittest.TestCase):

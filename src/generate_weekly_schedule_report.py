@@ -254,6 +254,9 @@ OKINI_LABEL = "オキニラブ"
 OKINI_MAX_AGE = 30
 OKINI_MIN_MEAN = 4.0
 OKINI_TIER = "対象"
+OKINI_PRIOR_REPORTS = 5
+OKINI_HALF_LIFE_YEARS = 2
+OKINI_LOW_PENALTY = 0.5
 
 
 def okini_young_people(people):
@@ -263,16 +266,48 @@ def okini_young_people(people):
         if person["reported_ages"] and min(person["reported_ages"]) < OKINI_MAX_AGE
         and person["ratings"][OKINI_LABEL]["mean"] >= OKINI_MIN_MEAN
     ]
+    prior = okini_prior_mean(chosen)
+    values = sorted(
+        ((okini_adjusted_value(person, prior=prior), person) for person in chosen),
+        key=lambda item: (-item[0], item[1]["key"]),
+    )
     rank = 0
     previous = None
-    for index, person in enumerate(chosen, start=1):
-        if person["score"] != previous:
+    for index, (value, person) in enumerate(values, start=1):
+        if value != previous:
             rank = index
-        previous = person["score"]
+        previous = value
         person["rank"] = rank
+        person["score"] = 100 * (len(values) - rank) / (len(values) - 1) if len(values) > 1 else 50
         person["tier"] = OKINI_TIER
         person["provisional"] = False
-    return chosen
+    return [person for _, person in values]
+
+
+def okini_prior_mean(people):
+    stars = [report["score"] for person in people for report in person["reports"] if report["score"] is not None]
+    return sum(stars) / len(stars) if stars else 0
+
+
+def okini_adjusted_value(person, today=None, prior=0):
+    """直近を重く、少数件を全体平均へ寄せ、★2以下の割合を減点した値。"""
+    today = today or datetime.now().date()
+    numerator = denominator = 0
+    low = rated = 0
+    for report in person["reports"]:
+        if report["score"] is None:
+            continue
+        try:
+            age_years = (today - datetime.strptime(str(report["date"])[:10], "%Y-%m-%d").date()).days / 365
+        except ValueError:
+            age_years = 3
+        weight = 0.5 ** (max(age_years, 0) / OKINI_HALF_LIFE_YEARS)
+        numerator += weight * report["score"]
+        denominator += weight
+        rated += 1
+        low += report["score"] <= 2
+    star = (numerator + OKINI_PRIOR_REPORTS * prior) / (denominator + OKINI_PRIOR_REPORTS)
+    return star - OKINI_LOW_PENALTY * low / (rated + 1)
 
 
 def daily_states(dates, state, text=""):
@@ -763,7 +798,8 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
         f'<p>集計対象はオキニラブの保存レポートのみ。保存レポート年齢が{OKINI_MAX_AGE}歳未満'
         f'（複数年齢がある場合は最小値）で、元評価の平均が★{OKINI_MIN_MEAN:.1f}以上の人を'
         '「対象」とします。口コミ件数は問わず1件でも対象です。年齢不明は除外します。'
-        '順位・スコアは対象外を含むオキニラブ全体の相対スコアです。</p>'
+        f'順位・スコアは対象者内の相対値で、元評価を{OKINI_PRIOR_REPORTS}件分の全体平均で補正し、'
+        f'古いレポートほど軽く（半減期{OKINI_HALF_LIFE_YEARS}年）、★2以下の割合を減点して算出します。</p>'
     )
     return f"""<!DOCTYPE html>
 <html lang="ja">
