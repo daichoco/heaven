@@ -494,15 +494,20 @@ def json_script(value):
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
 
 
-def add_asset(assets, kind, value):
+def asset_directory(output):
+    # 出力ファイルごとに分割アセットを分け、別ページのアセットを削除しないようにする
+    return ASSET_DIRECTORY if output == OUTPUT else f"{output.stem}_assets"
+
+
+def add_asset(assets, kind, value, directory=ASSET_DIRECTORY):
     content = json_script(value)
     name = f"{kind}-{hashlib.sha256(content.encode('utf-8')).hexdigest()[:24]}.json"
     assets[name] = content
-    return f"{ASSET_DIRECTORY}/{name}"
+    return f"{directory}/{name}"
 
 
-def write_weekly_assets(assets, output):
-    directory = output.parent / ASSET_DIRECTORY
+def write_weekly_assets(assets, output, directory_name=ASSET_DIRECTORY):
+    directory = output.parent / directory_name
     directory.mkdir(parents=True, exist_ok=True)
     for name, content in assets.items():
         path = directory / name
@@ -512,15 +517,15 @@ def write_weekly_assets(assets, output):
             temporary.replace(path)
 
 
-def prune_weekly_assets(assets, output):
-    directory = output.parent / ASSET_DIRECTORY
+def prune_weekly_assets(assets, output, directory_name=ASSET_DIRECTORY):
+    directory = output.parent / directory_name
     for path in directory.iterdir():
         if re.fullmatch(r"(?:list|review)-[0-9a-f]{24}\.json", path.name) and path.name not in assets:
             path.unlink()
 
 
 def render_html(people, dates, schedules, removed, now=None, images=None, assets=None,
-                display_sources=None):
+                display_sources=None, output=OUTPUT):
     now = now or datetime.now(JST)
     images = images or {}
     assets = assets if assets is not None else {}
@@ -612,7 +617,10 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
                 f'data-source="{source_index}" aria-expanded="false">レビュー（{escape(label)} {count}件）</button>'
             )
             bodies[str(source_index)] = render_reports(person, label)
-        body_url = add_asset(assets, "review", {"id": person_id, "sources": bodies}) if bodies else ""
+        body_url = (
+            add_asset(assets, "review", {"id": person_id, "sources": bodies}, asset_directory(output))
+            if bodies else ""
+        )
         rows.append(
             f'<tr class="person-row" data-person-id="{person_id}" data-body-url="{body_url}" '
             f'data-working="{",".join(working_days)}" '
@@ -646,7 +654,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
     for start in range(0, len(rows), PAGE_SIZE):
         url = add_asset(assets, "list", {
             "rows": {listing_index[i]["id"]: rows[i] for i in range(start, min(start + PAGE_SIZE, len(rows)))},
-        })
+        }, asset_directory(output))
         for item in listing_index[start:start + PAGE_SIZE]:
             item["url"] = url
     initial = [rows[i] for i, item in enumerate(listing_index) if item["working"]][:PAGE_SIZE]
@@ -729,7 +737,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
 <p id="fileNotice" hidden role="status">ファイル直開きでは別ファイルの取得が制限されます。
 初期の一覧のみ閲覧できます。レビュー・ページ移動はGitHub Pages、またはリポジトリで
 <code>py -3 -m http.server 8000 --directory docs</code> を実行し
-<code>http://localhost:8000/weekly_schedule.html</code> で閲覧してください。</p>
+<code>http://localhost:8000/{output.name}</code> で閲覧してください。</p>
 <noscript><p>JavaScriptが無効です。予定ありの先頭50人のみ表示します。全員の検索・ページ移動・本文にはJavaScriptとHTTP配信が必要です。</p></noscript>
 <nav class="weekly-pagination" aria-label="人物一覧のページ">
 <button id="weeklyPrevious" type="button" disabled>前の50人</button>
@@ -768,6 +776,10 @@ def main(argv=None):
         "--collect-high-rated", action="store_true",
         help="--collect の対象を、東海・NS専門で高評価（report_change_summaryの基準）の人全員に限定",
     )
+    parser.add_argument(
+        "--output", metavar="FILE", default=OUTPUT.name,
+        help="docs配下の出力HTML名（既定 weekly_schedule.html）。分割アセットは <名前>_assets に出力",
+    )
     parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
     if args.offline and (args.collect or args.collect_images):
@@ -792,6 +804,9 @@ def main(argv=None):
             parser.error("--collect-sources は --display-sources の範囲内で指定してください")
     if args.window_start and not args.offline:
         parser.error("--window-start は --offline と併用してください")
+    if not re.fullmatch(r"[A-Za-z0-9_\-]+\.html", args.output):
+        parser.error("--output は英数字・_・-のHTMLファイル名で指定してください")
+    output = OUTPUT.with_name(args.output)
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking(args.display_sources)
@@ -848,12 +863,12 @@ def main(argv=None):
         failures += counts["error"] + counts["not_found"] + counts["pending"]
     assets = {}
     markup = render_html(people, dates, schedules, removed, now, images, assets,
-                         args.display_sources)
-    write_weekly_assets(assets, OUTPUT)
-    write_html(OUTPUT, markup)
-    # Remove only this generator's obsolete content-addressed artifacts after publishing HTML.
-    prune_weekly_assets(assets, OUTPUT)
-    print(f"出力: {OUTPUT} / {len(people)}人 / 取得エラー {failures}件")
+                         args.display_sources, output)
+    write_weekly_assets(assets, output, asset_directory(output))
+    write_html(output, markup)
+    # Remove only this output's obsolete content-addressed artifacts after publishing HTML.
+    prune_weekly_assets(assets, output, asset_directory(output))
+    print(f"出力: {output} / {len(people)}人 / 取得エラー {failures}件")
     return 1 if failures else 0
 
 
