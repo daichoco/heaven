@@ -13,7 +13,7 @@ from html_format import write_html
 from shop_prices import refresh_saved_prices
 from tokai_fuzoku import generate_report_final as shared
 from tokai_fuzoku.html_render import generate_html, report_template
-from kanto_fuzoku.collect_fuzoku_kanto import login, validate_article
+from kanto_fuzoku.collect_fuzoku_kanto import GROUP_NAMES, login, validate_article
 from kanto_fuzoku.report_store import REPORTS_JSONL, parse_report_details
 
 INPUT_JSONL = REPORTS_JSONL
@@ -28,7 +28,7 @@ def main(argv=None):
     if args.refresh_prices:
         write_html(OUTPUT_HTML, refresh_saved_prices(
             OUTPUT_HTML.read_text(encoding="utf-8"),
-            report_template(TITLE, include_age_filter=True), "function applySort()",
+            report_template(TITLE, include_age_filter=True, group_options=[]), "function applySort()",
         ))
         print(f"関東の保存HTMLの料金を更新しました: {OUTPUT_HTML}")
         return
@@ -48,7 +48,11 @@ def main(argv=None):
                 frame, session, parse_details=parse_report_details, validate_article=validate_article,
             )
     OUTPUT_HTML.parent.mkdir(parents=True, exist_ok=True)
-    write_html(OUTPUT_HTML, generate_html(frame, title=TITLE, include_age_filter=True))
+    present = set(frame["shop_group"].dropna().astype(str)) if "shop_group" in frame else set()
+    group_options = [name for name in GROUP_NAMES if name in present]
+    write_html(OUTPUT_HTML, generate_html(
+        frame, title=TITLE, include_age_filter=True, group_options=group_options,
+    ))
     print(f"生成しました: {OUTPUT_HTML}")
 
 

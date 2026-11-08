@@ -241,6 +241,82 @@ def preflight(session, max_pages=shared.MAX_LISTING_PAGES, *, sleep=time.sleep):
     }
 
 
+GROUP_CATEGORIES = [
+    ("yoshiwara-soap", "吉原ソープ格安店"),
+    ("yoshihara-mediumclass", "吉原ソープ大衆店"),
+    ("yw-chukyu", "吉原ソープ中級店"),
+    ("yoshihara-highclass", "吉原ソープ高級店"),
+    ("shinjuku-soap", "新宿ソープ"),
+    ("ikebukuro-soap", "池袋ソープ"),
+    ("gotanda-saop", "五反田ソープ"),
+    ("horinouti-soap", "川崎ソープ"),
+    ("yokohama-soap", "横浜ソープ"),
+    ("chiba-soap", "千葉ソープ"),
+    ("omiya-soap", "大宮ソープ"),
+    ("nishikawagutisaop", "西川口ソープ"),
+    ("warabi-soap", "蕨ソープ"),
+    ("mito-soap", "水戸ソープ"),
+    ("tutiura-soap", "土浦ソープ"),
+    ("yamanashi-soap", "山梨ソープ"),
+    ("deli-heal", "デリヘル"),
+    ("hotel-health", "ホテヘル"),
+    ("newhalf-d", "ニューハーフデリヘル"),
+    ("health", "ヘルス（箱ヘル）"),
+    ("seikan", "性感・風俗エステ"),
+    ("mens-esthe", "メンズエステ"),
+    ("imecl", "イメクラ"),
+    ("onaclu", "オナクラ"),
+    ("sm-club", "SMクラブ"),
+]
+GROUP_NAMES = [name for _, name in GROUP_CATEGORIES]
+
+
+def fetch_category_urls(session, slug, page_number):
+    """カテゴリ一覧ページの記事URL。ページが存在しなければ None。"""
+    path = f"category/{slug}/" if page_number == 1 else f"category/{slug}/page/{page_number}/"
+    response = session.get(BASE_URL + path, headers=HEADERS, timeout=30)
+    if response.status_code == 404:
+        return None
+    response.raise_for_status()
+    if shared.is_login_page(response.text):
+        raise LoginRequiredError("関東カテゴリ一覧のログイン画面が返されました")
+    soup = BeautifulSoup(response.text, "lxml")
+    if not soup.select("article.entry-card"):
+        return None
+    return extract_article_urls(soup)
+
+
+def run_fill_groups(session, store, *, full=False, sleep=0.5):
+    """カテゴリ一覧を辿り、記事に価格帯・エリア(shop_group)を付与する。
+
+    既存値は上書きしない。通常は、ページ内の保存済み記事がすべて付与済みになった時点で
+    そのカテゴリの走査を終える（新着は一覧の先頭に並ぶため）。full=True で全ページ走査。
+    """
+    assigned = 0
+    for slug, group in GROUP_CATEGORIES:
+        page = 1
+        while True:
+            urls = fetch_category_urls(session, slug, page)
+            if urls is None:
+                break
+            known = [store.get(u) for u in urls if u in store]
+            pending = 0
+            for record in known:
+                if not record.get("shop_group"):
+                    record["shop_group"] = group
+                    store.dirty = True
+                    assigned += 1
+                    pending += 1
+            if not full and known and not pending:
+                break
+            page += 1
+            time.sleep(sleep)
+        print(f"{group}: 走査 {page}ページ")
+    ungrouped = sum(1 for r in store.records if not r.get("shop_group"))
+    print(f"価格帯・エリアを付与: {assigned}件 / 未分類: {ungrouped}件")
+    return assigned
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser(description="関東風俗レポートを記事単位で収集する")
     mode = parser.add_mutually_exclusive_group()
@@ -248,10 +324,12 @@ def parse_args(argv):
         ("backfill", "過去の記事を Hello world! の直前またはページ上限まで補完する"),
         ("fill-details", "詳細未保存の既存記事を補完する（欠損列のみ）"),
         ("recheck-profiles", "人物単位で掲載状態を再確認する（認証不要）"),
+        ("fill-groups", "カテゴリ一覧から記事の価格帯・エリア(shop_group)を付与する"),
         ("preflight", "本番データを書かず全一覧の到達・件数・収集境界を確認する"),
     ):
         mode.add_argument(f"--{flag}", action="store_true", help=help_text)
     parser.add_argument("--resume", action="store_true", help="--backfill の中断ページから再開する")
+    parser.add_argument("--all-pages", action="store_true", help="--fill-groups で全ページを走査する（初回用）")
     parser.add_argument(
         "--status", action="append", choices=shared.RECHECK_STATUSES,
         help="--recheck-profiles の対象状態（複数指定可、既定: unavailable）",
@@ -302,6 +380,10 @@ def main(argv=None):
             print("事前確認のみ完了。実データ収集は開始していません。")
             return
         store = ReportStore(OUTPUT_JSONL)
+        if args.fill_groups:
+            run_fill_groups(session, store, full=args.all_pages)
+            store.save()
+            return
         if store.dropped_duplicates:
             print(f"記事URLの重複行を {store.dropped_duplicates}件除きます（先頭行を保持）")
         state = shared.CollectState(STATE_JSON)

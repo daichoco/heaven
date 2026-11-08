@@ -179,11 +179,13 @@ def render_report_entry(row, i, shop_price_class=""):
     )
     overview_html = f'<span class="score-overview">{score_overview}</span>' if score_overview else ""
     search_text = f"{shop} {typ} {name}".casefold()
+    group = _text(row, "shop_group")
+    group_attr = f'data-group="{escape(group, quote=True)}" ' if group else ""
 
     html = (
         f'<details class="article-entry" data-shop="{escape(shop, quote=True)}" '
         f'data-type="{escape(typ, quote=True)}" data-shop-type="{escape(shop_price_class, quote=True)}" '
-        f'data-repeat="{repeat_status}" '
+        f'data-repeat="{repeat_status}" {group_attr}'
         f'{sort_attrs} data-search="{escape(search_text, quote=True)}">'
         f'<summary class="report-heading">{summary}{overview_html}</summary>'
         f'<div class="report-details">'
@@ -276,7 +278,19 @@ def option_tags(values):
     )
 
 
-def report_template(title=None, *, include_age_filter=False):
+def report_template(title=None, *, include_age_filter=False, group_options=None):
+    include_group = group_options is not None
+    group_markup = (
+        '<select id="groupFilter" aria-label="価格帯・エリア">'
+        f'<option value="">価格帯・エリアすべて</option>{option_tags(group_options)}</select>'
+        if include_group else ""
+    )
+    group_state = """
+        const groupEl = document.getElementById("groupFilter");
+        const group = groupEl ? groupEl.value : "";"""
+    group_reset = """
+        const groupReset = document.getElementById("groupFilter");
+        if (groupReset) groupReset.value = "";"""
     age_filter_markup = """<label for="ageLimitFilter">年齢上限</label>
         <select id="ageLimitFilter" aria-label="年齢上限">
             <option value="">上限なし</option>
@@ -306,6 +320,10 @@ def report_template(title=None, *, include_age_filter=False):
         "AGE_FILTER_ARTICLE": "ageMatches && " if include_age_filter else "",
         "AGE_FILTER_RESET": age_filter_reset if include_age_filter else "",
         "AGE_FILTER_MARKUP": f"\n        {age_filter_markup}" if include_age_filter else "",
+        "GROUP_FILTER_STATE": group_state if include_group else "",
+        "GROUP_FILTER_ARTICLE": "\n                    && (!group || article.dataset.group === group)" if include_group else "",
+        "GROUP_FILTER_RESET": group_reset if include_group else "",
+        "GROUP_FILTER_MARKUP": f"\n        {group_markup}" if include_group else "",
     }
     template = PAGE_TEMPLATE
     for placeholder, replacement in replacements.items():
@@ -318,16 +336,18 @@ def report_template(title=None, *, include_age_filter=False):
     ).replace("<h1>東海風俗レポート</h1>", f"<h1>{title}</h1>")
 
 
-def render_page(shop_options, type_options, entries_html, *, title=None, include_age_filter=False):
+def render_page(shop_options, type_options, entries_html, *, title=None, include_age_filter=False, group_options=None):
     """option タグとレポート要素(HTML)からページ全体を組み立てる。"""
     return (
-        report_template(title, include_age_filter=include_age_filter).replace("SHOP_OPTIONS", shop_options)
+        report_template(
+            title, include_age_filter=include_age_filter, group_options=group_options,
+        ).replace("SHOP_OPTIONS", shop_options)
         .replace("TYPE_OPTIONS", type_options)
         .replace("ENTRIES", entries_html)
     )
 
 
-def generate_html(df, *, title=None, include_age_filter=False):
+def generate_html(df, *, title=None, include_age_filter=False, group_options=None):
     shops = sorted(df["shop_name"].dropna().astype(str).unique()) if "shop_name" in df else []
     types = sorted(df["type"].dropna().astype(str).unique()) if "type" in df else []
     cache = load_cache()
@@ -341,7 +361,7 @@ def generate_html(df, *, title=None, include_age_filter=False):
     )
     return attach_prices(render_page(
         option_tags(shops), option_tags(types), entries, title=title,
-        include_age_filter=include_age_filter,
+        include_age_filter=include_age_filter, group_options=group_options,
     ))
 
 
@@ -411,7 +431,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         const type = document.getElementById("typeFilter").value;
         const shopType = document.getElementById("shopTypeFilter").value;
         const repeat = document.getElementById("repeatFilter").value;
-        const minScore = Number(document.getElementById("scoreFilter").value);AGE_FILTER_STATE
+        const minScore = Number(document.getElementById("scoreFilter").value);AGE_FILTER_STATEGROUP_FILTER_STATE
         let visiblePeople = 0;
         let visibleArticles = 0;
 
@@ -424,7 +444,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
                     && (typeof shopPriceMatches !== "function" || shopPriceMatches(entry))
                     && (!shop || article.dataset.shop === shop)
                     && (!type || article.dataset.type === type)
-                    && (!shopType || article.dataset.shopType === shopType)
+                    && (!shopType || article.dataset.shopType === shopType)GROUP_FILTER_ARTICLE
                     && (!repeat || article.dataset.repeat === repeat)
                     && (!minScore || (total !== null && total >= minScore));
                 article.hidden = !matches;
@@ -450,7 +470,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         document.getElementById("typeFilter").value = "";
         document.getElementById("shopTypeFilter").value = "";
         document.getElementById("repeatFilter").value = "";
-        document.getElementById("scoreFilter").value = "0";AGE_FILTER_RESET
+        document.getElementById("scoreFilter").value = "0";AGE_FILTER_RESETGROUP_FILTER_RESET
         if (window.resetShopPrices) resetShopPrices();
         if (window.resetShopSearches) resetShopSearches();
         applyFilters();
@@ -506,7 +526,7 @@ PAGE_TEMPLATE = """<!DOCTYPE html>
         <select id="typeFilter" aria-label="種別"><option value="">全種別</option>TYPE_OPTIONS</select>
         <select id="shopTypeFilter" aria-label="店舗種別"><option value="">店舗種別すべて</option><option value="luxury">高級</option><option value="other">高級以外</option></select>
         <select id="repeatFilter" aria-label="リピート状態"><option value="">全リピート状態</option><option value="return">返す</option><option value="not-return">返さない</option><option value="other">その他の記載</option><option value="unknown">未記載</option></select>
-        <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>AGE_FILTER_MARKUP
+        <select id="scoreFilter" aria-label="総合点"><option value="0">総合点すべて</option><option value="50">50点以上</option><option value="60">60点以上</option><option value="70">70点以上</option><option value="80">80点以上</option><option value="90">90点以上</option><option value="100">100点</option></select>GROUP_FILTER_MARKUPAGE_FILTER_MARKUP
         <button type="button" onclick="resetFilters()">条件をリセット</button>
     </div>
     <div class="sort-control">
