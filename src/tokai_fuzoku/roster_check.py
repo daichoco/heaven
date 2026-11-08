@@ -20,6 +20,13 @@ ROSTER_URLS = {
     "lions-net.com": ["https://www.lions-net.com/companion.php"],
     "oh-oku.com": ["https://www.oh-oku.com/companion.php"],
     "y-ichiriki.com": ["https://www.y-ichiriki.com/companion.php"],
+    "pretty-girl.net": ["https://www.pretty-girl.net/companion.php"],
+    "talent-club.com": ["https://www.talent-club.com/pc/companion.php"],
+    "parfait.y-lupinus.com": ["https://parfait.y-lupinus.com/companion.php"],
+    "yoshiwara-soap.jp": ["https://yoshiwara-soap.jp/cast/"],
+    "n-fortune.jp": ["https://n-fortune.jp/cast/"],
+    "mutekikawasaki.jp": ["https://mutekikawasaki.jp/cast.html"],
+    "t-classy.com": ["https://www.t-classy.com/profile/"],
 }
 MIN_PROFILE_LINKS = 20
 PAGER_RE = re.compile(r"[?&]page=\d|/page/\d|次のページ|次へ|NEXT\s*>|>>", re.I)
@@ -33,6 +40,17 @@ def _base_host(url):
 def _profile_key(url):
     parts = urlsplit(url)
     return parts.path, parts.query
+
+
+def _shape(path):
+    """個人ごとにパスが変わる形式（/cast/a012.html、/profile/01180/）を同じ形にそろえる。"""
+    segments = [s for s in path.split("/") if s]
+    if not segments:
+        return path
+    stem, dot, ext = segments[-1].partition(".")
+    if re.search(r"\d", stem):
+        return "/" + "/".join(segments[:-1] + ["*" + dot + ext])
+    return path
 
 
 class RosterChecker:
@@ -65,6 +83,7 @@ class RosterChecker:
         if not urls:
             return None, None
         path, query = _profile_key(profile_url)
+        shape = _shape(path)
         profile_links = 0
         pager = False
         for roster_url in urls:
@@ -75,7 +94,7 @@ class RosterChecker:
                 return "published", f"キャスト一覧にプロフィールリンクあり: {roster_url}"
             if name and self.name_matcher(data["text"], str(name)):
                 return "published", f"キャスト一覧に名前あり: {roster_url}"
-            profile_links += sum(1 for link in data["links"] if urlsplit(link).path == path)
+            profile_links += sum(1 for link in data["links"] if _shape(urlsplit(link).path) == shape)
             pager = pager or bool(PAGER_RE.search(data["html"]))
         if profile_links >= MIN_PROFILE_LINKS and not pager:
             return "unavailable", f"キャスト一覧に存在しない（{profile_links}件中）: {urls[0]}"
