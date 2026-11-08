@@ -7,9 +7,11 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_HIGHLIGHTS = 10
+PAGES_BASE = "https://daichoco.github.io/heaven/"
 TOKAI_MIN_TOTAL = 80
 NS_MIN_TOTAL = 90
 OKINILOVE_MIN_STARS = 4
@@ -51,16 +53,33 @@ def okinilove_high(r):
     return stars(r) >= OKINILOVE_MIN_STARS
 
 
+def person_link(page, shop, name):
+    """レポートページ内でその人物だけに絞り込むリンク。"""
+    shop, name = str(shop or "").strip(), str(name or "").strip()
+    if not name:
+        return ""
+    query = f"{shop} {name}".strip()
+    return f"{PAGES_BASE}{page}#search={quote(query)}&fallback={quote(name)}"
+
+
+def with_link(label, page, shop, name):
+    link = person_link(page, shop, name)
+    return f"{label}\n  レポート: {link}" if link else label
+
+
 def tokai_label(r):
-    return f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('total_point')}点 {r.get('url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('total_point')}点 {r.get('url', '')}"
+    return with_link(label, "tokai_final_report.html", r.get("shop_name"), r.get("name"))
 
 
 def ns_label(r):
-    return f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('details', {}).get(NS_TOTAL_KEY, '')} {r.get('url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('details', {}).get(NS_TOTAL_KEY, '')} {r.get('url', '')}"
+    return with_link(label, "ns_senmon_report.html", r.get("shop_name"), r.get("name"))
 
 
 def okinilove_label(r):
-    return f"{r.get('shop_name', '')} {r.get('girl_name', '')} ★{stars(r)} {r.get('report_url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('girl_name', '')} ★{stars(r)} {r.get('report_url', '')}"
+    return with_link(label, "okinilove_remove_unknown.html", r.get("shop_name"), r.get("girl_name"))
 
 
 REPORTS = [

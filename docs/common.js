@@ -250,4 +250,25 @@
       }
     });
   }, true);
+
+  // #search=店舗 名前[&fallback=名前] で開くと、検索欄に入力して絞り込む（通知リンク用）。
+  function applySearchFromHash() {
+    const params = new URLSearchParams(location.hash.replace(/^#/, ""));
+    const query = params.get("search");
+    const input = document.querySelector("#reportSearch, #search");
+    if (!query || !input) return;
+    const visibleCount = () => document.querySelectorAll("[data-search]:not([hidden])").length;
+    const run = value => {
+      input.value = value.toLocaleLowerCase();
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    run(query);
+    const fallback = params.get("fallback");
+    if (fallback && visibleCount() === 0) run(fallback);
+    const entries = document.querySelectorAll("details.report-entry[data-search]:not([hidden])");
+    if (entries.length === 1) entries[0].open = true;
+    (entries[0] || document.querySelector("[data-search]:not([hidden])"))?.scrollIntoView({ block: "start" });
+  }
+
+  window.addEventListener("load", applySearchFromHash);
 })();

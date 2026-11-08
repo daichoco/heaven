@@ -35,6 +35,18 @@ class ReportChangeSummaryTest(unittest.TestCase):
         results = {"東海": ([], [{}], [], rcs.tokai_label)}
         self.assertEqual(rcs.summarize(results), "東海: 追加0件 / 削除1件")
 
+    def test_person_link_filters_report_page(self):
+        link = rcs.person_link("tokai_final_report.html", "C'est裸美", "柚")
+        self.assertTrue(link.startswith(rcs.PAGES_BASE + "tokai_final_report.html#search="))
+        self.assertNotIn(" ", link)
+        self.assertIn("fallback=%E6%9F%9A", link)
+        self.assertEqual(rcs.person_link("x.html", "店", ""), "")
+
+    def test_label_includes_person_link(self):
+        label = rcs.tokai_label({"shop_name": "店", "name": "あかね", "total_point": 85, "url": "https://example/a"})
+        self.assertIn("https://example/a", label)
+        self.assertIn("\n  レポート: " + rcs.PAGES_BASE + "tokai_final_report.html#search=", label)
+
 
 if __name__ == "__main__":
     unittest.main()
