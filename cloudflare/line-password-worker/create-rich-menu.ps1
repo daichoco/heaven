@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$LiffId)
+﻿param([Parameter(Mandatory)][string]$LiffId)
 
 # LINE公式アカウントの下部に「パスワード更新」ボタン(リッチメニュー)を作り、全員のデフォルトに設定する。
 $ErrorActionPreference = 'Stop'
