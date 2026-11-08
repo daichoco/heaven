@@ -1,27 +1,18 @@
 # Windows PCでのローカル定期実行
 
 この手順は、Windows 10/11のPCで既存の収集スクリプトを定期実行するためのものです。
-特定のPC機種は前提にしません。タスク登録やGitHub Actionsの設定変更は、このガイドを読んだ人が
-必要な場合にだけ行ってください。
+特定のPC機種は前提にしません。タスク登録は、このガイドを読んだ人が必要な場合にだけ行ってください。
 
-## まず決めること：定期更新をどこで行うか
+## 定期更新の運用
 
-同じデータをGitHub ActionsとPCから同時に更新しないでください。競合や古いHTMLによる上書きが
-起きる可能性があります。
-
-| 運用 | 設定 |
-| --- | --- |
-| GitHub Actionsを継続（既定） | Actionsが収集・commit・pushを担当します。PCでは必要なときだけ手動実行し、同じスクリプトが動いていないことをActionsタブで確認してください。PCに毎日のタスクは登録しません。 |
-| PCへ定期実行を移す | このページのラッパーをタスクスケジューラに登録する前に、リポジトリの3つのworkflowからscheduleを外すか、Actions画面でworkflowを無効にしてください。手動実行も含め、移行中にActionsを同時実行しないでください。PCのpushが安定した後も、Actionsの手動実行を使うなら一度に片方だけ実行します。 |
-
-現在のworkflowは、毎日、オキニラブが **03:17 UTC（12:17 JST）**、東海が
-**04:17 UTC（13:17 JST）**、NS専門が **05:17 UTC（14:17 JST）** に実行されます。
-GitHub側の都合で遅れることがあります。どちらの運用でも、workflowや実データはこのガイドでは変更しません。
+定期更新はローカルPCのタスクスケジューラで行います。GitHub Actionsの定期実行は廃止しました。
+同じデータを複数のマシンから同時に更新しないでください。競合や古いHTMLによる上書きが
+起きる可能性があります。複数のマシンで実行する場合は、同時に動かさないでください。
 
 ## 1. Windowsの準備
 
 1. Git for Windowsをインストールし、PowerShellで `git --version` が成功することを確認します。
-2. Actionsと同じ **Python 3.12** をインストールし、Python Launcherが使えることを確認します。
+2. **Python 3.12** をインストールし、Python Launcherが使えることを確認します。
    ```powershell
    py -3.12 --version
    ```
@@ -96,7 +87,7 @@ git config user.email "GitHubで使うメールアドレス"
 ## 4. まず手動で実行
 
 PCへ移す前に、タスクと同じWindowsアカウントでPowerShellを開き、環境変数とサイト接続を確認します。
-以下は既存workflowの処理順です。途中で失敗したら、後続コマンドへ進まずエラーを確認してください。
+以下は日次ラッパーの処理順です。途中で失敗したら、後続コマンドへ進まずエラーを確認してください。
 
 ```powershell
 Set-Location C:\automation\heaven
@@ -148,7 +139,7 @@ Playwright Chromiumで取得し、`--include-a` はSに続けてAも予定取得
 （例：`C:\automation\run-heaven.ps1`）。以下を保存し、チェックアウト場所を変更した場合は
 `$Repo` の値も合わせます。スクリプトはログを `%LOCALAPPDATA%\HeavenScheduledReports\logs` に保存します。
 
-既定ではGitHub Actionsと同じ3サイト更新だけを実行します。統合カレンダーとS/A週間予定も毎回更新するには、
+既定では3サイト更新だけを実行します。統合カレンダーとS/A週間予定も毎回更新するには、
 タスクスケジューラの引数に `-IncludeCityHeavenCalendarAndWeekly` を追加してください。
 このスイッチは、3サイト更新の後にCityHeaven統合カレンダーと週間予定・画像取得を順番に実行します。
 実行前に `main` がクリーンであることと、リモートからfast-forwardできることを確認します。
@@ -287,7 +278,7 @@ try {
 }
 ```
 
-スイッチなしではActionsの3 workflow（オキニラブ、NS専門、東海）相当だけを実行し、
+スイッチなしではオキニラブ、NS専門、東海の3サイト更新だけを実行し、
 追加モードではCityHeaven統合カレンダーと週間予定・画像まで実行します。
 フル更新で追跡対象となる追加出力は `data\tokai_fuzoku_report_history.jsonl`、
 `data\okinilove_reviews.jsonl`、必要なURL突合時に更新される
@@ -307,7 +298,7 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 トークンはリポジトリにcommitしないでください。ラッパーは文字化け防止のため `PYTHONUTF8=1` と `[Console]::OutputEncoding`（UTF-8）も設定します。
 後者がないと、Pythonの出力をPowerShellで受け取った集計文がLINEで文字化けします。
 
-認証情報やローカルの収集再開状態ファイルをcommitしません。GitHub Actionsが別のcommitを先にpushすると
+認証情報やローカルの収集再開状態ファイルをcommitしません。別のマシンが先にpushすると
 このpushは拒否されます。作業ツリーが不潔、ブランチがmainでない、pullがfast-forwardできない場合も
 何も自動修復せず停止します。いずれの場合もログ・`git status`・`git log --oneline --decorate -5` を確認し、
 競合を人が解決してから次の実行に進んでください。`reset --hard`、force push、未確認のrebaseで
@@ -407,7 +398,7 @@ Playwright Chromiumが必要です。ログインや年齢確認・アクセス�
 
 ### 関東レポート
 
-関東記事の収集とHTML生成コードはありますが、**現在のGitHub Actionsに関東workflowや定期実行はありません**。
+関東記事の収集とHTML生成コードはありますが、**現在の定期実行に関東は含まれていません**。
 ローカルで実行する場合は、先に初回全件収集の範囲を確認してください。
 
 ```powershell

@@ -49,22 +49,15 @@ Neither command collects data or makes network requests.
 | `py -3 src\ns_senmon\match_cityheaven.py` | 手動マップ、既存レポート、店舗ページ検索を使って、保存済みNS専門記事とCityHeavenプロフィールを突合します。記事JSONLを更新し、未突合データを `data\ns_senmon_unmatched.json` に出力します。 |
 | `py -3 src\ns_senmon\generate_ns_senmon_report.py` | 保存済みNS専門JSONLから `docs\ns_senmon_report.html` を生成し、取得可能なプロフィール画像を取得します。 |
 
-GitHub Actions の `Update NS senmon report` ワークフローは毎日 **05:17 UTC（日本時間14:17）**
-に通常差分収集、CityHeaven突合、オンラインHTML生成を順に実行し、手動実行にも対応しています。
-スケジュール実行はGitHub側の状況により遅れる場合があります。
+NS専門の更新はローカルPCの定時実行（[LOCAL_SCHEDULED_RUN.md](LOCAL_SCHEDULED_RUN.md)）で行います。
+通常差分収集、CityHeaven突合、オンラインHTML生成を順に実行します。
 
-実行前に、[repository Actions Secretsの設定画面](https://github.com/daichoco/heaven/settings/secrets/actions)
-（`Settings → Secrets and variables → Actions → New repository secret`）で、
-`NS_SENMON_USER` にNS専門のユーザー名またはメールアドレス、
-`NS_SENMON_PASS` にパスワードを登録してください。
-認証情報はGitHubのSecretに保管し、コード・データファイル・コマンド引数には記載しません。
-workflowは事前チェックと収集stepだけに環境変数として渡し、未設定または空なら値を表示せず失敗します。
-CityHeaven突合と画像URL取得は公開ページを利用するため、CityHeavenのSecretsやChromeは不要です。
+認証情報は、ユーザー環境変数 `NS_SENMON_USER`（ユーザー名またはメールアドレス）と
+`NS_SENMON_PASS`（パスワード）に設定します。コード・データファイル・コマンド引数には記載しません。
+未設定または空なら失敗します。
+CityHeaven突合と画像URL取得は公開ページを利用するため、CityHeavenの認証情報やChromeは不要です。
 
-workflowが `main` に反映された後、Actionsタブで `Update NS senmon report` を選び、
-`Run workflow` から手動実行できます。手動実行で選択したブランチにかかわらず、
-収集・更新対象は `main` です。3つの処理が成功し、変更がある場合だけ、次の追跡対象を
-自動コミットして `main` にpushします。無変更ならコミットしません。
+3つの処理が成功し、変更がある場合だけ、追跡対象を `main` にpushします。無変更ならコミットしません。
 
 | 更新対象 | 内容 |
 | --- | --- |
@@ -144,21 +137,17 @@ HTMLの `--offline --refresh-prices` は人物・記事を保持して料金だ�
 または75）。`--limit N` は処理する記事数の上限です（`--recheck-profiles` の場合は人物数）。
 `--resume` は `--backfill` と併用してください。
 
-GitHub Actions の `Update Tokai report` ワークフローは毎日 **04:17 UTC（日本時間13:17）**
-に通常差分収集とオンラインHTML生成を順に実行し、手動実行にも対応しています。
-スケジュール実行はGitHub側の状況により遅れる場合があります。
+東海の更新はローカルPCの定時実行（[LOCAL_SCHEDULED_RUN.md](LOCAL_SCHEDULED_RUN.md)）で行います。
+通常差分収集とオンラインHTML生成を順に実行します。
 
-実行前に、[repository Actions Secretsの設定画面](https://github.com/daichoco/heaven/settings/secrets/actions)
-（`Settings → Secrets and variables → Actions → New repository secret`）で、
-名前を `FUZOKU_TOKAI_PASSWORD`、値を東海サイトのパスワードとして登録してください。
-パスワードはGitHubのSecretに保管し、コード・データファイル・コマンド引数には記載しません。
-workflowは必要なstepだけに環境変数として渡し、Secretが未設定または空なら失敗します。
+東海サイトのパスワードは、ユーザー環境変数 `FUZOKU_TOKAI_PASSWORD` に設定します。
+コード・データファイル・コマンド引数には記載しません。未設定または空なら失敗します。
+パスワードが月ごとに変わる場合は、LINEボットに `パスワード 新しいパスワード` と送ると、
+次回の定時実行で環境変数を更新します（`cloudflare/line-password-worker/README.md`）。
 
-workflowが `main` に反映された後、Actionsタブで `Update Tokai report` を選び、
-`Run workflow` から手動実行できます。手動実行で選択したブランチにかかわらず、
-収集・更新対象は `main` です。収集とHTML生成の両方が成功し、変更がある場合だけ、
+収集とHTML生成の両方が成功し、変更がある場合だけ、
 追跡対象の `data\tokai_fuzoku_reports.jsonl` と `docs\tokai_final_report.html` を
-自動コミットして `main` にpushします。無変更ならコミットしません。
+`main` にpushします。無変更ならコミットしません。
 収集の再開状態ファイルや他レポートのデータはコミットしません。
 
 実行中に別の更新が `main` に入った場合は、最新の `main` へrebaseして通常pushを再試行します
@@ -177,16 +166,11 @@ Secret登録後の最初の手動実行で、実サイトの認証とレポー�
 | `py -3 src\okinilove\maintain_okinilove.py --enrich` | 店舗ページを検索して、不足しているCityHeavenプロフィールURLを補完します。 |
 | `py -3 src\okinilove\render_people_summary.py` | 既存ページから人物別オキニラブHTMLと口コミ本文JSONを再生成します。不足しているプロフィール画像や業種情報を取得する場合があります。 |
 
-GitHub Actions の `Update Okinilove report` ワークフローは毎日 03:17 UTC に更新を実行し、
-手動実行にも対応しています。Actions タブからワークフローを選び、`Run workflow` を押すと
-手動で実行できます。手動実行は選択したブランチを使用します。
-`main` で更新があれば、生成されたHTMLと追跡対象のデータを自動コミットし、`main` にpushします。
-他のブランチでの実行は自動コミット・pushを行いません。
-`diagnose_only` を有効にすると、店舗索引の応答診断だけを実行し、データ更新・コミット・pushは行いません。
+オキニラブの更新はローカルPCの定時実行（[LOCAL_SCHEDULED_RUN.md](LOCAL_SCHEDULED_RUN.md)）で行います。
 店舗索引のHTTPエラー、想定外の転送・HTML、店舗0件は失敗として扱います。
 途中のカテゴリやページで失敗した場合も既存索引を保持し、不完全な索引で上書きしません。
 失敗時の応答情報と本文先頭（最大300文字）はログに表示されます。
-実行結果やエラーの詳細は、Actions タブの対象実行からログを確認してください。
+実行結果やエラーの詳細は、ローカルのログ（`%LOCALAPPDATA%\HeavenScheduledReports\logs`）を確認してください。
 
 オキニラブのスタイル語句「デブ」はネガティブ分類、「超SP」「SP（スペシャルサービス）」「SP」
 「二度ヌキ以上」「即プレイ」はポジティブ分類とし、含有率・おすすめ順・本文の語句表示に反映します。
