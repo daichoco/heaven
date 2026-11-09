@@ -9,9 +9,13 @@
   "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-17289863/": {
-  "checked_at": "2026-11-01T13:12:26.040437+00:00",
-  "status": "error",
-  "image_url": ""
+  "checked_at": "2026-11-09T00:23:08.485034+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/0-i/la_grpb0017289863_0000000000pc.jpg?cache02=1728812403&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-17289863/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/0-i/girlid-53702756/": {
   "checked_at": "2026-11-04T14:27:12.917375+00:00",
@@ -39,9 +43,13 @@
   "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-47022354/": {
-  "checked_at": "2026-11-01T13:12:26.040437+00:00",
-  "status": "error",
-  "image_url": ""
+  "checked_at": "2026-11-09T00:23:08.485034+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/aqua/la_grpb0047022354_0000000000pc.jpeg?cache02=1789207645&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-47022354/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/aqua/girlid-59023491/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
@@ -201,9 +209,13 @@
   "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-67566621/": {
-  "checked_at": "2026-11-01T13:12:26.040437+00:00",
-  "status": "error",
-  "image_url": ""
+  "checked_at": "2026-11-09T00:23:08.485034+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/cosplayacademy/la_grpb0067566621_0000000000pc.jpg?cache02=1793479184&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-67566621/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/eikokuya/girlid-39234659/": {
   "checked_at": "2026-10-13T15:37:39.088394+00:00",
@@ -387,9 +399,13 @@
   "price_class": "高級"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-29465376/": {
-  "checked_at": "2026-11-01T13:12:26.040437+00:00",
-  "status": "error",
-  "image_url": ""
+  "checked_at": "2026-11-09T00:23:08.485034+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/kikoushi/la_grpb0029465376_0000000000pc.jpg?cache02=1793494483&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-29465376/",
+  "shop_kind": "ソープ(高級/金津園)",
+  "price_class": "高級"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/kikoushi/girlid-35197203/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
@@ -496,7 +512,7 @@
   "price_class": "大衆"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/lovetiffany/girlid-59230507/": {
-  "checked_at": "2026-11-01T13:12:26.040437+00:00",
+  "checked_at": "2026-11-09T00:23:08.485034+00:00",
   "status": "error",
   "image_url": "",
   "error": "別ページに転送されました（認証・掲載状況を確認）",
