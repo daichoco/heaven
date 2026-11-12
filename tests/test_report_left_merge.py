@@ -76,14 +76,14 @@ class ReportMergeTests(unittest.TestCase):
                     integration.normalize_url(heading.select_one(".shop-cell > a")["href"]),
                     profile_keys.iloc[0],
                 )
-                for block in review.select("ul"):
-                    url = block.find("a")["href"]
+                for block in review.select("ul.tokai-evaluations"):
+                    url = block.parent.find("a")["href"]
                     record = records.loc[records["report_url"] == url].iloc[0]
                     expected = [
                         " ".join(f"{key}: {value}".split())
                         for key, value in record["evaluations"].items()
                     ]
-                    actual = [" ".join(li.get_text().split()) for li in block.find_all("li")[:-1]]
+                    actual = [" ".join(li.get_text().split()) for li in block.find_all("li")]
                     self.assertEqual(actual, expected)
         ids = [tag["id"] for tag in soup.select("[id]")]
         self.assertEqual(len(ids), len(set(ids)))

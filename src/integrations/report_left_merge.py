@@ -295,6 +295,25 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .profile-photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
       .image-error { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); background: var(--surface); }
       [hidden] { display: none !important; }
+      .saved-report { margin: 8px 0; padding: 6px; border: 1px solid #ccc; }
+      .saved-report > summary { cursor: pointer; }
+      .saved-report > summary h3 { display: inline; margin: 0; font-size: 1em; }
+      .saved-field p { white-space: pre-wrap; overflow-wrap: anywhere; margin: 4px 0 12px; }
+      .tokai-evaluations { padding-left: 24px; }
+      .tokai-evaluations .saved-field { margin: 6px 0; }
+      .tokai-evaluations .saved-field p { display: inline; margin: 0; }
+      .tag-rows { margin: 6px 0 10px; }
+      .tag-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 4px 0; }
+      .tag-label { min-width: 5.5em; padding: 1px 6px; border-radius: 3px; background: #e9eef1; font-size: .8rem; }
+      .chip { display: inline-block; padding: 1px 9px; border-radius: 10px; border: 1px solid #ccc; background: #eceff1; font-size: .85rem; }
+      .chip.pos { background: #e0f2e5; border-color: #9ccfaa; color: #1e6b36; font-weight: 600; }
+      .chip.neg { background: #fdeaea; border-color: #e7a3a3; color: #b3261e; }
+      @media (prefers-color-scheme: dark) {
+        .tag-label { background: #333; }
+        .chip { background: #2a2f33; border-color: #555; }
+        .chip.pos { background: #16301f; border-color: #2f6b40; color: #7fd49a; }
+        .chip.neg { background: #3a1b1b; border-color: #8a3c3c; color: #ff8a80; }
+      }
       .review-buttons { margin: 6px 0; }
       .shop-cell .review-buttons button { display: block; margin: 4px 0; }
       details { text-align: left; margin-top: 5px; }
@@ -517,6 +536,88 @@ CALENDAR_PAGE_HEAD = (
 WORK_TIME_RE = re.compile(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$")
 
 
+def _saved_report(title, link, body, link_first=True):
+    """週間カレンダーと同じ保存レポートの開閉ブロック。"""
+    source = (
+        f"<a href='{html_escape(str(link), quote=True)}' target='_blank' rel='noopener'>元レポート</a>"
+        if _has_value(link) and pd.notna(link) else "出典URLなし"
+    )
+    return (
+        f"<details class='saved-report' open><summary><h3>{html_escape(title)}</h3></summary>"
+        f"{source + body if link_first else body + source}</details>"
+    )
+
+
+def _saved_field(label, text):
+    return f"<div class='saved-field'><strong>{html_escape(str(label))}</strong><p>{html_escape(str(text))}</p></div>"
+
+
+def _first_score(texts, pattern):
+    for text in texts:
+        match = re.search(pattern, str(text))
+        if match:
+            return match.group(1)
+    return None
+
+
+def _tokai_report_html(evaluations, report_url):
+    url = str(report_url) if _has_value(report_url) and pd.notna(report_url) else ""
+    date = re.search(r"/(\d{4})/(\d{2})/(\d{2})/", url)
+    total = next((v for k, v in evaluations.items() if str(k).startswith("総合")), None)
+    point = _first_score([next((k for k in evaluations if str(k).startswith("総合")), "")], r"総合:\s*(\d+(?:\.\d+)?)")
+    title = (
+        f"東海風俗 / {'-'.join(date.groups()) if date else '保存日付なし'} / "
+        f"元評価 {point + '/100点' if point else '未評価'}"
+    )
+    items = "".join(
+        f"<li class='saved-field'><strong>{html_escape(str(k))}:</strong><p>{html_escape(str(v))}</p></li>"
+        for k, v in evaluations.items()
+    )
+    body = f"<ul class='tokai-evaluations'>{items}</ul>" if items else "<p>保存済み本文なし</p>"
+    return _saved_report(title, url, body, link_first=False)
+
+
+def _ns_report_html(report):
+    scores = report["scores"]
+    point = _first_score(
+        [v for k, v in scores.items() if "総合" in str(k)], r"(\d+(?:\.\d+)?)"
+    )
+    title = f"NS専門 / {report['date']} / 元評価 {point + '/100点' if point else '未評価'}"
+    body = "".join(_saved_field(k, v) for k, v in scores.items())
+    body += "".join(_saved_field(k, v) for k, v in report["comments"].items())
+    return _saved_report(title, report["url"], body or "<p>保存済み本文なし</p>")
+
+
+def _okinilove_report_html(report):
+    from generate_weekly_schedule_report import okini_tags
+    import generate_weekly_schedule_report as weekly
+
+    url = report["report_url"] if pd.notna(report["report_url"]) else ""
+    tags = okini_tags({"report_url": url})
+    details = weekly._okini_details or {}
+    detail = details.get(url) or details.get(url.replace("https://", "http://", 1)) or {}
+    evaluations = report["evaluations"]
+    stars = str(evaluations).count("★") if _has_value(evaluations) else 0
+    title = (
+        f"オキニラブ / {detail.get('published_date') or '保存日付なし'} / "
+        f"元評価 {f'{stars}/5（星）' if stars else '未評価'}"
+    )
+    body = ""
+    if tags:
+        body += "<div class='tag-rows'>" + "".join(
+            f"<div class='tag-row'><span class='tag-label'>{html_escape(label)}</span>"
+            + "".join(f"<span class='chip {tone}'>{html_escape(token)}</span>" for token, tone in items)
+            + "</div>"
+            for label, items in tags
+        ) + "</div>"
+    if _has_value(report["report_text"]):
+        body += _saved_field("report_text", report["report_text"])
+    if _has_value(evaluations):
+        body += _saved_field("evaluations", evaluations if not isinstance(evaluations, dict) else
+                             " / ".join(f"{k}: {v}" for k, v in evaluations.items()))
+    return _saved_report(title, url, body or "<p>保存済み本文なし</p>")
+
+
 def build_calendar_html(merged):
     # 出勤日カラムを抽出
     calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
@@ -635,13 +736,13 @@ def build_calendar_html(merged):
         html += "<div class='review-buttons'>"
         if merged_reports:
             count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
-            html += f"<button type='button' aria-controls='{row_id_merged}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
+            html += f"<button type='button' class='review-toggle' aria-controls='{row_id_merged}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
         if okinilove_reports:
             count = f" {len(okinilove_reports)}件" if len(okinilove_reports) > 1 else ""
-            html += f"<button type='button' aria-controls='{row_id_okinilove}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove{count})</button>"
+            html += f"<button type='button' class='review-toggle' aria-controls='{row_id_okinilove}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove{count})</button>"
 
         if ns_reports:
-            html += f"<button type='button' aria-controls='{row_id_ns}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
+            html += f"<button type='button' class='review-toggle' aria-controls='{row_id_ns}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
         html += "</div>"
 
         # 店名（名前の下に表示）
@@ -682,12 +783,7 @@ def build_calendar_html(merged):
             html += f"<td colspan='{review_colspan}'>"
             for eval_value, report_url in merged_reports:
                 try:
-                    html += "<ul>"
-                    for k, v in _evaluation_dict(eval_value).items():
-                        html += f"<li><strong>{k}:</strong> {v}</li>"
-                    if pd.notna(report_url):
-                        html += f"<li><a href='{report_url}' target='_blank'>レポートリンク (merged)</a></li>"
-                    html += "</ul>"
+                    html += _tokai_report_html(_evaluation_dict(eval_value), report_url)
                 except Exception:
                     html += "<p>レビュー解析失敗 (merged)</p>"
             html += "</td></tr>"
@@ -697,12 +793,7 @@ def build_calendar_html(merged):
             html += f"<tr id='{row_id_ns}' class='review-row review-ns' style='display:none;'>"
             html += f"<td colspan='{review_colspan}'>"
             for rep in ns_reports:
-                html += f"<p><a href='{rep['url']}' target='_blank'>レポートリンク (NS専門 {rep['date']})</a></p><ul>"
-                for k, v in rep["scores"].items():
-                    html += f"<li><strong>{k}:</strong> {html_escape(str(v))}</li>"
-                html += "</ul>"
-                for k, v in rep["comments"].items():
-                    html += f"<p><strong>{k}</strong></p><pre>{html_escape(str(v))}</pre>"
+                html += _ns_report_html(rep)
             html += "</td></tr>"
 
         # okiniloveレビュー行
@@ -710,19 +801,7 @@ def build_calendar_html(merged):
             html += f"<tr id='{row_id_okinilove}' class='review-row review-okinilove' style='display:none;'>"
             html += f"<td colspan='{review_colspan}'>"
             for report in okinilove_reports:
-                evaluations = report["evaluations"]
-                if _has_value(evaluations):
-                    if isinstance(evaluations, dict):
-                        html += "<ul>"
-                        for key, value in evaluations.items():
-                            html += f"<li><strong>{key}:</strong> {value}</li>"
-                        html += "</ul>"
-                    else:
-                        html += f"<p><strong>評価 (okinilove):</strong> {evaluations}</p>"
-                if _has_value(report["report_text"]):
-                    html += f"<pre>{report['report_text']}</pre>"
-                if pd.notna(report["report_url"]):
-                    html += f"<br><a href='{report['report_url']}' target='_blank'>レポートリンク (okinilove)</a>"
+                html += _okinilove_report_html(report)
             html += "</td></tr>"
 
     html += "</tbody></table></div>"
