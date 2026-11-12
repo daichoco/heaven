@@ -620,6 +620,16 @@ class WeeklyCalendarTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             weekly.main(["--offline", "--collect-images"])
 
+    def test_carry_forward_reuses_overlapping_days_from_latest_earlier_window(self):
+        windows = {"2026-11-12": {"p": {"fetched_at": "x", "error": "", "days": [
+            {"date": f"2026-11-{12 + i}", "state": "work", "text": str(i)} for i in range(7)]}}}
+        dates = [f"2026-11-{13 + i}" for i in range(7)]
+        carried = weekly.carry_forward_schedules(windows, dates)
+        self.assertEqual([d["date"] for d in carried["p"]["days"]], dates)
+        self.assertEqual(carried["p"]["days"][0]["text"], "1")
+        self.assertEqual(carried["p"]["days"][-1]["state"], "not_fetched")
+        self.assertEqual(weekly.carry_forward_schedules(windows, ["2026-11-12"] + dates[:6]), {})
+
     def test_cli_display_sources_are_validated_and_passed_to_ranking(self):
         with (
             patch.object(weekly, "load_ranking", return_value=([], {})) as ranking,

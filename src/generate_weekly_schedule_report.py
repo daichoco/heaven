@@ -590,6 +590,25 @@ def save_cache(payload, path=CACHE):
     temporary.replace(path)
 
 
+def carry_forward_schedules(windows, dates):
+    """当日の窓が未取得のとき、直近の保存窓から重なる日付だけを引き継ぐ（新しい日は未取得扱い）。"""
+    earlier = [start for start in windows if start < dates[0]]
+    if not earlier:
+        return {}
+    carried = {}
+    for profile_url, result in windows[max(earlier)].items():
+        if not isinstance(result, dict):
+            continue
+        by_date = {day["date"]: day for day in result.get("days", [])}
+        if not any(day in by_date for day in dates):
+            continue
+        carried[profile_url] = {
+            **result,
+            "days": [by_date.get(day) or {"date": day, "state": "not_fetched", "text": ""} for day in dates],
+        }
+    return carried
+
+
 def person_schedule(person, dates, schedules):
     result = schedules.get(person["profile_url"])
     if result is not None:
@@ -953,6 +972,11 @@ def main(argv=None):
             parser.error("指定した開始日の保存済み予定がありません")
         dates = [(start + timedelta(days=offset)).isoformat() for offset in range(7)]
     schedules = cache["windows"].get(dates[0], {})
+    if not schedules and not args.window_start:
+        schedules = carry_forward_schedules(cache["windows"], dates)
+        carried = bool(schedules)
+    else:
+        carried = False
     failures = 0
     if args.collect:
         results = asyncio.run(collect_schedules(
@@ -961,6 +985,8 @@ def main(argv=None):
                 args.collect_high_rated,
             ), dates
         ))
+        if carried:
+            schedules = {}
         schedules.update(results)
         cache["windows"][dates[0]] = schedules
         save_cache(cache)
