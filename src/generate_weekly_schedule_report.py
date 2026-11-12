@@ -29,7 +29,7 @@ from generate_booking_difficulty_report import (
     unavailable_article_markers,
 )
 from html_format import write_html
-from okinilove.render_people_summary import _tone as okini_tone, extract_profile_image_url
+from okinilove.render_people_summary import NEGATIVE as OKINI_NEGATIVE, _tone as okini_tone, extract_profile_image_url
 from report_change_summary import ns_high, tokai_high
 from ns_senmon.profile_images import fetch_profile_images
 from tokai_fuzoku.report_store import normalize_profile_url
@@ -258,7 +258,7 @@ OKINI_TIER = "対象"
 OKINI_PRIOR_REPORTS = 5
 OKINI_HALF_LIFE_YEARS = 2
 OKINI_LOW_PENALTY = 0.5
-OKINI_BAD_TAGS = {"ブサイク", "デブ", "地雷", "手抜き", "事務的"}
+OKINI_BAD_TAGS = frozenset(token for kind in OKINI_TONE_KINDS.values() for token in OKINI_NEGATIVE[kind])
 OKINI_BAD_TAG_PENALTY = 0.25
 
 

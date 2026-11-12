@@ -476,10 +476,12 @@ class OkiniYoungTests(unittest.TestCase):
                                  "tags": [("スタイル", [(tag, "")])] if tag else []} for tag in tags]}
         clean = person("clean", [""] * 4)
         tagged = person("tagged", ["デブ", "デブ", "", ""])
-        mild = person("mild", ["ぽっちゃり"] * 4)
+        mild = person("mild", ["ムッチリ"] * 4)
         chosen = weekly.okini_young_people([tagged, clean, mild])
         self.assertEqual(chosen[-1]["key"], "tagged")
         self.assertEqual(weekly.okini_adjusted_value(clean), weekly.okini_adjusted_value(mild))
+        for tag in ("老けてる", "ぽっちゃり", "おなかぽっこり", "サバサバ"):
+            self.assertIn(tag, weekly.OKINI_BAD_TAGS)
 
 
 class WeeklyCalendarTests(unittest.TestCase):
