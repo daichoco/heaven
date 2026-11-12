@@ -317,7 +317,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .review-buttons { margin: 6px 0; }
       .shop-cell .review-buttons button { display: inline-block; width: auto; margin: 4px 6px 4px 0; }
       th:first-child, td.shop-cell { width: 260px; }
-      @media (min-width: 1101px) and (pointer: fine) {
+      @media (min-width: 1101px) {
         body > div[style*="overflow-x: auto"] { max-width: 900px; }
       }
       details { text-align: left; margin-top: 5px; }
