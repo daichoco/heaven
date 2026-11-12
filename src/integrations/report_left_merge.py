@@ -291,7 +291,12 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       th:first-child { position: sticky; left: 0; z-index: 2; min-width: 220px; background: var(--surface); }
       td.shop-cell { min-width: 220px; text-align: left; }
       .m-cal { display: none; }
-      img { width: 64px; height: 64px; object-fit: cover; border-radius: 4px; }
+      .profile-photo { width: 160px; height: 180px; margin: 0 0 10px; position: relative; background: var(--surface); border-radius: 5px; overflow: hidden; }
+      .profile-photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+      .image-error { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; color: var(--muted); background: var(--surface); }
+      [hidden] { display: none !important; }
+      .review-buttons { margin: 6px 0; }
+      .shop-cell .review-buttons button { display: block; margin: 4px 0; }
       details { text-align: left; margin-top: 5px; }
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
@@ -335,14 +340,12 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         body > div[style*="overflow-x: auto"] { max-height: none; overflow-x: auto; overflow-y: visible; }
         body > div[style*="overflow-x: auto"] table, body > div[style*="overflow-x: auto"] tbody { display: block; width: 100%; min-width: 0; }
         body > div[style*="overflow-x: auto"] thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: grid; grid-template-columns: 97px minmax(0, 1fr); column-gap: 12px; align-items: start; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid var(--row-sep); background: var(--surface-alt); color: var(--fg-soft); font-size: 13px; }
+        body > div[style*="overflow-x: auto"] tbody tr:not(.review-row) { display: block; margin: 0; padding: 12px 12px; border: 0; border-bottom: 4px solid var(--row-sep); background: var(--surface-alt); color: var(--fg-soft); font-size: 13px; }
         body > div[style*="overflow-x: auto"] td { border: 0; padding: 0; }
-        body > div[style*="overflow-x: auto"] td.shop-cell { grid-column: 2; grid-row: 1; min-width: 0; text-align: left; }
+        body > div[style*="overflow-x: auto"] td.shop-cell { display: block; width: auto; min-width: 0; max-width: none; text-align: left; }
         body > div[style*="overflow-x: auto"] td.shop-cell > a { display: block; font-size: 16px; font-weight: 700; line-height: 1.3; color: var(--muted); text-decoration: none; }
         body > div[style*="overflow-x: auto"] td.shop-cell > br { display: none; }
         body > div[style*="overflow-x: auto"] td.shop-cell .shop-info { display: block; font-size: 10px; line-height: 15px; color: var(--muted); }
-        body > div[style*="overflow-x: auto"] td.img-cell { grid-column: 1; grid-row: 1; }
-        body > div[style*="overflow-x: auto"] td.img-cell img { display: block; width: 97px; height: 97px; border-radius: 5px; object-fit: cover; }
         body > div[style*="overflow-x: auto"] td[data-label] { display: none; }
         body > div[style*="overflow-x: auto"] .m-cal { display: block; margin: 5px 0 0; overflow-x: scroll; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
         body > div[style*="overflow-x: auto"] .m-cal ul { display: flex; margin: 0; padding: 0; list-style: none; width: max-content; }
@@ -446,11 +449,23 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       function toggleReviewRow(id) {
         const row = document.getElementById(id);
         const open = row.style.display === "none";
-        row.style.display = open ? "" : "none";
-        document.querySelectorAll(`button[aria-controls="${id}"]`).forEach(button => {
-          button.setAttribute("aria-expanded", String(open));
-        });
+        const button = document.querySelector(`button[aria-controls="${id}"]`);
+        const top = button.getBoundingClientRect().top;
+        resetAllReviews();
+        if (open) {
+          row.style.display = "";
+          button.setAttribute("aria-expanded", "true");
+        }
+        window.scrollBy(0, button.getBoundingClientRect().top - top);
       }
+
+      document.addEventListener("error", event => {
+        const image = event.target;
+        if (image.matches && image.matches(".profile-photo img")) {
+          image.hidden = true;
+          image.nextElementSibling.hidden = false;
+        }
+      }, true);
 
       function resetAllReviews() {
         document.querySelectorAll('.review-row').forEach(row => {
@@ -505,7 +520,7 @@ WORK_TIME_RE = re.compile(r"^\d{1,2}:\d{2}\s*~\s*\d{1,2}:\d{2}$")
 def build_calendar_html(merged):
     # 出勤日カラムを抽出
     calendar_cols = [col for col in merged.columns if re.match(r"\d{1,2}/\d{1,2}", col)]
-    review_colspan = len(calendar_cols) + 2
+    review_colspan = len(calendar_cols) + 1
 
     # 日本語の曜日リスト
     weekdays = ["月", "火", "水", "木", "金", "土", "日"]
@@ -551,7 +566,7 @@ def build_calendar_html(merged):
 
     # テーブル開始
     html += "<div style='overflow-x: auto;'>"
-    html += "<table><thead><tr><th>名前＋レビュー+店名</th><th>画像</th>"
+    html += "<table><thead><tr><th>名前＋レビュー+店名</th>"
 
     # 日付ヘッダー
     for i, day in enumerate(calendar_cols):
@@ -610,22 +625,28 @@ def build_calendar_html(merged):
 
         # ★ 名前＋レビュー＋店名（統合セル）
         html += f"<td class='shop-cell'>"
+        html += (
+            f"<div class='profile-photo'><img src='{image_url}' alt='{name}' width='160' height='180' "
+            "loading='lazy' decoding='async'><span class='image-error' hidden>画像読込失敗</span></div>"
+        )
         html += f"<a href='{profile_url}' target='_blank'>{name}</a>"
 
         # レビューボタン
+        html += "<div class='review-buttons'>"
         if merged_reports:
             count = f" {len(merged_reports)}件" if len(merged_reports) > 1 else ""
-            html += f"<br><button type='button' aria-controls='{row_id_merged}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
+            html += f"<button type='button' aria-controls='{row_id_merged}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_merged}')\">レビュー(merged{count})</button>"
         if okinilove_reports:
             count = f" {len(okinilove_reports)}件" if len(okinilove_reports) > 1 else ""
-            html += f"<br><button type='button' aria-controls='{row_id_okinilove}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove{count})</button>"
+            html += f"<button type='button' aria-controls='{row_id_okinilove}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_okinilove}')\">レビュー(okinilove{count})</button>"
 
         if ns_reports:
-            html += f"<br><button type='button' aria-controls='{row_id_ns}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
+            html += f"<button type='button' aria-controls='{row_id_ns}' aria-expanded='false' onclick=\"toggleReviewRow('{row_id_ns}')\">レビュー(NS専門 {len(ns_reports)}件)</button>"
+        html += "</div>"
 
         # 店名（名前の下に表示）
         if len(shop) >= 1:
-            html += f"<br><span class='shop-info'>{shop[0]}</span>"
+            html += f"<span class='shop-info'>{shop[0]}</span>"
         if len(shop) >= 2:
             html += f"<br><span class='shop-info'>{shop[1]}</span>"
 
@@ -644,9 +665,6 @@ def build_calendar_html(merged):
         html += "</ul></div>"
 
         html += "</td>"
-
-        # 画像セル
-        html += f"<td class='img-cell'><img src='{image_url}' alt='{name}' width='64' height='64' loading='lazy' decoding='async'></td>"
 
         # 出勤日
         for i, day in enumerate(calendar_cols):
