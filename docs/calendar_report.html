@@ -214,6 +214,14 @@
         window.scrollBy(0, button.getBoundingClientRect().top - top);
       }
 
+      document.addEventListener("toggle", event => {
+        const opened = event.target;
+        if (!opened.matches || !opened.matches("details.saved-report") || !opened.open) return;
+        opened.closest("td").querySelectorAll("details.saved-report[open]").forEach(other => {
+          if (other !== opened) other.open = false;
+        });
+      }, true);
+
       document.addEventListener("error", event => {
         const image = event.target;
         if (image.matches && image.matches(".profile-photo img")) {
@@ -490,7 +498,7 @@
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2021-07-17 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-1419.html#tokumeik3" rel="noopener" target="_blank">元レポート</a>
@@ -825,7 +833,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>最高評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-03-16 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2622.html#rodo" rel="noopener" target="_blank">元レポート</a>
@@ -842,7 +850,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-07-08 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-681.html#akohime" rel="noopener" target="_blank">元レポート</a>
@@ -860,7 +868,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-01-24 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-681.html#doero2" rel="noopener" target="_blank">元レポート</a>
@@ -878,7 +886,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-03-26 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-681.html#doutei" rel="noopener" target="_blank">元レポート</a>
@@ -1471,7 +1479,7 @@ VENUSには1度来店しているので、場所は覚えていました。
 このサービスレベルが続く限り指名しようと思う。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-02-06 / 元評価 90/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=12488" rel="noopener" target="_blank">元レポート</a>
@@ -1617,7 +1625,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-05-16 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2191.html#tapioka2" rel="noopener" target="_blank">元レポート</a>
@@ -1640,7 +1648,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-02-24 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2390.html#sawada" rel="noopener" target="_blank">元レポート</a>
@@ -1674,7 +1682,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-01-22 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2390.html#teiou" rel="noopener" target="_blank">元レポート</a>
@@ -1697,7 +1705,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-08-29 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2658.html#hati" rel="noopener" target="_blank">元レポート</a>
@@ -1722,7 +1730,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-29 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2658.html#kapa" rel="noopener" target="_blank">元レポート</a>
@@ -1747,7 +1755,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-10-29 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3190.html#kinniku" rel="noopener" target="_blank">元レポート</a>
@@ -1872,7 +1880,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-09-26 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2815.html#itan" rel="noopener" target="_blank">元レポート</a>
@@ -1926,7 +1934,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-11-14 / 元評価 2/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2902.html#banana" rel="noopener" target="_blank">元レポート</a>
@@ -1961,7 +1969,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★☆☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-11-22 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2902.html#myutu" rel="noopener" target="_blank">元レポート</a>
@@ -1989,7 +1997,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-06 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3119.html#itan" rel="noopener" target="_blank">元レポート</a>
@@ -2037,7 +2045,7 @@ VENUSには1度来店しているので、場所は覚えていました。
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-16 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3119.html#uoo" rel="noopener" target="_blank">元レポート</a>
@@ -2293,7 +2301,7 @@ SPは完梨なのでみなさん期待しずに行った方がいいです</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-09-26 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#aaa" rel="noopener" target="_blank">元レポート</a>
@@ -2320,7 +2328,7 @@ SPは完梨なのでみなさん期待しずに行った方がいいです</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2017-12-19 / 元評価 4/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#gourme" rel="noopener" target="_blank">元レポート</a>
@@ -2366,7 +2374,7 @@ SPはこのレポでは超でしたので自分も期待はしているんです
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2017-02-22 / 元評価 4/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#kari" rel="noopener" target="_blank">元レポート</a>
@@ -2506,7 +2514,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-05-28 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2351.html#tuperin" rel="noopener" target="_blank">元レポート</a>
@@ -2661,7 +2669,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-04-09 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-734.html#panemaji2" rel="noopener" target="_blank">元レポート</a>
@@ -2842,7 +2850,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-02-17 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-2908.html#nengan" rel="noopener" target="_blank">元レポート</a>
@@ -2860,7 +2868,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2021-11-06 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#dekatin" rel="noopener" target="_blank">元レポート</a>
@@ -2878,7 +2886,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-04-01 / 元評価 4/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#godiba" rel="noopener" target="_blank">元レポート</a>
@@ -2896,7 +2904,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-09-21 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#jyaiant" rel="noopener" target="_blank">元レポート</a>
@@ -2914,7 +2922,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2021-05-29 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#ramu5" rel="noopener" target="_blank">元レポート</a>
@@ -2932,7 +2940,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-09-12 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#soap" rel="noopener" target="_blank">元レポート</a>
@@ -2950,7 +2958,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2021-08-09 / 元評価 1/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#yume" rel="noopener" target="_blank">元レポート</a>
@@ -3668,7 +3676,7 @@ N○でイきました。</p>
        →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-04-20 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2356.html#tamaro" rel="noopener" target="_blank">元レポート</a>
@@ -3697,7 +3705,7 @@ N○でイきました。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-05-05 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2356.html#yoruno" rel="noopener" target="_blank">元レポート</a>
@@ -3721,7 +3729,7 @@ N○でイきました。</p>
                   <p>評価 ★★★☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-09-30 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2766.html#kani" rel="noopener" target="_blank">元レポート</a>
@@ -3749,7 +3757,7 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <p>評価 ★★★☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-10-14 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2766.html#yaki" rel="noopener" target="_blank">元レポート</a>
@@ -3987,7 +3995,7 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
        →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-14 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2768.html#siroto" rel="noopener" target="_blank">元レポート</a>
@@ -4233,7 +4241,7 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
        →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-11-26 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2850.html#kateni2" rel="noopener" target="_blank">元レポート</a>
@@ -4257,7 +4265,7 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-12 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3057.html#hakase" rel="noopener" target="_blank">元レポート</a>
@@ -4287,7 +4295,7 @@ SPはオコくれるならって約束して幕有りで楽しみましたけど
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-10-30 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3057.html#dokin" rel="noopener" target="_blank">元レポート</a>
@@ -4466,7 +4474,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2026/07/12/post-16122/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-11-07 / 元評価 90.0/100点</h3>
                 </summary>
@@ -4539,7 +4547,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
 ソープは未経験での入店ですが講習を受けているらしいです。タイミングが合えばリピートするかもしれません。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-05-30 / 元評価 90/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=17911" rel="noopener" target="_blank">元レポート</a>
@@ -4659,7 +4667,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
          →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-10-06 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2398.html#kaizoku" rel="noopener" target="_blank">元レポート</a>
@@ -4695,7 +4703,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
                   <p>評価 ★★★☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-07-08 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2840.html#nikorasu" rel="noopener" target="_blank">元レポート</a>
@@ -4829,7 +4837,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
 万人受けしますが、絶対に巨乳主義な人には合わないかもしれません。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-06-08 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=18334" rel="noopener" target="_blank">元レポート</a>
@@ -5112,7 +5120,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-06-21 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2206.html#repado" rel="noopener" target="_blank">元レポート</a>
@@ -5146,7 +5154,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-01-13 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2858.html#katatin" rel="noopener" target="_blank">元レポート</a>
@@ -5175,7 +5183,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-06-13 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3097.html#moko" rel="noopener" target="_blank">元レポート</a>
@@ -5625,7 +5633,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
       →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-04-05 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-3002.html#kansai" rel="noopener" target="_blank">元レポート</a>
@@ -5876,7 +5884,7 @@ SPとか交渉次第となじゃなく触らせてもらえずでした。</p>
       →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-08-08 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2216.html#tadano3" rel="noopener" target="_blank">元レポート</a>
@@ -6589,7 +6597,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2023/03/08/post-13724/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-04-06 / 元評価 90.0/100点</h3>
                 </summary>
@@ -6620,7 +6628,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2026/04/06/post-16014/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2025-07-27 / 元評価 50.0/100点</h3>
                 </summary>
@@ -6651,7 +6659,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/07/27/post-15559/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-07-06 / 元評価 30.0/100点</h3>
                 </summary>
@@ -7020,7 +7028,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-12-03 / 元評価 4/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#knesu2" rel="noopener" target="_blank">元レポート</a>
@@ -7078,7 +7086,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-08-18 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#metara5" rel="noopener" target="_blank">元レポート</a>
@@ -7104,7 +7112,7 @@ SP重視の自分ですが、満足度はかなり高かったですね。あり
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-05-08 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-659.html#netyori" rel="noopener" target="_blank">元レポート</a>
@@ -7256,7 +7264,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2023/11/30/post-14492/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2025-09-08 / 元評価 70.0/100点</h3>
                 </summary>
@@ -7287,7 +7295,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/09/08/post-15653/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2021-03-23 / 元評価 75.0/100点</h3>
                 </summary>
@@ -7377,7 +7385,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2021-04-27 / 元評価 2/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#ramu4" rel="noopener" target="_blank">元レポート</a>
@@ -7394,7 +7402,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★☆☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2019-08-02 / 元評価 4/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-554.html#toripuru" rel="noopener" target="_blank">元レポート</a>
@@ -7505,7 +7513,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/11/06/post-15761/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-02-01 / 元評価 88.0/100点</h3>
                 </summary>
@@ -7537,7 +7545,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2026/02/01/post-15910/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-12-13 / 元評価 90.0/100点</h3>
                 </summary>
@@ -7568,7 +7576,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2024/12/13/post-15217/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-09-07 / 元評価 90.0/100点</h3>
                 </summary>
@@ -7600,7 +7608,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2024/09/07/post-15049/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-07-21 / 元評価 85.0/100点</h3>
                 </summary>
@@ -7673,7 +7681,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 しゃべり方に特徴があるのでそこで好き嫌いが分かれそうではある。自身の見た目に合わせた感じもするので、早めにプレイの相談をして軌道修正をする必要がある。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-06-24 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=19048" rel="noopener" target="_blank">元レポート</a>
@@ -7721,7 +7729,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 バックで責めると吹く可能性があると言うのもこれからの楽しみになると感じました。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-06-12 / 元評価 90/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=18499" rel="noopener" target="_blank">元レポート</a>
@@ -7765,7 +7773,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 値段が値段などので頻繁に行くことが出来ないが、ぜひまたリピートしたい。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-03-07 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=13760" rel="noopener" target="_blank">元レポート</a>
@@ -7823,7 +7831,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 それでもこれだけ可愛くて敏感な子はなかなかいませんのでこれからも間違いなくリピートします。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-02-24 / 元評価 90/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=13317" rel="noopener" target="_blank">元レポート</a>
@@ -7855,7 +7863,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>フェラがちょっとじれったいかも。気持ち良いけど。もっとガンガンしてくれた方が自分は好きだった。いい意味で高級店っぽくない女の子だと思いました。テクニックを求めるというよりは久しぶりに会う可愛い彼女との時間を楽しむような気持ちで臨むと良いのかなと思いました。また行きたいです。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-01-15 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=11601" rel="noopener" target="_blank">元レポート</a>
@@ -7903,7 +7911,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 １５年ぶりの金津園で他の店にも気になる子はいるのですがとにかく顔が可愛いのでリピートはすると思います。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2025-12-25 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=10353" rel="noopener" target="_blank">元レポート</a>
@@ -7935,7 +7943,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>嬢は、おっとりながらムッツリスケベであり、M気質。こちらからの要求は、なんでも答えてくれる。欲を言えばダブルで楽しみたい。次もリピート確定。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2025-11-09 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=9087" rel="noopener" target="_blank">元レポート</a>
@@ -7979,7 +7987,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 不思議ちゃんキャラでしたが、意外と芯はしっかりしていて言葉に気を付けないといけないと思うこともありました。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2025-11-05 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=8932" rel="noopener" target="_blank">元レポート</a>
@@ -8109,7 +8117,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>最高評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-06-09 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2405.html#ano" rel="noopener" target="_blank">元レポート</a>
@@ -8127,7 +8135,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-10-27 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2405.html#sasuke" rel="noopener" target="_blank">元レポート</a>
@@ -8247,7 +8255,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/12/14/post-15829/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-11-24 / 元評価 92.0/100点</h3>
                 </summary>
@@ -8279,7 +8287,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2024/11/24/post-15195/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-07-08 / 元評価 50.0/100点</h3>
                 </summary>
@@ -8351,7 +8359,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
        →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2026-09-26 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2512.html#0168" rel="noopener" target="_blank">元レポート</a>
@@ -8378,7 +8386,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2025-04-04 / 元評価 3/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-2512.html#yaki" rel="noopener" target="_blank">元レポート</a>
@@ -8411,7 +8419,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★☆☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-03-20 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-435.html#kanae" rel="noopener" target="_blank">元レポート</a>
@@ -8436,7 +8444,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-06-10 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-435.html#tama" rel="noopener" target="_blank">元レポート</a>
@@ -8479,7 +8487,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2024-07-05 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-435.html#tyois" rel="noopener" target="_blank">元レポート</a>
@@ -8724,7 +8732,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2023/10/21/post-14410/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-02-21 / 元評価 100.0/100点</h3>
                 </summary>
@@ -8755,7 +8763,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2026/02/21/post-15945/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2023-09-22 / 元評価 90.0/100点</h3>
                 </summary>
@@ -8830,7 +8838,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
 リピはしてます。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-02-24 / 元評価 100/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=13352" rel="noopener" target="_blank">元レポート</a>
@@ -8862,7 +8870,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>プレイは記載のとおりです。顔やスタイルが抜群というわけではないですが、優しくて会話も楽しくて癒され、プレイも最高なので通ってしまいます。</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>NS専門 / 2026-02-04 / 元評価 90/100点</h3>
                 </summary><a href="https://ns-senmon.com/?p=12416" rel="noopener" target="_blank">元レポート</a>
@@ -9030,7 +9038,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-06-23 / 元評価 5/5（星）</h3>
                 </summary><a href="http://okinilove.com/blog-entry-298.html#waisupi" rel="noopener" target="_blank">元レポート</a>
@@ -9217,7 +9225,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
            →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-06-08 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-379.html#doragon" rel="noopener" target="_blank">元レポート</a>
@@ -9406,7 +9414,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/08/13/post-15603/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-01-18 / 元評価 90/100点</h3>
                 </summary>
@@ -9855,7 +9863,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2025/04/17/post-15406/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2026-02-08 / 元評価 90/100点</h3>
                 </summary>
@@ -9987,7 +9995,7 @@ AVでしか見た事がないような潮吹きにめちゃくちゃ感動し、
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2024/08/23/post-15013/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2024-12-29 / 元評価 30.0/100点</h3>
                 </summary>
@@ -10053,7 +10061,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
            →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2022-09-26 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-1208.html#mingoru" rel="noopener" target="_blank">元レポート</a>
@@ -10441,7 +10449,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   <p>最高評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-08-27 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-681.html#feifei" rel="noopener" target="_blank">元レポート</a>
@@ -10457,7 +10465,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   <p>評価 ★★★★★ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-10-23 / 元評価 5/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-681.html#feifei2" rel="noopener" target="_blank">元レポート</a>
@@ -10637,7 +10645,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2023/05/28/post-13973/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2023-05-19 / 元評価 80.0/100点</h3>
                 </summary>
@@ -10669,7 +10677,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2023/05/19/post-13937/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2022-09-25 / 元評価 45.0/100点</h3>
                 </summary>
@@ -10700,7 +10708,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2022/09/25/post-13321/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2022-07-07 / 元評価 75.0/100点</h3>
                 </summary>
@@ -10831,7 +10839,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-10-20 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-1522.html#kimu" rel="noopener" target="_blank">元レポート</a>
@@ -10955,7 +10963,7 @@ HPよりも実物の方がよい、逆パネマジな娘でした。</p>
                   </li>
                 </ul><a href="https://m.fuzoku-tokai.com/2024/11/14/post-15173/" rel="noopener" target="_blank">元レポート</a>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>東海風俗 / 2022-09-07 / 元評価 80.0/100点</h3>
                 </summary>
@@ -11101,7 +11109,7 @@ M字で待ち受ける嬢へと挿入しながらクリを弄るとすごい反�
                   <p>評価 ★★★★☆ →記事リンク</p>
                 </div>
               </details>
-              <details class="saved-report" open="">
+              <details class="saved-report">
                 <summary>
                   <h3>オキニラブ / 2023-07-01 / 元評価 4/5（星）</h3>
                 </summary><a href="https://okinilove.com/blog-entry-1436.html#hanaru4" rel="noopener" target="_blank">元レポート</a>

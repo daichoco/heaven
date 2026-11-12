@@ -478,6 +478,14 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         window.scrollBy(0, button.getBoundingClientRect().top - top);
       }
 
+      document.addEventListener("toggle", event => {
+        const opened = event.target;
+        if (!opened.matches || !opened.matches("details.saved-report") || !opened.open) return;
+        opened.closest("td").querySelectorAll("details.saved-report[open]").forEach(other => {
+          if (other !== opened) other.open = false;
+        });
+      }, true);
+
       document.addEventListener("error", event => {
         const image = event.target;
         if (image.matches && image.matches(".profile-photo img")) {
@@ -546,6 +554,12 @@ def _saved_report(title, link, body, link_first=True):
         f"<details class='saved-report' open><summary><h3>{html_escape(title)}</h3></summary>"
         f"{source + body if link_first else body + source}</details>"
     )
+
+
+def _first_open(html):
+    marker = "<details class='saved-report' open>"
+    head, sep, tail = html.partition(marker)
+    return head + sep + tail.replace(marker, "<details class='saved-report'>")
 
 
 def _saved_field(label, text):
@@ -781,28 +795,25 @@ def build_calendar_html(merged):
         if merged_reports:
             html += f"<tr id='{row_id_merged}' class='review-row review-merged' style='display:none;'>"
             html += f"<td colspan='{review_colspan}'>"
+            body = ""
             for eval_value, report_url in merged_reports:
                 try:
-                    html += _tokai_report_html(_evaluation_dict(eval_value), report_url)
+                    body += _tokai_report_html(_evaluation_dict(eval_value), report_url)
                 except Exception:
-                    html += "<p>レビュー解析失敗 (merged)</p>"
-            html += "</td></tr>"
+                    body += "<p>レビュー解析失敗 (merged)</p>"
+            html += _first_open(body) + "</td></tr>"
 
         # NS専門レビュー行
         if ns_reports:
             html += f"<tr id='{row_id_ns}' class='review-row review-ns' style='display:none;'>"
             html += f"<td colspan='{review_colspan}'>"
-            for rep in ns_reports:
-                html += _ns_report_html(rep)
-            html += "</td></tr>"
+            html += _first_open("".join(_ns_report_html(rep) for rep in ns_reports)) + "</td></tr>"
 
         # okiniloveレビュー行
         if okinilove_reports:
             html += f"<tr id='{row_id_okinilove}' class='review-row review-okinilove' style='display:none;'>"
             html += f"<td colspan='{review_colspan}'>"
-            for report in okinilove_reports:
-                html += _okinilove_report_html(report)
-            html += "</td></tr>"
+            html += _first_open("".join(_okinilove_report_html(r) for r in okinilove_reports)) + "</td></tr>"
 
     html += "</tbody></table></div>"
     html += "<p class='no-results' id='noResults' hidden>条件に合う人はいません。</p>"
