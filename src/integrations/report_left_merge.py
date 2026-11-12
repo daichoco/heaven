@@ -315,7 +315,8 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
         .chip.neg { background: #3a1b1b; border-color: #8a3c3c; color: #ff8a80; }
       }
       .review-buttons { margin: 6px 0; }
-      .shop-cell .review-buttons button { display: block; margin: 4px 0; }
+      .shop-cell .review-buttons button { display: inline-block; width: auto; margin: 4px 6px 4px 0; }
+      th:first-child, td.shop-cell { width: 260px; }
       details { text-align: left; margin-top: 5px; }
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
@@ -351,6 +352,7 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       }
       @media (max-width: 1100px), (pointer: coarse) {
         :root { --page-pad: 12px; }
+        .shop-cell .review-buttons button { display: block; width: 100%; margin: 4px 0; }
         h1 { font-size: 1.2rem; }
         .filter-group { margin-bottom: 16px; }
         .filter-group label { min-height: 44px; margin-right: 8px; }
@@ -584,7 +586,8 @@ def _tokai_report_html(evaluations, report_url):
         f"元評価 {point + '/100点' if point else '未評価'}"
     )
     items = "".join(
-        f"<li class='saved-field'><strong>{html_escape(str(k))}:</strong><p>{html_escape(str(v))}</p></li>"
+        f"<li class='saved-field'><strong>{html_escape(str(k))}{'' if ':' in str(k) else ':'}</strong>"
+        f"<p>{html_escape(str(v))}</p></li>"
         for k, v in evaluations.items()
     )
     body = f"<ul class='tokai-evaluations'>{items}</ul>" if items else "<p>保存済み本文なし</p>"

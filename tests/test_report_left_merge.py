@@ -80,7 +80,7 @@ class ReportMergeTests(unittest.TestCase):
                     url = block.parent.find("a")["href"]
                     record = records.loc[records["report_url"] == url].iloc[0]
                     expected = [
-                        " ".join(f"{key}: {value}".split())
+                        " ".join((f"{key} {value}" if ":" in str(key) else f"{key}: {value}").split())
                         for key, value in record["evaluations"].items()
                     ]
                     actual = [" ".join(li.get_text().split()) for li in block.find_all("li")]

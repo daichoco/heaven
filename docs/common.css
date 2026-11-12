@@ -70,6 +70,11 @@ input, select, textarea { font-size: 16px; }
 .page-nav { margin: 0 0 8px; }
 .page-nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; font-weight: 600; text-decoration: none; }
 
+/* 狭い画面では「開いた本文を閉じる」を「先頭へ」の左隣に並べ、本文との重なりを減らす */
+@media (max-width: 600px) {
+  #closeOpen { right: calc(112px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); }
+}
+
 /* 「先頭へ」ボタン */
 .back-to-top {
   position: fixed;
