@@ -317,6 +317,9 @@ CALENDAR_PAGE_HEAD = """<!DOCTYPE html>
       .review-buttons { margin: 6px 0; }
       .shop-cell .review-buttons button { display: inline-block; width: auto; margin: 4px 6px 4px 0; }
       th:first-child, td.shop-cell { width: 260px; }
+      @media (min-width: 1101px) and (pointer: fine) {
+        body > div[style*="overflow-x: auto"] { max-width: 900px; }
+      }
       details { text-align: left; margin-top: 5px; }
       summary { cursor: pointer; font-weight: bold; }
       .filter-group { margin-bottom: 14px; line-height: 1.8; }
@@ -628,9 +631,9 @@ def _okinilove_report_html(report):
             for label, items in tags
         ) + "</div>"
     if _has_value(report["report_text"]):
-        body += _saved_field("report_text", report["report_text"])
+        body += _saved_field("レポート本文", report["report_text"])
     if _has_value(evaluations):
-        body += _saved_field("evaluations", evaluations if not isinstance(evaluations, dict) else
+        body += _saved_field("評価", evaluations if not isinstance(evaluations, dict) else
                              " / ".join(f"{k}: {v}" for k, v in evaluations.items()))
     return _saved_report(title, url, body or "<p>保存済み本文なし</p>")
 
