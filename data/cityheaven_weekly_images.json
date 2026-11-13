@@ -82,6 +82,11 @@
   "shop_kind": "ソープ(激安/名古屋駅周辺)",
   "price_class": "激安"
  },
+ "https://www.cityheaven.net/aichi/A2301/A230101/infinity/girlid-56351106/": {
+  "checked_at": "2026-11-13T15:21:26.865463+00:00",
+  "status": "not_found",
+  "image_url": ""
+ },
  "https://www.cityheaven.net/aichi/A2301/A230101/infinity/girlid-56351362/": {
   "checked_at": "2026-10-18T12:00:47.636179+00:00",
   "status": "ok",
