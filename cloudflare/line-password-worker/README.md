@@ -53,6 +53,18 @@ npx wrangler deploy
 .\create-rich-menu.ps1 -LiffId <LIFF ID>
 ```
 
+## LINEから手動実行する
+
+LINEで `更新` と送ると日次処理(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`)を実行し、`状態` と送ると実行中・最終実行の結果を返します。
+Worker が要求を KV に保存し、PC のタスク `HeavenJobPoller`(5分ごと、`poll-heaven-job.ps1`)が `/job` を確認して実行します。
+完了・失敗は従来どおりLINEに通知されます。実行中に `更新` を送っても二重起動はしません。
+
+```powershell
+$a = New-ScheduledTaskAction -Execute powershell.exe -Argument '-NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy RemoteSigned -File "C:\automation\heaven\cloudflare\line-password-worker\poll-heaven-job.ps1"'
+$t = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes 5)
+Register-ScheduledTask -TaskName HeavenJobPoller -Action $a -Trigger $t -Force
+```
+
 ## 注意
 
 - パスワードは LINE のトーク履歴に残ります。反映後に削除してください。

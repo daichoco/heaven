@@ -1,6 +1,9 @@
 const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
+const JOB_COMMANDS = { 更新: "run", 状態: "status" };
 const KEY = "pending-password";
+const JOB_KEY = "pending-job";
 const TTL_SECONDS = 7 * 24 * 60 * 60;
+const JOB_TTL_SECONDS = 60 * 60;
 
 const encoder = new TextEncoder();
 
@@ -68,9 +71,26 @@ async function handleWebhook(request, env) {
   for (const event of payload.events ?? []) {
     if (event.type !== "message" || event.message?.type !== "text") continue;
     if (event.source?.userId !== env.ALLOWED_USER_ID) continue;
-    const match = COMMAND.exec(event.message.text.trim());
+    const text = event.message.text.trim();
+    const job = JOB_COMMANDS[text];
+    if (job) {
+      await env.PASSWORDS.put(JOB_KEY, job, { expirationTtl: JOB_TTL_SECONDS });
+      await reply(
+        env,
+        event.replyToken,
+        job === "run"
+          ? "更新の実行を受け付けました。PCが数分以内に開始し、完了したらLINEでお知らせします。"
+          : "状態の確認を受け付けました。数分以内にお知らせします。",
+      );
+      continue;
+    }
+    const match = COMMAND.exec(text);
     if (!match) {
-      await reply(env, event.replyToken, "「パスワード 新しいパスワード」の形式で送ってください。");
+      await reply(
+        env,
+        event.replyToken,
+        "「更新」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
+      );
       continue;
     }
     await env.PASSWORDS.put(KEY, match[1], { expirationTtl: TTL_SECONDS });
@@ -92,6 +112,17 @@ async function handlePull(request, env) {
   if (password === null) return new Response(null, { status: 204 });
   await env.PASSWORDS.delete(KEY);
   return Response.json({ password });
+}
+
+async function handleJob(request, env) {
+  const header = request.headers.get("authorization") ?? "";
+  if (!(await safeEqual(header, `Bearer ${env.PULL_TOKEN}`))) {
+    return new Response("unauthorized", { status: 401 });
+  }
+  const job = await env.PASSWORDS.get(JOB_KEY);
+  if (job === null) return new Response(null, { status: 204 });
+  await env.PASSWORDS.delete(JOB_KEY);
+  return Response.json({ job });
 }
 
 const FORM_HTML = `<!doctype html>
@@ -185,6 +216,7 @@ export default {
     if (request.method === "POST" && pathname === "/submit") return handleSubmit(request, env);
     if (request.method === "POST" && pathname === "/webhook") return handleWebhook(request, env);
     if (request.method === "POST" && pathname === "/pull") return handlePull(request, env);
+    if (request.method === "POST" && pathname === "/job") return handleJob(request, env);
     return new Response("not found", { status: 404 });
   },
 };
