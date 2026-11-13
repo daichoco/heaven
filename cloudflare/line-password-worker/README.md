@@ -1,4 +1,4 @@
-# LINEから東海パスワードを更新する
+﻿# LINEから東海パスワードを更新する
 
 LINEボットに `パスワード 新しいパスワード` と送ると、Cloudflare Workers が受け取って KV に一時保存します。
 ローカルの定時実行ラッパー(`run-heaven.ps1`)が起動時に `/pull` で取り出し、
@@ -55,7 +55,7 @@ npx wrangler deploy
 
 ## LINEから手動実行する
 
-LINEで `更新` と送ると日次処理(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`)を実行し、`状態` と送ると実行中・最終実行の結果を返します。
+LINEで `更新` と送る(リッチメニューの「更新」「状態」ボタンでも可)と日次処理(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`)を実行し、`状態` と送ると実行中・最終実行の結果を返します。
 Worker が要求を KV に保存し、PC のタスク `HeavenJobPoller`(5分ごと、`poll-heaven-job.ps1`)が `/job` を確認して実行します。
 完了・失敗は従来どおりLINEに通知されます。実行中に `更新` を送っても二重起動はしません。
 
