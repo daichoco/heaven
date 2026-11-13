@@ -44,7 +44,7 @@ class ReportChangeSummaryTest(unittest.TestCase):
 
     def test_label_includes_person_link(self):
         label = rcs.tokai_label({"shop_name": "店", "name": "あかね", "total_point": 85, "url": "https://example/a"})
-        self.assertIn("https://example/a", label)
+        self.assertNotIn("https://example/a", label)
         self.assertIn("\n  レポート: " + rcs.PAGES_BASE + "tokai_final_report.html#search=", label)
 
 

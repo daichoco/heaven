@@ -67,17 +67,17 @@ def with_link(label, page, shop, name):
 
 
 def tokai_label(r):
-    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('total_point')}点 {r.get('url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('total_point')}点"
     return with_link(label, "tokai_final_report.html", r.get("shop_name"), r.get("name"))
 
 
 def ns_label(r):
-    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('details', {}).get(NS_TOTAL_KEY, '')} {r.get('url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('name', '')} 総合{r.get('details', {}).get(NS_TOTAL_KEY, '')}"
     return with_link(label, "ns_senmon_report.html", r.get("shop_name"), r.get("name"))
 
 
 def okinilove_label(r):
-    label = f"{r.get('shop_name', '')} {r.get('girl_name', '')} ★{stars(r)} {r.get('report_url', '')}"
+    label = f"{r.get('shop_name', '')} {r.get('girl_name', '')} ★{stars(r)}"
     return with_link(label, "okinilove_remove_unknown.html", r.get("shop_name"), r.get("girl_name"))
 
 
