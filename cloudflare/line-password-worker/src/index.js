@@ -1,5 +1,5 @@
 const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
-const JOB_COMMANDS = { 更新: "run", 状態: "status" };
+const JOB_COMMANDS = { 更新: "run", レポート: "report", カレンダー: "calendar", 状態: "status" };
 const KEY = "pending-password";
 const JOB_KEY = "pending-job";
 const TTL_SECONDS = 7 * 24 * 60 * 60;
@@ -78,9 +78,9 @@ async function handleWebhook(request, env) {
       await reply(
         env,
         event.replyToken,
-        job === "run"
-          ? "更新の実行を受け付けました。PCが数分以内に開始し、完了したらLINEでお知らせします。"
-          : "状態の確認を受け付けました。数分以内にお知らせします。",
+        job === "status"
+          ? "状態の確認を受け付けました。1分以内にお知らせします。"
+          : "実行を受け付けました。PCが1分以内に開始し、完了したらLINEでお知らせします。",
       );
       continue;
     }
@@ -89,7 +89,7 @@ async function handleWebhook(request, env) {
       await reply(
         env,
         event.replyToken,
-        "「更新」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
+        "「レポート」「カレンダー」「更新(両方)」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
       );
       continue;
     }

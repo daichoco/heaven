@@ -55,8 +55,12 @@ npx wrangler deploy
 
 ## LINEから手動実行する
 
-LINEで `更新` と送る(リッチメニューの「更新」「状態」ボタンでも可)と日次処理(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`)を実行し、`状態` と送ると実行中・最終実行の結果を返します。
-Worker が要求を KV に保存し、PC のタスク `HeavenJobPoller`(5分ごと、`poll-heaven-job.ps1`)が `/job` を確認して実行します。
+LINEで次を送る(リッチメニューの「レポート」「カレンダー」「状態」ボタンでも可):
+- `レポート`: 東海・NS専門・オキニラブのレポートのみ(`run-heaven.ps1`)
+- `カレンダー`: 月カレンダーと週間予定のみ(`run-heaven.ps1 -CalendarOnly`)
+- `更新`: 両方(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`。毎日9:00の定期実行と同じ)
+- `状態`: 実行中・最終実行の結果を返す
+Worker が要求を KV に保存し、PC のタスク `HeavenJobPoller`(1分ごと、`poll-heaven-job.ps1`)が `/job` を確認して実行します。
 完了・失敗は従来どおりLINEに通知されます。実行中に `更新` を送っても二重起動はしません。
 
 ```powershell

@@ -13,15 +13,19 @@ $menu = @{
     chatBarText = 'メニュー'
     areas = @(
         @{
-            bounds = @{ x = 0; y = 0; width = 833; height = 843 }
-            action = @{ type = 'message'; label = '更新'; text = '更新' }
+            bounds = @{ x = 0; y = 0; width = 625; height = 843 }
+            action = @{ type = 'message'; label = 'レポート'; text = 'レポート' }
         },
         @{
-            bounds = @{ x = 833; y = 0; width = 834; height = 843 }
+            bounds = @{ x = 625; y = 0; width = 625; height = 843 }
+            action = @{ type = 'message'; label = 'カレンダー'; text = 'カレンダー' }
+        },
+        @{
+            bounds = @{ x = 1250; y = 0; width = 625; height = 843 }
             action = @{ type = 'message'; label = '状態'; text = '状態' }
         },
         @{
-            bounds = @{ x = 1667; y = 0; width = 833; height = 843 }
+            bounds = @{ x = 1875; y = 0; width = 625; height = 843 }
             action = @{ type = 'uri'; label = 'パスワード更新'; uri = "https://liff.line.me/$LiffId" }
         }
     )
@@ -36,14 +40,14 @@ $bitmap = New-Object System.Drawing.Bitmap 2500, 843
 $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
 $graphics.Clear([System.Drawing.ColorTranslator]::FromHtml('#06c755'))
 $graphics.TextRenderingHint = 'AntiAlias'
-$font = New-Object System.Drawing.Font 'Meiryo UI', 80, ([System.Drawing.FontStyle]::Bold)
+$font = New-Object System.Drawing.Font 'Meiryo UI', 48, ([System.Drawing.FontStyle]::Bold)
 $format = New-Object System.Drawing.StringFormat
 $format.Alignment = 'Center'; $format.LineAlignment = 'Center'
 $line = New-Object System.Drawing.Pen ([System.Drawing.Color]::White), 6
-$labels = '更新', '状態', 'パスワード更新'
-$xs = 0, 833, 1667
-$widths = 833, 834, 833
-for ($i = 0; $i -lt 3; $i++) {
+$labels = 'レポート', 'カレンダー', '状態', 'パスワード更新'
+$xs = 0, 625, 1250, 1875
+$widths = 625, 625, 625, 625
+for ($i = 0; $i -lt 4; $i++) {
     $graphics.DrawString($labels[$i], $font, [System.Drawing.Brushes]::White, (New-Object System.Drawing.RectangleF $xs[$i], 0, $widths[$i], 843), $format)
     if ($i -gt 0) { $graphics.DrawLine($line, $xs[$i], 60, $xs[$i], 783) }
 }
