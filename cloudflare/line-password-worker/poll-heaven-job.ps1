@@ -1,4 +1,4 @@
-$ErrorActionPreference = 'Stop'
+﻿$ErrorActionPreference = 'Stop'
 $env:Path = ([Environment]::GetEnvironmentVariable('Path', 'Machine'), [Environment]::GetEnvironmentVariable('Path', 'User'), $env:Path) -join ';'
 foreach ($name in 'LINE_CHANNEL_TOKEN', 'LINE_USER_ID', 'PASSWORD_WORKER_URL', 'PASSWORD_WORKER_TOKEN') {
     $value = [Environment]::GetEnvironmentVariable($name, 'User')
