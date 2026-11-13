@@ -51,5 +51,8 @@ if ($job -eq 'status') {
         exit 0
     }
     Send-Line '更新を開始しました。'
-    & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy RemoteSigned -File $Runner -IncludeCityHeavenCalendarAndWeekly
+    Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList @(
+        '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'RemoteSigned',
+        '-File', "`"$Runner`"", '-IncludeCityHeavenCalendarAndWeekly'
+    )
 }
