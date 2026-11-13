@@ -208,6 +208,15 @@
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-67094507/": {
+  "checked_at": "2026-11-13T00:50:13.839952+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/cosplayacademy/la_grpb0067094507_0000000000pc.jpeg?cache02=1791825711&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-67094507/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-67566621/": {
   "checked_at": "2026-11-09T00:23:08.485034+00:00",
   "status": "ok",
