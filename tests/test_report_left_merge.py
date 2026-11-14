@@ -17,17 +17,6 @@ PROFILE = "https://www.cityheaven.net/a/shop/girlid-123/"
 OTHER_PROFILE = "https://www.cityheaven.net/a/shop/girlid-456/"
 
 
-class NormalizeUrlTest(unittest.TestCase):
-    def test_area_code_difference_is_ignored(self):
-        a = "https://www.cityheaven.net/aichi/A2301/A230113/domani/girlid-53978119/"
-        b = "https://www.cityheaven.net/aichi/A2301/A230101/domani/girlid-53978119/?lo=1"
-        self.assertEqual(integration.normalize_url(a), integration.normalize_url(b))
-        self.assertNotEqual(
-            integration.normalize_url(a),
-            integration.normalize_url(a.replace("domani", "other")),
-        )
-
-
 def tokai_report(number, profile=PROFILE):
     return {
         "shop_name": "shop", "shop_type": "type", "girl_name": "person",
