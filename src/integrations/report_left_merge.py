@@ -56,8 +56,9 @@ def normalize_url(url):
         return None
 
     normalized = str(url).split("?")[0].rstrip("/")
-    match = re.search(r"(https://www\.cityheaven\.net/.+?/girlid-\d+)", normalized)
-    return match.group(1) if match else normalized
+    # 店のエリアコード(A230101/A230113など)は店の移動・掲載先で変わるため、店スラッグ+girlidで同一視する
+    match = re.search(r"https://www\.cityheaven\.net/.+?/([^/]+/girlid-\d+)", normalized)
+    return f"https://www.cityheaven.net/{match.group(1)}" if match else normalized
 
 
 def enrich_with_cityheaven_urls(df):
