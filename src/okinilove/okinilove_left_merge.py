@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime, timedelta, timezone
@@ -324,6 +325,29 @@ def maintain_okinilove_data(
     return existing, changed
 
 
+_SHOP_GIRL_RE = re.compile(r"/([^/]+/girlid-\d+)/?$")
+
+
+def _align_keys_to_calendar(keys, calendar_data):
+    """エリアコードだけ違うURL(店の掲載エリア変更)は、店スラッグ+girlidが同じならカレンダー側のキーに揃える。"""
+    if "url_key" not in calendar_data.columns:
+        return keys
+    calendar_keys = set(calendar_data["url_key"].dropna())
+    by_identity = {}
+    for key in calendar_keys:
+        match = _SHOP_GIRL_RE.search(str(key))
+        if match:
+            by_identity.setdefault(match.group(1), key)
+
+    def align(key):
+        if pd.isna(key) or key in calendar_keys:
+            return key
+        match = _SHOP_GIRL_RE.search(str(key))
+        return by_identity.get(match.group(1), key) if match else key
+
+    return keys.map(align)
+
+
 def merge_okinilove_data(
     calendar_data,
     *,
@@ -373,6 +397,7 @@ def merge_okinilove_data(
 
     existing = existing.loc[:, OKINILOVE_COLUMNS].copy()
     existing["url_key"] = existing["cityheaven_url"].apply(normalize_url)
+    existing["url_key"] = _align_keys_to_calendar(existing["url_key"], calendar_data)
     grouped = pd.DataFrame(
         [
             {

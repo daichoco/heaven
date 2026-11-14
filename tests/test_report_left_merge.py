@@ -17,6 +17,18 @@ PROFILE = "https://www.cityheaven.net/a/shop/girlid-123/"
 OTHER_PROFILE = "https://www.cityheaven.net/a/shop/girlid-456/"
 
 
+class NormalizeUrlTest(unittest.TestCase):
+    def test_area_code_difference_is_aligned_to_calendar_key(self):
+        calendar = pd.DataFrame({"url_key": ["https://www.cityheaven.net/aichi/A2301/A230101/domani/girlid-1"]})
+        keys = pd.Series([
+            "https://www.cityheaven.net/aichi/A2301/A230113/domani/girlid-1",
+            "https://www.cityheaven.net/aichi/A2301/A230113/other/girlid-1",
+        ])
+        aligned = okinilove._align_keys_to_calendar(keys, calendar)
+        self.assertEqual(aligned[0], calendar["url_key"][0])
+        self.assertEqual(aligned[1], keys[1])
+
+
 def tokai_report(number, profile=PROFILE):
     return {
         "shop_name": "shop", "shop_type": "type", "girl_name": "person",
