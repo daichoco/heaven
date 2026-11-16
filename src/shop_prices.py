@@ -164,6 +164,48 @@ def classify_candidate(candidate):
     }
 
 
+def approximate_candidate(item):
+    """Loose reading of one row: first duration and first amount, for rough 60-minute conversion."""
+    if item.get("row_role") != "course" or item.get("context_role") == "extra":
+        return None
+    minutes = item.get("minutes")
+    if minutes is None:
+        match = re.search(r"(\d{1,3})\s*(?:分|mins?|minutes?)", normalized(item["label"]), re.I)
+        minutes = int(match[1]) if match else None
+    yen = item.get("yen")
+    if yen is None:
+        price = normalized(item["price_text"])
+        price = re.sub(r"\d+\s*pt", "", price, flags=re.I)
+        match = re.search(r"(?:[¥￥]\s*|(?<![\d,]))([1-9]\d{0,2}(?:,\d{3})+|[1-9]\d{3,5})\s*(?:円|yen)?", price, re.I)
+        yen = int(match[1].replace(",", "")) if match else None
+    if not minutes or not 1 <= minutes <= 300 or not yen or not 3000 <= yen <= 500000:
+        return None
+    return {**item, "minutes": minutes, "yen": yen}
+
+
+def select_approximate_course(result):
+    rough = [found for found in map(approximate_candidate, result["candidates"]) if found]
+    plain = [item for item in rough if item["context_role"] != "promotion"]
+    pool = plain or rough
+    if not pool:
+        return False
+    minutes = min((item["minutes"] for item in pool), key=lambda value: (abs(value - 90), -value))
+    compared = [item for item in pool if item["minutes"] == minutes]
+    highest = max(item["yen"] for item in compared)
+    alternatives = [item for item in compared if item["yen"] == highest]
+    selected = alternatives[0]
+    reason = "概算: 厳密に特定できない表記を緩く読み、90分に最も近い時間の高い方の掲載料金を60分換算"
+    result["selected"] = {
+        **selected, "yen_per_60": selected["yen"] * 60 / minutes,
+        "matching_courses": alternatives, "compared_courses": compared,
+        "selection_reason": reason, "approximate": True,
+    }
+    result["status"] = "ok"
+    result["reason"] = reason
+    result["decision_version"] = DECISION_VERSION
+    return True
+
+
 def select_published_course(result, tables):
     viable = []
     unresolved = []
@@ -406,7 +448,7 @@ def merge_saved_evidence(current, incoming, source_digest):
     return merged, conflicts
 
 
-def reprocess_snapshot(path=CACHE, source=None):
+def reprocess_snapshot(path=CACHE, source=None, approximate=False):
     """Re-evaluate an explicit snapshot once, refusing to overwrite a concurrent writer."""
     path = Path(path)
     before = path.read_bytes() if path.exists() else None
@@ -429,6 +471,8 @@ def reprocess_snapshot(path=CACHE, source=None):
         if entry.get("evidence_conflict") or entry.get("status") not in {"ok", "unknown"}:
             continue
         result = reprocess_cached_entry(entry)
+        if approximate and result["status"] == "unknown":
+            select_approximate_course(result)
         payload["shops"][url] = result
         key = entry["status"] + " -> " + result["status"]
         transitions[key] = transitions.get(key, 0) + 1
@@ -560,7 +604,7 @@ def price_info(entry, url):
     status = entry.get("status", "not_fetched")
     selected = entry.get("selected") if status == "ok" else None
     if selected:
-        heading = f'条件つき目安 {selected["yen_per_60"]:,.0f}円 / 60分換算'
+        heading = f'{"概算" if selected.get("approximate") else "条件つき目安"} {selected["yen_per_60"]:,.0f}円 / 60分換算'
         evidence = (
             f'掲載コース {selected["minutes"]}分 {selected["yen"]:,}円'
             f'（{selected["course_name"]} / {selected["label"]}）'
@@ -712,7 +756,7 @@ def main(argv=None):
     if args.reprocess_all:
         if args.all or args.shop_url or args.html_file or args.limit or args.refresh:
             parser.error("--reprocess-all は取得・店舗選択・limit・refreshと併用できません")
-        payload, transitions, conflicts = reprocess_snapshot(source=args.reprocess_cache)
+        payload, transitions, conflicts = reprocess_snapshot(source=args.reprocess_cache, approximate=True)
         print(f"保存候補の再判定 {transitions} / 証拠の相違 {len(conflicts)}件（別証拠を保持）")
         print(f"保存店舗 {len(payload['shops'])} / 状態 " + str({
             status: sum(entry["status"] == status for entry in payload["shops"].values()) for status in STATUSES
@@ -772,6 +816,8 @@ def main(argv=None):
                     "source_url": url + "system/",
                     "checked_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 })
+            if entry["status"] == "unknown":
+                select_approximate_course(entry)
             cache["shops"][url] = entry
             save_cache(cache)
             failures += entry["status"] != "ok"

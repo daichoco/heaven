@@ -188,6 +188,20 @@ class PriceParserTests(unittest.TestCase):
         session.get.side_effect = prices.requests.Timeout("timeout")
         self.assertEqual(prices.fetch_price(session, SHOP + "system/")["status"], "error")
 
+    def test_approximate_selection_reads_loosely_and_skips_fee_only_rows(self):
+        def row(label, price, role="course", row_role="course"):
+            return {"course_name": "通常", "label": label, "price_text": price, "minutes": None,
+                    "yen": None, "context_role": role, "row_role": row_role}
+        result = {"candidates": [
+            row("60分", "10,000円～20,000円"), row("90分", "18,000円 → 16,000円"),
+            row("90分", "5,000円", row_role="extra"), row("120分", "20,000円", role="promotion"),
+        ]}
+        self.assertTrue(prices.select_approximate_course(result))
+        selected = result["selected"]
+        self.assertEqual((selected["minutes"], selected["yen"], selected["approximate"]), (90, 18000, True))
+        self.assertEqual(selected["yen_per_60"], 12000)
+        self.assertFalse(prices.select_approximate_course({"candidates": [row("入浴料", "2,000円", "extra", "extra")]}))
+
     def test_moved_shop_301_is_followed_once_but_age_check_is_not(self):
         moved = SHOP.replace("A2", "A9", 1)
         def reply(status, location=""):
