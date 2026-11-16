@@ -658,7 +658,7 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
     now = now or datetime.now(JST)
     images = images or {}
     assets = assets if assets is not None else {}
-    prices = shop_prices.load_cache()
+    prices = shop_prices.load_display_cache()
     period_note = (
         "生成時の本日から7日間" if dates[0] == now.astimezone(JST).date().isoformat()
         else "保存済み対象期間・本日へずらしません"

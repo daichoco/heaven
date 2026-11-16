@@ -202,6 +202,17 @@ class PriceParserTests(unittest.TestCase):
         self.assertEqual(selected["yen_per_60"], 12000)
         self.assertFalse(prices.select_approximate_course({"candidates": [row("入浴料", "2,000円", "extra", "extra")]}))
 
+    def test_report_price_entries_use_median_per_60_from_play_time_and_total_cost(self):
+        rows = [
+            {"girl_url": SHOP + "girlid-1/", "play_time": "◆プレイ時間：90分", "total_cost": "◆総額：18000円"},
+            {"girl_url": SHOP + "girlid-2/", "play_time": "◆プレイ時間：60分", "total_cost": "◆総額：14,000円"},
+            {"girl_url": SHOP + "girlid-3/", "play_time": "", "total_cost": "◆総額：1円"},
+        ]
+        with patch.object(prices, "read_jsonl_records", return_value=rows):
+            entry = prices.report_price_entries()[SHOP]
+        self.assertEqual(entry["status"], "ok")
+        self.assertEqual(entry["selected"]["yen_per_60"], 13000)
+
     def test_moved_shop_301_is_followed_once_but_age_check_is_not(self):
         moved = SHOP.replace("A2", "A9", 1)
         def reply(status, location=""):

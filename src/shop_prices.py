@@ -391,6 +391,45 @@ def load_cache(path=CACHE):
     return payload
 
 
+def report_price_entries(path=None):
+    """Rough prices from 東海レポート's actual play time and total cost (display only, never saved)."""
+    per_hour = {}
+    for record in read_jsonl_records(path or ROOT / "data" / "tokai_fuzoku_reports.jsonl"):
+        url = shop_url(record.get("girl_url"))
+        minutes = re.search(r"(\d{2,3})\s*分", normalized(str(record.get("play_time") or "")))
+        yen = re.search(r"([1-9]\d*(?:,\d{3})*)\s*円", normalized(str(record.get("total_cost") or "")))
+        if not url or not minutes or not yen:
+            continue
+        minutes, yen = int(minutes[1]), int(yen[1].replace(",", ""))
+        if 30 <= minutes <= 300 and 3000 <= yen <= 500000:
+            per_hour.setdefault(url, []).append(yen * 60 / minutes)
+    entries = {}
+    for url, values in per_hour.items():
+        values.sort()
+        middle = values[len(values) // 2] if len(values) % 2 else (values[len(values) // 2 - 1] + values[len(values) // 2]) / 2
+        reason = f"東海レポート{len(values)}件の総額÷プレイ時間の中央値（60分換算・実績ベースの概算）"
+        entries[url] = {
+            "status": "ok", "reason": reason, "candidates": [], "tax": "unknown", "additional_fees": [],
+            "selected": {
+                "course_name": "東海レポート実績", "section": "", "label": f"{len(values)}件の中央値",
+                "price_text": f"{middle:,.0f}円/60分", "conditions": "", "minutes": 60,
+                "yen": round(middle), "yen_per_60": middle, "approximate": True,
+                "selection_reason": reason, "source": "tokai_report",
+            },
+        }
+    return entries
+
+
+def load_display_cache():
+    """Saved shop prices plus report-based fallback for shops without a usable page price."""
+    cache = copy.deepcopy(load_cache())
+    for url, fallback in report_price_entries().items():
+        entry = cache["shops"].get(url)
+        if not entry or entry.get("status") != "ok":
+            cache["shops"][url] = {**(entry or {}), **fallback, "page_status": (entry or {}).get("status")}
+    return cache
+
+
 def save_cache(payload, path=CACHE):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -668,7 +707,7 @@ def price_info(entry, url):
 
 def attach_prices(markup, cache=None):
     """Decorate listing rows using profile URLs only; native filters own visibility."""
-    cache = cache if cache is not None else load_cache()
+    cache = cache if cache is not None else load_display_cache()
     soup = BeautifulSoup(markup, "lxml")
     if soup.select_one("#shopPriceFilters"):
         return str(soup)
