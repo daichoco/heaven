@@ -505,7 +505,7 @@ def unresolved_categories(entry):
     if entry.get("status") == "ok":
         return []
     if entry.get("status") == "redirect":
-        return ["年齢確認への転送" if entry.get("redirect_kind") == "age_verification" else "転送先未確認"]
+        return ["掲載終了"]
     if entry.get("status") != "unknown":
         return [STATUSES.get(entry.get("status"), "未取得")]
     if not entry.get("candidates"):
