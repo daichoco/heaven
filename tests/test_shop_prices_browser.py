@@ -101,16 +101,16 @@ class ShopPriceBrowserTests(unittest.TestCase):
                     page = browser.new_page()
                     page.set_content(shop_prices.PRICE_CONTROLS)
                     page.add_script_tag(path=str(ROOT / "docs" / "shop_prices.js"))
-                    bands = ["0-10000", "10000-15000", "15000-20000",
-                             "20000-25000", "25000-30000", "30000"]
-                    amounts = [0.01, 9999.99, 10000, 14999.99, 15000, 19999.99,
-                               20000, 24999.99, 25000, 29999.99, 30000, 99999]
-                    expected = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5]
-                    for index, band in enumerate(bands):
+                    bands = ["max10000", "max12000", "max15000", "max20000", "max25000", "max30000", "over30000"]
+                    amounts = [0.01, 10000, 10000.01, 12000, 15000, 20000, 25000, 30000, 30000.01, 99999]
+                    ceilings = {"max10000": 10000, "max12000": 12000, "max15000": 15000,
+                                "max20000": 20000, "max25000": 25000, "max30000": 30000}
+                    for band in bands:
                         page.select_option("#shopPriceBand", band)
                         actual = page.evaluate("""amounts => amounts.map(amount =>
                             shopPriceMatches({dataset: {shopPriceStatus: "ok", shopPrice: String(amount)}}))""", amounts)
-                        self.assertEqual(actual, [value == index for value in expected], (engine, band))
+                        expected = [amount > 30000 if band == "over30000" else amount <= ceilings[band] for amount in amounts]
+                        self.assertEqual(actual, expected, (engine, band))
                         self.assertEqual(page.evaluate("""() => ["", "NaN", "0", "-1"].map(value =>
                             shopPriceMatches({dataset: {shopPriceStatus: "ok", shopPrice: value}}))"""),
                                          [False] * 4)
@@ -170,7 +170,7 @@ class ShopPriceBrowserTests(unittest.TestCase):
                                 band = page.locator("#shopPriceBand")
                                 expect(band).to_have_value("")
                                 expect(page.locator("#shopPriceMin, #shopPriceMax")).to_have_count(0)
-                                band.select_option("15000-20000")
+                                band.select_option("max20000")
                                 expect(rows.locator("visible=true")).to_have_count(1)
                                 known = rows.filter(has=page.locator('[href="' + PROFILES[0] + '"]')).first
                                 price_details = known.locator(".shop-price-evidence").first
@@ -185,37 +185,37 @@ class ShopPriceBrowserTests(unittest.TestCase):
                                 price_details.locator("summary").click()
                                 if name == "weekly":
                                     self.assertLess(abs(price_details.locator("summary").bounding_box()["y"] - top), 2)
-                                band.select_option("20000-25000")
+                                band.select_option("max15000")
                                 expect(rows.locator("visible=true")).to_have_count(0)
                                 band.select_option("unknown")
                                 expect(rows.locator("visible=true")).to_have_count(1)
-                                band.select_option("10000-15000")
+                                band.select_option("max12000")
                                 expect(rows.locator("visible=true")).to_have_count(0)
                                 band.select_option("")
                                 expect(rows.locator("visible=true")).to_have_count(2)
                                 if name == "weekly":
                                     page.locator("#ageFilter").select_option("over30")
                                     expect(rows.locator("visible=true")).to_have_count(0)
-                                    band.select_option("15000-20000")
+                                    band.select_option("max20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#ageFilter").select_option("")
                                     band.select_option("")
                                 elif name in {"ns", "okinilove"}:
                                     page.locator("#shop").select_option("Shop1")
-                                    band.select_option("15000-20000")
+                                    band.select_option("max20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#reset-filters").click()
                                     expect(band).to_have_value("")
                                     expect(rows.locator("visible=true")).to_have_count(2)
                                 elif name in {"tokai", "calendar"}:
                                     page.locator("#shopFilter").select_option("Shop1")
-                                    band.select_option("15000-20000")
+                                    band.select_option("max20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#shopFilter").select_option("")
                                     band.select_option("")
                                 elif name == "booking":
                                     page.locator("#personSearch").fill("Person1")
-                                    band.select_option("15000-20000")
+                                    band.select_option("max20000")
                                     expect(rows.locator("visible=true")).to_have_count(0)
                                     page.locator("#personSearch").fill("")
                                     page.evaluate("resetShopPrices(); filterPeople()")

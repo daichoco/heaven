@@ -662,14 +662,15 @@ def unresolved_categories(entry):
 PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" aria-label="店舗料金">
 <strong>掲載コースの60分換算目安（利用条件あり）</strong>
 <div class="shop-price-inputs">
-<label>価格帯<select id="shopPriceBand">
+<label>料金（60分換算）<select id="shopPriceBand">
 <option value="">すべて</option>
-<option value="0-10000">1万円未満</option>
-<option value="10000-15000">1万〜1.5万円未満</option>
-<option value="15000-20000">1.5万〜2万円未満</option>
-<option value="20000-25000">2万〜2.5万円未満</option>
-<option value="25000-30000">2.5万〜3万円未満</option>
-<option value="30000">3万円以上</option>
+<option value="max10000">1万円以下</option>
+<option value="max12000">1.2万円以下</option>
+<option value="max15000">1.5万円以下</option>
+<option value="max20000">2万円以下</option>
+<option value="max25000">2.5万円以下</option>
+<option value="max30000">3万円以下</option>
+<option value="over30000">3万円超</option>
 <option value="unknown">料金不明</option>
 </select></label>
 </div>

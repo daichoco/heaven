@@ -251,20 +251,24 @@
     <section aria-label="店舗料金" class="shop-price-filters" id="shopPriceFilters">
       <strong>掲載コースの60分換算目安（利用条件あり）</strong>
       <div class="shop-price-inputs">
-        <label>価格帯<select id="shopPriceBand">
+        <label>料金（60分換算）<select id="shopPriceBand">
             <option value="">すべて</option>
-            <option value="0-10000">1万円未満</option>
-            <option value="10000-15000">1万〜1.5万円未満</option>
-            <option value="15000-20000">1.5万〜2万円未満</option>
-            <option value="20000-25000">2万〜2.5万円未満</option>
-            <option value="25000-30000">2.5万〜3万円未満</option>
-            <option value="30000">3万円以上</option>
+            <option value="max10000">1万円以下</option>
+            <option value="max12000">1.2万円以下</option>
+            <option value="max15000">1.5万円以下</option>
+            <option value="max20000">2万円以下</option>
+            <option value="max25000">2.5万円以下</option>
+            <option value="max30000">3万円以下</option>
+            <option value="over30000">3万円超</option>
             <option value="unknown">料金不明</option>
           </select></label>
       </div>
-      <p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
+      <details>
+        <summary>算出方法・注意</summary>
+        <p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
 選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
 指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
+      </details>
     </section>
     <div class="filter-group">
       <strong>表示条件：</strong><br />

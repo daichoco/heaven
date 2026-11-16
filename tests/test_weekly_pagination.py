@@ -166,7 +166,7 @@ class WeeklyPaginationTests(unittest.TestCase):
                             expect(page.locator("#noResults")).to_be_visible()
                             page.select_option("#ageFilter", "under30")
                             expect(page.locator(".person-row")).to_have_count(1)
-                            page.select_option("#shopPriceBand", "15000-20000")
+                            page.select_option("#shopPriceBand", "max20000")
                             expect(page.locator(".person-row")).to_have_count(0)
                             page.select_option("#shopPriceBand", "unknown")
                             expect(page.locator(".person-row")).to_have_count(1)
