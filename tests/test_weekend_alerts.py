@@ -22,7 +22,12 @@ class WeekendAlertTests(unittest.TestCase):
             state, outbox = Path(folder, "s.json"), Path(folder, "o.txt")
             today = date(2026, 11, 16)  # Monday
             url = "https://example/g/1/"
-            people = [person(url)]
+            people = [person(url), person("https://example/g/2/", "B")]
+            targets = Path(folder, "t.txt")
+            targets.write_text(url + "\n", encoding="utf-8")
+            record = alerts.record_alerts
+            alerts.record_alerts = lambda *a: record(*a, targets_path=targets)
+            self.addCleanup(setattr, alerts, "record_alerts", record)
             first = schedule(url, ("2026-11-21", "working"), ("2026-11-17", "working"))
             self.assertEqual(alerts.record_alerts(people, first, today, state, outbox), [])
             self.assertFalse(outbox.exists())

@@ -8,3 +8,4 @@ data/tokai_fuzoku_collect_state.json
 data/kanto_fuzoku_collect_state.json
 data/weekend_alerts_state.json
 data/weekend_alerts_outbox.txt
+data/weekend_alerts_targets.txt

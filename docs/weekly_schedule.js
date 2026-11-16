@@ -95,6 +95,40 @@
     const button = event.target.closest(".review-toggle");
     if (button) showReview(button);
   });
+  const starKey = "weekendNotifyTargets";
+  const stars = new Set((() => {
+    try { return JSON.parse(localStorage.getItem(starKey) || "[]"); } catch (e) { return []; }
+  })());
+  const notifyCount = document.getElementById("notifyCount");
+  function paintStars() {
+    notifyCount.textContent = `★通知対象 ${stars.size}名`;
+    tbody.querySelectorAll(".notify-star").forEach(button => {
+      const on = stars.has(button.dataset.url);
+      button.textContent = on ? "★" : "☆";
+      button.setAttribute("aria-pressed", String(on));
+    });
+  }
+  tbody.addEventListener("click", event => {
+    const button = event.target.closest(".notify-star");
+    if (!button) return;
+    const url = button.dataset.url;
+    if (!stars.delete(url)) stars.add(url);
+    try { localStorage.setItem(starKey, JSON.stringify([...stars])); } catch (e) {}
+    paintStars();
+  });
+  new MutationObserver(paintStars).observe(tbody, {childList: true});
+  document.getElementById("notifyCopy").addEventListener("click", async () => {
+    const text = [...stars].join("\n");
+    const message = document.getElementById("notifyMsg");
+    try {
+      await navigator.clipboard.writeText(text);
+      message.textContent = "コピーしました";
+    } catch (e) {
+      message.textContent = "コピーできません";
+      window.prompt("通知対象のURL", text);
+    }
+  });
+  paintStars();
   tbody.addEventListener("error", event => {
     const image = event.target;
     if (image.matches(".profile-photo img")) {

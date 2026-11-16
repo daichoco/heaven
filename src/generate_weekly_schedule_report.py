@@ -756,7 +756,9 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
             f'data-shop-price="{price_amount}" data-shop-price-status="{escape(price_entry.get("status", "not_fetched"), quote=True)}" '
             f'data-ages="{",".join(map(str, ages))}">'
             f'<td class="shop-cell">{image_html(person, images)}'
-            f'<div class="person-identity"><div class="person-name">{identity}</div>'
+            f'<div class="person-identity"><button type="button" class="notify-star" '
+            f'data-url="{escape(person["profile_url"], quote=True)}" aria-pressed="false" '
+            f'title="土日出勤の通知対象にする">☆</button><div class="person-name">{identity}</div>'
             f'<div class="shop-info">{shop}</div></div>{shop_prices.price_info(price_entry, price_url)}'
             f'<div class="rank-info"><dl class="ranking-metrics">'
             f'<div><dt>横断順位</dt><dd>{person["rank"]}<small>位</small></dd></div>'
@@ -871,6 +873,9 @@ def render_html(people, dates, schedules, removed, now=None, images=None, assets
 <option value="under30">30歳未満</option><option value="over30">30歳以上</option>
 <option value="unknown">年齢不明</option></select></div>
 <button type="button" id="weeklyReset">条件をリセット</button>
+<div class="notify-box"><span id="notifyCount">★通知対象 0名</span>
+<button type="button" id="notifyCopy">通知対象をコピー</button>
+<span id="notifyMsg" role="status"></span></div>
 <p class="filter-count" id="dayCount" aria-live="polite">予定ありのみ（7日間）: 表示 {visible_count}名 / 母集団 {len(people)}名（順位・S/Aは固定）</p>
 </div>
 <p class="no-results" id="noResults" {"" if visible_count == 0 else "hidden"} role="status">条件に合う出勤予定はありません。

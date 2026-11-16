@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "data" / "weekend_alerts_state.json"
 OUTBOX = ROOT / "data" / "weekend_alerts_outbox.txt"
+TARGETS = ROOT / "data" / "weekend_alerts_targets.txt"
 WEEKDAYS = "月火水木金土日"
 
 
@@ -31,8 +32,21 @@ def weekend_workings(people, schedules, today):
     return found
 
 
-def record_alerts(people, schedules, today, state_path=STATE, outbox_path=OUTBOX):
+def load_targets(path=TARGETS):
+    """通知対象のプロフィールURL。ページの★で選んだ一覧を1行1URLで保存したもの。"""
+    path = Path(path)
+    if not path.exists():
+        return set()
+    lines = path.read_text(encoding="utf-8-sig").splitlines()
+    return {line.strip() for line in lines if line.strip().startswith("http")}
+
+
+def record_alerts(people, schedules, today, state_path=STATE, outbox_path=OUTBOX, targets_path=TARGETS):
     state_path, outbox_path = Path(state_path), Path(outbox_path)
+    targets = load_targets(targets_path)
+    if not targets:
+        return []
+    people = [person for person in people if person.get("profile_url") in targets]
     first_run = not state_path.exists()
     notified = set(json.loads(state_path.read_text(encoding="utf-8"))) if not first_run else set()
     found = weekend_workings(people, schedules, today)

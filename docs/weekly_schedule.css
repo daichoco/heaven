@@ -101,3 +101,6 @@ td[data-on="1"] .cell, .m-box.on { display: inline-block; padding: 2px 8px; bord
   .m-box.on { display: block; }
   .m-box.off { background: linear-gradient(var(--surface-alt) calc(100% - 8px), var(--border) 0); }
 }
+
+.notify-star{background:none;border:0;font-size:1.3em;color:#e0a800;cursor:pointer;padding:0 .3em}
+.notify-box{display:flex;gap:.6em;align-items:center;flex-wrap:wrap}
