@@ -36,7 +36,7 @@ from tokai_fuzoku.report_store import normalize_profile_url
 from tokai_fuzoku.html_render import REPORT_DETAIL_FIELDS
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 import shop_prices
-
+import weekend_alerts
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs" / "weekly_schedule.html"
 CACHE = ROOT / "data" / "cityheaven_weekly_schedules.json"
@@ -991,6 +991,7 @@ def main(argv=None):
         cache["windows"][dates[0]] = schedules
         save_cache(cache)
         failures = sum(bool(result["error"]) for result in results.values())
+        weekend_alerts.record_alerts(people, schedules, now.date())
     images = saved_images(schedules)
     if not args.offline:
         eligible = [
