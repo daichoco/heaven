@@ -84,7 +84,11 @@ def load_input_data(input_path=None, *, max_age=30):
         df["predict_age"].astype("string").str.extract(r"(\d+)")[0],
         errors="coerce",
     )
-    return df.loc[ages.le(max_age)].copy().reset_index(drop=True)
+    # 1本でも年齢超過の記事がある人物は、その人物の全レポートを除く
+    keys = df.apply(person_key, axis=1)
+    over_keys = set(keys[ages.gt(max_age) & keys.notna()])
+    keep = ages.le(max_age) & ~keys.isin(over_keys)
+    return df.loc[keep].copy().reset_index(drop=True)
 
 
 

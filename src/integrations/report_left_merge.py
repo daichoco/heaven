@@ -222,7 +222,45 @@ def _log_elapsed(label, start):
     print(f"[timing] {label}: {time.perf_counter() - start:.2f}s")
 
 
+def _is_no_return(evaluations):
+    """東海レポートのリピート欄が「返さない」か。"""
+    try:
+        data = _evaluation_dict(evaluations)
+    except (ValueError, SyntaxError):
+        return False
+    return any(
+        str(key).startswith("リピート") and "返さない" in f"{key} {value}"
+        for key, value in data.items()
+    )
+
+
+def exclude_over_age_people(reports, max_age=30):
+    """1本でも推定年齢が上限超過のレポートがある人物は、全レポートをカレンダー対象から外す。"""
+    ages = pd.to_numeric(reports["age"], errors="coerce")
+    keys = reports["cityheaven_url"].apply(normalize_url)
+    over_keys = set(keys[ages.gt(max_age) & keys.notna()])
+    return reports.loc[~keys.isin(over_keys)]
+
+
+def drop_tokai_only_no_return(merged):
+    """東海レポートしかない人物で、全レポートがリピート「返さない」なら東海レポートを外す。"""
+    merged = merged.copy()
+    for key, rows in merged.groupby("url_key", sort=False):
+        has_other = rows["okinilove_reports"].apply(lambda v: isinstance(v, list) and bool(v)).any() \
+            or rows["ns_reports"].apply(lambda v: isinstance(v, list) and bool(v)).any()
+        if has_other:
+            continue
+        tokai = rows.loc[rows["evaluations_merged"].apply(_has_value), "evaluations_merged"]
+        if tokai.empty or not tokai.apply(_is_no_return).all():
+            continue
+        for idx in tokai.index:
+            merged.at[idx, "evaluations_merged"] = None
+            merged.at[idx, "report_url_merged"] = None
+    return merged
+
+
 def merge_tokai_reports(reports, profiles):
+    reports = exclude_over_age_people(reports)
     reports = reports.copy()
     profiles = profiles.copy()
     reports["url_key"] = reports["cityheaven_url"].apply(normalize_url)
@@ -264,6 +302,7 @@ def main():
     start = time.perf_counter()
     merged = merge_ns_reports(merged, normalize_url=normalize_url)
     _log_elapsed("merge_ns_reports", start)
+    merged = drop_tokai_only_no_return(merged)
     return merged
 
 

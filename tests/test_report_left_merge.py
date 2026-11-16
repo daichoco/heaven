@@ -28,6 +28,29 @@ class NormalizeUrlTest(unittest.TestCase):
         self.assertEqual(aligned[0], calendar["url_key"][0])
         self.assertEqual(aligned[1], keys[1])
 
+    def test_over_age_person_is_excluded_entirely(self):
+        reports = pd.DataFrame([
+            {**tokai_report(1), "age": 25}, {**tokai_report(2), "age": 32},
+            {**tokai_report(3, OTHER_PROFILE), "age": 25},
+        ])
+        kept = integration.exclude_over_age_people(reports)
+        self.assertEqual(kept["cityheaven_url"].tolist(), [OTHER_PROFILE])
+
+    def test_tokai_only_no_return_reports_are_dropped(self):
+        def frame(evaluations_list, okinilove=None):
+            return pd.DataFrame({
+                "url_key": [PROFILE] * len(evaluations_list),
+                "evaluations_merged": evaluations_list,
+                "report_url_merged": ["u"] * len(evaluations_list),
+                "okinilove_reports": [okinilove] * len(evaluations_list),
+                "ns_reports": [None] * len(evaluations_list),
+            })
+        no = {"リピート": "返さない（リピートしない）"}
+        yes = {"リピート": "返す（リピートする）"}
+        self.assertTrue(integration.drop_tokai_only_no_return(frame([no, no]))["evaluations_merged"].isna().all())
+        self.assertFalse(integration.drop_tokai_only_no_return(frame([no, yes]))["evaluations_merged"].isna().any())
+        self.assertFalse(integration.drop_tokai_only_no_return(frame([no], [{"x": 1}]))["evaluations_merged"].isna().any())
+
 
 def tokai_report(number, profile=PROFILE):
     return {
