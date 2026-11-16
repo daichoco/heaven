@@ -20,6 +20,9 @@
   font: inherit;
 }
 .shop-price-filters p { font-size: .8rem; margin: 8px 0 0; }
+.filter-bar .shop-price-filters { grid-column: 1 / -1; margin: 0; padding: 8px; }
+.shop-price-filters details { font-size: .8rem; margin-top: 6px; }
+.shop-price-filters summary { cursor: pointer; }
 .shop-price { margin: 8px 0; font-size: .8rem; font-weight: normal; white-space: normal; overflow-wrap: anywhere; }
 .shop-price-value { display: block; font-weight: 600; }
 .shop-price-evidence { font-size: .8rem; text-align: left; }

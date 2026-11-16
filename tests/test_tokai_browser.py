@@ -152,6 +152,9 @@ class TokaiBrowserTests(unittest.TestCase):
                     page, errors, _ = self.open_page(browser, source)
                     self.assert_toolbar_accessible(page)
                     self.assert_initial_results(page, source)
+                    expect(page.locator("#filterBar")).to_be_hidden()
+                    expect(page.locator("#filterToggle")).to_have_attribute("aria-expanded", "false")
+                    page.locator("#filterToggle").click()
                     expect(page.locator("#filterBar")).to_be_visible()
                     for selector in (
                         "#shopFilter", "#typeFilter", "#shopTypeFilter",
@@ -252,9 +255,9 @@ class TokaiBrowserTests(unittest.TestCase):
                         # The page's initializer currently waits for deferred common.js.
                         expect(page.locator("#filterCount")).to_have_text("")
                         page.locator("#filterToggle").click()
-                        expect(page.locator("#filterBar")).to_be_hidden()
-                        page.locator("#filterToggle").click()
                         expect(page.locator("#filterBar")).to_be_visible()
+                        page.locator("#filterToggle").click()
+                        expect(page.locator("#filterBar")).to_be_hidden()
                         self.assertEqual(len(pending), 1)
                         pending[0].fulfill(
                             content_type="text/javascript",

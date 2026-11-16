@@ -159,25 +159,7 @@
   <body class="report-page">
     <nav aria-label="ページ移動" class="page-nav"><a href="index.html">← 一覧</a></nav>
     <h1>東海風俗レポート</h1>
-    <section aria-label="店舗料金" class="shop-price-filters" id="shopPriceFilters">
-      <strong>掲載コースの60分換算目安（利用条件あり）</strong>
-      <div class="shop-price-inputs">
-        <label>価格帯<select id="shopPriceBand">
-            <option value="">すべて</option>
-            <option value="0-10000">1万円未満</option>
-            <option value="10000-15000">1万〜1.5万円未満</option>
-            <option value="15000-20000">1.5万〜2万円未満</option>
-            <option value="20000-25000">2万〜2.5万円未満</option>
-            <option value="25000-30000">2.5万〜3万円未満</option>
-            <option value="30000">3万円以上</option>
-            <option value="unknown">料金不明</option>
-          </select></label>
-      </div>
-      <p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
-選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
-指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
-    </section>
-    <div class="sticky-toolbar filters-open" id="toolbar">
+    <div class="sticky-toolbar" id="toolbar">
       <div class="toolbar-row">
         <input aria-label="名前・店舗で検索" id="reportSearch" placeholder="名前・店舗で検索" type="search" />
         <button aria-controls="filterBar" aria-expanded="true" class="filter-toggle" id="filterToggle" type="button">絞り込み</button>
@@ -340,6 +322,27 @@
           <option value="__none__">閉店・移籍など(未分類)</option>
         </select>
         <button onclick="resetFilters()" type="button">条件をリセット</button>
+        <section aria-label="店舗料金" class="shop-price-filters" id="shopPriceFilters">
+          <strong>掲載コースの60分換算目安（利用条件あり）</strong>
+          <div class="shop-price-inputs">
+            <label>価格帯<select id="shopPriceBand">
+                <option value="">すべて</option>
+                <option value="0-10000">1万円未満</option>
+                <option value="10000-15000">1万〜1.5万円未満</option>
+                <option value="15000-20000">1.5万〜2万円未満</option>
+                <option value="20000-25000">2万〜2.5万円未満</option>
+                <option value="25000-30000">2.5万〜3万円未満</option>
+                <option value="30000">3万円以上</option>
+                <option value="unknown">料金不明</option>
+              </select></label>
+          </div>
+          <details>
+            <summary>算出方法・注意</summary>
+            <p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
+選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
+指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
+          </details>
+        </section>
       </div>
       <div class="sort-control">
         <label for="reportSort">並び順</label>

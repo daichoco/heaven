@@ -115,6 +115,7 @@ input, select, textarea { font-size: 16px; }
 @media (max-width: 760px) {
   .filter-toggle { display: inline-flex; align-items: center; justify-content: center; flex: none; }
   .sticky-toolbar:not(.filters-open) .filter-bar { display: none; }
+  .sticky-toolbar { max-height: 70vh; overflow-y: auto; }
   .shop-filter-search { min-height: 44px; }
 }
 

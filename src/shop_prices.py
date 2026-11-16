@@ -673,9 +673,9 @@ PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" ar
 <option value="unknown">料金不明</option>
 </select></label>
 </div>
-<p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
+<details><summary>算出方法・注意</summary><p>掲載コースから90分に最も近い時間（同距離は長い方）を60分換算。同時間の掲載料金は高い方を採用します。通常・VIP・限定・会員等の名称や条件では除外しません。
 選択コースの利用条件つきの目安で、実際の60分コース料金・確定支払総額ではありません。延長・追加料金のみの行は対象外。
-指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p>
+指名料・交通費・別途必須料金は加算していません。税・追加費用・時間帯等は根拠欄を確認してください。未取得を安価とは扱いません。</p></details>
 </section>"""
 
 
@@ -790,7 +790,11 @@ def attach_prices(markup, cache=None):
     controls = BeautifulSoup(PRICE_CONTROLS, "html.parser").section
     target = soup.select_one(".filters, .filter-group, #toolbar")
     if target:
-        target.insert_before(controls)
+        bar = soup.select_one("#filterBar")
+        if bar:
+            bar.append(controls)
+        else:
+            target.insert_before(controls)
     else:
         soup.select_one("h1").insert_after(controls)
     for tag, attrs in (
