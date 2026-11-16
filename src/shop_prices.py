@@ -10,7 +10,7 @@ from collections import Counter
 from datetime import datetime, timezone
 from html import escape
 from pathlib import Path
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import requests
 from bs4 import BeautifulSoup
@@ -444,8 +444,12 @@ def reprocess_snapshot(path=CACHE, source=None):
     return payload, transitions, conflicts
 
 
-def fetch_price(session, url):
-    """One request per shop; never follow access/age-check redirects."""
+def fetch_price(session, url, follow_moved=True):
+    """One request per shop; never follow access/age-check redirects.
+
+    The only exception is a 301 to another CityHeaven shop /system/ page (shop area code change),
+    followed once.
+    """
     try:
         with session.get(url, timeout=20, allow_redirects=False, stream=True) as response:
             if response.status_code in {404, 410}:
@@ -453,7 +457,13 @@ def fetch_price(session, url):
             if response.status_code in {401, 403, 429}:
                 return empty_result("restricted", f"HTTP {response.status_code}（回避しません）")
             if 300 <= response.status_code < 400:
-                return redirect_result(response.status_code, response.headers.get("Location", ""))
+                location = response.headers.get("Location", "")
+                target = system_url(urljoin(url, location)) if isinstance(location, str) and location else ""
+                if response.status_code == 301 and follow_moved and target and target != url:
+                    result = fetch_price(session, target, follow_moved=False)
+                    result["moved_to"] = target
+                    return result
+                return redirect_result(response.status_code, location)
             response.raise_for_status()
             body = bytearray()
             for chunk in response.iter_content(65536):

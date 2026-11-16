@@ -188,6 +188,26 @@ class PriceParserTests(unittest.TestCase):
         session.get.side_effect = prices.requests.Timeout("timeout")
         self.assertEqual(prices.fetch_price(session, SHOP + "system/")["status"], "error")
 
+    def test_moved_shop_301_is_followed_once_but_age_check_is_not(self):
+        moved = SHOP.replace("A2", "A9", 1)
+        def reply(status, location=""):
+            m = MagicMock()
+            m.__enter__.return_value = Mock(
+                status_code=status, headers={"Location": location, "Content-Type": "text/html"},
+                iter_content=lambda size: [b"<html></html>"],
+            )
+            return m
+        session = MagicMock()
+        session.get.side_effect = [reply(301, "//www.cityheaven.net" + moved.split("cityheaven.net")[1] + "system/"),
+                                   reply(200)]
+        result = prices.fetch_price(session, SHOP + "system/")
+        self.assertEqual(result["moved_to"], moved + "system/")
+        self.assertEqual(session.get.call_count, 2)
+        session = MagicMock()
+        session.get.side_effect = [reply(301, "https://evil.invalid/x/system/")]
+        self.assertEqual(prices.fetch_price(session, SHOP + "system/")["status"], "redirect")
+        self.assertEqual(session.get.call_count, 1)
+
     def test_cache_roundtrip_and_import_preserve_other_shops_without_network(self):
         with TemporaryDirectory() as directory:
             path = Path(directory) / "prices.json"
