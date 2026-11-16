@@ -866,17 +866,23 @@ def build_calendar_html(merged):
     return attach_prices(html)
 
 
+def with_notify_star(markup):
+    if "notify_star.js" in markup:
+        return markup
+    return markup.replace("</body>", '<script src="notify_star.js"></script></body>', 1)
+
+
 def write_calendar_html(merged, path=None):
     output_path = path or DOCS_DIR / "calendar_report.html"
-    write_html(output_path, build_calendar_html(merged))
+    write_html(output_path, with_notify_star(build_calendar_html(merged)))
 
 
 def refresh_saved_calendar(path=None):
     """Keep the saved date/profile/review DOM and refresh only scripts and price data."""
     path = Path(path) if path else DOCS_DIR / "calendar_report.html"
-    write_html(path, refresh_saved_prices(
+    write_html(path, with_notify_star(refresh_saved_prices(
         load_html(path), CALENDAR_PAGE_HEAD, "function applyCombinedFilter()",
-    ))
+    )))
 
 
 if __name__ == "__main__":
