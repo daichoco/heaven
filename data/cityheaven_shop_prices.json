@@ -35014,11 +35014,11 @@
       ]
     },
     "https://www.cityheaven.net/aichi/A2301/A230104/g-opera/": {
-      "status": "unknown",
-      "reason": "候補は延長・追加料金等のみで掲載コース料金を特定できません",
+      "status": "ok",
+      "reason": "掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない",
       "candidates": [
         {
-          "course_name": "料金システム",
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
           "label": "指名料",
           "price_text": "5,000yen",
           "conditions": "",
@@ -35027,14 +35027,14 @@
           "minutes": null,
           "yen": 5000,
           "eligible": false,
-          "reason": "延長・追加料金のみの行は換算対象外",
-          "context_role": "course",
+          "amount_annotations": [],
+          "context_role": "promotion",
           "row_role": "extra",
-          "amount_annotations": []
+          "reason": "延長・追加料金のみの行は換算対象外"
         },
         {
-          "course_name": "料金システム",
-          "label": "交通費",
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】中区、東区、中村区の一部",
           "price_text": "一律3,000yen ※ネット予約ご利用の場合無料となります",
           "conditions": "",
           "section": "",
@@ -35042,13 +35042,103 @@
           "minutes": null,
           "yen": null,
           "eligible": false,
-          "reason": "延長・追加料金のみの行は換算対象外",
-          "context_role": "course",
+          "amount_annotations": [],
+          "context_role": "promotion",
           "row_role": "extra",
-          "amount_annotations": []
+          "reason": "延長・追加料金のみの行は換算対象外"
         },
         {
-          "course_name": "料金システム",
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】緑区、中川区、港区、南区、天白区",
+          "price_text": "6,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": 6000,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】上記以外",
+          "price_text": "5,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": 5000,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費小牧市、春日井市、一宮市、岐南方面",
+          "price_text": "6,000～8,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": null,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費尾張旭市、日進方面",
+          "price_text": "6,000～7,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": null,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費豊田市、安城市、刈谷市、岡崎市、半田方面",
+          "price_text": "6,000～9,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": null,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費蟹江市、弥富町、長島、桑名、四日市市、鈴鹿市",
+          "price_text": "6,000～18,000yen",
+          "conditions": "",
+          "section": "",
+          "table_index": 3,
+          "minutes": null,
+          "yen": null,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
           "label": "会員登録手数料",
           "price_text": "0yen",
           "conditions": "",
@@ -35057,41 +35147,385 @@
           "minutes": null,
           "yen": null,
           "eligible": false,
-          "reason": "時間と単一掲載金額の対応を特定できません（範囲・内訳・複数金額等）",
+          "amount_annotations": [],
+          "context_role": "promotion",
+          "row_role": "course",
+          "reason": "時間と単一掲載金額の対応を特定できません（範囲・内訳・複数金額等）"
+        },
+        {
+          "course_name": "SWEET BOX",
+          "label": "90min",
+          "price_text": "40,000yen",
+          "conditions": "当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 4,
+          "minutes": 90,
+          "yen": 40000,
+          "eligible": true,
+          "amount_annotations": [],
           "context_role": "course",
           "row_role": "course",
-          "amount_annotations": []
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "course_name": "SWEET BOX",
+          "label": "120min",
+          "price_text": "60,000yen",
+          "conditions": "当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 4,
+          "minutes": 120,
+          "yen": 60000,
+          "eligible": true,
+          "amount_annotations": [],
+          "context_role": "course",
+          "row_role": "course",
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "course_name": "SWEET BOX",
+          "label": "延長30min",
+          "price_text": "20,000yen",
+          "conditions": "当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 4,
+          "minutes": 30,
+          "yen": 20000,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "course",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "ROYAL BOX",
+          "label": "90min",
+          "price_text": "60,000yen",
+          "conditions": "一般求人募集への応募や当クラブ提携のプロダクションより紹介された女性をご案内させていただきます。 当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 5,
+          "minutes": 90,
+          "yen": 60000,
+          "eligible": true,
+          "amount_annotations": [],
+          "context_role": "course",
+          "row_role": "course",
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "course_name": "ROYAL BOX",
+          "label": "120min",
+          "price_text": "80,000yen",
+          "conditions": "一般求人募集への応募や当クラブ提携のプロダクションより紹介された女性をご案内させていただきます。 当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 5,
+          "minutes": 120,
+          "yen": 80000,
+          "eligible": true,
+          "amount_annotations": [],
+          "context_role": "course",
+          "row_role": "course",
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "course_name": "ROYAL BOX",
+          "label": "延長30min",
+          "price_text": "30,000yen",
+          "conditions": "一般求人募集への応募や当クラブ提携のプロダクションより紹介された女性をご案内させていただきます。 当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+          "section": "",
+          "table_index": 5,
+          "minutes": 30,
+          "yen": 30000,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "course",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
+        },
+        {
+          "course_name": "IMPERIAL BOX",
+          "label": "90min",
+          "price_text": "80,000yen",
+          "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+          "section": "",
+          "table_index": 6,
+          "minutes": 90,
+          "yen": 80000,
+          "eligible": true,
+          "amount_annotations": [],
+          "context_role": "conditional",
+          "row_role": "course",
+          "reason": "時間帯・利用条件を保持した掲載コース候補"
+        },
+        {
+          "course_name": "IMPERIAL BOX",
+          "label": "120min",
+          "price_text": "110,000yen",
+          "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+          "section": "",
+          "table_index": 6,
+          "minutes": 120,
+          "yen": 110000,
+          "eligible": true,
+          "amount_annotations": [],
+          "context_role": "conditional",
+          "row_role": "course",
+          "reason": "時間帯・利用条件を保持した掲載コース候補"
+        },
+        {
+          "course_name": "IMPERIAL BOX",
+          "label": "延長30min",
+          "price_text": "40,000yen",
+          "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+          "section": "",
+          "table_index": 6,
+          "minutes": 30,
+          "yen": 40000,
+          "eligible": false,
+          "amount_annotations": [],
+          "context_role": "conditional",
+          "row_role": "extra",
+          "reason": "延長・追加料金のみの行は換算対象外"
         }
       ],
-      "selected": null,
+      "selected": {
+        "course_name": "IMPERIAL BOX",
+        "label": "90min",
+        "price_text": "80,000yen",
+        "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+        "section": "",
+        "table_index": 6,
+        "minutes": 90,
+        "yen": 80000,
+        "eligible": true,
+        "amount_annotations": [],
+        "context_role": "conditional",
+        "row_role": "course",
+        "reason": "時間帯・利用条件を保持した掲載コース候補",
+        "yen_per_60": 53333.333333333336,
+        "matching_courses": [
+          {
+            "course_name": "IMPERIAL BOX",
+            "label": "90min",
+            "price_text": "80,000yen",
+            "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+            "section": "",
+            "table_index": 6,
+            "minutes": 90,
+            "yen": 80000,
+            "eligible": true,
+            "amount_annotations": [],
+            "context_role": "conditional",
+            "row_role": "course",
+            "reason": "時間帯・利用条件を保持した掲載コース候補"
+          }
+        ],
+        "compared_courses": [
+          {
+            "course_name": "SWEET BOX",
+            "label": "90min",
+            "price_text": "40,000yen",
+            "conditions": "当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+            "section": "",
+            "table_index": 4,
+            "minutes": 90,
+            "yen": 40000,
+            "eligible": true,
+            "amount_annotations": [],
+            "context_role": "course",
+            "row_role": "course",
+            "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+          },
+          {
+            "course_name": "ROYAL BOX",
+            "label": "90min",
+            "price_text": "60,000yen",
+            "conditions": "一般求人募集への応募や当クラブ提携のプロダクションより紹介された女性をご案内させていただきます。 当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。",
+            "section": "",
+            "table_index": 5,
+            "minutes": 90,
+            "yen": 60000,
+            "eligible": true,
+            "amount_annotations": [],
+            "context_role": "course",
+            "row_role": "course",
+            "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+          },
+          {
+            "course_name": "IMPERIAL BOX",
+            "label": "90min",
+            "price_text": "80,000yen",
+            "conditions": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。",
+            "section": "",
+            "table_index": 6,
+            "minutes": 90,
+            "yen": 80000,
+            "eligible": true,
+            "amount_annotations": [],
+            "context_role": "conditional",
+            "row_role": "course",
+            "reason": "時間帯・利用条件を保持した掲載コース候補"
+          }
+        ],
+        "selection_reason": "掲載コースから90分に最も近い時間、同距離は長い時間。同時間の掲載料金は高い方。名称や利用条件では除外しない"
+      },
       "tax": "included",
       "additional_fees": [
         {
-          "section": "料金システム",
+          "section": "口コミ特典",
+          "label": "料金表の条件（加算なし）",
+          "text": "◆ネット予約+接客後の口コミ投稿をお約束で◆ ◆最大 13,000円割引 のイベント!!◆ ※本指名様のご予約は対象外となります。 ◆◆ ロイヤルBOX◆◆ 90分 45,000円～ 120分65,000円～ ◆◆ スイートBOX◆◆ 90分 40,000円 120分60,000円 ※※ イベント対象外 ※※ イベント不可の女の子 他のイベントとの併用 ご予約時に 「口コミ割」 とお伝え下さい 接客前のネット予約 + 接客後、必ず口コミのご投稿をお願い致します ※ネット予約、口コミの投稿にはシティヘブンネットへの 会員登録が必要となります。 お持ちのアカウントでログイン後 電話・ネット予約から予約をお願いいたします。 口コミは接客した女の子の プロフィールページ→【口コミ】 にアクセスして頂きご投稿ください。 ※投稿していただきました口コミは投稿日から2か月は削除不可とさせていただきます※ もし削除される場合は、次回より口コミ割引を禁止させていただきますのでご了承くださいませ。"
+        },
+        {
+          "section": "iPhone・ガラケーの方にオススメ！",
+          "label": "料金表の条件（加算なし）",
+          "text": "メルマガ登録で いきなりの限定イベント情報 をゲット!! プラチナメール会員登録"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
           "label": "指名料",
           "text": "5,000yen"
         },
         {
-          "section": "料金システム",
-          "label": "交通費",
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】中区、東区、中村区の一部",
           "text": "一律3,000yen ※ネット予約ご利用の場合無料となります"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】緑区、中川区、港区、南区、天白区",
+          "text": "6,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費【名古屋市】上記以外",
+          "text": "5,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費小牧市、春日井市、一宮市、岐南方面",
+          "text": "6,000～8,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費尾張旭市、日進方面",
+          "text": "6,000～7,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費豊田市、安城市、刈谷市、岡崎市、半田方面",
+          "text": "6,000～9,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "交通費蟹江市、弥富町、長島、桑名、四日市市、鈴鹿市",
+          "text": "6,000～18,000yen"
+        },
+        {
+          "section": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
+          "label": "会員登録手数料",
+          "text": "0yen"
+        },
+        {
+          "section": "SWEET BOX",
+          "label": "料金表の条件（加算なし）",
+          "text": "当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。"
+        },
+        {
+          "section": "SWEET BOX",
+          "label": "延長30min",
+          "text": "20,000yen"
+        },
+        {
+          "section": "ROYAL BOX",
+          "label": "料金表の条件（加算なし）",
+          "text": "一般求人募集への応募や当クラブ提携のプロダクションより紹介された女性をご案内させていただきます。 当クラブ独自の厳格な採用基準に達しており、自信をもってお薦めできる女性でございます。"
+        },
+        {
+          "section": "ROYAL BOX",
+          "label": "延長30min",
+          "text": "30,000yen"
+        },
+        {
+          "section": "IMPERIAL BOX",
+          "label": "料金表の条件（加算なし）",
+          "text": "ビジュアル重視のお仕事（モデル、企業受付嬢、フライトアテンダント等）の経歴を持ち、お客様に対して気遣い心配りのできる女性、もしくは、当クラブ在籍中に当クラブの美的基準・会員様より反響等当クラブを代表するに相応しいと判断した女性でございます。"
+        },
+        {
+          "section": "IMPERIAL BOX",
+          "label": "延長30min",
+          "text": "40,000yen"
         }
       ],
-      "source_kind": "http",
-      "source_url": "https://www.cityheaven.net/aichi/A2301/A230104/g-opera/system/",
-      "checked_at": "2026-10-25T13:31:23+00:00",
-      "reprocessed_at": "2026-11-16T12:54:27+00:00",
+      "extraction_diagnostics": {
+        "root_found": true,
+        "table_count": 8,
+        "image_count": 1
+      },
+      "unpaired_tables": [
+        {
+          "table_index": 0,
+          "course_name": "【ネット予約】受付状況を一発チェック！",
+          "section": "",
+          "conditions": ""
+        },
+        {
+          "table_index": 1,
+          "course_name": "口コミ特典",
+          "section": "",
+          "conditions": "◆ネット予約+接客後の口コミ投稿をお約束で◆ ◆最大 13,000円割引 のイベント!!◆ ※本指名様のご予約は対象外となります。 ◆◆ ロイヤルBOX◆◆ 90分 45,000円～ 120分65,000円～ ◆◆ スイートBOX◆◆ 90分 40,000円 120分60,000円 ※※ イベント対象外 ※※ イベント不可の女の子 他のイベントとの併用 ご予約時に 「口コミ割」 とお伝え下さい 接客前のネット予約 + 接客後、必ず口コミのご投稿をお願い致します ※ネット予約、口コミの投稿にはシティヘブンネットへの 会員登録が必要となります。 お持ちのアカウントでログイン後 電話・ネット予約から予約をお願いいたします。 口コミは接客した女の子の プロフィールページ→【口コミ】 にアクセスして頂きご投稿ください。 ※投稿していただきました口コミは投稿日から2か月は削除不可とさせていただきます※ もし削除される場合は、次回より口コミ割引を禁止させていただきますのでご了承くださいませ。"
+        },
+        {
+          "table_index": 2,
+          "course_name": "iPhone・ガラケーの方にオススメ！",
+          "section": "",
+          "conditions": "メルマガ登録で いきなりの限定イベント情報 をゲット!! プラチナメール会員登録"
+        },
+        {
+          "table_index": 7,
+          "course_name": "※価格は税込表記です",
+          "section": "",
+          "conditions": ""
+        }
+      ],
       "decision_version": 4,
       "table_decisions": [
         {
           "table_index": 3,
-          "course_name": "料金システム",
+          "course_name": "料金システム※交通費に関してはネット予約ご利用の場合3000円OFFとなります。",
           "section": "",
-          "role": "course",
+          "role": "promotion",
           "decision": "excluded",
           "reason": "時間コースではない追加情報の表"
+        },
+        {
+          "table_index": 4,
+          "course_name": "SWEET BOX",
+          "section": "",
+          "role": "course",
+          "decision": "eligible",
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "table_index": 5,
+          "course_name": "ROYAL BOX",
+          "section": "",
+          "role": "course",
+          "decision": "eligible",
+          "reason": "コース名称で除外せず時間と単一掲載金額の対応を確認"
+        },
+        {
+          "table_index": 6,
+          "course_name": "IMPERIAL BOX",
+          "section": "",
+          "role": "conditional",
+          "decision": "eligible",
+          "reason": "時間帯・利用条件を保持した掲載コース候補"
         }
-      ]
+      ],
+      "source_kind": "http",
+      "source_url": "https://www.cityheaven.net/aichi/A2301/A230104/g-opera/system/",
+      "checked_at": "2026-11-16T13:06:12+00:00"
     },
     "https://www.cityheaven.net/aichi/A2301/A230104/jj-shinsakae/": {
       "status": "ok",
