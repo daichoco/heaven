@@ -560,6 +560,46 @@ def fetch_price(session, url, follow_moved=True):
         return empty_result("error", str(error))
 
 
+GENRES = ROOT / "data" / "cityheaven_shop_genres.json"
+GENRE_PATTERN = re.compile(r"(デリヘル|ホテヘル|ヘルス|ソープ|アロマ|[ァ-ヶ一-龥]{2,8})\(([^)/<]+)/([^)<]+)\)")
+PRICE_TIERS = ("高級", "中級", "スタンダード", "大衆", "激安")
+
+
+def parse_genre(markup):
+    """Shop top page shows e.g. 'デリヘル(高級,巨乳/新栄・東新町)': type, genre tags, area."""
+    match = GENRE_PATTERN.search(markup)
+    if not match:
+        return None
+    tags = [tag.strip() for tag in match[2].split(",") if tag.strip()]
+    return {
+        "type": match[1], "tags": tags, "area": match[3].strip(),
+        "tier": next((tag for tag in PRICE_TIERS if tag in tags), ""),
+    }
+
+
+def load_genres(path=GENRES):
+    path = Path(path)
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+def refresh_genres(session, urls, path=GENRES):
+    genres = load_genres(path)
+    for index, url in enumerate(urls):
+        if index:
+            time.sleep(1)
+        try:
+            response = session.get(url, timeout=20, allow_redirects=False, headers={"Cookie": "nenrei=y"})
+        except requests.RequestException:
+            continue
+        if response.status_code != 200:
+            continue
+        genre = parse_genre(response.content.decode("utf-8", errors="replace"))
+        if genre:
+            genres[url] = genre
+    Path(path).write_text(json.dumps(genres, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return genres
+
+
 def redirect_result(status, location):
     location = location if isinstance(location, str) else ""
     age_gate = bool(re.match(
@@ -639,11 +679,13 @@ PRICE_CONTROLS = """<section id="shopPriceFilters" class="shop-price-filters" ar
 </section>"""
 
 
-def price_info(entry, url):
+def price_info(entry, url, genre=None):
     status = entry.get("status", "not_fetched")
     selected = entry.get("selected") if status == "ok" else None
     if selected:
         heading = f'{"概算" if selected.get("approximate") else "条件つき目安"} {selected["yen_per_60"]:,.0f}円 / 60分換算'
+        if genre and genre.get("tier"):
+            heading = f'【{genre["tier"]}】{heading}'
         evidence = (
             f'掲載コース {selected["minutes"]}分 {selected["yen"]:,}円'
             f'（{selected["course_name"]} / {selected["label"]}）'
@@ -708,6 +750,7 @@ def price_info(entry, url):
 def attach_prices(markup, cache=None):
     """Decorate listing rows using profile URLs only; native filters own visibility."""
     cache = cache if cache is not None else load_display_cache()
+    genres = load_genres()
     soup = BeautifulSoup(markup, "lxml")
     if soup.select_one("#shopPriceFilters"):
         return str(soup)
@@ -726,7 +769,9 @@ def attach_prices(markup, cache=None):
         selected = entry.get("selected") if entry.get("status") == "ok" else None
         row["data-shop-price"] = str(selected["yen_per_60"]) if selected else ""
         row["data-shop-price-status"] = entry.get("status", "not_fetched")
-        info = BeautifulSoup(price_info(entry, url), "html.parser").div
+        genre = genres.get(url, {})
+        row["data-shop-tier"] = genre.get("tier", "")
+        info = BeautifulSoup(price_info(entry, url, genre), "html.parser").div
         if row.name == "section":
             identity.insert_after(info)
         elif row.name == "details":
@@ -791,7 +836,14 @@ def main(argv=None):
     parser.add_argument("--limit", type=int, help="全店舗取得の上限")
     parser.add_argument("--refresh", action="store_true", help="既存の取得結果も更新（既定は未取得店舗だけ）")
     parser.add_argument("--summary", action="store_true", help="保存料金の数値分布と状態を表示")
+    parser.add_argument("--genres", action="store_true", help="保存済み全店舗の業態・ジャンル・価格帯区分を店舗トップから取得")
     args = parser.parse_args(argv)
+    if args.genres:
+        with requests.Session() as session:
+            session.headers.update({"User-Agent": "Mozilla/5.0", "Accept-Language": "ja"})
+            genres = refresh_genres(session, sorted(load_cache()["shops"]))
+        print(f"ジャンル取得 {len(genres)}店 / 価格帯 " + str(dict(Counter(g["tier"] or "なし" for g in genres.values()))))
+        return 0
     if args.reprocess_all:
         if args.all or args.shop_url or args.html_file or args.limit or args.refresh:
             parser.error("--reprocess-all は取得・店舗選択・limit・refreshと併用できません")

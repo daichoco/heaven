@@ -202,6 +202,11 @@ class PriceParserTests(unittest.TestCase):
         self.assertEqual(selected["yen_per_60"], 12000)
         self.assertFalse(prices.select_approximate_course({"candidates": [row("入浴料", "2,000円", "extra", "extra")]}))
 
+    def test_parse_genre_reads_type_tags_area_and_price_tier(self):
+        genre = prices.parse_genre("<p>デリヘル(巨乳,高級/新栄・東新町)</p>")
+        self.assertEqual(genre, {"type": "デリヘル", "tags": ["巨乳", "高級"], "area": "新栄・東新町", "tier": "高級"})
+        self.assertEqual(prices.parse_genre("<p>ソープ(人妻/吉原)</p>")["tier"], "")
+
     def test_report_price_entries_use_median_per_60_from_play_time_and_total_cost(self):
         rows = [
             {"girl_url": SHOP + "girlid-1/", "play_time": "◆プレイ時間：90分", "total_cost": "◆総額：18000円"},
