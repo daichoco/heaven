@@ -18,11 +18,11 @@ $menu = @{
         },
         @{
             bounds = @{ x = 500; y = 0; width = 500; height = 843 }
-            action = @{ type = 'message'; label = 'カレンダー'; text = 'カレンダー' }
+            action = @{ type = 'message'; label = '3レポート表'; text = '3レポート表' }
         },
         @{
             bounds = @{ x = 1000; y = 0; width = 500; height = 843 }
-            action = @{ type = 'message'; label = '週間'; text = '週間' }
+            action = @{ type = 'message'; label = '週間表'; text = '週間表' }
         },
         @{
             bounds = @{ x = 1500; y = 0; width = 500; height = 843 }
@@ -48,7 +48,7 @@ $font = New-Object System.Drawing.Font 'Meiryo UI', 40, ([System.Drawing.FontSty
 $format = New-Object System.Drawing.StringFormat
 $format.Alignment = 'Center'; $format.LineAlignment = 'Center'
 $line = New-Object System.Drawing.Pen ([System.Drawing.Color]::White), 6
-$labels = 'レポート', 'カレンダー', '週間', '状態', 'パスワード更新'
+$labels = 'レポート', '3レポート表', '週間表', '状態', 'パスワード更新'
 $xs = 0, 500, 1000, 1500, 2000
 $widths = 500, 500, 500, 500, 500
 for ($i = 0; $i -lt 5; $i++) {
@@ -70,3 +70,4 @@ foreach ($item in $old.richmenus) {
     }
 }
 "リッチメニューを設定しました: $menuId"
+

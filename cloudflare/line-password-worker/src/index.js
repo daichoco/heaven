@@ -1,7 +1,7 @@
-const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
+﻿const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
 const JOB_COMMANDS = {
-  更新: "run", レポート: "report", カレンダー: "calendar", "3レポートカレンダー": "calendar",
-  週間: "weekly", 週間カレンダー: "weekly", 状態: "status",
+  更新: "run", レポート: "report", カレンダー: "calendar", "3レポートカレンダー": "calendar", 3レポート表: "calendar",
+  週間: "weekly", 週間表: "weekly", 週間カレンダー: "weekly", 状態: "status",
 };
 const KEY = "pending-password";
 const JOB_KEY = "pending-job";
@@ -92,7 +92,7 @@ async function handleWebhook(request, env) {
       await reply(
         env,
         event.replyToken,
-        "「レポート」「カレンダー」「週間」「更新(すべて)」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
+        "「レポート」「3レポート表」「週間表」「更新(すべて)」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
       );
       continue;
     }
@@ -223,3 +223,4 @@ export default {
     return new Response("not found", { status: 404 });
   },
 };
+
