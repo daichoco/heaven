@@ -539,7 +539,7 @@
   "price_class": "大衆"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/lovetiffany/girlid-59230507/": {
-  "checked_at": "2026-11-09T00:23:08.485034+00:00",
+  "checked_at": "2026-11-17T00:22:35.632181+00:00",
   "status": "error",
   "image_url": "",
   "error": "別ページに転送されました（認証・掲載状況を確認）",
@@ -823,6 +823,15 @@
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/sabbat/grpb0053045571_0000000000pc.jpg?cache02=1788943095&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(大衆/金津園)",
+  "price_class": "大衆"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-66258501/": {
+  "checked_at": "2026-11-17T00:22:35.632181+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/sabbat/la_grpb0066258501_0000000000pc.jpeg?cache02=1788916991&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/sabbat/girlid-66258501/",
   "shop_kind": "ソープ(大衆/金津園)",
   "price_class": "大衆"
  },
