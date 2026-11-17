@@ -57,8 +57,8 @@ npx wrangler deploy
 
 LINEで次を送る(リッチメニューの「レポート」「カレンダー」「状態」ボタンでも可):
 - `レポート`: 東海・NS専門・オキニラブのレポートのみ(`run-heaven.ps1`)
-- `カレンダー`: 3レポートの月間カレンダー(マイヘブン取得と `calendar_report.html`)のみ(`run-heaven.ps1 -CalendarOnly`)
-- `週間`: 週間カレンダー収集のみ(`run-heaven.ps1 -WeeklyOnly`)
+- `マイガール週間`(旧 `カレンダー`): マイガール(マイヘブン)の月間カレンダー(マイヘブン取得と `calendar_report.html`)のみ(`run-heaven.ps1 -CalendarOnly`)
+- `3レポート週間予定`(旧 `週間`): 週間予定(`weekly_schedule*.html`)の収集のみ(`run-heaven.ps1 -WeeklyOnly`)
 - `更新`: すべて(`run-heaven.ps1 -IncludeCityHeavenCalendarAndWeekly`。毎日9:00の定期実行と同じ)
 - `状態`: 実行中・最終実行の結果を返す
 Worker が要求を KV に保存し、PC のタスク `HeavenJobPoller`(1分ごと、`poll-heaven-job.ps1`)が `/job` を確認して実行します。

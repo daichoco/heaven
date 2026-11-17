@@ -50,7 +50,7 @@ if ($job -eq 'status') {
         Send-Line '更新はすでに実行中のため、新しくは開始しません。'
         exit 0
     }
-    $label = @{ run = '更新(レポート+カレンダー)'; report = 'レポート更新'; calendar = '3レポートカレンダー更新'; weekly = '週間カレンダー更新' }[$job]
+    $label = @{ run = '更新(レポート+カレンダー)'; report = 'レポート更新'; calendar = 'マイガール週間更新'; weekly = '3レポート週間予定更新' }[$job]
     $flag = @{ run = '-IncludeCityHeavenCalendarAndWeekly'; report = $null; calendar = '-CalendarOnly'; weekly = '-WeeklyOnly' }[$job]
     Send-Line "$label を開始しました。"
     $runArgs = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'RemoteSigned', '-File', "`"$Runner`"")
