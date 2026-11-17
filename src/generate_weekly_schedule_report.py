@@ -372,6 +372,18 @@ def parse_month_calendar(html, dates):
     ]
 
 
+def extra_collect_urls():
+    """月間カレンダー(calendar_report.html)に載る人物と、通知対象のプロフィールURL。"""
+    urls = set(weekend_alerts.load_targets())
+    page = OUTPUT.with_name("calendar_report.html")
+    if page.exists():
+        urls.update(re.findall(
+            r'href="(https://www\.cityheaven\.net/[^"]*girlid-\d+/?)[^"]*"',
+            page.read_text(encoding="utf-8"),
+        ))
+    return urls
+
+
 def selected_people(people, include_a=False, sources=None, limit=None, high_rated=False):
     if high_rated:
         # 東海・NS専門で高評価の基準を満たすレポートがある人を全員選ぶ
@@ -965,6 +977,7 @@ def main(argv=None):
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking(args.display_sources)
+    all_people = load_ranking(None)[0] if args.collect else people
     if args.okini_young:
         people = okini_young_people(people)
     cache = load_cache()
@@ -984,19 +997,30 @@ def main(argv=None):
         carried = False
     failures = 0
     if args.collect:
-        results = asyncio.run(collect_schedules(
-            selected_people(
-                people, args.include_a, set(args.collect_sources or ()), args.collect_limit,
-                args.collect_high_rated,
-            ), dates
-        ))
+        chosen = selected_people(
+            people, args.include_a, set(args.collect_sources or ()), args.collect_limit,
+            args.collect_high_rated,
+        )
+        # 月間カレンダーの人物と通知対象(★)は、評価区分に関係なく予定を取得する。
+        have = {person["profile_url"] for person in chosen}
+        wanted = extra_collect_urls()
+        extras = [
+            person for person in all_people
+            if person["profile_url"] in wanted and person["profile_url"] not in have
+        ]
+        known = {person["profile_url"] for person in all_people}
+        extras += [
+            {"profile_url": url, "names": [], "shops": []}
+            for url in sorted(wanted - known - have)
+        ]
+        results = asyncio.run(collect_schedules(chosen + extras, dates))
         if carried:
             schedules = {}
         schedules.update(results)
         cache["windows"][dates[0]] = schedules
         save_cache(cache)
         failures = sum(bool(result["error"]) for result in results.values())
-        weekend_alerts.record_alerts(people, schedules, now.date())
+        weekend_alerts.record_alerts(all_people + extras, schedules, now.date())
     images = saved_images(schedules)
     if not args.offline:
         eligible = [
