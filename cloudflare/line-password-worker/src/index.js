@@ -1,6 +1,6 @@
 ﻿const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
 const JOB_COMMANDS = {
-  更新: "run", レポート: "report", カレンダー: "calendar", "3レポートカレンダー": "calendar", 3レポート表: "calendar",
+  更新: "run", レポート: "report", カレンダー: "calendar", "3レポートカレンダー": "calendar", "3レポート表": "calendar",
   週間: "weekly", 週間表: "weekly", 週間カレンダー: "weekly", 状態: "status",
 };
 const KEY = "pending-password";
@@ -223,4 +223,5 @@ export default {
     return new Response("not found", { status: 404 });
   },
 };
+
 
