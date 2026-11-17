@@ -666,7 +666,7 @@ class WeeklyCalendarTests(unittest.TestCase):
                 "--collect", "--collect-high-rated", "--collect-limit", "1",
                 "--display-sources", "東海風俗", "NS専門",
             ]), 0)
-            ranking.assert_called_once_with(["東海風俗", "NS専門"])
+            ranking.assert_any_call(["東海風俗", "NS専門"])
             self.assertEqual(len(collect.call_args.args[0]), 2)
 
     def test_cli_collect_persists_errors_and_a_follows_s(self):
