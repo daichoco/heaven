@@ -38,12 +38,12 @@ from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
 import shop_prices
 import weekend_alerts
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "docs" / "weekly_schedule.html"
+OUTPUT = ROOT / "docs" / "weekly_schedule_okinilove.html"
 CACHE = ROOT / "data" / "cityheaven_weekly_schedules.json"
 IMAGE_CACHE = ROOT / "data" / "cityheaven_weekly_images.json"
 JST = timezone(timedelta(hours=9))
 PAGE_SIZE = 50
-ASSET_DIRECTORY = "weekly_schedule_assets"
+ASSET_DIRECTORY = "weekly_schedule_okinilove_assets"
 STATE_LABELS = {
     "working": "出勤予定",
     "off": "休み",
@@ -937,7 +937,7 @@ def main(argv=None):
     )
     parser.add_argument(
         "--output", metavar="FILE", default=OUTPUT.name,
-        help="docs配下の出力HTML名（既定 weekly_schedule.html）。分割アセットは <名前>_assets に出力",
+        help="docs配下の出力HTML名（既定 weekly_schedule_okinilove.html）。分割アセットは <名前>_assets に出力",
     )
     parser.add_argument(
         "--okini-young", action="store_true",

@@ -249,11 +249,11 @@ try {
         'docs\index.html',
         'data\cityheaven_weekly_schedules.json',
         'data\cityheaven_weekly_images.json',
-        'docs\weekly_schedule.html'
+        'docs\weekly_schedule_okinilove.html'
     )
     Invoke-Git -GitArgs (@('add', '-u', '--') + $paths)
     if ($IncludeCityHeavenCalendarAndWeekly) {
-        Invoke-Git -GitArgs @('add', '-A', '--', 'docs\weekly_schedule_assets')
+        Invoke-Git -GitArgs @('add', '-A', '--', 'docs\weekly_schedule_okinilove_assets')
     }
 
     & git -C $Repo diff --cached --quiet
@@ -284,7 +284,7 @@ try {
 `data\okinilove_reviews.jsonl`、必要なURL突合時に更新される
 `data\ns_senmon_shop_search_cache.json`、`docs\calendar_report.html`、
 `data\cityheaven_weekly_schedules.json`、`data\cityheaven_weekly_images.json`、
-`docs\weekly_schedule.html`、`docs\weekly_schedule_assets\` 内の一覧・レビューJSONです。
+`docs\weekly_schedule_okinilove.html`、`docs\weekly_schedule_okinilove_assets\` 内の一覧・レビューJSONです。
 `data\cityheaven_profiles.json` は統合カレンダー生成途中で作られ、読み込み後に削除される一時ファイル
 （Git ignore対象）なのでstageしません。画像や予定に失敗が残り週間スクリプトが終了コード1を返した場合、
 更新済みの一部ファイルが残ることがありますが、ラッパーはstage・commit・pushへ進まず停止します。
@@ -355,7 +355,7 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 `--output weekly_schedule_tokai_ns.html` を付けると、`docs` 配下の別ファイルに出力します。
 分割アセットは `weekly_schedule_tokai_ns_assets/` に分かれるため、3レポート版を上書き・削除しません。
 東海・NS専門ページは `--display-sources 東海風俗 NS専門 --output weekly_schedule_tokai_ns.html` で作成します。
-`--output` を省略した場合の生成先は `docs\weekly_schedule.html` です。
+`--output` を省略した場合の生成先は `docs\weekly_schedule_okinilove.html` です。
 `--collect` はS対象者の予定を取得し、`--collect --include-a` はSの次にAも取得します。
 `--collect --collect-sources 東海風俗 NS専門` は、指定レポートに評価がある人（CityHeaven URLあり）を
 点数上位から `--collect-limit`（既定50）人だけ取得します。全体順位のティアには依存しません。
@@ -364,7 +364,7 @@ LINE通知（任意）：LINE Developersで作成したMessaging APIチャネル
 全員取得します。`--collect-sources` とは併用できません。
 通常のオンラインHTML生成は不足画像も取得し、`--collect` は同じプロフィール応答から予定と画像を保存します。
 予定キャッシュは `data\cityheaven_weekly_schedules.json`、画像キャッシュは
-`data\cityheaven_weekly_images.json`、HTMLは `docs\weekly_schedule.html` に保存されます。
+`data\cityheaven_weekly_images.json`、HTMLは `docs\weekly_schedule_okinilove.html` に保存されます。
 Playwright Chromiumが必要です。ログインや年齢確認・アクセス制限を回避する機能ではありません。
 プロフィール単位の取得失敗や画像取得失敗が残ると、HTMLとキャッシュを保存した後でも終了コード1になることがあります。
 

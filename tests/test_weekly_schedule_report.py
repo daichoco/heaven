@@ -817,7 +817,7 @@ class WeeklyCalendarTests(unittest.TestCase):
         from cityheaven.cityheaven_month_schedule import render_index_html
 
         html = render_index_html({"10/24(土)": []})
-        self.assertIn('href="weekly_schedule.html"', html)
+        self.assertIn('href="weekly_schedule_okinilove.html"', html)
         self.assertIn("土日出勤カレンダー", html)
         self.assertIn("10/24(土)", html)
 
@@ -1017,7 +1017,7 @@ class BrowserFixtureTests(unittest.TestCase):
                             else:
                                 await route.fulfill(content_type="text/html; charset=utf-8", body=html)
                         await context.route("**/*", route_handler)
-                        await page.goto("https://report.invalid/weekly_schedule.html")
+                        await page.goto("https://report.invalid/weekly_schedule_okinilove.html")
                         rows = page.locator(".person-row")
                         before = await rows.locator(".rank-info").all_text_contents()
                         self.assertEqual(await page.locator(".person-row:visible").count(), 3)

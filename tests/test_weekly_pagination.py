@@ -51,8 +51,8 @@ class WeeklyPaginationTests(unittest.TestCase):
             cls.markup = weekly.render_html(
                 cls.people, cls.dates, schedules, {}, cls.now, assets=cls.assets,
             )
-        (cls.root / "weekly_schedule.html").write_text(cls.markup, encoding="utf-8")
-        weekly.write_weekly_assets(cls.assets, cls.root / "weekly_schedule.html")
+        (cls.root / "weekly_schedule_okinilove.html").write_text(cls.markup, encoding="utf-8")
+        weekly.write_weekly_assets(cls.assets, cls.root / "weekly_schedule_okinilove.html")
         for name in ("weekly_schedule.js", "weekly_schedule.css", "common.js", "common.css",
                      "shop_prices.js", "shop_prices.css"):
             shutil.copyfile(ROOT / "docs" / name, cls.root / name)
@@ -61,7 +61,7 @@ class WeeklyPaginationTests(unittest.TestCase):
         )
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
-        cls.url = f"http://127.0.0.1:{cls.server.server_port}/weekly_schedule.html"
+        cls.url = f"http://127.0.0.1:{cls.server.server_port}/weekly_schedule_okinilove.html"
 
     @classmethod
     def tearDownClass(cls):
@@ -230,7 +230,7 @@ class WeeklyPaginationTests(unittest.TestCase):
             browser = playwright.chromium.launch()
             try:
                 page = browser.new_page()
-                page.goto((self.root / "weekly_schedule.html").as_uri())
+                page.goto((self.root / "weekly_schedule_okinilove.html").as_uri())
                 expect(page.locator("#fileNotice")).to_be_visible()
                 expect(page.locator(".person-row")).to_have_count(50)
                 page.locator(".review-toggle").first.click()

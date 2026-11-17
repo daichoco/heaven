@@ -302,7 +302,7 @@ py -3 src\generate_booking_difficulty_report.py --refresh-prices
 | コマンド | 機能 |
 | --- | --- |
 | `py -3 src\generate_booking_difficulty_report.py` | 保存済みのNS専門・オキニラブ・東海レポートから `docs\reservation_difficulty.html` を生成します。オンラインデータの収集は行いません。 |
-| `py -3 src\generate_weekly_schedule_report.py --offline` | 3レポート全体の横断順位と、保存済みの本日から7日間の予定から `docs\weekly_schedule.html` を生成します。画像も含めネットワーク通信しません。 |
+| `py -3 src\generate_weekly_schedule_report.py --offline` | 3レポート全体の横断順位と、保存済みの本日から7日間の予定から `docs\weekly_schedule_okinilove.html` を生成します。画像も含めネットワーク通信しません。 |
 
 ### 3レポート横断の7日間出勤カレンダー
 
@@ -322,10 +322,10 @@ py -3 src\generate_weekly_schedule_report.py --offline --display-sources 東海�
 `--display-sources` と併用する場合はその範囲内で指定してください。
 `--collect-high-rated` は表示対象のうち東海・NSの高評価者を予定取得対象にします。
 `--collect-limit` は `--collect-sources` のみで有効です。
-`--output FILE` は `docs` 配下の出力HTML名（既定 `weekly_schedule.html`）です。分割アセットは
+`--output FILE` は `docs` 配下の出力HTML名（既定 `weekly_schedule_okinilove.html`）です。分割アセットは
 `<名前>_assets` に出力し、他ページのアセットは削除しません。東海・NS専門だけのページは
 `--display-sources 東海風俗 NS専門 --output weekly_schedule_tokai_ns.html` で作成します。
-`--output` を省略した場合は `docs\weekly_schedule.html` を上書きします。
+`--output` を省略した場合は `docs\weekly_schedule_okinilove.html` を上書きします。
 
 通常生成は保存済み予定を保持し、不足画像だけを自動取得します。
 `--offline` は画像も取得せず保存データだけで生成します。
@@ -434,7 +434,7 @@ HTMLはエスケープして表示します。週間ページのアコーディ�
 ページ移動・条件変更は開いた本文を閉じます。
 
 初期HTMLには軽い全員分の検索索引と予定ありの先頭50人のみを含め、本文は含めません。
-`docs\weekly_schedule_assets\` の一覧JSON（順位順50人単位）を必要ページだけ読み、
+`docs\weekly_schedule_okinilove_assets\` の一覧JSON（順位順50人単位）を必要ページだけ読み、
 本文JSON（人物単位・元別本文入り）はレビューを押したときだけ読みます。取得成功後は
 そのページ内で再利用し、失敗時は理由と再試行ボタンを表示します。本文取得中に別人物やページへ
 切り替えても古い応答を差し込みません。生成時に全本文を保存するためサイトへの追加アクセスは不要です。
@@ -444,7 +444,7 @@ HTMLはエスケープして表示します。週間ページのアコーディ�
 
 **閲覧はGitHub PagesまたはHTTP配信が基本です。** リポジトリで
 `py -3 -m http.server 8000 --bind 127.0.0.1 --directory docs` を実行し、
-`http://127.0.0.1:8000/weekly_schedule.html` を開けます。
+`http://127.0.0.1:8000/weekly_schedule_okinilove.html` を開けます。
 `file://` 直開きでは別JSONのfetchが制限されるため警告を表示し、初期一覧の範囲は閲覧できますが、
 全件のページ移動や本文取得にはHTTP配信が必要です。JavaScript無効時も初期50人のみです。
 
@@ -499,7 +499,7 @@ the npm commands. All current HTML writers use `write_html(path, source)`:
 | `tokai_final_report.html` | `src/tokai_fuzoku/generate_report_final.py` |
 | `okinilove_remove_unknown.html` | `src/okinilove/render_people_summary.py`, including intermediate updates in `src/okinilove/scrape_okinilove.py` |
 | `reservation_difficulty.html` | `src/generate_booking_difficulty_report.py` |
-| `weekly_schedule.html` | `src/generate_weekly_schedule_report.py` |
+| `weekly_schedule_okinilove.html` | `src/generate_weekly_schedule_report.py` |
 
 Calendar review buttons retain the collapsed-by-default behavior. Open rows use
 CSS to switch between cards (up to 1100 CSS pixels, or coarse-pointer touch
