@@ -23,10 +23,11 @@ async def safe_evaluate(page, script):
         try:
             return await page.evaluate(script)
         except Exception as e:
-            if "Execution context was destroyed" not in str(e):
+            if "Execution context was destroyed" not in str(e) and "reading 'scrollHeight'" not in str(e):
                 raise
             await page.wait_for_load_state("domcontentloaded")
-            await asyncio.sleep(0.5)
+            await page.wait_for_selector("body", state="attached", timeout=15000)
+            await asyncio.sleep(1)
     raise RuntimeError("evaluate failed after retries")
 
 
@@ -55,7 +56,8 @@ async def scrape_cityheaven():
         await page.fill("input[name='pass']", os.environ["CITYHEAVEN_PASS"])
         await form.evaluate("form => form.submit()")
         await page.wait_for_load_state("domcontentloaded")
-        await asyncio.sleep(1)
+        await page.wait_for_selector("body", state="attached", timeout=15000)
+        await asyncio.sleep(2)
 
         # --- 無限スクロール ---
         while True:
