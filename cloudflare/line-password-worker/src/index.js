@@ -1,5 +1,8 @@
 const COMMAND = /^パスワード[\s:：]+(\S{1,200})$/;
-const JOB_COMMANDS = { 更新: "run", レポート: "report", カレンダー: "calendar", 状態: "status" };
+const JOB_COMMANDS = {
+  更新: "run", レポート: "report", カレンダー: "calendar", "3レポートカレンダー": "calendar",
+  週間: "weekly", 週間カレンダー: "weekly", 状態: "status",
+};
 const KEY = "pending-password";
 const JOB_KEY = "pending-job";
 const TTL_SECONDS = 7 * 24 * 60 * 60;
@@ -89,7 +92,7 @@ async function handleWebhook(request, env) {
       await reply(
         env,
         event.replyToken,
-        "「レポート」「カレンダー」「更新(両方)」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
+        "「レポート」「カレンダー」「週間」「更新(すべて)」「状態」または「パスワード 新しいパスワード」の形式で送ってください。",
       );
       continue;
     }

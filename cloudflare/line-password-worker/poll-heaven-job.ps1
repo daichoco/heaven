@@ -45,13 +45,13 @@ if ($job -eq 'status') {
     } else {
         Send-Line '状態: 待機中。実行履歴はありません。'
     }
-} elseif ($job -in 'run', 'report', 'calendar') {
+} elseif ($job -in 'run', 'report', 'calendar', 'weekly') {
     if (Test-RunnerBusy) {
         Send-Line '更新はすでに実行中のため、新しくは開始しません。'
         exit 0
     }
-    $label = @{ run = '更新(レポート+カレンダー)'; report = 'レポート更新'; calendar = 'カレンダー更新' }[$job]
-    $flag = @{ run = '-IncludeCityHeavenCalendarAndWeekly'; report = $null; calendar = '-CalendarOnly' }[$job]
+    $label = @{ run = '更新(レポート+カレンダー)'; report = 'レポート更新'; calendar = '3レポートカレンダー更新'; weekly = '週間カレンダー更新' }[$job]
+    $flag = @{ run = '-IncludeCityHeavenCalendarAndWeekly'; report = $null; calendar = '-CalendarOnly'; weekly = '-WeeklyOnly' }[$job]
     Send-Line "$label を開始しました。"
     $runArgs = @('-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'RemoteSigned', '-File', "`"$Runner`"")
     if ($flag) { $runArgs += $flag }
