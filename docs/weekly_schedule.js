@@ -128,6 +128,17 @@
       window.prompt("通知対象のURL", text);
     }
   });
+  const save = document.createElement("a");
+  save.id = "notifySave";
+  save.target = "_blank";
+  save.rel = "noopener";
+  save.textContent = "GitHubに保存（自動取り込み）";
+  document.getElementById("notifyCopy").after(save);
+  save.addEventListener("click", () => {
+    const body = [...stars].join("\n");
+    save.href = "https://github.com/daichoco/heaven/issues/new?labels=notify-targets&title=" +
+      encodeURIComponent("通知対象") + "&body=" + encodeURIComponent(body);
+  });
   paintStars();
   tbody.addEventListener("error", event => {
     const image = event.target;
