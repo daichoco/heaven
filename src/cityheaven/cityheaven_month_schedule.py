@@ -59,14 +59,24 @@ async def scrape_cityheaven():
         await page.wait_for_selector("body", state="attached", timeout=15000)
         await asyncio.sleep(2)
 
-        # --- 無限スクロール ---
-        while True:
-            prev_height = await safe_evaluate(page, "document.body.scrollHeight")
+        # --- 無限スクロール（読み込み遅延で早期終了しないよう、3回連続で増えなければ終了） ---
+        stable = 0
+        last_count = -1
+        prev_height = -1
+        for _ in range(80):
             await page.mouse.wheel(0, 20000)
-            await asyncio.sleep(2)
-            new_height = await safe_evaluate(page, "document.body.scrollHeight")
-            if new_height == prev_height:
-                break
+            await safe_evaluate(page, "window.scrollTo(0, document.body.scrollHeight)")
+            await asyncio.sleep(2.5)
+            count = len(await page.query_selector_all("div.recommend-block"))
+            height = await safe_evaluate(page, "document.body.scrollHeight")
+            if count == last_count and height == prev_height:
+                stable += 1
+                if stable >= 3:
+                    break
+            else:
+                stable = 0
+            last_count, prev_height = count, height
+        print(f"CityHeaven月間: recommend-block {last_count}件")
 
         # --- recommend-block 取得 ---
         blocks = await page.query_selector_all("div.recommend-block")
