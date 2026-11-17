@@ -669,6 +669,23 @@ class WeeklyCalendarTests(unittest.TestCase):
             ranking.assert_any_call(["東海風俗", "NS専門"])
             self.assertEqual(len(collect.call_args.args[0]), 2)
 
+    def test_cli_notify_only_collects_just_targets_without_rendering(self):
+        people = weekly.rank_people(datasets(tokai_rows=[tokai(1, 90, repeat="返す")]))
+        url = "https://www.cityheaven.net/x/y/shop/girlid-999/"
+        with (
+            patch.object(weekly, "load_ranking", return_value=(people, {})),
+            patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
+            patch.object(weekly.weekend_alerts, "load_targets", return_value=[url]),
+            patch.object(weekly.weekend_alerts, "record_alerts") as record,
+            patch.object(weekly, "collect_schedules", new_callable=AsyncMock, return_value={}) as collect,
+            patch.object(weekly, "save_cache"),
+            patch.object(weekly, "write_html") as write,
+        ):
+            self.assertEqual(weekly.main(["--notify-only"]), 0)
+            self.assertEqual([p["profile_url"] for p in collect.call_args.args[0]], [url])
+            record.assert_called_once()
+            write.assert_not_called()
+
     def test_cli_collect_persists_errors_and_a_follows_s(self):
         people = weekly.rank_people(datasets(tokai_rows=[tokai(i, i) for i in range(20)]))
         dates = weekly.schedule_dates()

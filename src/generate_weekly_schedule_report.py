@@ -943,8 +943,14 @@ def main(argv=None):
         "--okini-young", action="store_true",
         help=f"オキニラブのみ・{OKINI_MAX_AGE}歳未満・平均★{OKINI_MIN_MEAN:.1f}以上の人に絞って集計",
     )
+    parser.add_argument(
+        "--notify-only", action="store_true",
+        help="通知対象(★)の週間予定だけを取得して土日出勤を通知判定し、HTMLは生成しない",
+    )
     parser.add_argument("--window-start", help="--offline 専用。保存済み開始日 YYYY-MM-DD の7日間を再生成")
     args = parser.parse_args(argv)
+    if args.notify_only and (args.offline or args.collect or args.window_start):
+        parser.error("--notify-only は --offline・--collect・--window-start と併用できません")
     if args.offline and (args.collect or args.collect_images):
         parser.error("--offline と収集オプションは併用できません")
     if args.image_limit is not None and args.image_limit < 1:
@@ -977,7 +983,7 @@ def main(argv=None):
     now = datetime.now(JST)
     dates = schedule_dates(now)
     people, removed = load_ranking(args.display_sources)
-    all_people = load_ranking(None)[0] if args.collect else people
+    all_people = load_ranking(None)[0] if (args.collect or args.notify_only) else people
     if args.okini_young:
         people = okini_young_people(people)
     cache = load_cache()
@@ -996,6 +1002,24 @@ def main(argv=None):
     else:
         carried = False
     failures = 0
+    if args.notify_only:
+        targets = set(weekend_alerts.load_targets())
+        if not targets:
+            print("通知対象(★)がないため通知処理をスキップします")
+            return 0
+        known = {person["profile_url"]: person for person in all_people}
+        chosen = [
+            known.get(url, {"profile_url": url, "names": [], "shops": []})
+            for url in sorted(targets)
+        ]
+        results = asyncio.run(collect_schedules(chosen, dates))
+        schedules.update(results)
+        cache["windows"][dates[0]] = schedules
+        save_cache(cache)
+        failures = sum(bool(result["error"]) for result in results.values())
+        weekend_alerts.record_alerts(chosen, schedules, now.date())
+        print(f"通知対象 {len(chosen)}人の週間予定を取得 / 取得エラー {failures}件")
+        return 0
     if args.collect:
         chosen = selected_people(
             people, args.include_a, set(args.collect_sources or ()), args.collect_limit,
