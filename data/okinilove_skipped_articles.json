@@ -48366,7 +48366,7 @@
   "published_date": "2024-06-02"
  },
  "https://okinilove.com/blog-entry-1558.html#kurigohan": {
-  "checked_at": "2026-10-14T15:30:27.668211+00:00",
+  "checked_at": "2026-11-19T00:14:49.744530+00:00",
   "published_date": "2024-04-03"
  },
  "https://okinilove.com/blog-entry-1558.html#mikawa": {
@@ -72099,5 +72099,61 @@
  "https://okinilove.com/blog-entry-433.html#zana": {
   "checked_at": "2026-11-18T00:16:58.054633+00:00",
   "published_date": "2019-09-13"
+ },
+ "http://okinilove.com/blog-entry-718.html#arutis": {
+  "checked_at": "2026-11-19T00:13:31.085820+00:00",
+  "published_date": "2019-04-25"
+ },
+ "http://okinilove.com/blog-entry-718.html#haki": {
+  "checked_at": "2026-11-19T00:13:32.276546+00:00",
+  "published_date": "2024-04-06"
+ },
+ "http://okinilove.com/blog-entry-718.html#potyan": {
+  "checked_at": "2026-11-19T00:13:33.461202+00:00",
+  "published_date": "2020-08-08"
+ },
+ "http://okinilove.com/blog-entry-718.html#tane5": {
+  "checked_at": "2026-11-19T00:13:34.694044+00:00",
+  "published_date": "2018-04-04"
+ },
+ "https://okinilove.com/blog-entry-2586.html#maki3": {
+  "checked_at": "2026-11-19T00:13:46.450442+00:00",
+  "published_date": "2025-12-31"
+ },
+ "https://okinilove.com/blog-entry-1590.html#metabo": {
+  "checked_at": "2026-11-19T00:14:01.564633+00:00",
+  "published_date": "2023-03-07"
+ },
+ "https://okinilove.com/blog-entry-627.html#matto": {
+  "checked_at": "2026-11-19T00:14:03.146507+00:00",
+  "published_date": "2021-03-25"
+ },
+ "https://okinilove.com/blog-entry-627.html#panemaji": {
+  "checked_at": "2026-11-19T00:14:04.572193+00:00",
+  "published_date": "2021-10-23"
+ },
+ "https://okinilove.com/blog-entry-3171.html#besan": {
+  "checked_at": "2026-11-19T00:17:37.394816+00:00",
+  "published_date": "2026-10-30"
+ },
+ "https://okinilove.com/blog-entry-3171.html#fuzokubo": {
+  "checked_at": "2026-11-19T00:17:38.403146+00:00",
+  "published_date": "2026-08-16"
+ },
+ "https://okinilove.com/blog-entry-3171.html#yasu": {
+  "checked_at": "2026-11-19T00:17:39.442649+00:00",
+  "published_date": "2026-08-23"
+ },
+ "https://okinilove.com/blog-entry-3196.html#akana": {
+  "checked_at": "2026-11-19T00:17:41.834995+00:00",
+  "published_date": "2026-11-15"
+ },
+ "https://okinilove.com/blog-entry-1734.html#piman": {
+  "checked_at": "2026-11-19T00:21:01.509206+00:00",
+  "published_date": "2024-03-16"
+ },
+ "https://okinilove.com/blog-entry-2582.html#kamagura2": {
+  "checked_at": "2026-11-19T00:21:37.383314+00:00",
+  "published_date": "2025-01-05"
  }
 }
