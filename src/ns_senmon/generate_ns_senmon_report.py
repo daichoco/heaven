@@ -16,6 +16,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from data_store import read_jsonl
+from ns_senmon.visit_month import visit_month
 from html_format import write_html
 from ns_senmon.profile_images import classify_price_class
 from web_common import BACK_NAV, BACK_TO_TOP, HEAD_COMMON
@@ -482,12 +483,14 @@ def main(argv=None):
     parser.add_argument("--offline", action="store_true", help="保存済み画像と料金だけで生成（通信なし）")
     args = parser.parse_args(argv)
     data = read_jsonl(INPUT_JSONL)
-    records = data.sort_values(["date", "post_id"], ascending=False).to_dict("records")
+    records = data.to_dict("records")
     for record in records:
         if not isinstance(record["details"], dict):
             record["details"] = json.loads(record["details"])
         if not isinstance(record.get("cityheaven_url"), str):
             record["cityheaven_url"] = ""
+        record["date"] = visit_month(record["details"], str(record["date"])[:10])
+    records.sort(key=lambda r: (r["date"], r["post_id"]), reverse=True)
     if args.offline:
         from ns_senmon.profile_images import load_cache
         profiles = load_cache()

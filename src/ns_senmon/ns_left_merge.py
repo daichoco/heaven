@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from ns_senmon.visit_month import visit_month
+
 ROOT_DIR = Path(__file__).resolve().parents[2]
 NS_JSONL = ROOT_DIR / "data" / "ns_senmon_reports.jsonl"
 
@@ -24,7 +26,7 @@ def _summarize(record):
         if value and any(key.startswith(prefix) for prefix in COMMENT_KEYS):
             comments[key.split("（")[0]] = value
     return {
-        "date": record.get("date", ""),
+        "date": visit_month(record.get("details"), record.get("date", "")),
         "url": record.get("url", ""),
         "scores": scores,
         "comments": comments,
