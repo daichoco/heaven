@@ -117,6 +117,11 @@ def label_keys(label):
     head = parts[0]
     tokens = text.split()
     keys = girl_keys(head)
+    if len(parts) == 2 and re.fullmatch(r"[A-Za-z]+", head):
+        # 「NANOKA【なのか...」のようにローマ字の後ろに読みが続く表記
+        reading = re.match(r"[ぁ-んァ-ヶー]{2,}", parts[1])
+        if reading:
+            keys |= girl_keys(reading.group(0))
     if len(tokens) >= 2 and not (truncated and len(tokens) == 2):
         keys |= girl_keys(tokens[0] + tokens[1])
     return keys
