@@ -236,10 +236,48 @@ def rank_people(datasets):
     return ordered
 
 
+TOKAI_HISTORY = ROOT / "data" / "tokai_fuzoku_report_history.jsonl"
+TOKAI_URL_MAP = ROOT / "data" / "tokai_cityheaven_map.json"
+
+
+def fill_tokai_profile_urls(records):
+    """東海の生レポートにはCityHeaven URLがないため、履歴(report_url一致)で補う。"""
+    if not TOKAI_HISTORY.exists():
+        return records
+    by_report, by_girl = {}, {}
+    mapped = TOKAI_URL_MAP.exists() and json.loads(TOKAI_URL_MAP.read_text(encoding="utf-8")) or {}
+    for key, url in mapped.items():
+        shop, _, girl = key.partition("|")
+        if cityheaven_profile_url(url):
+            by_girl.setdefault((shop, girl), set()).add(cityheaven_profile_url(url))
+    for row in read_jsonl_records(TOKAI_HISTORY):
+        url = cityheaven_profile_url(row.get("cityheaven_url"))
+        if not url:
+            continue
+        if row.get("report_url"):
+            by_report[row["report_url"]] = url
+        by_girl.setdefault((row.get("shop_name"), row.get("girl_name")), set()).add(url)
+
+    def fill(record):
+        if record.get("cityheaven_url"):
+            return record
+        url = by_report.get(record.get("url"))
+        if not url:
+            urls = by_girl.get((record.get("shop_name"), record.get("name") or record.get("girl_name")), set())
+            url = next(iter(urls)) if len(urls) == 1 else ""
+        return {**record, "cityheaven_url": url} if url else record
+
+    return [fill(record) for record in records]
+
+
 def load_ranking(display_sources=None):
     datasets = [
         (label, dataset, read_jsonl_records(ROOT / "data" / filename))
         for label, filename, dataset, _ in DATASETS
+    ]
+    datasets = [
+        (label, dataset, fill_tokai_profile_urls(list(records)) if label == "東海風俗" else records)
+        for label, dataset, records in datasets
     ]
     filtered, removed = filter_unavailable_records(
         datasets, unavailable_article_markers(datasets)
