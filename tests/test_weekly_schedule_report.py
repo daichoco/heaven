@@ -653,6 +653,7 @@ class WeeklyCalendarTests(unittest.TestCase):
         ]))
         with (
             patch.object(weekly, "load_ranking", return_value=(people, {})) as ranking,
+            patch.object(weekly, "extra_collect_urls", return_value=set()),
             patch.object(weekly, "load_cache", return_value={"version": 2, "windows": {}}),
             patch.object(weekly, "collect_schedules", new_callable=AsyncMock, return_value={}) as collect,
             patch.object(weekly, "save_cache"),
@@ -701,6 +702,7 @@ class WeeklyCalendarTests(unittest.TestCase):
         }}
         with (
             patch.object(weekly, "load_ranking", return_value=(people, {})),
+            patch.object(weekly, "extra_collect_urls", return_value=set()),
             patch.object(weekly, "load_cache", return_value=cache),
             patch.object(weekly, "collect_schedules", new_callable=AsyncMock,
                          return_value=results) as collect,

@@ -250,7 +250,10 @@ def fill_tokai_profile_urls(records):
         shop, _, girl = key.partition("|")
         if cityheaven_profile_url(url):
             by_girl.setdefault((shop, girl), set()).add(cityheaven_profile_url(url))
-    for row in read_jsonl_records(TOKAI_HISTORY):
+    for line in TOKAI_HISTORY.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        row = json.loads(line)
         url = cityheaven_profile_url(row.get("cityheaven_url"))
         if not url:
             continue
@@ -270,10 +273,23 @@ def fill_tokai_profile_urls(records):
     return [fill(record) for record in records]
 
 
+def use_ns_visit_month(records):
+    """NS専門の日付を、投稿日ではなく実際の突撃年月(その月の1日)に置き換える。"""
+    result = []
+    for record in records:
+        m = re.fullmatch(r"(\d{4})年\s*(\d{1,2})月", str((record.get("details") or {}).get("突撃年月") or "").strip())
+        result.append({**record, "date": f"{m.group(1)}-{int(m.group(2)):02d}-01"} if m else record)
+    return result
+
+
 def load_ranking(display_sources=None):
     datasets = [
         (label, dataset, read_jsonl_records(ROOT / "data" / filename))
         for label, filename, dataset, _ in DATASETS
+    ]
+    datasets = [
+        (label, dataset, use_ns_visit_month(records) if dataset == "ns_senmon" else records)
+        for label, dataset, records in datasets
     ]
     datasets = [
         (label, dataset, fill_tokai_profile_urls(list(records)) if label == "東海風俗" else records)
