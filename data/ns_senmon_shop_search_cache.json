@@ -995,5 +995,14 @@
  "gifu/A2101/A210101/lovetiffany|雫": {
   "checked_at": "2026-11-22T03:19:25.026144+00:00",
   "girls": []
+ },
+ "gifu/A2101/A210101/mgm_collection|あん": {
+  "checked_at": "2026-11-25T00:23:23.787817+00:00",
+  "girls": [
+   {
+    "url": "https://www.cityheaven.net/gifu/A2101/A210101/mgm_collection/girlid-69542775/",
+    "label": "あん"
+   }
+  ]
  }
 }

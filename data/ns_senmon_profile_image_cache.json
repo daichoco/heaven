@@ -539,7 +539,7 @@
   "price_class": "大衆"
  },
  "https://www.cityheaven.net/gifu/A2101/A210101/lovetiffany/girlid-59230507/": {
-  "checked_at": "2026-11-17T00:22:35.632181+00:00",
+  "checked_at": "2026-11-25T00:23:27.038125+00:00",
   "status": "error",
   "image_url": "",
   "error": "別ページに転送されました（認証・掲載状況を確認）",
@@ -574,6 +574,15 @@
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/mgm_collection/grpb0063243000_0000000000pc.jpg?cache02=1790332888&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/mgm_collection/girlid-69542775/": {
+  "checked_at": "2026-11-25T00:23:27.038125+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/mgm_collection/la_grpb0069542775_0000000000pc.jpg?cache02=1793949670&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/mgm_collection/girlid-69542775/",
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
