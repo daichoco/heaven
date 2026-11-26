@@ -1823,6 +1823,11 @@
   "shop_kind": "ソープ(高級/金津園)",
   "price_class": "高級"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/premier/girlid-55462065/": {
+  "checked_at": "2026-11-26T00:53:55.047503+00:00",
+  "status": "not_found",
+  "image_url": ""
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/romane/girlid-60728637/": {
   "checked_at": "2026-10-18T12:00:47.636179+00:00",
   "status": "ok",
