@@ -272,6 +272,15 @@
   "shop_kind": "ソープ(高級/金津園)",
   "price_class": "高級"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/eikokuya/girlid-58003569/": {
+  "checked_at": "2026-11-27T00:28:43.946116+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/eikokuya/la_grpb0058003569_0000000000pc.jpg?cache02=1794400501&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/eikokuya/girlid-58003569/",
+  "shop_kind": "ソープ(高級/金津園)",
+  "price_class": "高級"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/eikokuya/girlid-58007549/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
   "status": "ok",
@@ -713,6 +722,15 @@
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/premier/grpb0063029542_0000000000pc.jpg?cache02=1791904407&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(大衆/金津園)",
+  "price_class": "大衆"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/premier/girlid-66769420/": {
+  "checked_at": "2026-11-27T00:28:43.946116+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/premier/la_grpb0066769420_0000000000pc.jpg?cache02=1795021501&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/premier/girlid-66769420/",
   "shop_kind": "ソープ(大衆/金津園)",
   "price_class": "大衆"
  },
