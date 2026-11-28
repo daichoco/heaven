@@ -160,6 +160,15 @@
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },
+ "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-57852689/": {
+  "checked_at": "2026-11-28T00:22:28.960271+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/cosplayacademy/la_grpb0057852689_0000000000pc.jpg?cache02=1793479262&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-57852689/",
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
  "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-60067302/": {
   "checked_at": "2026-10-13T15:44:19.885787+00:00",
   "status": "ok",
@@ -372,6 +381,15 @@
   "status": "ok",
   "image_url": "https://img2.cityheaven.net/img/girls/t/hime/grpb0050476855_0000000000pc.jpg?cache02=1740655921&imgopt=y",
   "shop_checked": true,
+  "shop_kind": "ソープ(スタンダード/金津園)",
+  "price_class": "スタンダード"
+ },
+ "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-51619525/": {
+  "checked_at": "2026-11-28T00:22:28.960271+00:00",
+  "status": "ok",
+  "image_url": "https://img2.cityheaven.net/img/girls/t/hime/la_grpb0051619525_0000000000pc.jpg?cache02=1795811107&imgopt=y",
+  "shop_checked": true,
+  "resolved_profile_url": "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-51619525/",
   "shop_kind": "ソープ(スタンダード/金津園)",
   "price_class": "スタンダード"
  },

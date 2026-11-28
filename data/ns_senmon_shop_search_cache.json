@@ -1022,5 +1022,27 @@
     "label": "ふわり【おっとり現役..."
    }
   ]
+ },
+ "gifu/A2101/A210101/hime|波瑠": {
+  "checked_at": "2026-11-28T00:22:23.618878+00:00",
+  "girls": [
+   {
+    "url": "https://www.cityheaven.net/gifu/A2101/A210101/hime/girlid-51619525/",
+    "label": "波瑠☆高級サービス"
+   }
+  ]
+ },
+ "gifu/A2101/A210101/cosplayacademy|ゆり": {
+  "checked_at": "2026-11-28T00:22:25.641996+00:00",
+  "girls": [
+   {
+    "url": "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-57852689/",
+    "label": "ゆり🔐"
+   },
+   {
+    "url": "https://www.cityheaven.net/gifu/A2101/A210101/cosplayacademy/girlid-65119611/",
+    "label": "ゆりあ🔐"
+   }
+  ]
  }
 }
